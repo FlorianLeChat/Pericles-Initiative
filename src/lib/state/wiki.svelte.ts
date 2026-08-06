@@ -35,6 +35,17 @@ const OVERLAY_KEY = "pericles:overlay";
 /** How long an alert keeps showing the site wide banner, in milliseconds. */
 const BREAKING_MAX_AGE = 24 * 60 * 60 * 1000;
 
+/**
+ * Returns a shallow copy of a record with one key removed.
+ *
+ * @param record Source record, left untouched.
+ * @param key Key to drop.
+ * @returns A new record without `key`.
+ * @author Claude
+ */
+const withoutKey = <T>( record: Record<string, T>, key: string ): Record<string, T> =>
+    Object.fromEntries( Object.entries( record ).filter( ( [ candidate ] ) => candidate !== key ) );
+
 /** A page linking to a slug that has no page yet. */
 export interface MissingLink {
     slug: string;
@@ -541,7 +552,7 @@ class WikiStore
      */
     saveMeta( patch: Partial<WikiMeta> ): void
     {
-        this.overlay.meta = { ...( this.overlay.meta ?? {} ), ...patch };
+        this.overlay.meta = { ...this.overlay.meta, ...patch };
         this.persist();
     }
 

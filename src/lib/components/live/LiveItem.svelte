@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import { severityConfig } from "$lib/config/severities";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LiveEntry } from "$lib/types";
@@ -57,9 +58,9 @@
 
     <div class="text-ink-400 mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
         {#if target}
-            <a href="/wiki/{target.slug}" class="wiki-link font-medium">Lire la fiche complète</a>
+            <a href={resolve( `/wiki/${ target.slug }` )} class="wiki-link font-medium">Lire la fiche complète</a>
         {:else if item.entrySlug}
-            <a href="/wiki/{item.entrySlug}" class="wiki-link-missing font-medium">
+            <a href={resolve( `/wiki/${ item.entrySlug }` )} class="wiki-link-missing font-medium">
                 Fiche à écrire : {item.entrySlug}
             </a>
         {/if}

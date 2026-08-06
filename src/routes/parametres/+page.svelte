@@ -7,6 +7,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import EntryPicker from "$lib/components/editor/EntryPicker.svelte";
@@ -105,7 +106,7 @@
     {#if saved && !dirty}
         <p class="bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100 mt-6 rounded-xl px-4 py-3 text-sm" role="status">
             Identité enregistrée. Elle reste locale jusqu'à l'export du JSON depuis
-            <a href="/donnees" class="underline">la page Données</a>.
+            <a href={resolve( "/donnees" )} class="underline">la page Données</a>.
         </p>
     {/if}
 
@@ -231,7 +232,7 @@
                             <span class="text-ink-400 font-mono text-xs">{index + 1}</span>
                             <span class="min-w-0 flex-1">
                                 {#if entry}
-                                    <a href="/wiki/{slug}" class="text-sm font-medium">{entry.title}</a>
+                                    <a href={resolve( `/wiki/${ slug }` )} class="text-sm font-medium">{entry.title}</a>
                                 {:else}
                                     <span class="text-alert-500 font-mono text-xs">{slug}, fiche absente</span>
                                 {/if}

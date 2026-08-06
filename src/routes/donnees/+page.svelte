@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import { formatDateTime } from "$lib/utilities/date";
@@ -199,7 +200,7 @@
                                     >
                                         {isPublished( entry.id ) ? "modifiée" : "créée"}
                                     </span>
-                                    <a href="/wiki/{entry.slug}" class="wiki-link">{entry.title}</a>
+                                    <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link">{entry.title}</a>
                                     {#if entry.status === "brouillon"}
                                         <span class="text-ink-400 text-xs">brouillon</span>
                                     {/if}
@@ -253,7 +254,7 @@
                         <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Identité du wiki</p>
                         <p class="text-ink-500 dark:text-paper-300/80">
                             Nom, signature, description, logo ou fiches à la une modifiés depuis
-                            <a href="/parametres" class="wiki-link">les paramètres</a>.
+                            <a href={resolve( "/parametres" )} class="wiki-link">les paramètres</a>.
                         </p>
                     </div>
                 {/if}

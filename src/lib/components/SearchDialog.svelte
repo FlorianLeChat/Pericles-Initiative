@@ -5,6 +5,7 @@
      * @author Claude
      */
     import { goto } from "$app/navigation";
+    import { resolve } from "$app/paths";
     import { wiki } from "$lib/state/wiki.svelte";
     import { searchEntries } from "$lib/utilities/search";
     import TypeBadge from "./TypeBadge.svelte";
@@ -58,7 +59,7 @@
     {
         open = false;
         query = "";
-        goto( `/wiki/${ slug }` );
+        goto( resolve( `/wiki/${ slug }` ) );
     };
 
     /**

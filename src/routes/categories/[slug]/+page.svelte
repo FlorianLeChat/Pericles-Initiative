@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
@@ -31,7 +32,7 @@
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <nav class="text-ink-400 flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
-        <a href="/categories" class="hover:text-accent-600 dark:hover:text-accent-400">Catégories</a>
+        <a href={resolve( "/categories" )} class="hover:text-accent-600 dark:hover:text-accent-400">Catégories</a>
         <span aria-hidden="true">/</span>
         <span>{category?.name ?? slug}</span>
     </nav>
@@ -61,7 +62,7 @@
                     title="Catégorie vide"
                     description="Aucune fiche ne se rattache encore à cette catégorie."
                 >
-                    <a href="/wiki" class="btn btn-outline">Parcourir l'encyclopédie</a>
+                    <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
                 </EmptyState>
             </div>
         {:else}
@@ -82,7 +83,7 @@
                 title="Catégorie inconnue"
                 description="Aucune catégorie ne porte ce nom dans le fichier de données."
             >
-                <a href="/categories" class="btn btn-outline">Voir les catégories</a>
+                <a href={resolve( "/categories" )} class="btn btn-outline">Voir les catégories</a>
             </EmptyState>
         </div>
     {/if}

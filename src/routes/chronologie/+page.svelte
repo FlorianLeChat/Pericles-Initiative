@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -14,16 +15,16 @@
     /** Pages with an in universe date, grouped by year, oldest first. */
     const years = $derived.by( () =>
     {
-        const groups = new Map<string, Entry[]>();
+        const groups: Record<string, Entry[]> = {};
 
         for ( const entry of wiki.chronology )
         {
             const year = extractYear( entry.timelineDate );
             const key = year === null ? "Sans année" : String( year );
-            groups.set( key, [ ...( groups.get( key ) ?? [] ), entry ] );
+            groups[ key ] = [ ...( groups[ key ] ?? [] ), entry ];
         }
 
-        return [ ...groups.entries() ].sort( ( [ a ], [ b ] ) =>
+        return Object.entries( groups ).sort( ( [ a ], [ b ] ) =>
         {
             if ( a === "Sans année" )
             {
@@ -58,7 +59,7 @@
                 title="Aucune fiche datée"
                 description="Renseignez le champ « Date dans l'univers » d'une fiche pour la voir apparaître ici."
             >
-                <a href="/wiki" class="btn btn-outline">Parcourir l'encyclopédie</a>
+                <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
             </EmptyState>
         </div>
     {:else}
@@ -86,7 +87,7 @@
                                 <div class="mt-1.5 flex flex-wrap items-center gap-2">
                                     <h3 class="text-lg leading-snug font-semibold tracking-tight">
                                         <a
-                                            href="/wiki/{entry.slug}"
+                                            href={resolve( `/wiki/${ entry.slug }` )}
                                             class="hover:text-accent-600 dark:hover:text-accent-400"
                                         >
                                             {entry.title}

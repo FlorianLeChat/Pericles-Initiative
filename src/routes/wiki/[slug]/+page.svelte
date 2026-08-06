@@ -7,6 +7,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import ArticleBody from "$lib/components/ArticleBody.svelte";
     import Backlinks from "$lib/components/Backlinks.svelte";
@@ -51,12 +52,12 @@
     <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <nav class="text-ink-400 flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
-                <a href="/wiki" class="hover:text-accent-600 dark:hover:text-accent-400">Encyclopédie</a>
+                <a href={resolve( "/wiki" )} class="hover:text-accent-600 dark:hover:text-accent-400">Encyclopédie</a>
                 <span aria-hidden="true">/</span>
                 <span>{entryTypeConfig( entry.type ).plural}</span>
             </nav>
 
-            <a href="/editer/{entry.slug}" class="btn btn-outline px-3.5 py-1.5 text-xs">Modifier</a>
+            <a href={resolve( `/editer/${ entry.slug }` )} class="btn btn-outline px-3.5 py-1.5 text-xs">Modifier</a>
         </div>
 
         <header class="border-paper-200 dark:border-ink-800 mt-4 border-b pb-8">
@@ -105,7 +106,7 @@
                                 <li class="surface p-4">
                                     <div class="flex items-center gap-2">
                                         <TypeBadge type={item.type} iconOnly />
-                                        <a href="/wiki/{item.slug}" class="text-sm font-medium">{item.title}</a>
+                                        <a href={resolve( `/wiki/${ item.slug }` )} class="text-sm font-medium">{item.title}</a>
                                     </div>
                                     {#if item.summary}
                                         <p class="text-ink-400 mt-2 line-clamp-2 text-xs leading-relaxed">
@@ -133,10 +134,13 @@
             title="Cette fiche n'existe pas encore"
             description="Le lien qui mène ici attend une page. C'est le principe du lien rouge : il signale un manque à combler."
         >
-            <a href="/nouveau?slug={slug}&titre={encodeURIComponent( plannedTitle )}" class="btn btn-primary">
+            <a
+                href={resolve( `/nouveau?slug=${ slug }&titre=${ encodeURIComponent( plannedTitle ) }` )}
+                class="btn btn-primary"
+            >
                 Créer cette fiche
             </a>
-            <a href="/wiki" class="btn btn-outline">Parcourir l'encyclopédie</a>
+            <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
         </EmptyState>
 
         {#if backlinks.length > 0}

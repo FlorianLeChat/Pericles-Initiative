@@ -7,12 +7,14 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
+    import type { Pathname } from "$app/types";
     import type { CountByKey } from "$lib/utilities/stats";
 
     interface Props {
         items: CountByKey[];
         /** Optional link target per item. */
-        href?: ( item: CountByKey ) => string;
+        href?: ( item: CountByKey ) => Pathname;
     }
 
     let { items, href }: Props = $props();
@@ -25,7 +27,7 @@
         <li class="grid grid-cols-[minmax(6rem,10rem)_minmax(0,1fr)_2.5rem] items-center gap-3 text-sm">
             <span class="truncate">
                 {#if href}
-                    <a href={href( item )} class="hover:text-accent-600 dark:hover:text-accent-400">{item.label}</a>
+                    <a href={resolve( href( item ) )} class="hover:text-accent-600 dark:hover:text-accent-400">{item.label}</a>
                 {:else}
                     {item.label}
                 {/if}

@@ -1,9 +1,10 @@
-<script lang="ts">
+﻿<script lang="ts">
     /**
      * Footer: universe identity and state of the dataset.
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import { NAV_LINKS, TOOL_LINKS } from "$lib/config/navigation";
     import { wiki } from "$lib/state/wiki.svelte";
     import { formatShortDate } from "$lib/utilities/date";
@@ -21,7 +22,7 @@
             <ul class="space-y-1.5 text-sm">
                 {#each NAV_LINKS as link ( link.href )}
                     <li>
-                        <a href={link.href} class="wiki-link">{link.label}</a>
+                        <a href={resolve( link.href )} class="wiki-link">{link.label}</a>
                     </li>
                 {/each}
             </ul>
@@ -32,7 +33,7 @@
             <ul class="space-y-1.5 text-sm">
                 {#each TOOL_LINKS as link ( link.href )}
                     <li>
-                        <a href={link.href} class="wiki-link">{link.label}</a>
+                        <a href={resolve( link.href )} class="wiki-link">{link.label}</a>
                     </li>
                 {/each}
             </ul>
@@ -45,10 +46,12 @@
                     <dt>Fiches :</dt>
                     <dd class="text-ink-600 dark:text-paper-300 font-medium">{wiki.entries.length}</dd>
                 </div>
+
                 <div class="flex gap-2">
                     <dt>Version :</dt>
                     <dd class="text-ink-600 dark:text-paper-300 font-medium">{wiki.meta.version}</dd>
                 </div>
+
                 {#if wiki.meta.updatedAt}
                     <div class="flex gap-2">
                         <dt>Mise à jour :</dt>

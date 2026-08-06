@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import { NAV_LINKS, TOOL_LINKS } from "$lib/config/navigation";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -61,7 +62,7 @@
     class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/80 sticky top-0 z-40 border-b bg-white/85 backdrop-blur"
 >
     <div class="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
-        <a href="/" class="group flex min-w-0 items-center gap-2.5">
+        <a href={resolve( "/" )} class="group flex min-w-0 items-center gap-2.5">
             {#if wiki.meta.logo}
                 <img
                     src={wiki.meta.logo}
@@ -89,7 +90,7 @@
         <nav class="ml-4 hidden items-center gap-1 lg:flex" aria-label="Navigation principale">
             {#each NAV_LINKS as link ( link.href )}
                 <a
-                    href={link.href}
+                    href={resolve( link.href )}
                     class="rounded-full px-3 py-1.5 text-sm font-medium transition {isActive( link.href )
                         ? "bg-paper-200 text-ink-900 dark:bg-ink-800 dark:text-paper-100"
                         : "text-ink-500 hover:bg-paper-100 dark:text-paper-300 dark:hover:bg-ink-800/60"}"
@@ -139,7 +140,7 @@
                             {#each TOOL_LINKS as link ( link.href )}
                                 <li>
                                     <a
-                                        href={link.href}
+                                        href={resolve( link.href )}
                                         class="hover:bg-paper-100 dark:hover:bg-ink-800 block rounded-lg px-3 py-2 text-sm {isActive(
                                             link.href
                                         )
@@ -156,7 +157,7 @@
                 {/if}
             </div>
 
-            <a href="/nouveau" class="btn btn-primary hidden px-3.5 py-1.5 sm:inline-flex">
+            <a href={resolve( "/nouveau" )} class="btn btn-primary hidden px-3.5 py-1.5 sm:inline-flex">
                 <Icon path={PLUS} class="h-4 w-4" />
                 Nouvelle fiche
             </a>
@@ -181,7 +182,7 @@
                 {#each NAV_LINKS as link ( link.href )}
                     <li>
                         <a
-                            href={link.href}
+                            href={resolve( link.href )}
                             class="hover:bg-paper-100 dark:hover:bg-ink-800 block rounded-xl px-3 py-2 text-sm font-medium"
                             onclick={() => ( menuOpen = false )}
                         >
@@ -196,7 +197,7 @@
                 {#each TOOL_LINKS as link ( link.href )}
                     <li>
                         <a
-                            href={link.href}
+                            href={resolve( link.href )}
                             class="hover:bg-paper-100 dark:hover:bg-ink-800 text-ink-500 dark:text-paper-300 block rounded-xl px-3 py-2 text-sm"
                             onclick={() => ( menuOpen = false )}
                         >
@@ -205,7 +206,7 @@
                     </li>
                 {/each}
                 <li class="pt-2">
-                    <a href="/nouveau" class="btn btn-primary w-full" onclick={() => ( menuOpen = false )}>
+                    <a href={resolve( "/nouveau" )} class="btn btn-primary w-full" onclick={() => ( menuOpen = false )}>
                         <Icon path={PLUS} class="h-4 w-4" />
                         Nouvelle fiche
                     </a>

@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import { paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -34,7 +35,7 @@
             </p>
         </div>
 
-        <a href="/categories/gerer" class="btn btn-outline">Gérer les catégories</a>
+        <a href={resolve( "/categories/gerer" )} class="btn btn-outline">Gérer les catégories</a>
     </header>
 
     {#if groups.length === 0}
@@ -48,7 +49,7 @@
         <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {#each groups as group ( group.category.slug )}
                 <a
-                    href="/categories/{group.category.slug}"
+                    href={resolve( `/categories/${ group.category.slug }` )}
                     class="surface hover:border-accent-300 dark:hover:border-accent-700 group flex flex-col gap-3 p-6 transition"
                 >
                     <span class="flex items-center gap-2">
@@ -82,7 +83,7 @@
                 {#each uncategorized as entry ( entry.id )}
                     <li>
                         <a
-                            href="/wiki/{entry.slug}"
+                            href={resolve( `/wiki/${ entry.slug }` )}
                             class="border-paper-300 dark:border-ink-800 hover:border-accent-400 rounded-full border px-3 py-1.5 text-sm transition"
                         >
                             {entry.title}

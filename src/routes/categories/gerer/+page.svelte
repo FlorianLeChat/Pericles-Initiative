@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { PALETTE, paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -128,7 +129,7 @@
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <nav class="text-ink-400 flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
-        <a href="/categories" class="hover:text-accent-600 dark:hover:text-accent-400">Catégories</a>
+        <a href={resolve( "/categories" )} class="hover:text-accent-600 dark:hover:text-accent-400">Catégories</a>
         <span aria-hidden="true">/</span>
         <span>Gestion</span>
     </nav>

@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import { page } from "$app/state";
 </script>
 
@@ -20,7 +21,7 @@
         {page.error?.message ?? "Le chemin demandé ne correspond à aucune fiche connue."}
     </p>
     <div class="mt-8 flex justify-center gap-3">
-        <a href="/" class="btn btn-primary">Retour à l'accueil</a>
-        <a href="/wiki" class="btn btn-outline">Parcourir l'encyclopédie</a>
+        <a href={resolve( "/" )} class="btn btn-primary">Retour à l'accueil</a>
+        <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
     </div>
 </section>

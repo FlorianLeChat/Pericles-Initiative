@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import ActivityChart from "$lib/components/dashboard/ActivityChart.svelte";
     import BarChart from "$lib/components/dashboard/BarChart.svelte";
     import StatCard from "$lib/components/dashboard/StatCard.svelte";
@@ -84,7 +85,7 @@
                     {#each stats.mostLinked as item ( item.entry.id )}
                         <li class="flex items-center gap-2">
                             <TypeBadge type={item.entry.type} iconOnly />
-                            <a href="/wiki/{item.entry.slug}" class="wiki-link min-w-0 flex-1 truncate">
+                            <a href={resolve( `/wiki/${ item.entry.slug }` )} class="wiki-link min-w-0 flex-1 truncate">
                                 {item.entry.title}
                             </a>
                             <span class="text-ink-400 font-mono text-xs">
@@ -108,13 +109,13 @@
                 <ul class="mt-5 space-y-2.5 text-sm">
                     {#each stats.missing as item ( item.slug )}
                         <li class="flex items-center gap-2">
-                            <a href="/wiki/{item.slug}" class="wiki-link-missing min-w-0 flex-1 truncate font-mono text-xs">
+                            <a href={resolve( `/wiki/${ item.slug }` )} class="wiki-link-missing min-w-0 flex-1 truncate font-mono text-xs">
                                 {item.slug}
                             </a>
                             <span class="text-ink-400 shrink-0 text-xs">
                                 cité {item.count} {item.count === 1 ? "fois" : "fois"}
                             </span>
-                            <a href="/nouveau?slug={item.slug}" class="btn btn-outline shrink-0 px-2.5 py-1 text-xs">
+                            <a href={resolve( `/nouveau?slug=${ item.slug }` )} class="btn btn-outline shrink-0 px-2.5 py-1 text-xs">
                                 Créer
                             </a>
                         </li>
@@ -141,7 +142,7 @@
                                 {#each issue.entries.slice( 0, 8 ) as entry ( entry.id )}
                                     <li>
                                         <a
-                                            href="/wiki/{entry.slug}"
+                                            href={resolve( `/wiki/${ entry.slug }` )}
                                             class="border-paper-300 dark:border-ink-800 hover:border-accent-400 rounded-full border px-2.5 py-0.5 text-xs transition"
                                         >
                                             {entry.title}
@@ -166,7 +167,7 @@
                 {#each recent as entry ( entry.id )}
                     <li class="flex items-center gap-2">
                         <TypeBadge type={entry.type} iconOnly />
-                        <a href="/wiki/{entry.slug}" class="wiki-link min-w-0 flex-1 truncate">{entry.title}</a>
+                        <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link min-w-0 flex-1 truncate">{entry.title}</a>
                         {#if entry.status === "brouillon"}
                             <span class="text-ink-400 text-xs">brouillon</span>
                         {/if}

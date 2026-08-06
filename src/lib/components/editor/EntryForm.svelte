@@ -5,6 +5,7 @@
      * @author Claude
      */
     import { beforeNavigate, goto } from "$app/navigation";
+    import { resolve } from "$app/paths";
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { ENTRY_TYPES } from "$lib/config/entry-types";
@@ -161,7 +162,7 @@
         } );
 
         leaving = true;
-        void goto( `/wiki/${ saved.slug }` );
+        void goto( resolve( `/wiki/${ saved.slug }` ) );
     };
 
     /**
@@ -178,7 +179,7 @@
 
         wiki.deleteEntry( entry.id );
         leaving = true;
-        void goto( "/wiki" );
+        void goto( resolve( "/wiki" ) );
     };
 
     /**
@@ -222,7 +223,7 @@
                 Supprimer
             </button>
         {/if}
-        <a href={entry ? `/wiki/${ entry.slug }` : "/wiki"} class="btn btn-outline">Annuler</a>
+        <a href={resolve( entry ? `/wiki/${ entry.slug }` : "/wiki" )} class="btn btn-outline">Annuler</a>
         <button type="submit" class="btn btn-primary" disabled={!canSave}>Enregistrer</button>
     </div>
 
@@ -346,7 +347,7 @@
                 <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Catégories</legend>
                 {#if wiki.categories.length === 0}
                     <p class="text-ink-400 text-sm">
-                        Aucune catégorie déclarée. <a href="/categories/gerer" class="wiki-link">En créer</a>.
+                        Aucune catégorie déclarée. <a href={resolve( "/categories/gerer" )} class="wiki-link">En créer</a>.
                     </p>
                 {:else}
                     <div class="space-y-1.5">

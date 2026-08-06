@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import type { Entry } from "$lib/types";
     import TypeBadge from "./TypeBadge.svelte";
 
@@ -30,7 +31,7 @@
             {#each entries as entry ( entry.id )}
                 <li class="flex items-center gap-2">
                     <TypeBadge type={entry.type} iconOnly />
-                    <a href="/wiki/{entry.slug}" class="wiki-link">{entry.title}</a>
+                    <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link">{entry.title}</a>
                 </li>
             {/each}
         </ul>

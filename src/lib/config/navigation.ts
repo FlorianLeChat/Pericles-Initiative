@@ -7,8 +7,10 @@
  * @author Claude
  */
 
+import type { Pathname } from "$app/types";
+
 export interface NavLink {
-    href: string;
+    href: Pathname;
     label: string;
 }
 

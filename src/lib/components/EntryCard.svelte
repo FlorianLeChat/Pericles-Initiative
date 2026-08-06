@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import type { Entry } from "$lib/types";
     import { formatShortDate } from "$lib/utilities/date";
     import { excerpt } from "$lib/utilities/markdown";
@@ -35,7 +36,7 @@
     </div>
 
     <h3 class="text-lg leading-snug font-semibold tracking-tight">
-        <a href="/wiki/{entry.slug}" class="group-hover:text-accent-600 dark:group-hover:text-accent-400">
+        <a href={resolve( `/wiki/${ entry.slug }` )} class="group-hover:text-accent-600 dark:group-hover:text-accent-400">
             {entry.title}
         </a>
     </h3>

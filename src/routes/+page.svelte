@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import CategoryChip from "$lib/components/CategoryChip.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
     import SeverityBadge from "$lib/components/live/SeverityBadge.svelte";
@@ -54,8 +55,8 @@
         </p>
 
         <div class="mt-9 flex flex-wrap gap-3">
-            <a href="/wiki" class="btn btn-primary px-5 py-2.5">Parcourir les fiches</a>
-            <a href="/categories" class="btn btn-outline px-5 py-2.5">Explorer les catégories</a>
+            <a href={resolve( "/wiki" )} class="btn btn-primary px-5 py-2.5">Parcourir les fiches</a>
+            <a href={resolve( "/categories" )} class="btn btn-outline px-5 py-2.5">Explorer les catégories</a>
         </div>
 
         <dl class="border-paper-200 dark:border-ink-800 mt-14 grid grid-cols-2 gap-6 border-t pt-8 sm:grid-cols-4">
@@ -95,14 +96,14 @@
                 <div class="space-y-4 p-6 sm:p-8">
                     <TypeBadge type={headline.type} />
                     <h3 class="font-serif text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
-                        <a href="/wiki/{headline.slug}" class="hover:text-accent-600 dark:hover:text-accent-400">
+                        <a href={resolve( `/wiki/${ headline.slug }` )} class="hover:text-accent-600 dark:hover:text-accent-400">
                             {headline.title}
                         </a>
                     </h3>
                     <p class="text-ink-500 dark:text-paper-300/80 leading-relaxed">
                         {headline.summary || excerpt( headline.body, 240 )}
                     </p>
-                    <a href="/wiki/{headline.slug}" class="wiki-link inline-block text-sm font-medium">
+                    <a href={resolve( `/wiki/${ headline.slug }` )} class="wiki-link inline-block text-sm font-medium">
                         Lire la fiche
                     </a>
                 </div>
@@ -125,7 +126,7 @@
                     <span class="bg-alert-500 h-2 w-2 animate-pulse rounded-full" aria-hidden="true"></span>
                     En direct
                 </h2>
-                <a href="/direct" class="wiki-link text-sm">Tout le fil</a>
+                <a href={resolve( "/direct" )} class="wiki-link text-sm">Tout le fil</a>
             </div>
 
             <ul class="mt-6 space-y-4">
@@ -134,9 +135,9 @@
                         <SeverityBadge severity={item.severity} />
                         <span class="min-w-0 flex-1">
                             {#if item.entrySlug}
-                                <a href="/wiki/{item.entrySlug}" class="font-medium hover:underline">{item.title}</a>
+                                <a href={resolve( `/wiki/${ item.entrySlug }` )} class="font-medium hover:underline">{item.title}</a>
                             {:else}
-                                <a href="/direct" class="font-medium hover:underline">{item.title}</a>
+                                <a href={resolve( "/direct" )} class="font-medium hover:underline">{item.title}</a>
                             {/if}
                         </span>
                         <span class="text-ink-400 shrink-0 text-xs">{relativeTime( item.publishedAt )}</span>
@@ -150,7 +151,7 @@
 <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
     <div class="flex items-baseline justify-between gap-4">
         <h2 class="font-serif text-2xl font-semibold tracking-tight">Dernières modifications</h2>
-        <a href="/wiki" class="wiki-link text-sm">Tout voir</a>
+        <a href={resolve( "/wiki" )} class="wiki-link text-sm">Tout voir</a>
     </div>
 
     <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

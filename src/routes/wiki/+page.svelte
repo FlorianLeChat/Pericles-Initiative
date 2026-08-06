@@ -7,6 +7,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
     import Icon from "$lib/components/Icon.svelte";
@@ -100,7 +101,7 @@
             </p>
         </div>
 
-        <a href="/nouveau" class="btn btn-primary">Nouvelle fiche</a>
+        <a href={resolve( "/nouveau" )} class="btn btn-primary">Nouvelle fiche</a>
     </header>
 
     <div class="surface mt-8 space-y-4 p-5">

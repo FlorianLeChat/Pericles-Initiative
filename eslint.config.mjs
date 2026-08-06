@@ -27,7 +27,16 @@ export default defineConfig(
             parserOptions: {
                 parser: tslint.parser,
                 svelteConfig,
-                projectService: true,
+                projectService: {
+                    // Root level config files sit outside tsconfig.json's include globs,
+                    // so the type aware project service needs them listed explicitly.
+                    allowDefaultProject: [
+                        "commitlint.config.ts",
+                        "eslint.config.mjs",
+                        "lint-staged.config.cjs",
+                        "svelte.config.js"
+                    ]
+                },
                 extraFileExtensions: [ ".svelte" ]
             }
         },

@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import { paletteColor } from "$lib/config/palette";
     import type { Category } from "$lib/types";
 
@@ -19,11 +20,13 @@
 </script>
 
 <a
-    href="/categories/{category.slug}"
+    href={resolve( `/categories/${ category.slug }` )}
     class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition hover:brightness-105 {color.chip}"
 >
     <span class="h-1.5 w-1.5 rounded-full {color.dot}"></span>
+
     {category.name}
+
     {#if count !== undefined}
         <span class="opacity-70">{count}</span>
     {/if}

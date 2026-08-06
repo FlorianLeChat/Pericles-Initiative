@@ -43,15 +43,15 @@
     /** Remaining items, grouped by day, most recent day first. */
     const days = $derived.by( () =>
     {
-        const groups = new Map<string, LiveEntry[]>();
+        const groups: Record<string, LiveEntry[]> = {};
 
         for ( const item of filtered.filter( ( candidate ) => !candidate.pinned ) )
         {
             const day = item.publishedAt.slice( 0, 10 );
-            groups.set( day, [ ...( groups.get( day ) ?? [] ), item ] );
+            groups[ day ] = [ ...( groups[ day ] ?? [] ), item ];
         }
 
-        return [ ...groups.entries() ]
+        return Object.entries( groups )
             .sort( ( [ a ], [ b ] ) => b.localeCompare( a ) )
             .map( ( [ day, items ] ) => ( {
                 day,
@@ -204,6 +204,7 @@
                         <h2 class="text-ink-400 mb-4 text-xs tracking-[0.15em] uppercase">
                             {formatLongDate( group.day )}
                         </h2>
+
                         <div class="border-paper-200 dark:border-ink-800 space-y-8 border-l">
                             {#each group.items as item ( item.id )}
                                 <LiveItem
