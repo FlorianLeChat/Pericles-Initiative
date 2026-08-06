@@ -1,0 +1,62 @@
+{
+    "name": "pericles-initiative",
+    "type": "module",
+    "author": "Florian Trayon (https://github.com/FlorianLeChat)",
+    "license": "MIT",
+    "private": true,
+    "version": "1.0.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/FlorianLeChat/Pericles-Initiative.git"
+    },
+    "bugs": {
+        "url": "https://github.com/FlorianLeChat/Pericles-Initiative/issues"
+    },
+    "devDependencies": {
+        "vite": "~8.2",
+        "husky": "~9.1",
+        "eslint": "~10.2",
+        "svelte": "~5.56",
+        "marked": "~15.0",
+        "globals": "~16.5",
+        "prettier": "~3.9",
+        "typescript": "~6.0",
+        "@eslint/js": "~10.0",
+        "tailwindcss": "~4.3",
+        "lint-staged": "~16.4",
+        "svelte-check": "~4.7",
+        "@sveltejs/kit": "~2.70",
+        "@milkdown/kit": "~7.22",
+        "@lucide/svelte": "~1.29",
+        "@milkdown/crepe": "~7.22",
+        "@commitlint/cli": "~20.5",
+        "@tsconfig/svelte": "~5.0",
+        "@tailwindcss/vite": "~4.3",
+        "typescript-eslint": "~8.66",
+        "eslint-plugin-svelte": "~3.22",
+        "prettier-plugin-svelte": "~3.5",
+        "eslint-formatter-gitlab": "~7.2",
+        "@tailwindcss/typography": "~0.5",
+        "@stylistic/eslint-plugin": "~5.10",
+        "@sveltejs/adapter-static": "~3.0",
+        "@commitlint/config-conventional": "~20.5"
+    },
+    "engines": {
+        "node": ">=22.0",
+        "npm": ">=10.5"
+    },
+    "scripts": {
+        "dev": "vite",
+        "lint": "eslint . --format gitlab --ext .js,.ts,.svelte",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "build": "vite build",
+        "format": "prettier --write \"**/*.{js,ts,svelte}\"",
+        "preview": "vite preview",
+        "prepare": "husky && svelte-kit sync || echo ''",
+        "commitlint": "commitlint --edit",
+        "lint-staged": "lint-staged"
+    },
+    "browserslist": [
+        "defaults"
+    ]
+}

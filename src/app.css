@@ -1,0 +1,199 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* Class based dark mode: the theme toggle writes `.dark` on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans:
+        'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+        sans-serif;
+    --font-serif: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-mono: ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+
+    /* Editorial palette: warm paper, deep ink, one cold accent. */
+    --color-paper-50: #fdfcfa;
+    --color-paper-100: #f7f5f1;
+    --color-paper-200: #ece8e1;
+    --color-paper-300: #dbd5ca;
+    --color-paper-400: #b8b1a4;
+
+    --color-ink-400: #6b6b76;
+    --color-ink-500: #52525c;
+    --color-ink-600: #3a3a44;
+    --color-ink-700: #2a2a33;
+    --color-ink-800: #1f1f27;
+    --color-ink-900: #15151b;
+    --color-ink-950: #0d0d12;
+
+    --color-accent-50: #eff6ff;
+    --color-accent-100: #dbeafe;
+    --color-accent-200: #b8d8ff;
+    --color-accent-300: #8dbdf8;
+    --color-accent-400: #5a9bf0;
+    --color-accent-500: #2f7ae0;
+    --color-accent-600: #1f5fbd;
+    --color-accent-700: #1b4c96;
+    --color-accent-900: #16325e;
+
+    --color-signal-500: #d97706;
+    --color-alert-500: #dc2626;
+    --color-alert-600: #b91c1c;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-paper-50 text-ink-800 dark:bg-ink-950 dark:text-paper-200 font-sans antialiased;
+    }
+
+    ::selection {
+        @apply bg-accent-200 text-ink-900;
+    }
+
+    :focus-visible {
+        @apply outline-accent-500 outline-2 outline-offset-2;
+    }
+}
+
+@layer components {
+    /* Shared surface for cards, panels and toolbars. */
+    .surface {
+        @apply border-paper-200 dark:border-ink-800 dark:bg-ink-900/60 rounded-2xl border bg-white/80 shadow-sm;
+    }
+
+    .field-label {
+        @apply text-ink-600 dark:text-paper-300 mb-1.5 block text-sm font-medium;
+    }
+
+    .field {
+        @apply border-paper-300 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:ring-accent-500/25 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-100 w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm transition focus:ring-4 focus:outline-none;
+    }
+
+    .btn {
+        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-primary {
+        @apply bg-accent-600 hover:bg-accent-700 text-white shadow-sm;
+    }
+
+    .btn-ghost {
+        @apply text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800;
+    }
+
+    .btn-outline {
+        @apply border-paper-300 text-ink-700 hover:border-accent-400 hover:text-accent-700 dark:border-ink-800 dark:text-paper-200 dark:hover:text-accent-400 border;
+    }
+
+    .btn-danger {
+        @apply bg-alert-500 hover:bg-alert-600 text-white;
+    }
+
+    /* Internal wiki links, applied to rendered article HTML. */
+    .wiki-link {
+        @apply text-accent-600 decoration-accent-300 dark:text-accent-400 dark:decoration-accent-700 underline decoration-1 underline-offset-2 transition hover:decoration-2;
+    }
+
+    /* A link pointing at a page that does not exist yet. */
+    .wiki-link-missing {
+        @apply text-alert-500 decoration-alert-500/50 underline decoration-dotted underline-offset-2;
+    }
+}
+
+/* Rendered article body: the Markdown output is displayed through this wrapper. */
+.article-body {
+    @apply prose prose-lg dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-a:font-normal prose-img:rounded-2xl prose-blockquote:border-accent-400 prose-blockquote:not-italic max-w-none;
+}
+
+.article-body :is(h2, h3, h4) {
+    scroll-margin-top: 6rem;
+}
+
+.article-body table {
+    @apply w-full text-sm;
+}
+
+/*
+ * Milkdown editor.
+ *
+ * Only the structural stylesheet of Crepe is imported, by the editor component.
+ * Its colour variables are defined here instead of pulling `theme/frame.css`,
+ * so the editor follows the site palette in both themes.
+ */
+.milkdown {
+    --crepe-color-background: #ffffff;
+    --crepe-color-on-background: var(--color-ink-800);
+    --crepe-color-surface: var(--color-paper-100);
+    --crepe-color-surface-low: var(--color-paper-200);
+    --crepe-color-on-surface: var(--color-ink-800);
+    --crepe-color-on-surface-variant: var(--color-ink-500);
+    /*
+     * Despite its name, Crepe uses this token as a foreground colour: toolbar
+     * icons, block handles, slash menu icons, list markers and table controls
+     * are all painted with it, and borders only derive from it through
+     * `color-mix(..., transparent 80%)`. It has to stay legible, not discreet.
+     */
+    --crepe-color-outline: var(--color-ink-500);
+    --crepe-color-primary: var(--color-accent-600);
+    --crepe-color-secondary: var(--color-accent-100);
+    --crepe-color-on-secondary: var(--color-accent-900);
+    --crepe-color-inverse: var(--color-ink-800);
+    --crepe-color-on-inverse: var(--color-paper-100);
+    --crepe-color-inline-code: var(--color-alert-500);
+    --crepe-color-error: var(--color-alert-500);
+    --crepe-color-hover: var(--color-paper-100);
+    --crepe-color-selected: var(--color-accent-100);
+    --crepe-color-inline-area: var(--color-paper-200);
+
+    --crepe-base-font-size: 16px;
+    --crepe-font-title: var(--font-serif);
+    --crepe-font-default: var(--font-sans);
+    --crepe-font-code: var(--font-mono);
+
+    --crepe-shadow-1: 0 1px 2px 0 rgb(0 0 0 / 0.06), 0 1px 3px 0 rgb(0 0 0 / 0.08);
+    --crepe-shadow-2: 0 4px 12px -2px rgb(0 0 0 / 0.12), 0 2px 6px -2px rgb(0 0 0 / 0.08);
+}
+
+:is(.dark) .milkdown {
+    --crepe-color-background: var(--color-ink-900);
+    --crepe-color-on-background: var(--color-paper-200);
+    --crepe-color-surface: var(--color-ink-800);
+    --crepe-color-surface-low: var(--color-ink-900);
+    --crepe-color-on-surface: var(--color-paper-200);
+    --crepe-color-on-surface-variant: var(--color-paper-400);
+    /* Foreground token, see the light theme above. */
+    --crepe-color-outline: var(--color-paper-400);
+    --crepe-color-primary: var(--color-accent-400);
+    --crepe-color-secondary: var(--color-accent-900);
+    --crepe-color-on-secondary: var(--color-accent-100);
+    --crepe-color-inverse: var(--color-paper-200);
+    --crepe-color-on-inverse: var(--color-ink-900);
+    --crepe-color-inline-code: #ff8080;
+    --crepe-color-error: #ff8080;
+    --crepe-color-hover: var(--color-ink-800);
+    --crepe-color-selected: var(--color-accent-900);
+    --crepe-color-inline-area: var(--color-ink-800);
+
+    --crepe-shadow-1: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --crepe-shadow-2: 0 4px 14px -2px rgb(0 0 0 / 0.55);
+}
+
+/* The editor fills our own frame, so its default page padding is dropped. */
+.milkdown .ProseMirror {
+    padding: 1.25rem 1.5rem 3rem;
+    min-height: 24rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
