@@ -68,7 +68,6 @@
     </div>
 
     <p class="text-ink-400 mx-auto max-w-6xl px-4 pb-8 text-xs sm:px-6">
-        Univers de fiction. Toute ressemblance avec des personnes ou des organisations réelles serait
-        fortuite.
+        Univers de fiction. Toute ressemblance avec des personnes ou des organisations réelles serait fortuite.
     </p>
 </footer>

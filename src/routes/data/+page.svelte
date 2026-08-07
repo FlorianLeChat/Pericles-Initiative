@@ -39,7 +39,11 @@
      * @author Claude
      */
     const formatSize = ( bytes: number ): string =>
-        bytes < 1024 ? `${ bytes } o` : bytes < 1_048_576 ? `${ ( bytes / 1024 ).toFixed( 1 ) } ko` : `${ ( bytes / 1_048_576 ).toFixed( 2 ) } Mo`;
+        bytes < 1024
+            ? `${ bytes } o`
+            : bytes < 1_048_576
+                ? `${ ( bytes / 1024 ).toFixed( 1 ) } ko`
+                : `${ ( bytes / 1_048_576 ).toFixed( 2 ) } Mo`;
 
     /**
      * Tells whether a page comes from the published dataset or was created locally.
@@ -145,8 +149,8 @@
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Données</h1>
 
         <p class="text-ink-400 mt-3 leading-relaxed">
-            Le site lit son contenu dans <code class="font-mono text-xs">static/data/wiki.json</code>. Vos
-            modifications restent dans ce navigateur jusqu'à ce que vous les exportiez.
+            Le site lit son contenu dans <code class="font-mono text-xs">static/data/wiki.json</code>. Vos modifications
+            restent dans ce navigateur jusqu'à ce que vous les exportiez.
         </p>
     </header>
 
@@ -172,8 +176,8 @@
 
         {#if !wiki.hasLocalChanges}
             <p class="text-ink-400 mt-4 text-sm">
-                Aucune modification locale. Le site affiche exactement le JSON publié, version {wiki.meta
-                    .version}, mis à jour le {formatDateTime( wiki.meta.updatedAt )}.
+                Aucune modification locale. Le site affiche exactement le JSON publié, version {wiki.meta.version}, mis
+                à jour le {formatDateTime( wiki.meta.updatedAt )}.
             </p>
         {:else}
             <p class="mt-4 text-sm">
@@ -183,8 +187,8 @@
 
             {#if overlaySize > STORAGE_WARNING}
                 <p class="bg-signal-500/15 text-signal-500 mt-4 rounded-xl px-4 py-3 text-sm">
-                    Le stockage local approche de sa limite. Exportez le JSON et réinitialisez pour repartir
-                    d'une base propre.
+                    Le stockage local approche de sa limite. Exportez le JSON et réinitialisez pour repartir d'une base
+                    propre.
                 </p>
             {/if}
 
@@ -222,7 +226,9 @@
                         <ul class="space-y-1.5">
                             {#each deletedEntries as item ( item.id )}
                                 <li class="flex items-center gap-2">
-                                    <span class="bg-alert-500/15 text-alert-600 rounded-full px-2 py-0.5 text-xs dark:text-red-300">
+                                    <span
+                                        class="bg-alert-500/15 text-alert-600 rounded-full px-2 py-0.5 text-xs dark:text-red-300"
+                                    >
                                         supprimée
                                     </span>
 
@@ -276,8 +282,8 @@
         <h2 class="font-serif text-xl font-semibold tracking-tight">Exporter</h2>
 
         <p class="text-ink-400 mt-2 text-sm leading-relaxed">
-            L'export contient tout le contenu affiché actuellement, publié et local confondus. C'est le
-            fichier à committer.
+            L'export contient tout le contenu affiché actuellement, publié et local confondus. C'est le fichier à
+            committer.
         </p>
 
         <div class="mt-5 flex flex-wrap gap-2">

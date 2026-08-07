@@ -36,14 +36,17 @@
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Tableau de bord</h1>
 
         <p class="text-ink-400 mt-3 leading-relaxed">
-            L'état du corpus, calculé sur ce que le site affiche en ce moment, modifications locales
-            comprises.
+            L'état du corpus, calculé sur ce que le site affiche en ce moment, modifications locales comprises.
         </p>
     </header>
 
     <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Fiches" value={stats.total} hint="{stats.published} publiées, {stats.drafts} en brouillon" />
-        <StatCard label="Mots" value={stats.words.toLocaleString( "fr-FR" )} hint="{stats.averageWords} par fiche en moyenne" />
+        <StatCard
+            label="Mots"
+            value={stats.words.toLocaleString( "fr-FR" )}
+            hint="{stats.averageWords} par fiche en moyenne"
+        />
         <StatCard label="Catégories" value={stats.categories} />
         <StatCard label="Fil en direct" value={stats.liveItems} hint="entrées publiées" />
     </div>
@@ -119,15 +122,22 @@
                 <ul class="mt-5 space-y-2.5 text-sm">
                     {#each stats.missing as item ( item.slug )}
                         <li class="flex items-center gap-2">
-                            <a href={resolve( `/wiki/${ item.slug }` )} class="wiki-link-missing min-w-0 flex-1 truncate font-mono text-xs">
+                            <a
+                                href={resolve( `/wiki/${ item.slug }` )}
+                                class="wiki-link-missing min-w-0 flex-1 truncate font-mono text-xs"
+                            >
                                 {item.slug}
                             </a>
 
                             <span class="text-ink-400 shrink-0 text-xs">
-                                cité {item.count} {item.count === 1 ? "fois" : "fois"}
+                                cité {item.count}
+                                {item.count === 1 ? "fois" : "fois"}
                             </span>
 
-                            <a href={resolve( `/new?slug=${ item.slug }` )} class="btn btn-outline shrink-0 px-2.5 py-1 text-xs">
+                            <a
+                                href={resolve( `/new?slug=${ item.slug }` )}
+                                class="btn btn-outline shrink-0 px-2.5 py-1 text-xs"
+                            >
                                 Créer
                             </a>
                         </li>
@@ -184,7 +194,9 @@
                     <li class="flex items-center gap-2">
                         <TypeBadge type={entry.type} iconOnly />
 
-                        <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link min-w-0 flex-1 truncate">{entry.title}</a>
+                        <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link min-w-0 flex-1 truncate"
+                            >{entry.title}</a
+                        >
 
                         {#if entry.status === "brouillon"}
                             <span class="text-ink-400 text-xs">brouillon</span>

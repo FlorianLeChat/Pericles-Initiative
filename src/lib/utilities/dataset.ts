@@ -51,8 +51,7 @@ const asTrimmed = ( value: unknown, fallback = "" ): string => asString( value, 
 const asStringArray = ( value: unknown ): string[] =>
     Array.isArray( value ) ? value.filter( ( item ): item is string => typeof item === "string" ) : [];
 
-const asBoolean = ( value: unknown, fallback = false ): boolean =>
-    typeof value === "boolean" ? value : fallback;
+const asBoolean = ( value: unknown, fallback = false ): boolean => ( typeof value === "boolean" ? value : fallback );
 
 const asNullableString = ( value: unknown ): string | null =>
 {
@@ -108,7 +107,13 @@ export const normalizeEntry = ( value: unknown ): Entry =>
         image: normalizeImage( raw.image ),
         timelineDate: asNullableString( raw.timelineDate ),
         status: raw.status === "brouillon" ? "brouillon" : "publie",
-        aliases: [ ...new Set( asStringArray( raw.aliases ).map( ( alias ) => alias.trim() ).filter( Boolean ) ) ],
+        aliases: [
+            ...new Set(
+                asStringArray( raw.aliases )
+                    .map( ( alias ) => alias.trim() )
+                    .filter( Boolean )
+            )
+        ],
         createdAt,
         updatedAt: asTrimmed( raw.updatedAt ) || createdAt
     };
@@ -154,7 +159,13 @@ export const normalizeLiveEntry = ( value: unknown ): LiveEntry =>
         title: asTrimmed( raw.title ) || "Sans titre",
         body: asString( raw.body ),
         severity: LIVE_SEVERITIES.includes( severity ) ? severity : "info",
-        tags: [ ...new Set( asStringArray( raw.tags ).map( ( tag ) => tag.trim() ).filter( Boolean ) ) ],
+        tags: [
+            ...new Set(
+                asStringArray( raw.tags )
+                    .map( ( tag ) => tag.trim() )
+                    .filter( Boolean )
+            )
+        ],
         entrySlug: asNullableString( raw.entrySlug ),
         source: asNullableString( raw.source ),
         pinned: asBoolean( raw.pinned )

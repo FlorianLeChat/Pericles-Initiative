@@ -35,8 +35,7 @@
     let resetOpen = $state( false );
     let saved = $state( false );
 
-    const snapshot = (): string =>
-        JSON.stringify( { universe, tagline, description, logo, version, featured } );
+    const snapshot = (): string => JSON.stringify( { universe, tagline, description, logo, version, featured } );
 
     /** Last state written to the dataset, so saving clears the pending marker. */
     let baseline = $state( JSON.stringify( initial ) );
@@ -99,13 +98,16 @@
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Paramètres</h1>
 
         <p class="text-ink-400 mt-3 leading-relaxed">
-            L'identité du wiki. Ces champs alimentent l'entête, la page d'accueil et les métadonnées des
-            pages. Ils s'exportent avec le reste du contenu.
+            L'identité du wiki. Ces champs alimentent l'entête, la page d'accueil et les métadonnées des pages. Ils
+            s'exportent avec le reste du contenu.
         </p>
     </header>
 
     {#if saved && !dirty}
-        <p class="bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100 mt-6 rounded-xl px-4 py-3 text-sm" role="status">
+        <p
+            class="bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100 mt-6 rounded-xl px-4 py-3 text-sm"
+            role="status"
+        >
             Identité enregistrée. Elle reste locale jusqu'à l'export du JSON depuis
             <a href={resolve( "/data" )} class="underline">la page Données</a>.
         </p>
@@ -173,8 +175,8 @@
                     />
 
                     <p class="text-ink-400 mt-1.5 text-xs leading-relaxed">
-                        Chemin sous <code class="font-mono">static/media/</code> ou URL absolue. Laissez vide
-                        pour garder le monogramme.
+                        Chemin sous <code class="font-mono">static/media/</code> ou URL absolue. Laissez vide pour garder
+                        le monogramme.
                     </p>
                 </div>
 
@@ -290,7 +292,11 @@
             {/if}
 
             {#if hasLocalMeta}
-                <button type="button" class="btn btn-ghost hover:text-alert-500 ml-auto" onclick={() => ( resetOpen = true )}>
+                <button
+                    type="button"
+                    class="btn btn-ghost hover:text-alert-500 ml-auto"
+                    onclick={() => ( resetOpen = true )}
+                >
                     Revenir à l'identité publiée
                 </button>
             {/if}

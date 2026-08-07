@@ -235,9 +235,7 @@ export const formatUniverseDate = ( value: string | null | undefined ): string =
     if ( /^\d{4}-\d{2}$/.test( value ) )
     {
         const date = toDate( `${ value }-01` );
-        return date
-            ? new Intl.DateTimeFormat( "fr-FR", { month: "long", year: "numeric" } ).format( date )
-            : value;
+        return date ? new Intl.DateTimeFormat( "fr-FR", { month: "long", year: "numeric" } ).format( date ) : value;
     }
 
     return formatLongDate( value );

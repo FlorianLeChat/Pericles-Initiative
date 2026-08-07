@@ -32,8 +32,8 @@
             <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Catégories</h1>
 
             <p class="text-ink-400 mt-3 leading-relaxed">
-                Chaque fiche peut appartenir à plusieurs catégories. Elles regroupent par thème ce que la
-                nature des fiches sépare par forme.
+                Chaque fiche peut appartenir à plusieurs catégories. Elles regroupent par thème ce que la nature des
+                fiches sépare par forme.
             </p>
         </div>
 

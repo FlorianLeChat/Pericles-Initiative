@@ -70,10 +70,7 @@
 <SearchDialog bind:open={searchOpen} />
 
 {#if wiki.storageError}
-    <p
-        class="bg-alert-500 fixed inset-x-0 bottom-0 z-50 px-4 py-3 text-center text-sm text-white"
-        role="alert"
-    >
+    <p class="bg-alert-500 fixed inset-x-0 bottom-0 z-50 px-4 py-3 text-center text-sm text-white" role="alert">
         {wiki.storageError}
     </p>
 {/if}

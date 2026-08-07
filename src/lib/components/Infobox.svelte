@@ -17,9 +17,7 @@
     let { entry }: Props = $props();
 
     const categories = $derived(
-        entry.categories
-            .map( ( slug ) => wiki.categoriesBySlug.get( slug ) )
-            .filter( ( category ) => category !== undefined )
+        entry.categories.map( ( slug ) => wiki.categoriesBySlug.get( slug ) ).filter( ( category ) => category !== undefined )
     );
 </script>
 

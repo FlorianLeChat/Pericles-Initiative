@@ -26,10 +26,10 @@
         placeholder?: string;
     }
 
-    let { value, onchange, placeholder = "Rédigez la fiche. Tapez / pour insérer un bloc." }: Props
-        = $props();
+    let { value, onchange, placeholder = "Rédigez la fiche. Tapez / pour insérer un bloc." }: Props = $props();
 
-    const LINK = "M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244";
+    const LINK
+        = "M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244";
 
     let host: HTMLDivElement;
     let crepe: CrepeEditor | null = null;
@@ -159,14 +159,11 @@
         >
             <Icon path={LINK} class="h-3.5 w-3.5" />
             Lier une fiche
-            <kbd class="border-paper-300 dark:border-ink-700 ml-1 rounded border px-1 py-0.5 text-[10px]">
-                Ctrl L
-            </kbd>
+            <kbd class="border-paper-300 dark:border-ink-700 ml-1 rounded border px-1 py-0.5 text-[10px]"> Ctrl L </kbd>
         </button>
 
         <p class="text-ink-400 ml-auto text-xs">
-            Markdown. Tapez <kbd class="font-mono">/</kbd> pour un bloc, sélectionnez du texte pour la
-            barre de mise en forme.
+            Markdown. Tapez <kbd class="font-mono">/</kbd> pour un bloc, sélectionnez du texte pour la barre de mise en forme.
         </p>
     </div>
 

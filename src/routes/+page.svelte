@@ -15,9 +15,7 @@
     import { excerpt } from "$lib/utilities/markdown";
 
     const featured = $derived(
-        wiki.meta.featured
-            .map( ( slug ) => wiki.bySlug( slug ) )
-            .filter( ( entry ): entry is Entry => entry !== undefined )
+        wiki.meta.featured.map( ( slug ) => wiki.bySlug( slug ) ).filter( ( entry ): entry is Entry => entry !== undefined )
     );
 
     const headline = $derived( featured[ 0 ] );
@@ -42,9 +40,7 @@
 
 <section class="border-paper-200 dark:border-ink-800 border-b">
     <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
-        <p class="text-accent-600 dark:text-accent-400 text-xs font-medium tracking-[0.2em] uppercase">
-            Encyclopédie
-        </p>
+        <p class="text-accent-600 dark:text-accent-400 text-xs font-medium tracking-[0.2em] uppercase">Encyclopédie</p>
 
         <h1 class="mt-4 max-w-3xl font-serif text-4xl leading-[1.05] font-semibold tracking-tight sm:text-6xl">
             {wiki.meta.universe}
@@ -94,18 +90,17 @@
         <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
             <article class="surface overflow-hidden">
                 {#if headline.image}
-                    <img
-                        src={headline.image.src}
-                        alt={headline.image.alt}
-                        class="aspect-[16/7] w-full object-cover"
-                    />
+                    <img src={headline.image.src} alt={headline.image.alt} class="aspect-[16/7] w-full object-cover" />
                 {/if}
 
                 <div class="space-y-4 p-6 sm:p-8">
                     <TypeBadge type={headline.type} />
 
                     <h3 class="font-serif text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
-                        <a href={resolve( `/wiki/${ headline.slug }` )} class="hover:text-accent-600 dark:hover:text-accent-400">
+                        <a
+                            href={resolve( `/wiki/${ headline.slug }` )}
+                            class="hover:text-accent-600 dark:hover:text-accent-400"
+                        >
                             {headline.title}
                         </a>
                     </h3>
@@ -148,7 +143,9 @@
 
                         <span class="min-w-0 flex-1">
                             {#if item.entrySlug}
-                                <a href={resolve( `/wiki/${ item.entrySlug }` )} class="font-medium hover:underline">{item.title}</a>
+                                <a href={resolve( `/wiki/${ item.entrySlug }` )} class="font-medium hover:underline"
+                                    >{item.title}</a
+                                >
                             {:else}
                                 <a href={resolve( "/live" )} class="font-medium hover:underline">{item.title}</a>
                             {/if}

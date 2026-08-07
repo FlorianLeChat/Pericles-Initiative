@@ -89,7 +89,5 @@
         </div>
     {/each}
 
-    <button type="button" class="btn btn-outline w-full py-1.5 text-xs" onclick={add}>
-        Ajouter une ligne
-    </button>
+    <button type="button" class="btn btn-outline w-full py-1.5 text-xs" onclick={add}> Ajouter une ligne </button>
 </div>

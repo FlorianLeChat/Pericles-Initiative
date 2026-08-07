@@ -27,16 +27,16 @@
         <li class="grid grid-cols-[minmax(6rem,10rem)_minmax(0,1fr)_2.5rem] items-center gap-3 text-sm">
             <span class="truncate">
                 {#if href}
-                    <a href={resolve( href( item ) )} class="hover:text-accent-600 dark:hover:text-accent-400">{item.label}</a>
+                    <a href={resolve( href( item ) )} class="hover:text-accent-600 dark:hover:text-accent-400"
+                        >{item.label}</a
+                    >
                 {:else}
                     {item.label}
                 {/if}
             </span>
 
             <span class="bg-paper-200 dark:bg-ink-800 h-2.5 overflow-hidden rounded-full">
-                <span
-                    class="bg-accent-500 block h-full rounded-full"
-                    style="width: {( item.count / largest ) * 100}%"
+                <span class="bg-accent-500 block h-full rounded-full" style="width: {( item.count / largest ) * 100}%"
                 ></span>
             </span>
 

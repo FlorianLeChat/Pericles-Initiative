@@ -61,9 +61,7 @@
         }
         if ( sort === "chronologique" )
         {
-            return matching.sort(
-                ( a, b ) => timelineSortKey( a.timelineDate ) - timelineSortKey( b.timelineDate )
-            );
+            return matching.sort( ( a, b ) => timelineSortKey( a.timelineDate ) - timelineSortKey( b.timelineDate ) );
         }
         return matching.sort( ( a, b ) => a.title.localeCompare( b.title, "fr" ) );
     } );
@@ -98,8 +96,8 @@
             <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Encyclopédie</h1>
 
             <p class="text-ink-400 mt-3 leading-relaxed">
-                {wiki.entries.length} fiches, dont {wiki.drafts.length} en brouillon. Filtrez par nature, par
-                catégorie ou par mot clé.
+                {wiki.entries.length} fiches, dont {wiki.drafts.length} en brouillon. Filtrez par nature, par catégorie ou
+                par mot clé.
             </p>
         </div>
 

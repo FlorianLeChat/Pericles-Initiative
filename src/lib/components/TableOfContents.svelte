@@ -13,8 +13,7 @@
     let { headings }: Props = $props();
 
     /** Indentation applied to a heading, by level. */
-    const indent = ( level: number ): string =>
-        level === 2 ? "" : level === 3 ? "pl-4" : "pl-8";
+    const indent = ( level: number ): string => ( level === 2 ? "" : level === 3 ? "pl-4" : "pl-8" );
 </script>
 
 {#if headings.length > 1}

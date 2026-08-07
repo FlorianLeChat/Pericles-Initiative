@@ -95,9 +95,7 @@ class WikiStore
     );
 
     /** Distinct tags used by the live feed, alphabetically. */
-    liveTags = $derived(
-        [ ...new Set( this.live.flatMap( ( item ) => item.tags ) ) ].sort( ( a, b ) => a.localeCompare( b, "fr" ) )
-    );
+    liveTags = $derived( [ ...new Set( this.live.flatMap( ( item ) => item.tags ) ) ].sort( ( a, b ) => a.localeCompare( b, "fr" ) ) );
 
     /**
      * The latest alert, while it is recent enough to deserve a banner.
@@ -131,9 +129,7 @@ class WikiStore
     categoriesBySlug = $derived( new Map( this.categories.map( ( category ) => [ category.slug, category ] ) ) );
 
     /** For each page slug, the slugs it links to. */
-    outgoingLinks = $derived(
-        new Map( this.entries.map( ( entry ) => [ entry.slug, extractInternalLinks( entry.body ) ] ) )
-    );
+    outgoingLinks = $derived( new Map( this.entries.map( ( entry ) => [ entry.slug, extractInternalLinks( entry.body ) ] ) ) );
 
     /** For each page slug, the pages linking to it. */
     incomingLinks = $derived.by( () =>

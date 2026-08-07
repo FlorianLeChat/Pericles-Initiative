@@ -140,8 +140,8 @@
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Gérer les catégories</h1>
 
         <p class="text-ink-400 mt-3 leading-relaxed">
-            Renommer une catégorie déplace les fiches concernées vers la nouvelle adresse. La supprimer les
-            détache sans les effacer.
+            Renommer une catégorie déplace les fiches concernées vers la nouvelle adresse. La supprimer les détache sans
+            les effacer.
         </p>
     </header>
 
@@ -195,7 +195,9 @@
             {/each}
 
             {#if wiki.categories.length === 0}
-                <p class="border-paper-300 dark:border-ink-800 text-ink-400 rounded-2xl border border-dashed px-6 py-10 text-center text-sm">
+                <p
+                    class="border-paper-300 dark:border-ink-800 text-ink-400 rounded-2xl border border-dashed px-6 py-10 text-center text-sm"
+                >
                     Aucune catégorie pour le moment.
                 </p>
             {/if}

@@ -32,7 +32,8 @@ const FORBIDDEN_TAGS
 const EVENT_ATTRIBUTES = /\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
 
 /** Executable urls in `href` or `src`. */
-const EXECUTABLE_URLS = /\s(href|src)\s*=\s*(?:"\s*(?:javascript|vbscript|data:text\/html)[^"]*"|'\s*(?:javascript|vbscript|data:text\/html)[^']*')/gi;
+const EXECUTABLE_URLS
+    = /\s(href|src)\s*=\s*(?:"\s*(?:javascript|vbscript|data:text\/html)[^"]*"|'\s*(?:javascript|vbscript|data:text\/html)[^']*')/gi;
 
 /** Opening tags of the headings that feed the table of contents. */
 const HEADING_TAGS = /<(h[2-4])>/g;

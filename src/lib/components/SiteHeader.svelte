@@ -38,8 +38,7 @@
      * @returns True when the link should be highlighted.
      * @author Claude
      */
-    const isActive = ( href: string ): boolean =>
-        page.url.pathname === href || page.url.pathname.startsWith( `${ href }/` );
+    const isActive = ( href: string ): boolean => page.url.pathname === href || page.url.pathname.startsWith( `${ href }/` );
 
     /**
      * Closes the tools menu when the click landed outside of it.
@@ -112,7 +111,9 @@
 
                 <span>Rechercher</span>
 
-                <kbd class="border-paper-300 dark:border-ink-700 ml-2 rounded border px-1.5 py-0.5 font-sans text-[10px]">
+                <kbd
+                    class="border-paper-300 dark:border-ink-700 ml-2 rounded border px-1.5 py-0.5 font-sans text-[10px]"
+                >
                     Ctrl K
                 </kbd>
             </button>

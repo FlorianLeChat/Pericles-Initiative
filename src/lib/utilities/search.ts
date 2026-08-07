@@ -130,7 +130,5 @@ export const searchEntries = ( entries: readonly Entry[], query: string, limit =
         }
     }
 
-    return hits
-        .sort( ( a, b ) => b.score - a.score || a.entry.title.localeCompare( b.entry.title, "fr" ) )
-        .slice( 0, limit );
+    return hits.sort( ( a, b ) => b.score - a.score || a.entry.title.localeCompare( b.entry.title, "fr" ) ).slice( 0, limit );
 };

@@ -64,10 +64,7 @@
 
         {#if groups.length === 0}
             <div class="mt-10">
-                <EmptyState
-                    title="Catégorie vide"
-                    description="Aucune fiche ne se rattache encore à cette catégorie."
-                >
+                <EmptyState title="Catégorie vide" description="Aucune fiche ne se rattache encore à cette catégorie.">
                     <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
                 </EmptyState>
             </div>

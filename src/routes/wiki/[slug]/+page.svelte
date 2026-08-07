@@ -112,7 +112,9 @@
                                     <div class="flex items-center gap-2">
                                         <TypeBadge type={item.type} iconOnly />
 
-                                        <a href={resolve( `/wiki/${ item.slug }` )} class="text-sm font-medium">{item.title}</a>
+                                        <a href={resolve( `/wiki/${ item.slug }` )} class="text-sm font-medium"
+                                            >{item.title}</a
+                                        >
                                     </div>
 
                                     {#if item.summary}
@@ -142,10 +144,7 @@
             title="Cette fiche n'existe pas encore"
             description="Le lien qui mène ici attend une page. C'est le principe du lien rouge : il signale un manque à combler."
         >
-            <a
-                href={resolve( `/new?slug=${ slug }&titre=${ encodeURIComponent( plannedTitle ) }` )}
-                class="btn btn-primary"
-            >
+            <a href={resolve( `/new?slug=${ slug }&titre=${ encodeURIComponent( plannedTitle ) }` )} class="btn btn-primary">
                 Créer cette fiche
             </a>
 

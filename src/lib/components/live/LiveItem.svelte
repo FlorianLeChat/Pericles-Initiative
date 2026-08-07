@@ -34,7 +34,11 @@
     ></span>
 
     <div class="flex flex-wrap items-center gap-2">
-        <time datetime={item.publishedAt} class="text-ink-400 font-mono text-xs" title={formatDateTime( item.publishedAt )}>
+        <time
+            datetime={item.publishedAt}
+            class="text-ink-400 font-mono text-xs"
+            title={formatDateTime( item.publishedAt )}
+        >
             {formatTime( item.publishedAt )}
         </time>
 
@@ -77,7 +81,11 @@
         {#if onedit || ondelete}
             <span class="ml-auto flex gap-2">
                 {#if onedit}
-                    <button type="button" class="hover:text-accent-600 dark:hover:text-accent-400 underline" onclick={() => onedit( item )}>
+                    <button
+                        type="button"
+                        class="hover:text-accent-600 dark:hover:text-accent-400 underline"
+                        onclick={() => onedit( item )}
+                    >
                         Modifier
                     </button>
                 {/if}

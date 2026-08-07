@@ -346,8 +346,7 @@
 
                     <button
                         type="button"
-                        class="flex-1 rounded-xl px-3 py-2 text-xs font-medium transition {status
-                          === "brouillon"
+                        class="flex-1 rounded-xl px-3 py-2 text-xs font-medium transition {status === "brouillon"
                             ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
                             : "bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
                         onclick={() => ( status = "brouillon" )}
@@ -362,7 +361,8 @@
 
                 {#if wiki.categories.length === 0}
                     <p class="text-ink-400 text-sm">
-                        Aucune catégorie déclarée. <a href={resolve( "/categories/manage" )} class="wiki-link">En créer</a>.
+                        Aucune catégorie déclarée. <a href={resolve( "/categories/manage" )} class="wiki-link">En créer</a
+                        >.
                     </p>
                 {:else}
                     <div class="space-y-1.5">
@@ -418,17 +418,12 @@
                     <div>
                         <label class="field-label" for="entry-image-caption">Légende</label>
 
-                        <input
-                            id="entry-image-caption"
-                            bind:value={imageCaption}
-                            type="text"
-                            class="field py-2"
-                        />
+                        <input id="entry-image-caption" bind:value={imageCaption} type="text" class="field py-2" />
                     </div>
                 {:else}
                     <p class="text-ink-400 text-xs leading-relaxed">
-                        Déposez le fichier dans <code class="font-mono">static/media/</code>, puis indiquez son
-                        chemin. Pas de base64 : le stockage local est limité.
+                        Déposez le fichier dans <code class="font-mono">static/media/</code>, puis indiquez son chemin.
+                        Pas de base64 : le stockage local est limité.
                     </p>
                 {/if}
             </fieldset>

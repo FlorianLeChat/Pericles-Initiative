@@ -244,13 +244,13 @@
                     <p class="text-ink-400 text-xs tracking-wide uppercase">Comment ça marche</p>
 
                     <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">
-                        Une entrée du fil est courte et horodatée. Quand un événement mérite mieux, reliez la
-                        à une fiche : le lien « Lire la fiche complète » apparaît sous l'entrée.
+                        Une entrée du fil est courte et horodatée. Quand un événement mérite mieux, reliez la à une
+                        fiche : le lien « Lire la fiche complète » apparaît sous l'entrée.
                     </p>
 
                     <p class="text-ink-400 mt-3 text-sm leading-relaxed">
-                        Une entrée en gravité « Alerte » affiche un bandeau sur tout le site pendant vingt
-                        quatre heures.
+                        Une entrée en gravité « Alerte » affiche un bandeau sur tout le site pendant vingt quatre
+                        heures.
                     </p>
                 </div>
             {/if}
@@ -259,11 +259,15 @@
                 <p class="text-ink-400 text-xs tracking-wide uppercase">Actualisation</p>
 
                 <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">
-                    Le fil relit <code class="font-mono text-xs">/data/wiki.json</code> chaque minute.
-                    Remplacer ce fichier sur le serveur suffit à mettre à jour les lecteurs, sans rebuild.
+                    Le fil relit <code class="font-mono text-xs">/data/wiki.json</code> chaque minute. Remplacer ce fichier
+                    sur le serveur suffit à mettre à jour les lecteurs, sans rebuild.
                 </p>
 
-                <button type="button" class="btn btn-outline mt-4 w-full py-1.5 text-xs" onclick={() => void wiki.refresh()}>
+                <button
+                    type="button"
+                    class="btn btn-outline mt-4 w-full py-1.5 text-xs"
+                    onclick={() => void wiki.refresh()}
+                >
                     Actualiser maintenant
                 </button>
             </div>

@@ -50,8 +50,8 @@
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Chronologie</h1>
 
         <p class="text-ink-400 mt-3 leading-relaxed">
-            {wiki.chronology.length} fiches portent une date dans l'univers. Les autres, personnages et
-            concepts sans ancrage précis, n'apparaissent pas ici.
+            {wiki.chronology.length} fiches portent une date dans l'univers. Les autres, personnages et concepts sans ancrage
+            précis, n'apparaissent pas ici.
         </p>
     </header>
 
@@ -68,9 +68,7 @@
         <div class="mt-12 space-y-12">
             {#each years as [ year, entries ] ( year )}
                 <section>
-                    <h2
-                        class="border-paper-200 dark:border-ink-800 font-serif text-2xl font-semibold tracking-tight"
-                    >
+                    <h2 class="border-paper-200 dark:border-ink-800 font-serif text-2xl font-semibold tracking-tight">
                         {year}
                     </h2>
 

@@ -21,9 +21,7 @@
     const lead = $derived( entry.summary || excerpt( entry.body, 150 ) );
 </script>
 
-<article
-    class="surface hover:border-accent-300 dark:hover:border-accent-700 group flex flex-col gap-3 p-5 transition"
->
+<article class="surface hover:border-accent-300 dark:hover:border-accent-700 group flex flex-col gap-3 p-5 transition">
     <div class="flex flex-wrap items-center gap-2">
         <TypeBadge type={entry.type} />
 
