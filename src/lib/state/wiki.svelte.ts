@@ -2,13 +2,15 @@
  * Central state of the encyclopedia.
  *
  * Two sources are merged here:
- *  - the `seed`, loaded from `static/data/wiki.json` by the root layout, which
- *    is available during prerendering and therefore ends up in the static HTML,
- *  - the `overlay`, the local unpublished changes kept in `localStorage`, which
- *    is only read in the browser, after hydration.
+ *  - the `seed`, installed by the root layout's `hydrate` call. There is no
+ *    backend yet, so it is always empty for now; it exists as the hook a
+ *    future database would feed instead of `null`.
+ *  - the `overlay`, the content kept in `localStorage`, read only in the
+ *    browser after hydration. Until a real backend exists, this is the sole
+ *    source of content: everything a reader sees was created from this browser.
  *
  * This module holds a singleton. During prerendering every page renders with
- * the same seed and an empty overlay, so sharing it across renders is safe.
+ * the same empty seed and an empty overlay, so sharing it across renders is safe.
  *
  * @author Claude
  */
@@ -57,7 +59,7 @@ class WikiStore
     /** Raw value last passed to `hydrate`, so repeated calls are free. */
     #source: unknown = undefined;
 
-    /** Content published in the JSON file. */
+    /** Seed dataset, always empty until a real backend feeds it. */
     seed = $state<Dataset>( emptyDataset() );
 
     /** Unpublished local changes. */
@@ -68,9 +70,6 @@ class WikiStore
 
     /** Set when the browser refused to persist, typically a full storage quota. */
     storageError = $state<string | null>( null );
-
-    /** ISO timestamp of the last successful reload of the published JSON. */
-    syncedAt = $state<string | null>( null );
 
     /** What the site actually displays. */
     dataset = $derived( mergeDataset( this.seed, this.overlay ) );
@@ -184,12 +183,13 @@ class WikiStore
     hasLocalChanges = $derived( this.localChangeCount > 0 );
 
     /**
-     * Installs the dataset loaded from the JSON file.
+     * Installs the seed dataset.
      *
      * Idempotent: calling it again with the same object does nothing, which
-     * lets the layout hydrate both during rendering and from an effect.
+     * lets the layout hydrate both during rendering and from an effect. The
+     * seed is always empty for now, since there is no backend to feed it yet.
      *
-     * @param value Parsed content of `static/data/wiki.json`.
+     * @param value Seed dataset, currently always null.
      * @author Claude
      */
     hydrate( value: unknown ): void
@@ -201,44 +201,6 @@ class WikiStore
 
         this.#source = value;
         this.seed = normalizeDataset( value );
-    }
-
-    /**
-     * Reloads the published JSON, to pick up a file replaced on the server.
-     *
-     * This is what makes the live feed usable without a rebuild: replace
-     * `wiki.json`, and open browsers catch up on their next poll.
-     *
-     * @returns True when the dataset was reloaded.
-     * @author Claude
-     */
-    async refresh(): Promise<boolean>
-    {
-        if ( !browser )
-        {
-            return false;
-        }
-
-        try
-        {
-            const response = await fetch( "/data/wiki.json", { cache: "no-store" } );
-            if ( !response.ok )
-            {
-                return false;
-            }
-
-            const value: unknown = await response.json();
-            this.#source = value;
-            this.seed = normalizeDataset( value );
-            this.syncedAt = new Date().toISOString();
-
-            return true;
-        }
-        catch
-        {
-            // Offline, or the file is being replaced right now. The next poll retries.
-            return false;
-        }
     }
 
     /**
@@ -564,9 +526,9 @@ class WikiStore
     }
 
     /**
-     * Serialises the current state as the content of `wiki.json`.
+     * Serialises the current state as a portable JSON export.
      *
-     * @returns Pretty printed JSON, ready to replace `static/data/wiki.json`.
+     * @returns Pretty printed JSON of the whole dataset, entries, categories and live feed.
      * @author Claude
      */
     exportJson(): string
@@ -606,7 +568,7 @@ class WikiStore
     }
 
     /**
-     * Drops every local change and goes back to the published JSON.
+     * Drops every local change and goes back to the empty seed.
      *
      * @author Claude
      */

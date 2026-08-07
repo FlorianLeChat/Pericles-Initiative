@@ -445,7 +445,7 @@
     <ConfirmDialog
         bind:open={deleteOpen}
         title="Supprimer cette fiche ?"
-        message="La fiche disparaît du site. Si elle vient du JSON publié, la suppression reste locale jusqu'au prochain export."
+        message="La fiche disparaît du site et de ce navigateur."
         confirmLabel="Supprimer"
         danger
         onconfirm={remove}

@@ -6,6 +6,7 @@
      */
     import { resolve } from "$app/paths";
     import CategoryChip from "$lib/components/CategoryChip.svelte";
+    import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
     import SeverityBadge from "$lib/components/live/SeverityBadge.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
@@ -166,11 +167,22 @@
         <a href={resolve( "/wiki" )} class="wiki-link text-sm">Tout voir</a>
     </div>
 
-    <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {#each latest as entry ( entry.id )}
-            <EntryCard {entry} />
-        {/each}
-    </div>
+    {#if latest.length === 0}
+        <div class="mt-6">
+            <EmptyState
+                title="Aucune fiche pour le moment"
+                description="Ce wiki est vide : commencez par créer la première fiche."
+            >
+                <a href={resolve( "/new" )} class="btn btn-outline">Créer une fiche</a>
+            </EmptyState>
+        </div>
+    {:else}
+        <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {#each latest as entry ( entry.id )}
+                <EntryCard {entry} />
+            {/each}
+        </div>
+    {/if}
 </section>
 
 {#if categoryCounts.length > 0}

@@ -9,21 +9,12 @@ export const prerender = true;
 /**
  * Loads the published dataset.
  *
- * The file is fetched rather than imported so that it can be replaced on the
- * server without rebuilding the site, or served by something else entirely
- * behind the same path.
+ * There is no published dataset yet: content lives entirely in the browser's
+ * `localStorage` overlay, merged over an empty seed by `WikiStore`. This load
+ * function is the hook where a future backend (a database, an API) would be
+ * queried instead of returning `null`.
  *
- * @returns The parsed content of `static/data/wiki.json`, or null when unreachable.
+ * @returns Always null for now, until a real data source exists.
  * @author Claude
  */
-export const load: LayoutLoad = async ( { fetch } ) =>
-{
-    const response = await fetch( "/data/wiki.json" );
-
-    if ( !response.ok )
-    {
-        return { dataset: null as unknown };
-    }
-
-    return { dataset: ( await response.json() ) as unknown };
-};
+export const load: LayoutLoad = () => ( { dataset: null as unknown } );

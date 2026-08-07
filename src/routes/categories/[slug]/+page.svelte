@@ -85,7 +85,7 @@
         <div class="mt-10">
             <EmptyState
                 title="Catégorie inconnue"
-                description="Aucune catégorie ne porte ce nom dans le fichier de données."
+                description="Aucune catégorie ne porte ce nom."
             >
                 <a href={resolve( "/categories" )} class="btn btn-outline">Voir les catégories</a>
             </EmptyState>

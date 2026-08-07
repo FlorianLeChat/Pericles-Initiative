@@ -2,9 +2,8 @@
     /**
      * Live feed.
      *
-     * The published JSON is polled while the page is open, so replacing
-     * `wiki.json` on the server is enough to update every reader without a
-     * rebuild. Local publications appear immediately, before any export.
+     * Publications appear immediately: they are written straight to the
+     * `localStorage` overlay, the sole source of content for now.
      *
      * @author Claude
      */
@@ -15,10 +14,7 @@
     import { SEVERITIES } from "$lib/config/severities";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LiveEntry, LiveSeverity } from "$lib/types";
-    import { formatLongDate, formatTime, relativeTime } from "$lib/utilities/date";
-
-    /** How often the published feed is polled, in milliseconds. */
-    const POLL_INTERVAL = 60_000;
+    import { formatLongDate, relativeTime } from "$lib/utilities/date";
 
     let severity = $state<LiveSeverity | "toutes">( "toutes" );
     let tag = $state( "toutes" );
@@ -60,13 +56,6 @@
     } );
 
     const latest = $derived( wiki.live[ 0 ] );
-
-    // Keep the feed in sync with the published file while the page is open.
-    $effect( () =>
-    {
-        const interval = setInterval( () => void wiki.refresh(), POLL_INTERVAL );
-        return () => clearInterval( interval );
-    } );
 
     /**
      * Loads an item into the composer.
@@ -118,13 +107,6 @@
                 {composerOpen && !editing ? "Fermer le composeur" : "Publier une entrée"}
             </button>
 
-            <p class="text-ink-400 text-xs">
-                {#if wiki.syncedAt}
-                    Fil actualisé à {formatTime( wiki.syncedAt )}
-                {:else}
-                    Actualisation automatique toutes les minutes
-                {/if}
-            </p>
         </div>
     </header>
 
@@ -256,20 +238,12 @@
             {/if}
 
             <div class="surface p-5">
-                <p class="text-ink-400 text-xs tracking-wide uppercase">Actualisation</p>
+                <p class="text-ink-400 text-xs tracking-wide uppercase">Stockage</p>
 
                 <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">
-                    Le fil relit <code class="font-mono text-xs">/data/wiki.json</code> chaque minute. Remplacer ce fichier
-                    sur le serveur suffit à mettre à jour les lecteurs, sans rebuild.
+                    Chaque publication est écrite directement dans le stockage local de ce navigateur : elle apparaît
+                    immédiatement ici, mais reste propre à cet appareil tant qu'elle n'a pas été exportée.
                 </p>
-
-                <button
-                    type="button"
-                    class="btn btn-outline mt-4 w-full py-1.5 text-xs"
-                    onclick={() => void wiki.refresh()}
-                >
-                    Actualiser maintenant
-                </button>
             </div>
         </aside>
     </div>
@@ -278,7 +252,7 @@
 <ConfirmDialog
     bind:open={deleteOpen}
     title="Supprimer cette entrée ?"
-    message="Elle disparaît du fil. Si elle vient du JSON publié, la suppression reste locale jusqu'au prochain export."
+    message="Elle disparaît du fil et de ce navigateur."
     confirmLabel="Supprimer"
     danger
     onconfirm={() =>

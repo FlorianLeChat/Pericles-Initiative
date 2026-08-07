@@ -286,7 +286,7 @@ export const normalizeOverlay = ( value: unknown ): Overlay =>
  * Upserts replace the seed item sharing their identifier, deletions remove it,
  * and anything untouched is left as published.
  *
- * @param seed Dataset loaded from `static/data/wiki.json`.
+ * @param seed Seed dataset, currently always empty in the absence of a backend.
  * @param overlay Local changes.
  * @returns The dataset actually displayed by the site.
  * @author Claude

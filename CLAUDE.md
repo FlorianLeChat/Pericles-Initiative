@@ -9,8 +9,9 @@ Three constraints shape every decision in this repository:
 
 - **No authentication.** There is no notion of user, role or session. Anyone reaching the site can
   read and edit.
-- **No database.** All published content lives in a single JSON file, `static/data/wiki.json`, which
-  can be swapped at runtime or served by something else behind the same path.
+- **No database, for now.** All content lives in the browser's `localStorage`, in the `pericles:overlay`
+  key. There is no seed file: a fresh browser starts from an empty wiki. This is expected to change,
+  once a real backend exists to feed the seed instead.
 - **Statically generated.** The build produces plain HTML files plus a SPA fallback. There is no
   server at runtime, so the site can never write its own data. Editing happens in the browser and is
   exported as JSON that a human commits.
@@ -37,8 +38,8 @@ outside of this repository.
 
 ## Content typography
 
-These rules apply to the fiction itself, which means the contents of `static/data/wiki.json` and any
-sample text written into components.
+These rules apply to the fiction itself, which means everything written into the wiki through the
+editor, and any sample text written into components.
 
 - **Never use an em dash or an en dash** in narrative text, summaries, infobox values or live feed
   items. Use a comma, a colon, or split the sentence.
@@ -91,23 +92,29 @@ the link graph and the crawler actually get proven.
 
 ## Data rules
 
-- `static/data/wiki.json` is the **only** source of truth for published content. Application code
-  reads it and never writes it. Publishing means: export the JSON from `/data`, replace the file,
-  commit.
-- Everything read from that file goes through `normalizeDataset` in `src/lib/utilities/dataset.ts`. The
-  file is hand editable, so a missing or malformed field must degrade into a default, never throw.
-  When you add a field to a type in `src/lib/types.ts`, add its normalisation in the same commit.
-- Local unpublished changes live in a `localStorage` overlay, keyed by identifier, merged over the
-  seed by `mergeDataset`. Upserts are keyed so that refreshing the published JSON never discards work
-  in progress.
+- The `localStorage` overlay is the **only** source of content for now. `WikiStore`
+  (`src/lib/state/wiki.svelte.ts`) still merges it over a `seed`, kept for the day a real backend
+  feeds one, but that seed is always empty today: nothing ships a JSON file to seed the wiki from.
+  Application code never writes anywhere else. Import and export from `/data` are how content moves
+  between browsers or gets backed up, until a backend replaces that.
+- Everything installed into the store, seed or overlay, goes through `normalizeDataset` /
+  `normalizeOverlay` in `src/lib/utilities/dataset.ts`. Both a missing seed and a missing overlay key
+  must degrade into an empty, valid dataset, never throw. When you add a field to a type in
+  `src/lib/types.ts`, add its normalisation in the same commit.
+- Local changes live in a `localStorage` overlay, keyed by identifier, merged over the seed by
+  `mergeDataset`. Upserts are keyed so re-hydrating a seed never discards work in progress.
 - `id` is stable and survives a rename. `slug` is the url and may change, so never key anything
   persistent on it. Categories are the exception: they are keyed by slug.
 - `localStorage` keys are namespaced `pericles:`. Currently `pericles:overlay` and `pericles:theme`.
 - Images are a path under `/media/` or an absolute URL. Never store base64 in the dataset: the
-  overlay shares the roughly five megabyte `localStorage` quota with all the text.
+  overlay shares the roughly five megabyte `localStorage` quota with all the text. Static images
+  under `static/media/` are the one thing that still ships with the repository.
 - Dates: `createdAt`, `updatedAt` and `publishedAt` are real ISO timestamps. `timelineDate` is an in
   universe date and may be free text, which is why every date helper falls back to returning its
   input untouched.
+- Every listing (`/wiki`, `/categories`, `/timeline`, the home page) must handle having zero entries
+  gracefully: a fresh browser starts from an empty wiki, so this is the default state, not an edge
+  case. Show an inviting message with a link to create content, never a silent empty grid.
 
 ## Article Markdown
 
@@ -142,11 +149,14 @@ the link graph and the crawler actually get proven.
 
 - Every page is prerendered by crawling links from `/`. A page that no rendered `<a href>` points at
   will not exist as static HTML. This is why `/wiki` lists every page, drafts included: it is the
-  crawler's entry point into the corpus.
+  crawler's entry point into the corpus. With an empty seed, that listing is empty at build time, so
+  `/wiki/[slug]` and `/categories/[slug]` are never prerendered: every page of actual content is
+  served through the SPA fallback instead. This is expected, not a regression to fix.
 - Editor routes cannot be prerendered. They export `prerender = false` and `ssr = false`, and the
-  SPA fallback `200.html` serves them, along with pages that only exist in the local overlay.
+  SPA fallback `200.html` serves them, along with every page that only exists in the local overlay,
+  which today means essentially all content.
 - Server rendered output must never contain overlay data. The overlay is loaded in an effect, after
-  hydration, so that the static HTML matches the published JSON exactly.
+  hydration, so that the static HTML matches the (empty) seed exactly.
 
 ## Semantic HTML
 
@@ -193,8 +203,8 @@ Do not commit or push unless asked.
 
 ## Architecture diagram
 
-`README.md` holds a Mermaid diagram of the data flow, from the JSON file to the rendered pages and
-back out through the export. Update it in the same commit as any change to that flow.
+`README.md` holds a Mermaid diagram of the data flow, from the `localStorage` overlay to the rendered
+pages and back out through the export. Update it in the same commit as any change to that flow.
 
 ## Structure
 
@@ -212,7 +222,7 @@ src/
         types.ts                every data contract
         utils/                  markdown, dataset, search, stats, date, slug
     routes/
-        +layout.ts              loads static/data/wiki.json, sets prerender
+        +layout.ts              installs an always empty seed, sets prerender
         +layout.svelte          installs the dataset, frames the site
         wiki/                   index and article pages
         categories/             overview, per category pages, management
@@ -223,6 +233,5 @@ src/
         data/                   export and import
         settings/               identity of the wiki
 static/
-    data/wiki.json              published content, the source of truth
     media/                      illustrations referenced by pages
 ```

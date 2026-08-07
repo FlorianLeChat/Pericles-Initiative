@@ -7,7 +7,6 @@
     import { resolve } from "$app/paths";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
-    import { formatDateTime } from "$lib/utilities/date";
 
     /** Above this size the browser is close to refusing to store the overlay. */
     const STORAGE_WARNING = 3_500_000;
@@ -70,7 +69,7 @@
         link.click();
         URL.revokeObjectURL( url );
 
-        feedback = { kind: "ok", text: "Export téléchargé. Remplacez static/data/wiki.json puis committez." };
+        feedback = { kind: "ok", text: "Export téléchargé." };
     };
 
     /**
@@ -149,8 +148,8 @@
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Données</h1>
 
         <p class="text-ink-400 mt-3 leading-relaxed">
-            Le site lit son contenu dans <code class="font-mono text-xs">static/data/wiki.json</code>. Vos modifications
-            restent dans ce navigateur jusqu'à ce que vous les exportiez.
+            Le site lit son contenu dans le stockage local de ce navigateur : c'est aujourd'hui la seule source de
+            données. Exportez régulièrement pour ne rien perdre.
         </p>
     </header>
 
@@ -176,8 +175,8 @@
 
         {#if !wiki.hasLocalChanges}
             <p class="text-ink-400 mt-4 text-sm">
-                Aucune modification locale. Le site affiche exactement le JSON publié, version {wiki.meta.version}, mis
-                à jour le {formatDateTime( wiki.meta.updatedAt )}.
+                Aucune donnée enregistrée dans ce navigateur pour le moment. Créez une fiche, une catégorie ou une
+                entrée du fil pour commencer.
             </p>
         {:else}
             <p class="mt-4 text-sm">
@@ -282,8 +281,8 @@
         <h2 class="font-serif text-xl font-semibold tracking-tight">Exporter</h2>
 
         <p class="text-ink-400 mt-2 text-sm leading-relaxed">
-            L'export contient tout le contenu affiché actuellement, publié et local confondus. C'est le fichier à
-            committer.
+            L'export contient tout le contenu affiché actuellement. Conservez ce fichier pour ne rien perdre, ou pour
+            le réimporter sur un autre appareil.
         </p>
 
         <div class="mt-5 flex flex-wrap gap-2">
@@ -296,9 +295,7 @@
 
         <ol class="text-ink-400 mt-6 list-decimal space-y-1.5 pl-5 text-sm leading-relaxed">
             <li>Télécharger le fichier.</li>
-            <li>Remplacer <code class="font-mono text-xs">static/data/wiki.json</code> par celui ci.</li>
-            <li>Committer, puis relancer le build.</li>
-            <li>Réinitialiser les modifications locales, devenues redondantes.</li>
+            <li>Le conserver comme sauvegarde, ou l'importer depuis un autre navigateur.</li>
         </ol>
     </section>
 
@@ -389,7 +386,7 @@
         <h2 class="font-serif text-xl font-semibold tracking-tight">Réinitialiser</h2>
 
         <p class="text-ink-400 mt-2 text-sm leading-relaxed">
-            Efface toutes les modifications locales et revient au JSON publié. Irréversible : exportez avant.
+            Efface toutes les données enregistrées dans ce navigateur. Irréversible : exportez avant.
         </p>
 
         <button

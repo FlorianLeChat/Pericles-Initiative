@@ -186,7 +186,16 @@
         {filtered.length === 1 ? "fiche" : "fiches"}
     </p>
 
-    {#if filtered.length === 0}
+    {#if wiki.entries.length === 0}
+        <div class="mt-6">
+            <EmptyState
+                title="Aucune fiche pour le moment"
+                description="Ce wiki est vide : commencez par créer la première fiche."
+            >
+                <a href={resolve( "/new" )} class="btn btn-outline">Créer une fiche</a>
+            </EmptyState>
+        </div>
+    {:else if filtered.length === 0}
         <div class="mt-6">
             <EmptyState
                 title="Aucune fiche ne correspond"

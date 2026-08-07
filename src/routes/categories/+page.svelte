@@ -42,10 +42,9 @@
 
     {#if groups.length === 0}
         <div class="mt-10">
-            <EmptyState
-                title="Aucune catégorie"
-                description="Le fichier de données ne déclare encore aucune catégorie."
-            />
+            <EmptyState title="Aucune catégorie" description="Aucune catégorie n'a encore été créée.">
+                <a href={resolve( "/categories/manage" )} class="btn btn-outline">Créer une catégorie</a>
+            </EmptyState>
         </div>
     {:else}
         <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

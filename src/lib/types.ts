@@ -1,8 +1,9 @@
 /**
  * Shared data contracts for the whole encyclopedia.
  *
- * Everything the site displays comes from a single `Dataset`, loaded from
- * `static/data/wiki.json` and optionally patched by a local `Overlay`.
+ * Everything the site displays comes from a single `Dataset`, currently held
+ * entirely in the browser's `localStorage` `Overlay`, in the absence of a
+ * backend to seed it from.
  *
  * @author Claude
  */

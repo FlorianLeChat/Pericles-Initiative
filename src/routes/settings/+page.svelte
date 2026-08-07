@@ -12,7 +12,6 @@
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import EntryPicker from "$lib/components/editor/EntryPicker.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
-    import { formatDateTime } from "$lib/utilities/date";
 
     /** Seeded once: the form is a draft of the identity, applied on save. */
     const initial = untrack( () => ( {
@@ -70,7 +69,7 @@
     };
 
     /**
-     * Puts the form back on the published identity.
+     * Puts the form back on the default identity, before any local change.
      *
      * @author Claude
      */
@@ -297,14 +296,14 @@
                     class="btn btn-ghost hover:text-alert-500 ml-auto"
                     onclick={() => ( resetOpen = true )}
                 >
-                    Revenir à l'identité publiée
+                    Revenir à l'identité par défaut
                 </button>
             {/if}
         </div>
     </form>
 
     <p class="text-ink-400 mt-8 text-xs">
-        JSON publié : version {wiki.seed.meta.version}, mis à jour le {formatDateTime( wiki.seed.meta.updatedAt )}.
+        Identité par défaut : « {wiki.seed.meta.universe} », version {wiki.seed.meta.version}.
     </p>
 </div>
 
@@ -322,7 +321,7 @@
 
 <ConfirmDialog
     bind:open={resetOpen}
-    title="Revenir à l'identité publiée ?"
+    title="Revenir à l'identité par défaut ?"
     message="Les modifications locales du nom, de la signature, de la description, du logo et des fiches à la une seront perdues."
     confirmLabel="Revenir"
     danger
