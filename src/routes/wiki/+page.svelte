@@ -103,7 +103,7 @@
             </p>
         </div>
 
-        <a href={resolve( "/nouveau" )} class="btn btn-primary">Nouvelle fiche</a>
+        <a href={resolve( "/new" )} class="btn btn-primary">Nouvelle fiche</a>
     </header>
 
     <div class="surface mt-8 space-y-4 p-5">

@@ -107,7 +107,7 @@
     {#if saved && !dirty}
         <p class="bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100 mt-6 rounded-xl px-4 py-3 text-sm" role="status">
             Identité enregistrée. Elle reste locale jusqu'à l'export du JSON depuis
-            <a href={resolve( "/donnees" )} class="underline">la page Données</a>.
+            <a href={resolve( "/data" )} class="underline">la page Données</a>.
         </p>
     {/if}
 

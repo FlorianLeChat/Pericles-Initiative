@@ -30,7 +30,7 @@
             title="Aucune fiche à cette adresse"
             description="Elle a peut être été supprimée, ou son adresse a changé."
         >
-            <a href={resolve( `/nouveau?slug=${ slug }` )} class="btn btn-primary">Créer cette fiche</a>
+            <a href={resolve( `/new?slug=${ slug }` )} class="btn btn-primary">Créer cette fiche</a>
 
             <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
         </EmptyState>

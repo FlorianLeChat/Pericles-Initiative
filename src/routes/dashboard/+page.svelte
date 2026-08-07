@@ -127,7 +127,7 @@
                                 cité {item.count} {item.count === 1 ? "fois" : "fois"}
                             </span>
 
-                            <a href={resolve( `/nouveau?slug=${ item.slug }` )} class="btn btn-outline shrink-0 px-2.5 py-1 text-xs">
+                            <a href={resolve( `/new?slug=${ item.slug }` )} class="btn btn-outline shrink-0 px-2.5 py-1 text-xs">
                                 Créer
                             </a>
                         </li>

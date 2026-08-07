@@ -60,7 +60,7 @@
                 <span>{entryTypeConfig( entry.type ).plural}</span>
             </nav>
 
-            <a href={resolve( `/editer/${ entry.slug }` )} class="btn btn-outline px-3.5 py-1.5 text-xs">Modifier</a>
+            <a href={resolve( `/edit/${ entry.slug }` )} class="btn btn-outline px-3.5 py-1.5 text-xs">Modifier</a>
         </div>
 
         <header class="border-paper-200 dark:border-ink-800 mt-4 border-b pb-8">
@@ -143,7 +143,7 @@
             description="Le lien qui mène ici attend une page. C'est le principe du lien rouge : il signale un manque à combler."
         >
             <a
-                href={resolve( `/nouveau?slug=${ slug }&titre=${ encodeURIComponent( plannedTitle ) }` )}
+                href={resolve( `/new?slug=${ slug }&titre=${ encodeURIComponent( plannedTitle ) }` )}
                 class="btn btn-primary"
             >
                 Créer cette fiche

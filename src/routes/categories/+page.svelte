@@ -37,7 +37,7 @@
             </p>
         </div>
 
-        <a href={resolve( "/categories/gerer" )} class="btn btn-outline">Gérer les catégories</a>
+        <a href={resolve( "/categories/manage" )} class="btn btn-outline">Gérer les catégories</a>
     </header>
 
     {#if groups.length === 0}

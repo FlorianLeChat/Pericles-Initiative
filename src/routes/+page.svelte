@@ -138,7 +138,7 @@
                     En direct
                 </h2>
 
-                <a href={resolve( "/direct" )} class="wiki-link text-sm">Tout le fil</a>
+                <a href={resolve( "/live" )} class="wiki-link text-sm">Tout le fil</a>
             </div>
 
             <ul class="mt-6 space-y-4">
@@ -150,7 +150,7 @@
                             {#if item.entrySlug}
                                 <a href={resolve( `/wiki/${ item.entrySlug }` )} class="font-medium hover:underline">{item.title}</a>
                             {:else}
-                                <a href={resolve( "/direct" )} class="font-medium hover:underline">{item.title}</a>
+                                <a href={resolve( "/live" )} class="font-medium hover:underline">{item.title}</a>
                             {/if}
                         </span>
 

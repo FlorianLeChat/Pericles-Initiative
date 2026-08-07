@@ -264,7 +264,7 @@
 
                         <p class="text-ink-500 dark:text-paper-300/80">
                             Nom, signature, description, logo ou fiches à la une modifiés depuis
-                            <a href={resolve( "/parametres" )} class="wiki-link">les paramètres</a>.
+                            <a href={resolve( "/settings" )} class="wiki-link">les paramètres</a>.
                         </p>
                     </div>
                 {/if}
