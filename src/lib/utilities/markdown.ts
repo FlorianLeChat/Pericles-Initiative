@@ -15,6 +15,7 @@
 import { marked, type Token, type Tokens } from "marked";
 import type { Heading, RenderedArticle } from "$lib/types";
 import { slugify } from "./slug";
+import { isSafeUrl } from "./url";
 
 marked.use( { gfm: true, breaks: false } );
 
@@ -31,9 +32,8 @@ const FORBIDDEN_TAGS
 /** Inline event handlers such as `onclick="..."`. */
 const EVENT_ATTRIBUTES = /\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
 
-/** Executable urls in `href` or `src`. */
-const EXECUTABLE_URLS
-    = /\s(href|src)\s*=\s*(?:"\s*(?:javascript|vbscript|data:text\/html)[^"]*"|'\s*(?:javascript|vbscript|data:text\/html)[^']*')/gi;
+/** Attributes carrying a url, quoted or not, whose scheme has to be judged. */
+const URL_ATTRIBUTES = /\s(href|src|formaction|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
 
 /** Opening tags of the headings that feed the table of contents. */
 const HEADING_TAGS = /<(h[2-4])>/g;
@@ -41,8 +41,24 @@ const HEADING_TAGS = /<(h[2-4])>/g;
 /** Opening tags of links, captured with their attributes. */
 const LINK_TAGS = /<a\s+([^>]*)>/g;
 
+/** A `class` attribute already present on an authored link, which ours replaces. */
+const CLASS_ATTRIBUTE = /\sclass\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
+
 /** Inline Markdown markers stripped when a heading or excerpt needs plain text. */
 const INLINE_MARKERS = /[*_`~]/g;
+
+/**
+ * Removes the quotes around an attribute value, when it has any.
+ *
+ * @param value Raw attribute value as captured, possibly quoted.
+ * @returns The bare value.
+ * @author Claude
+ */
+const unquote = ( value: string ): string =>
+{
+    const quoted = value.length >= 2 && ( value.startsWith( "\"" ) || value.startsWith( "'" ) );
+    return quoted ? value.slice( 1, -1 ) : value;
+};
 
 /**
  * Removes the constructs that have no place in an article body.
@@ -59,7 +75,59 @@ export const sanitizeHtml = ( html: string ): string =>
         .replace( SCRIPT_BLOCKS, "" )
         .replace( FORBIDDEN_TAGS, "" )
         .replace( EVENT_ATTRIBUTES, "" )
-        .replace( EXECUTABLE_URLS, " $1=\"#\"" );
+        .replace( URL_ATTRIBUTES, ( match, name: string, value: string ) =>
+            isSafeUrl( unquote( value ) ) ? match : ` ${ name }="#"` );
+
+/**
+ * Upper bound of every memoisation cache.
+ *
+ * Large enough to hold a whole corpus, small enough that typing in the editor,
+ * which produces a new body on every keystroke, cannot grow it without limit.
+ */
+const CACHE_LIMIT = 512;
+
+/**
+ * Memoises a pure transformation of a Markdown string.
+ *
+ * Parsing Markdown is by far the most expensive thing this module does, and the
+ * same bodies are parsed again on every render: a listing computes an excerpt
+ * per card, the dashboard counts words per page, and the search palette scans
+ * every body on every keystroke. Bodies are immutable once stored, so the string
+ * itself is a sound cache key.
+ *
+ * @param compute Transformation to memoise.
+ * @returns The same transformation, backed by a bounded cache.
+ * @author Claude
+ */
+const memoize = <T>( compute: ( markdown: string ) => T ): ( ( markdown: string ) => T ) =>
+{
+    const cache = new Map<string, T>();
+
+    return ( markdown: string ): T =>
+    {
+        const cached = cache.get( markdown );
+        if ( cached !== undefined || cache.has( markdown ) )
+        {
+            return cached as T;
+        }
+
+        const value = compute( markdown );
+
+        // A Map iterates in insertion order, so its first key is the oldest one.
+        if ( cache.size >= CACHE_LIMIT )
+        {
+            const oldest = cache.keys().next().value;
+            if ( oldest !== undefined )
+            {
+                cache.delete( oldest );
+            }
+        }
+
+        cache.set( markdown, value );
+
+        return value;
+    };
+};
 
 /**
  * Strips inline Markdown syntax to get readable plain text.
@@ -118,23 +186,46 @@ const walkTokens = ( tokens: Token[] | undefined, visit: ( token: Token ) => voi
     }
 };
 
+/** What a single lexing pass over a body yields. */
+interface BodyAnalysis {
+    headings: Heading[];
+    links: string[];
+}
+
 /**
- * Collects the headings of a Markdown body, in document order.
+ * Lexes a body once and collects everything the rest of the site reads from it.
  *
- * Only levels 2 to 4 are collected: level 1 is the page title, rendered
+ * Headings and internal links used to be gathered by two independent passes,
+ * each lexing the same body again. They are collected together here so that
+ * rendering an article, building the link graph and drawing the table of
+ * contents all share a single parse.
+ *
+ * Only heading levels 2 to 4 are collected: level 1 is the page title, rendered
  * outside of the body.
  *
  * @param markdown Article body.
- * @returns Headings with unique anchor identifiers.
+ * @returns The headings, with unique anchors, and the slugs linked to.
  * @author Claude
  */
-export const collectHeadings = ( markdown: string ): Heading[] =>
+const analyzeBody = memoize( ( markdown: string ): BodyAnalysis =>
 {
     const headings: Heading[] = [];
     const used = new Set<string>();
+    const slugs = new Set<string>();
 
     walkTokens( marked.lexer( markdown ), ( token ) =>
     {
+        if ( token.type === "link" )
+        {
+            const match = ( token as Tokens.Link ).href.match( INTERNAL_HREF );
+            if ( match )
+            {
+                slugs.add( match[ 1 ] );
+            }
+
+            return;
+        }
+
         if ( token.type !== "heading" )
         {
             return;
@@ -160,8 +251,17 @@ export const collectHeadings = ( markdown: string ): Heading[] =>
         headings.push( { id, text, level: heading.depth } );
     } );
 
-    return headings;
-};
+    return { headings, links: [ ...slugs ] };
+} );
+
+/**
+ * Collects the headings of a Markdown body, in document order.
+ *
+ * @param markdown Article body.
+ * @returns Headings with unique anchor identifiers.
+ * @author Claude
+ */
+export const collectHeadings = ( markdown: string ): Heading[] => analyzeBody( markdown ).headings;
 
 /**
  * Lists the internal pages a Markdown body links to.
@@ -170,26 +270,7 @@ export const collectHeadings = ( markdown: string ): Heading[] =>
  * @returns Unique slugs, in order of first appearance.
  * @author Claude
  */
-export const extractInternalLinks = ( markdown: string ): string[] =>
-{
-    const slugs = new Set<string>();
-
-    walkTokens( marked.lexer( markdown ), ( token ) =>
-    {
-        if ( token.type !== "link" )
-        {
-            return;
-        }
-
-        const match = ( token as Tokens.Link ).href.match( INTERNAL_HREF );
-        if ( match )
-        {
-            slugs.add( match[ 1 ] );
-        }
-    } );
-
-    return [ ...slugs ];
-};
+export const extractInternalLinks = ( markdown: string ): string[] => analyzeBody( markdown ).links;
 
 /**
  * Adds anchor identifiers to the rendered headings.
@@ -228,8 +309,12 @@ const applyHeadingIds = ( html: string, headings: Heading[] ): string =>
  * @author Claude
  */
 const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string =>
-    html.replace( LINK_TAGS, ( _match, attributes: string ) =>
+    html.replace( LINK_TAGS, ( _match, rawAttributes: string ) =>
     {
+        // An authored `class` is dropped rather than kept alongside ours: a duplicate
+        // attribute wins over the later one in the browser, which would let a body
+        // opt out of the red link styling.
+        const attributes = rawAttributes.replace( CLASS_ATTRIBUTE, "" ).trim();
         const href = attributes.match( /href\s*=\s*"([^"]*)"/ )?.[ 1 ] ?? "";
         const internal = href.match( INTERNAL_HREF );
 
@@ -250,6 +335,18 @@ const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string 
     } );
 
 /**
+ * Parses and sanitizes a body, without the decoration that depends on the dataset.
+ *
+ * Split out so the expensive half can be memoised: link decoration varies with
+ * the set of existing pages, parsing does not.
+ *
+ * @param markdown Any Markdown.
+ * @returns Sanitized HTML, links still undecorated.
+ * @author Claude
+ */
+const renderSanitized = memoize( ( markdown: string ): string => sanitizeHtml( marked.parse( markdown ) as string ) );
+
+/**
  * Renders an article body to display ready HTML.
  *
  * @param markdown Article body.
@@ -262,13 +359,13 @@ export const renderArticle = (
     knownSlugs: ReadonlySet<string> = new Set<string>()
 ): RenderedArticle =>
 {
-    const headings = collectHeadings( markdown );
-    const rendered = sanitizeHtml( marked.parse( markdown ) as string );
+    const { headings, links } = analyzeBody( markdown );
+    const rendered = renderSanitized( markdown );
 
     return {
         html: decorateLinks( applyHeadingIds( rendered, headings ), knownSlugs ),
         headings,
-        links: extractInternalLinks( markdown )
+        links
     };
 };
 
@@ -281,7 +378,7 @@ export const renderArticle = (
  * @author Claude
  */
 export const renderInline = ( markdown: string, knownSlugs: ReadonlySet<string> = new Set<string>() ): string =>
-    decorateLinks( sanitizeHtml( marked.parse( markdown ) as string ), knownSlugs );
+    decorateLinks( renderSanitized( markdown ), knownSlugs );
 
 /**
  * Converts Markdown to plain text, for excerpts, search and word counts.
@@ -290,7 +387,7 @@ export const renderInline = ( markdown: string, knownSlugs: ReadonlySet<string> 
  * @returns The text content, whitespace collapsed.
  * @author Claude
  */
-export const markdownToPlainText = ( markdown: string ): string =>
+export const markdownToPlainText = memoize( ( markdown: string ): string =>
     ( marked.parse( markdown ) as string )
         .replace( /<[^>]*>/g, " " )
         .replace( /&nbsp;/g, " " )
@@ -300,7 +397,7 @@ export const markdownToPlainText = ( markdown: string ): string =>
         .replace( /&quot;/g, "\"" )
         .replace( /&#39;/g, "'" )
         .replace( /\s+/g, " " )
-        .trim();
+        .trim() );
 
 /**
  * Truncates Markdown into a short excerpt, cutting on a word boundary.
@@ -330,8 +427,8 @@ export const excerpt = ( markdown: string, maxLength = 180 ): string =>
  * @returns The number of words.
  * @author Claude
  */
-export const countWords = ( markdown: string ): number =>
+export const countWords = memoize( ( markdown: string ): number =>
 {
     const text = markdownToPlainText( markdown );
     return text ? text.split( /\s+/ ).length : 0;
-};
+} );

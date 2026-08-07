@@ -28,6 +28,57 @@ const WEIGHTS = {
     body: 5
 };
 
+/** The accent free view of a page, which is what actually gets matched. */
+interface SearchableEntry {
+    title: string;
+    aliases: string[];
+    summary: string;
+    categories: string[];
+    type: string;
+    body: string;
+}
+
+/**
+ * Accent free views, keyed by the page they describe.
+ *
+ * Held weakly and keyed by identity: an edited page is a new object, so its
+ * stale view is collected instead of having to be invalidated.
+ */
+const searchable = new WeakMap<Entry, SearchableEntry>();
+
+/**
+ * Builds, and then reuses, the accent free view of a page.
+ *
+ * Every field used to be deburred again for each term of each query, and the
+ * body was converted from Markdown on every keystroke. It is computed once per
+ * page here instead.
+ *
+ * @param entry Page to normalise.
+ * @returns Its lowercase, accent free fields.
+ * @author Claude
+ */
+const toSearchable = ( entry: Entry ): SearchableEntry =>
+{
+    const cached = searchable.get( entry );
+    if ( cached )
+    {
+        return cached;
+    }
+
+    const view: SearchableEntry = {
+        title: deburr( entry.title ),
+        aliases: entry.aliases.map( deburr ),
+        summary: deburr( entry.summary ),
+        categories: entry.categories.map( deburr ),
+        type: deburr( entry.type ),
+        body: deburr( markdownToPlainText( entry.body ) )
+    };
+
+    searchable.set( entry, view );
+
+    return view;
+};
+
 /**
  * Splits a query into normalised terms.
  *
@@ -40,47 +91,45 @@ const terms = ( query: string ): string[] => deburr( query ).split( /\s+/ ).filt
 /**
  * Scores a page against a single search term.
  *
- * @param entry Page to score.
+ * @param entry Accent free view of the page.
  * @param term Normalised search term.
- * @param body Pre-computed plain text body.
  * @returns The score, zero when the term appears nowhere.
  * @author Claude
  */
-const scoreTerm = ( entry: Entry, term: string, body: string ): number =>
+const scoreTerm = ( entry: SearchableEntry, term: string ): number =>
 {
-    const title = deburr( entry.title );
     let score = 0;
 
-    if ( title === term )
+    if ( entry.title === term )
     {
         score += WEIGHTS.exactTitle;
     }
-    else if ( title.startsWith( term ) )
+    else if ( entry.title.startsWith( term ) )
     {
         score += WEIGHTS.titleStart;
     }
-    else if ( title.includes( term ) )
+    else if ( entry.title.includes( term ) )
     {
         score += WEIGHTS.title;
     }
 
-    if ( entry.aliases.some( ( alias ) => deburr( alias ).includes( term ) ) )
+    if ( entry.aliases.some( ( alias ) => alias.includes( term ) ) )
     {
         score += WEIGHTS.alias;
     }
-    if ( deburr( entry.summary ).includes( term ) )
+    if ( entry.summary.includes( term ) )
     {
         score += WEIGHTS.summary;
     }
-    if ( entry.categories.some( ( category ) => deburr( category ).includes( term ) ) )
+    if ( entry.categories.some( ( category ) => category.includes( term ) ) )
     {
         score += WEIGHTS.category;
     }
-    if ( deburr( entry.type ).includes( term ) )
+    if ( entry.type.includes( term ) )
     {
         score += WEIGHTS.type;
     }
-    if ( body.includes( term ) )
+    if ( entry.body.includes( term ) )
     {
         score += WEIGHTS.body;
     }
@@ -109,13 +158,13 @@ export const searchEntries = ( entries: readonly Entry[], query: string, limit =
 
     for ( const entry of entries )
     {
-        const body = deburr( markdownToPlainText( entry.body ) );
+        const view = toSearchable( entry );
         let total = 0;
         let matchedAll = true;
 
         for ( const term of searched )
         {
-            const score = scoreTerm( entry, term, body );
+            const score = scoreTerm( view, term );
             if ( score === 0 )
             {
                 matchedAll = false;

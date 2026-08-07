@@ -27,7 +27,9 @@ import { buildImportOverlay,
     normalizeDataset,
     normalizeEntry,
     normalizeLiveEntry,
-    normalizeOverlay } from "$lib/utilities/dataset";
+    normalizeMetaPatch,
+    normalizeOverlay,
+    withoutKey } from "$lib/utilities/dataset";
 import { extractInternalLinks } from "$lib/utilities/markdown";
 import { uniqueSlug } from "$lib/utilities/slug";
 
@@ -36,17 +38,6 @@ const OVERLAY_KEY = "pericles:overlay";
 
 /** How long an alert keeps showing the site wide banner, in milliseconds. */
 const BREAKING_MAX_AGE = 24 * 60 * 60 * 1000;
-
-/**
- * Returns a shallow copy of a record with one key removed.
- *
- * @param record Source record, left untouched.
- * @param key Key to drop.
- * @returns A new record without `key`.
- * @author Claude
- */
-const withoutKey = <T>( record: Record<string, T>, key: string ): Record<string, T> =>
-    Object.fromEntries( Object.entries( record ).filter( ( [ candidate ] ) => candidate !== key ) );
 
 /** A page linking to a slug that has no page yet. */
 export interface MissingLink {
@@ -58,6 +49,9 @@ class WikiStore
 {
     /** Raw value last passed to `hydrate`, so repeated calls are free. */
     #source: unknown = undefined;
+
+    /** Depth of the running `#batch` calls, while which `persist` is deferred. */
+    #batchDepth = 0;
 
     /** Seed dataset, always empty until a real backend feeds it. */
     seed = $state<Dataset>( emptyDataset() );
@@ -145,7 +139,12 @@ class WikiStore
                 {
                     continue;
                 }
-                grouped[ target ] = [ ...( grouped[ target ] ?? [] ), entry ];
+
+                // Pushed rather than rebuilt by spreading: a page cited by many others
+                // would otherwise be recopied once per incoming link.
+                const sources = grouped[ target ] ?? [];
+                sources.push( entry );
+                grouped[ target ] = sources;
             }
         }
 
@@ -243,7 +242,7 @@ class WikiStore
      */
     private persist(): void
     {
-        if ( !browser )
+        if ( !browser || this.#batchDepth > 0 )
         {
             return;
         }
@@ -259,6 +258,33 @@ class WikiStore
                 = "Impossible d'enregistrer les modifications locales, le stockage du navigateur est plein. "
                   + `Exportez le JSON pour ne rien perdre. (${ String( error ) })`;
         }
+    }
+
+    /**
+     * Runs a mutation that touches many items, writing to storage only once.
+     *
+     * Renaming or deleting a category rewrites every page carrying it, and each
+     * of those saves would otherwise serialise the whole overlay again. The
+     * write is deferred to the end, so the cost stops growing with the number of
+     * affected pages.
+     *
+     * @param mutate Mutation to run.
+     * @author Claude
+     */
+    #batch( mutate: () => void ): void
+    {
+        this.#batchDepth += 1;
+
+        try
+        {
+            mutate();
+        }
+        finally
+        {
+            this.#batchDepth -= 1;
+        }
+
+        this.persist();
     }
 
     /**
@@ -323,13 +349,22 @@ class WikiStore
      */
     relatedTo( entry: Entry, limit = 4 ): Entry[]
     {
-        const shared = ( candidate: Entry ): number =>
-            candidate.categories.filter( ( category ) => entry.categories.includes( category ) ).length;
+        const reference = new Set( entry.categories );
 
-        return this.publishedEntries
-            .filter( ( candidate ) => candidate.id !== entry.id && shared( candidate ) > 0 )
-            .sort( ( a, b ) => shared( b ) - shared( a ) || a.title.localeCompare( b.title, "fr" ) )
-            .slice( 0, limit );
+        // Scored once per candidate rather than inside the comparator, which called
+        // it twice per comparison and rescanned both category lists each time.
+        const scored = this.publishedEntries
+            .filter( ( candidate ) => candidate.id !== entry.id )
+            .map( ( candidate ) => ( {
+                candidate,
+                shared: candidate.categories.filter( ( category ) => reference.has( category ) ).length
+            } ) )
+            .filter( ( item ) => item.shared > 0 );
+
+        return scored
+            .sort( ( a, b ) => b.shared - a.shared || a.candidate.title.localeCompare( b.candidate.title, "fr" ) )
+            .slice( 0, limit )
+            .map( ( item ) => item.candidate );
     }
 
     /**
@@ -414,10 +449,15 @@ class WikiStore
     {
         const category = normalizeCategory( input );
 
-        this.overlay.categories[ category.slug ] = category;
-
-        if ( previousSlug && previousSlug !== category.slug )
+        this.#batch( () =>
         {
+            this.overlay.categories[ category.slug ] = category;
+
+            if ( !previousSlug || previousSlug === category.slug )
+            {
+                return;
+            }
+
             for ( const entry of this.entries )
             {
                 if ( entry.categories.includes( previousSlug ) )
@@ -432,9 +472,7 @@ class WikiStore
             }
 
             this.#forgetCategory( previousSlug );
-        }
-
-        this.persist();
+        } );
 
         return category;
     }
@@ -447,20 +485,21 @@ class WikiStore
      */
     deleteCategory( slug: string ): void
     {
-        this.#forgetCategory( slug );
-
-        for ( const entry of this.entries )
+        this.#batch( () =>
         {
-            if ( entry.categories.includes( slug ) )
-            {
-                this.saveEntry( {
-                    ...entry,
-                    categories: entry.categories.filter( ( candidate ) => candidate !== slug )
-                } );
-            }
-        }
+            this.#forgetCategory( slug );
 
-        this.persist();
+            for ( const entry of this.entries )
+            {
+                if ( entry.categories.includes( slug ) )
+                {
+                    this.saveEntry( {
+                        ...entry,
+                        categories: entry.categories.filter( ( candidate ) => candidate !== slug )
+                    } );
+                }
+            }
+        } );
     }
 
     /**
@@ -510,7 +549,7 @@ class WikiStore
      */
     saveMeta( patch: Partial<WikiMeta> ): void
     {
-        this.overlay.meta = { ...this.overlay.meta, ...patch };
+        this.overlay.meta = normalizeMetaPatch( { ...this.overlay.meta, ...patch } );
         this.persist();
     }
 

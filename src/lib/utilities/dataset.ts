@@ -20,8 +20,9 @@ import type { Category,
     Overlay,
     WikiMeta } from "$lib/types";
 import { slugify } from "./slug";
+import { isSafeUrl } from "./url";
 
-const LIVE_SEVERITIES: readonly LiveSeverity[] = [ "info", "important", "urgent", "breaking" ];
+const LIVE_SEVERITIES: ReadonlySet<LiveSeverity> = new Set( [ "info", "important", "urgent", "breaking" ] );
 
 const DEFAULT_COLOR = "pierre";
 
@@ -65,10 +66,28 @@ const normalizeInfobox = ( value: unknown ): InfoboxField[] =>
         .map( ( field ) => ( { label: asTrimmed( field.label ), value: asTrimmed( field.value ) } ) )
         .filter( ( field ) => field.label !== "" || field.value !== "" );
 
+/**
+ * Keeps an image source only when it is a path or an allowed absolute url.
+ *
+ * Refusing the other schemes is what keeps `data:` base64 payloads out of the
+ * dataset, where they would eat the `localStorage` quota shared with all the
+ * text. A relative path is left exactly as written: the shape of the path is
+ * the author's business, only its scheme is ours.
+ *
+ * @param value Raw image source.
+ * @returns The source, or an empty string when its scheme is refused.
+ * @author Claude
+ */
+const normalizeImageSource = ( value: unknown ): string =>
+{
+    const src = asTrimmed( value );
+    return isSafeUrl( src ) ? src : "";
+};
+
 const normalizeImage = ( value: unknown ): EntryImage | null =>
 {
     const raw = asRecord( value );
-    const src = asTrimmed( raw.src );
+    const src = normalizeImageSource( raw.src );
     if ( !src )
     {
         return null;
@@ -158,7 +177,7 @@ export const normalizeLiveEntry = ( value: unknown ): LiveEntry =>
         publishedAt: asTrimmed( raw.publishedAt ),
         title: asTrimmed( raw.title ) || "Sans titre",
         body: asString( raw.body ),
-        severity: LIVE_SEVERITIES.includes( severity ) ? severity : "info",
+        severity: LIVE_SEVERITIES.has( severity ) ? severity : "info",
         tags: [
             ...new Set(
                 asStringArray( raw.tags )
@@ -187,11 +206,62 @@ export const normalizeMeta = ( value: unknown ): WikiMeta =>
         universe: asTrimmed( raw.universe ) || "Univers sans nom",
         tagline: asTrimmed( raw.tagline ),
         description: asTrimmed( raw.description ),
-        logo: asTrimmed( raw.logo ),
+        logo: normalizeImageSource( raw.logo ),
         version: asTrimmed( raw.version ) || "0.0.0",
         updatedAt: asTrimmed( raw.updatedAt ),
-        featured: asStringArray( raw.featured ).map( slugify )
+        featured: [ ...new Set( asStringArray( raw.featured ).map( slugify ) ) ]
     };
+};
+
+/**
+ * Normalises the partial metadata carried by an overlay.
+ *
+ * The overlay only stores the fields that were actually edited, so this cannot
+ * reuse `normalizeMeta`, which fills in defaults and would turn every absent
+ * field into a local change. Unknown keys are dropped and every kept value is
+ * forced to its declared type: the overlay comes from `localStorage` or from an
+ * imported file, and a number where a string is expected reaches `.trim()` on
+ * the very first render.
+ *
+ * @param value Raw meta patch.
+ * @returns The recognised fields, or null when none survives.
+ * @author Claude
+ */
+export const normalizeMetaPatch = ( value: unknown ): Partial<WikiMeta> | null =>
+{
+    const raw = asRecord( value );
+    const patch: Partial<WikiMeta> = {};
+
+    if ( "universe" in raw )
+    {
+        patch.universe = asTrimmed( raw.universe ) || "Univers sans nom";
+    }
+    if ( "tagline" in raw )
+    {
+        patch.tagline = asTrimmed( raw.tagline );
+    }
+    if ( "description" in raw )
+    {
+        patch.description = asTrimmed( raw.description );
+    }
+    if ( "logo" in raw )
+    {
+        patch.logo = normalizeImageSource( raw.logo );
+    }
+    if ( "version" in raw )
+    {
+        patch.version = asTrimmed( raw.version ) || "0.0.0";
+    }
+    if ( "updatedAt" in raw )
+    {
+        patch.updatedAt = asTrimmed( raw.updatedAt );
+    }
+    if ( "featured" in raw )
+    {
+        patch.featured = [ ...new Set( asStringArray( raw.featured ).map( slugify ) ) ];
+    }
+
+    return Object.keys( patch ).length > 0 ? patch : null;
 };
 
 /**
@@ -275,7 +345,7 @@ export const normalizeOverlay = ( value: unknown ): Overlay =>
         categories: asStringArray( deleted.categories ),
         live: asStringArray( deleted.live )
     };
-    overlay.meta = raw.meta ? ( asRecord( raw.meta ) as Partial<WikiMeta> ) : null;
+    overlay.meta = normalizeMetaPatch( raw.meta );
 
     return overlay;
 };
@@ -298,7 +368,7 @@ export const mergeDataset = ( seed: Dataset, overlay: Overlay ): Dataset =>
     const deletedLive = new Set( overlay.deleted.live );
 
     return {
-        meta: { ...seed.meta, ...( overlay.meta ?? {} ) },
+        meta: { ...seed.meta, ...overlay.meta },
         categories: [
             ...seed.categories.filter(
                 ( category ) => !deletedCategories.has( category.slug ) && !( category.slug in overlay.categories )
@@ -353,7 +423,7 @@ export const countOverlayChanges = ( overlay: Overlay ): number =>
  * @returns An independent copy.
  * @author Claude
  */
-const cloneOverlay = ( overlay: Overlay ): Overlay => normalizeOverlay( JSON.parse( JSON.stringify( overlay ) ) );
+const cloneOverlay = ( overlay: Overlay ): Overlay => normalizeOverlay( structuredClone( overlay ) );
 
 /**
  * Turns an imported dataset into an overlay.

@@ -80,6 +80,15 @@ const MONTH_LABEL = new Intl.DateTimeFormat( "fr-FR", { month: "short" } );
  */
 const buildActivity = ( entries: readonly Entry[], now: Date ): ActivityPoint[] =>
 {
+    // Counted in one pass over the corpus rather than one pass per month.
+    const counts = new Map<string, number>();
+
+    for ( const entry of entries )
+    {
+        const month = entry.updatedAt.slice( 0, 7 );
+        counts.set( month, ( counts.get( month ) ?? 0 ) + 1 );
+    }
+
     const points: ActivityPoint[] = [];
 
     for ( let offset = ACTIVITY_MONTHS - 1; offset >= 0; offset -= 1 )
@@ -90,7 +99,7 @@ const buildActivity = ( entries: readonly Entry[], now: Date ): ActivityPoint[] 
         points.push( {
             month,
             label: MONTH_LABEL.format( date ),
-            count: entries.filter( ( entry ) => entry.updatedAt.startsWith( month ) ).length
+            count: counts.get( month ) ?? 0
         } );
     }
 
@@ -110,19 +119,40 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
     const { entries, categories, live, incomingLinks, outgoingLinks, missingLinks } = input;
 
     const published = entries.filter( ( entry ) => entry.status === "publie" );
-    const words = entries.reduce( ( total, entry ) => total + countWords( entry.body ), 0 );
+
+    // One pass over the corpus feeds the word total, the two breakdowns and the
+    // short page check, instead of rescanning it once per type, per category and
+    // twice per page for the word count.
+    const wordsByEntry = new Map<Entry, number>();
+    const countsByType = new Map<string, number>();
+    const countsByCategory = new Map<string, number>();
+    let words = 0;
+
+    for ( const entry of entries )
+    {
+        const entryWords = countWords( entry.body );
+        wordsByEntry.set( entry, entryWords );
+        words += entryWords;
+
+        countsByType.set( entry.type, ( countsByType.get( entry.type ) ?? 0 ) + 1 );
+
+        for ( const category of entry.categories )
+        {
+            countsByCategory.set( category, ( countsByCategory.get( category ) ?? 0 ) + 1 );
+        }
+    }
 
     const byType: CountByKey[] = ENTRY_TYPES.map( ( config ) => ( {
         key: config.id,
         label: config.plural,
-        count: entries.filter( ( entry ) => entry.type === ( config.id as EntryType ) ).length
+        count: countsByType.get( config.id as EntryType ) ?? 0
     } ) ).sort( ( a, b ) => b.count - a.count );
 
     const byCategory: CountByKey[] = categories
         .map( ( category ) => ( {
             key: category.slug,
             label: category.name,
-            count: entries.filter( ( entry ) => entry.categories.includes( category.slug ) ).length
+            count: countsByCategory.get( category.slug ) ?? 0
         } ) )
         .sort( ( a, b ) => b.count - a.count );
 
@@ -159,7 +189,7 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
         {
             key: "trop-courtes",
             label: "Moins de 50 mots",
-            entries: entries.filter( ( entry ) => countWords( entry.body ) < 50 )
+            entries: entries.filter( ( entry ) => ( wordsByEntry.get( entry ) ?? 0 ) < 50 )
         }
     ].filter( ( issue ) => issue.entries.length > 0 );
 

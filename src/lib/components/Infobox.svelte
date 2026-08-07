@@ -49,7 +49,7 @@
 
         {#if entry.infobox.length > 0}
             <dl class="divide-paper-200 dark:divide-ink-800 divide-y text-sm">
-                {#each entry.infobox as field ( field.label + field.value )}
+                {#each entry.infobox as field, index ( index )}
                     <div class="grid grid-cols-5 gap-3 py-2">
                         <dt class="text-ink-400 col-span-2 leading-snug">{field.label}</dt>
                         <dd class="col-span-3 leading-snug font-medium">{field.value}</dd>
