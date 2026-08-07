@@ -19,6 +19,7 @@
 
         <nav aria-label="Navigation secondaire">
             <p class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Parcourir</p>
+
             <ul class="space-y-1.5 text-sm">
                 {#each NAV_LINKS as link ( link.href )}
                     <li>
@@ -30,6 +31,7 @@
 
         <nav aria-label="Outils">
             <p class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Atelier</p>
+
             <ul class="space-y-1.5 text-sm">
                 {#each TOOL_LINKS as link ( link.href )}
                     <li>
@@ -41,6 +43,7 @@
 
         <div>
             <p class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Données</p>
+
             <dl class="text-ink-400 space-y-1.5 text-sm">
                 <div class="flex gap-2">
                     <dt>Fiches :</dt>

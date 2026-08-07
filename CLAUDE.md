@@ -92,7 +92,7 @@ the link graph and the crawler actually get proven.
 ## Data rules
 
 - `static/data/wiki.json` is the **only** source of truth for published content. Application code
-  reads it and never writes it. Publishing means: export the JSON from `/donnees`, replace the file,
+  reads it and never writes it. Publishing means: export the JSON from `/data`, replace the file,
   commit.
 - Everything read from that file goes through `normalizeDataset` in `src/lib/utilities/dataset.ts`. The
   file is hand editable, so a missing or malformed field must degrade into a default, never throw.
@@ -217,11 +217,11 @@ src/
         wiki/                   index and article pages
         categories/             overview, per category pages, management
         direct/                 live feed
-        chronologie/            dated pages, by year
-        tableau-de-bord/        dashboard
-        nouveau/, editer/       editor, outside prerendering
-        donnees/                export and import
-        parametres/             identity of the wiki
+        timeline/               dated pages, by year
+        dashboard/              dashboard
+        new/, edit/             editor, outside prerendering
+        data/                   export and import
+        settings/               identity of the wiki
 static/
     data/wiki.json              published content, the source of truth
     media/                      illustrations referenced by pages

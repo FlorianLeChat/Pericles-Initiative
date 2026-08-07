@@ -19,6 +19,7 @@
     {#each points as point ( point.month )}
         <div class="flex flex-1 flex-col items-center gap-1.5">
             <span class="text-ink-400 font-mono text-[10px]">{point.count > 0 ? point.count : ""}</span>
+
             <span
                 class="bg-paper-200 dark:bg-ink-800 flex w-full items-end overflow-hidden rounded-md"
                 style="height: 4.5rem"
@@ -29,6 +30,7 @@
                     style="height: {point.count === 0 ? 2 : ( point.count / largest ) * 100}%"
                 ></span>
             </span>
+
             <span class="text-ink-400 text-[10px]">{point.label}</span>
         </div>
     {/each}

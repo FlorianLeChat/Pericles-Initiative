@@ -88,6 +88,7 @@
 
 <svelte:head>
     <title>Encyclopédie · {wiki.meta.universe}</title>
+
     <meta name="description" content="Index de toutes les fiches de {wiki.meta.universe}." />
 </svelte:head>
 
@@ -95,6 +96,7 @@
     <header class="flex flex-wrap items-end justify-between gap-4">
         <div class="max-w-2xl">
             <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Encyclopédie</h1>
+
             <p class="text-ink-400 mt-3 leading-relaxed">
                 {wiki.entries.length} fiches, dont {wiki.drafts.length} en brouillon. Filtrez par nature, par
                 catégorie ou par mot clé.
@@ -108,6 +110,7 @@
         <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
             <div class="relative">
                 <Icon path={SEARCH} class="text-ink-400 absolute top-3 left-3.5 h-4 w-4" />
+
                 <input
                     bind:value={query}
                     type="search"
@@ -119,8 +122,10 @@
 
             <label class="flex items-center gap-2">
                 <span class="text-ink-400 sr-only text-sm sm:not-sr-only">Catégorie</span>
+
                 <select bind:value={category} class="field sm:w-52">
                     <option value="toutes">Toutes</option>
+
                     {#each wiki.categories as item ( item.slug )}
                         <option value={item.slug}>{item.name}</option>
                     {/each}
@@ -129,6 +134,7 @@
 
             <label class="flex items-center gap-2">
                 <span class="text-ink-400 sr-only text-sm sm:not-sr-only">Tri</span>
+
                 <select bind:value={sort} class="field sm:w-44">
                     <option value="alphabetique">Alphabétique</option>
                     <option value="recent">Modifiées récemment</option>
@@ -148,6 +154,7 @@
             >
                 Toutes natures
             </button>
+
             {#each ENTRY_TYPES as config ( config.id )}
                 <button
                     type="button"
@@ -166,6 +173,7 @@
 
             <label class="text-ink-400 flex items-center gap-2 text-xs">
                 <span class="sr-only sm:not-sr-only">Statut</span>
+
                 <select bind:value={status} class="field w-auto py-1.5 text-xs">
                     <option value="tous">Tous</option>
                     <option value="publie">Publiées</option>

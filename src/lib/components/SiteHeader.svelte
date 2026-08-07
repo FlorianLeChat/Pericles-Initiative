@@ -79,10 +79,12 @@
                     {monogram}
                 </span>
             {/if}
+
             <span class="min-w-0">
                 <span class="block truncate text-sm leading-tight font-semibold tracking-tight">
                     {wiki.meta.universe}
                 </span>
+
                 <span class="text-ink-400 hidden truncate text-xs leading-tight sm:block">Encyclopédie</span>
             </span>
         </a>
@@ -107,7 +109,9 @@
                 onclick={onsearch}
             >
                 <Icon path={SEARCH} class="h-4 w-4" />
+
                 <span>Rechercher</span>
+
                 <kbd class="border-paper-300 dark:border-ink-700 ml-2 rounded border px-1.5 py-0.5 font-sans text-[10px]">
                     Ctrl K
                 </kbd>
@@ -157,7 +161,7 @@
                 {/if}
             </div>
 
-            <a href={resolve( "/nouveau" )} class="btn btn-primary hidden px-3.5 py-1.5 sm:inline-flex">
+            <a href={resolve( "/new" )} class="btn btn-primary hidden px-3.5 py-1.5 sm:inline-flex">
                 <Icon path={PLUS} class="h-4 w-4" />
                 Nouvelle fiche
             </a>
@@ -193,6 +197,7 @@
             </ul>
 
             <p class="text-ink-400 mt-3 px-3 text-xs tracking-wide uppercase">Outils</p>
+
             <ul class="mt-1 space-y-1">
                 {#each TOOL_LINKS as link ( link.href )}
                     <li>
@@ -205,8 +210,9 @@
                         </a>
                     </li>
                 {/each}
+
                 <li class="pt-2">
-                    <a href={resolve( "/nouveau" )} class="btn btn-primary w-full" onclick={() => ( menuOpen = false )}>
+                    <a href={resolve( "/new" )} class="btn btn-primary w-full" onclick={() => ( menuOpen = false )}>
                         <Icon path={PLUS} class="h-4 w-4" />
                         Nouvelle fiche
                     </a>

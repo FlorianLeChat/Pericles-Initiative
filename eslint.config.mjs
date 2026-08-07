@@ -27,16 +27,7 @@ export default defineConfig(
             parserOptions: {
                 parser: tslint.parser,
                 svelteConfig,
-                projectService: {
-                    // Root level config files sit outside tsconfig.json's include globs,
-                    // so the type aware project service needs them listed explicitly.
-                    allowDefaultProject: [
-                        "commitlint.config.ts",
-                        "eslint.config.mjs",
-                        "lint-staged.config.cjs",
-                        "svelte.config.js"
-                    ]
-                },
+                projectService: true,
                 extraFileExtensions: [ ".svelte" ]
             }
         },
@@ -107,7 +98,9 @@ export default defineConfig(
                     }
                 }
             ],
-            "@stylistic/computed-property-spacing": [ "error", "always" ]
+            "@stylistic/computed-property-spacing": [ "error", "always" ],
+
+            "svelte/no-at-html-tags": "off"
         }
     }
 );

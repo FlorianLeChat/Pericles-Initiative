@@ -22,6 +22,7 @@
 
 <svelte:head>
     <title>Catégories · {wiki.meta.universe}</title>
+
     <meta name="description" content="Les catégories thématiques de {wiki.meta.universe}." />
 </svelte:head>
 
@@ -29,6 +30,7 @@
     <header class="flex flex-wrap items-end justify-between gap-4">
         <div class="max-w-2xl">
             <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Catégories</h1>
+
             <p class="text-ink-400 mt-3 leading-relaxed">
                 Chaque fiche peut appartenir à plusieurs catégories. Elles regroupent par thème ce que la
                 nature des fiches sépare par forme.
@@ -54,6 +56,7 @@
                 >
                     <span class="flex items-center gap-2">
                         <span class="h-2 w-2 rounded-full {group.color.dot}"></span>
+
                         <span class="text-ink-400 text-xs tracking-wide uppercase">
                             {group.entries.length}
                             {group.entries.length === 1 ? "fiche" : "fiches"}
@@ -79,6 +82,7 @@
     {#if uncategorized.length > 0}
         <section class="mt-12">
             <h2 class="font-serif text-xl font-semibold tracking-tight">Fiches sans catégorie</h2>
+
             <ul class="mt-4 flex flex-wrap gap-2">
                 {#each uncategorized as entry ( entry.id )}
                     <li>

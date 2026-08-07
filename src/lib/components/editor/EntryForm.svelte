@@ -211,6 +211,7 @@
             <p class="text-ink-400 text-xs tracking-wide uppercase">
                 {entry ? "Modifier une fiche" : "Nouvelle fiche"}
             </p>
+
             <p class="truncate text-sm font-medium">{title.trim() || "Sans titre"}</p>
         </div>
 
@@ -223,13 +224,16 @@
                 Supprimer
             </button>
         {/if}
+
         <a href={resolve( entry ? `/wiki/${ entry.slug }` : "/wiki" )} class="btn btn-outline">Annuler</a>
+
         <button type="submit" class="btn btn-primary" disabled={!canSave}>Enregistrer</button>
     </div>
 
     <div class="space-y-4">
         <div>
             <label class="field-label" for="entry-title">Titre</label>
+
             <input
                 id="entry-title"
                 bind:value={title}
@@ -248,8 +252,10 @@
                         <span class="text-ink-400 font-normal">suit le titre</span>
                     {/if}
                 </label>
+
                 <div class="flex items-center gap-2">
                     <span class="text-ink-400 shrink-0 font-mono text-sm">/wiki/</span>
+
                     <input
                         id="entry-slug"
                         bind:value={slug}
@@ -260,6 +266,7 @@
                         placeholder="adresse-de-la-page"
                     />
                 </div>
+
                 {#if slugTaken}
                     <p class="text-signal-500 mt-1.5 text-xs">
                         Cette adresse est déjà prise, un suffixe sera ajouté à l'enregistrement.
@@ -269,6 +276,7 @@
 
             <div>
                 <label class="field-label" for="entry-date">Date dans l'univers</label>
+
                 <input
                     id="entry-date"
                     bind:value={timelineDate}
@@ -276,6 +284,7 @@
                     class="field"
                     placeholder="2025-04-02, ou Juin 2043"
                 />
+
                 <p class="text-ink-400 mt-1.5 text-xs">
                     Facultatif. Une date ISO alimente la chronologie, un texte libre est accepté.
                 </p>
@@ -284,6 +293,7 @@
 
         <div>
             <label class="field-label" for="entry-summary">Résumé</label>
+
             <textarea
                 id="entry-summary"
                 bind:value={summary}
@@ -297,12 +307,14 @@
     <div class="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="min-w-0">
             <p class="field-label">Corps de la fiche</p>
+
             <MarkdownEditor value={body} onchange={( markdown ) => ( body = markdown )} />
         </div>
 
         <aside class="space-y-5">
             <fieldset class="surface p-5">
                 <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Nature</legend>
+
                 <div class="grid grid-cols-2 gap-1.5">
                     {#each ENTRY_TYPES as config ( config.id )}
                         <button
@@ -320,6 +332,7 @@
 
             <fieldset class="surface p-5">
                 <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Statut</legend>
+
                 <div class="flex gap-1.5">
                     <button
                         type="button"
@@ -330,6 +343,7 @@
                     >
                         Publiée
                     </button>
+
                     <button
                         type="button"
                         class="flex-1 rounded-xl px-3 py-2 text-xs font-medium transition {status
@@ -345,9 +359,10 @@
 
             <fieldset class="surface p-5">
                 <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Catégories</legend>
+
                 {#if wiki.categories.length === 0}
                     <p class="text-ink-400 text-sm">
-                        Aucune catégorie déclarée. <a href={resolve( "/categories/gerer" )} class="wiki-link">En créer</a>.
+                        Aucune catégorie déclarée. <a href={resolve( "/categories/manage" )} class="wiki-link">En créer</a>.
                     </p>
                 {:else}
                     <div class="space-y-1.5">
@@ -368,13 +383,16 @@
 
             <fieldset class="surface p-5">
                 <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Infobox</legend>
+
                 <InfoboxEditor bind:fields={infobox} />
             </fieldset>
 
             <fieldset class="surface space-y-3 p-5">
                 <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Illustration</legend>
+
                 <div>
                     <label class="field-label" for="entry-image">Chemin ou URL</label>
+
                     <input
                         id="entry-image"
                         bind:value={imageSrc}
@@ -383,18 +401,23 @@
                         placeholder="/media/exemple.svg"
                     />
                 </div>
+
                 {#if imageSrc.trim()}
                     <img
                         src={imageSrc}
                         alt={imageAlt}
                         class="border-paper-200 dark:border-ink-800 aspect-video w-full rounded-xl border object-cover"
                     />
+
                     <div>
                         <label class="field-label" for="entry-image-alt">Texte alternatif</label>
+
                         <input id="entry-image-alt" bind:value={imageAlt} type="text" class="field py-2" />
                     </div>
+
                     <div>
                         <label class="field-label" for="entry-image-caption">Légende</label>
+
                         <input
                             id="entry-image-caption"
                             bind:value={imageCaption}
@@ -412,7 +435,9 @@
 
             <fieldset class="surface p-5">
                 <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Autres noms</legend>
+
                 <ChipsInput bind:values={aliases} id="entry-aliases" placeholder="Alias, puis Entrée" />
+
                 <p class="text-ink-400 mt-2 text-xs leading-relaxed">
                     Pris en compte par la recherche, sans créer de page.
                 </p>

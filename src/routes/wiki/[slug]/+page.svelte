@@ -42,6 +42,7 @@
 <svelte:head>
     {#if entry}
         <title>{entry.title} · {wiki.meta.universe}</title>
+
         <meta name="description" content={entry.summary || excerpt( entry.body, 155 )} />
     {:else}
         <title>Fiche à écrire · {wiki.meta.universe}</title>
@@ -53,7 +54,9 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
             <nav class="text-ink-400 flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
                 <a href={resolve( "/wiki" )} class="hover:text-accent-600 dark:hover:text-accent-400">Encyclopédie</a>
+
                 <span aria-hidden="true">/</span>
+
                 <span>{entryTypeConfig( entry.type ).plural}</span>
             </nav>
 
@@ -81,6 +84,7 @@
 
             <div class="mt-6 flex flex-wrap items-center gap-2">
                 <TypeBadge type={entry.type} />
+
                 {#each categories as category ( category.slug )}
                     <CategoryChip {category} />
                 {/each}
@@ -101,13 +105,16 @@
                 {#if related.length > 0}
                     <section class="border-paper-200 dark:border-ink-800 mt-14 border-t pt-8">
                         <h2 class="font-serif text-xl font-semibold tracking-tight">À lire aussi</h2>
+
                         <ul class="mt-4 grid gap-3 sm:grid-cols-2">
                             {#each related as item ( item.id )}
                                 <li class="surface p-4">
                                     <div class="flex items-center gap-2">
                                         <TypeBadge type={item.type} iconOnly />
+
                                         <a href={resolve( `/wiki/${ item.slug }` )} class="text-sm font-medium">{item.title}</a>
                                     </div>
+
                                     {#if item.summary}
                                         <p class="text-ink-400 mt-2 line-clamp-2 text-xs leading-relaxed">
                                             {item.summary}
@@ -130,6 +137,7 @@
 {:else}
     <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <p class="text-ink-400 font-mono text-sm">/wiki/{slug}</p>
+
         <EmptyState
             title="Cette fiche n'existe pas encore"
             description="Le lien qui mène ici attend une page. C'est le principe du lien rouge : il signale un manque à combler."
@@ -140,6 +148,7 @@
             >
                 Créer cette fiche
             </a>
+
             <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
         </EmptyState>
 

@@ -31,6 +31,7 @@
             {#each entries as entry ( entry.id )}
                 <li class="flex items-center gap-2">
                     <TypeBadge type={entry.type} iconOnly />
+
                     <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link">{entry.title}</a>
                 </li>
             {/each}

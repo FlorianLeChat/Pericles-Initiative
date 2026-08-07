@@ -41,12 +41,14 @@
 
 <svelte:head>
     <title>Chronologie · {wiki.meta.universe}</title>
+
     <meta name="description" content="Les événements datés de {wiki.meta.universe}, dans l'ordre." />
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <header class="max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Chronologie</h1>
+
         <p class="text-ink-400 mt-3 leading-relaxed">
             {wiki.chronology.length} fiches portent une date dans l'univers. Les autres, personnages et
             concepts sans ancrage précis, n'apparaissent pas ici.
@@ -93,6 +95,7 @@
                                             {entry.title}
                                         </a>
                                     </h3>
+
                                     <TypeBadge type={entry.type} />
                                 </div>
 

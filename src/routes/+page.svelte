@@ -36,6 +36,7 @@
 
 <svelte:head>
     <title>{wiki.meta.universe}</title>
+
     <meta name="description" content={wiki.meta.description} />
 </svelte:head>
 
@@ -44,12 +45,15 @@
         <p class="text-accent-600 dark:text-accent-400 text-xs font-medium tracking-[0.2em] uppercase">
             Encyclopédie
         </p>
+
         <h1 class="mt-4 max-w-3xl font-serif text-4xl leading-[1.05] font-semibold tracking-tight sm:text-6xl">
             {wiki.meta.universe}
         </h1>
+
         <p class="text-ink-600 dark:text-paper-300 mt-6 max-w-2xl text-lg leading-relaxed sm:text-xl">
             {wiki.meta.tagline}
         </p>
+
         <p class="text-ink-400 mt-4 max-w-2xl leading-relaxed">
             {wiki.meta.description}
         </p>
@@ -64,14 +68,17 @@
                 <dt class="text-ink-400 text-xs tracking-wide uppercase">Fiches</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.publishedEntries.length}</dd>
             </div>
+
             <div>
                 <dt class="text-ink-400 text-xs tracking-wide uppercase">Catégories</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.categories.length}</dd>
             </div>
+
             <div>
                 <dt class="text-ink-400 text-xs tracking-wide uppercase">Fiches datées</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.chronology.length}</dd>
             </div>
+
             <div>
                 <dt class="text-ink-400 text-xs tracking-wide uppercase">Brouillons</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.drafts.length}</dd>
@@ -93,16 +100,20 @@
                         class="aspect-[16/7] w-full object-cover"
                     />
                 {/if}
+
                 <div class="space-y-4 p-6 sm:p-8">
                     <TypeBadge type={headline.type} />
+
                     <h3 class="font-serif text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
                         <a href={resolve( `/wiki/${ headline.slug }` )} class="hover:text-accent-600 dark:hover:text-accent-400">
                             {headline.title}
                         </a>
                     </h3>
+
                     <p class="text-ink-500 dark:text-paper-300/80 leading-relaxed">
                         {headline.summary || excerpt( headline.body, 240 )}
                     </p>
+
                     <a href={resolve( `/wiki/${ headline.slug }` )} class="wiki-link inline-block text-sm font-medium">
                         Lire la fiche
                     </a>
@@ -126,6 +137,7 @@
                     <span class="bg-alert-500 h-2 w-2 animate-pulse rounded-full" aria-hidden="true"></span>
                     En direct
                 </h2>
+
                 <a href={resolve( "/direct" )} class="wiki-link text-sm">Tout le fil</a>
             </div>
 
@@ -133,6 +145,7 @@
                 {#each latestLive as item ( item.id )}
                     <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <SeverityBadge severity={item.severity} />
+
                         <span class="min-w-0 flex-1">
                             {#if item.entrySlug}
                                 <a href={resolve( `/wiki/${ item.entrySlug }` )} class="font-medium hover:underline">{item.title}</a>
@@ -140,6 +153,7 @@
                                 <a href={resolve( "/direct" )} class="font-medium hover:underline">{item.title}</a>
                             {/if}
                         </span>
+
                         <span class="text-ink-400 shrink-0 text-xs">{relativeTime( item.publishedAt )}</span>
                     </li>
                 {/each}
@@ -151,6 +165,7 @@
 <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
     <div class="flex items-baseline justify-between gap-4">
         <h2 class="font-serif text-2xl font-semibold tracking-tight">Dernières modifications</h2>
+
         <a href={resolve( "/wiki" )} class="wiki-link text-sm">Tout voir</a>
     </div>
 
@@ -164,6 +179,7 @@
 {#if categoryCounts.length > 0}
     <section class="mx-auto max-w-6xl px-4 pb-8 sm:px-6">
         <h2 class="font-serif text-2xl font-semibold tracking-tight">Explorer par catégorie</h2>
+
         <div class="mt-6 flex flex-wrap gap-2">
             {#each categoryCounts as item ( item.category.slug )}
                 <CategoryChip category={item.category} count={item.count} />

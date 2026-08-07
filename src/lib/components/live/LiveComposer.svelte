@@ -134,6 +134,7 @@
         <p class="text-ink-400 text-xs tracking-wide uppercase">
             {editing ? "Modifier une entrée" : "Publier dans le fil"}
         </p>
+
         {#if editing}
             <button type="button" class="text-ink-400 hover:text-accent-600 text-xs underline" onclick={oncancel}>
                 Abandonner la modification
@@ -144,6 +145,7 @@
     <div class="mt-4 space-y-3">
         <div>
             <label class="field-label" for="live-title">Titre</label>
+
             <input
                 id="live-title"
                 bind:value={title}
@@ -157,6 +159,7 @@
         <div>
             <div class="flex items-baseline justify-between gap-2">
                 <label class="field-label" for="live-body">Corps</label>
+
                 <button
                     type="button"
                     class="text-accent-600 dark:text-accent-400 mb-1.5 text-xs underline"
@@ -165,6 +168,7 @@
                     Lier une fiche
                 </button>
             </div>
+
             <textarea
                 id="live-body"
                 bind:this={bodyInput}
@@ -178,6 +182,7 @@
         <div class="grid gap-3 sm:grid-cols-2">
             <div>
                 <p class="field-label" id="live-severity-label">Gravité</p>
+
                 <div class="flex flex-wrap gap-1.5" role="group" aria-labelledby="live-severity-label">
                     {#each SEVERITIES as config ( config.id )}
                         <button
@@ -197,13 +202,16 @@
 
             <div>
                 <label class="field-label" for="live-date">Horodatage</label>
+
                 <input id="live-date" bind:value={publishedAt} type="datetime-local" class="field py-2" />
             </div>
 
             <div>
                 <label class="field-label" for="live-entry">Fiche détaillée</label>
+
                 <select id="live-entry" bind:value={entrySlug} class="field py-2">
                     <option value="">Aucune</option>
+
                     {#each wiki.entries as entry ( entry.id )}
                         <option value={entry.slug}>{entry.title}</option>
                     {/each}
@@ -212,6 +220,7 @@
 
             <div>
                 <label class="field-label" for="live-source">Source</label>
+
                 <input
                     id="live-source"
                     bind:value={source}
@@ -224,6 +233,7 @@
 
         <div>
             <label class="field-label" for="live-tags">Étiquettes</label>
+
             <ChipsInput bind:values={tags} id="live-tags" placeholder="Étiquette, puis Entrée" />
         </div>
 

@@ -143,6 +143,7 @@
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <header class="max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Données</h1>
+
         <p class="text-ink-400 mt-3 leading-relaxed">
             Le site lit son contenu dans <code class="font-mono text-xs">static/data/wiki.json</code>. Vos
             modifications restent dans ce navigateur jusqu'à ce que vous les exportiez.
@@ -163,6 +164,7 @@
     <section class="surface mt-8 p-6">
         <div class="flex flex-wrap items-baseline justify-between gap-3">
             <h2 class="font-serif text-xl font-semibold tracking-tight">Modifications locales</h2>
+
             <p class="text-ink-400 text-xs">
                 {formatSize( overlaySize )} utilisés dans le stockage du navigateur
             </p>
@@ -190,6 +192,7 @@
                 {#if changedEntries.length > 0}
                     <div>
                         <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Fiches</p>
+
                         <ul class="space-y-1.5">
                             {#each changedEntries as entry ( entry.id )}
                                 <li class="flex flex-wrap items-center gap-2">
@@ -200,7 +203,9 @@
                                     >
                                         {isPublished( entry.id ) ? "modifiée" : "créée"}
                                     </span>
+
                                     <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link">{entry.title}</a>
+
                                     {#if entry.status === "brouillon"}
                                         <span class="text-ink-400 text-xs">brouillon</span>
                                     {/if}
@@ -213,12 +218,14 @@
                 {#if deletedEntries.length > 0}
                     <div>
                         <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Fiches supprimées</p>
+
                         <ul class="space-y-1.5">
                             {#each deletedEntries as item ( item.id )}
                                 <li class="flex items-center gap-2">
                                     <span class="bg-alert-500/15 text-alert-600 rounded-full px-2 py-0.5 text-xs dark:text-red-300">
                                         supprimée
                                     </span>
+
                                     <span class="line-through">{item.title}</span>
                                 </li>
                             {/each}
@@ -229,6 +236,7 @@
                 {#if changedCategories.length > 0}
                     <div>
                         <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Catégories</p>
+
                         <ul class="flex flex-wrap gap-1.5">
                             {#each changedCategories as category ( category.slug )}
                                 <li class="bg-paper-200 dark:bg-ink-800 rounded-full px-2.5 py-1 text-xs">
@@ -242,6 +250,7 @@
                 {#if changedLive.length > 0}
                     <div>
                         <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Fil en direct</p>
+
                         <p class="text-ink-500 dark:text-paper-300/80">
                             {changedLive.length}
                             {changedLive.length === 1 ? "entrée" : "entrées"} en attente.
@@ -252,6 +261,7 @@
                 {#if wiki.overlay.meta}
                     <div>
                         <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Identité du wiki</p>
+
                         <p class="text-ink-500 dark:text-paper-300/80">
                             Nom, signature, description, logo ou fiches à la une modifiés depuis
                             <a href={resolve( "/parametres" )} class="wiki-link">les paramètres</a>.
@@ -264,6 +274,7 @@
 
     <section class="surface mt-6 p-6">
         <h2 class="font-serif text-xl font-semibold tracking-tight">Exporter</h2>
+
         <p class="text-ink-400 mt-2 text-sm leading-relaxed">
             L'export contient tout le contenu affiché actuellement, publié et local confondus. C'est le
             fichier à committer.
@@ -271,6 +282,7 @@
 
         <div class="mt-5 flex flex-wrap gap-2">
             <button type="button" class="btn btn-primary" onclick={download}>Télécharger wiki.json</button>
+
             <button type="button" class="btn btn-outline" onclick={() => void copy()}>
                 Copier dans le presse papier
             </button>
@@ -278,9 +290,7 @@
 
         <ol class="text-ink-400 mt-6 list-decimal space-y-1.5 pl-5 text-sm leading-relaxed">
             <li>Télécharger le fichier.</li>
-            <li>
-                Remplacer <code class="font-mono text-xs">static/data/wiki.json</code> par celui ci.
-            </li>
+            <li>Remplacer <code class="font-mono text-xs">static/data/wiki.json</code> par celui ci.</li>
             <li>Committer, puis relancer le build.</li>
             <li>Réinitialiser les modifications locales, devenues redondantes.</li>
         </ol>
@@ -288,6 +298,7 @@
 
     <section class="surface mt-6 p-6">
         <h2 class="font-serif text-xl font-semibold tracking-tight">Importer</h2>
+
         <p class="text-ink-400 mt-2 text-sm leading-relaxed">
             Reprendre un export, ou récupérer le travail fait sur un autre appareil.
         </p>
@@ -295,6 +306,7 @@
         <div class="mt-5 space-y-4">
             <div>
                 <label class="field-label" for="import-file">Fichier JSON</label>
+
                 <input
                     id="import-file"
                     type="file"
@@ -306,6 +318,7 @@
 
             <div>
                 <label class="field-label" for="import-text">Ou coller le JSON</label>
+
                 <textarea
                     id="import-text"
                     bind:value={importText}
@@ -317,6 +330,7 @@
 
             <fieldset>
                 <legend class="field-label">Mode</legend>
+
                 <div class="space-y-2 text-sm">
                     <label class="flex cursor-pointer items-start gap-2">
                         <input
@@ -325,13 +339,16 @@
                             checked={importMode === "fusionner"}
                             onchange={() => ( importMode = "fusionner" )}
                         />
+
                         <span>
                             <strong>Fusionner.</strong>
+
                             <span class="text-ink-400">
                                 Le contenu importé s'ajoute et remplace les éléments de même identifiant.
                             </span>
                         </span>
                     </label>
+
                     <label class="flex cursor-pointer items-start gap-2">
                         <input
                             type="radio"
@@ -339,8 +356,10 @@
                             checked={importMode === "remplacer"}
                             onchange={() => ( importMode = "remplacer" )}
                         />
+
                         <span>
                             <strong>Remplacer.</strong>
+
                             <span class="text-ink-400">
                                 Le site affiche exactement le contenu importé, le reste est masqué.
                             </span>
@@ -362,9 +381,11 @@
 
     <section class="border-alert-500/30 mt-6 rounded-2xl border p-6">
         <h2 class="font-serif text-xl font-semibold tracking-tight">Réinitialiser</h2>
+
         <p class="text-ink-400 mt-2 text-sm leading-relaxed">
             Efface toutes les modifications locales et revient au JSON publié. Irréversible : exportez avant.
         </p>
+
         <button
             type="button"
             class="btn btn-danger mt-5"

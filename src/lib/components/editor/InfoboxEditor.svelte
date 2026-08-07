@@ -61,6 +61,7 @@
                 <input bind:value={field.label} type="text" class="field py-2" placeholder="Intitulé" />
                 <input bind:value={field.value} type="text" class="field py-2" placeholder="Valeur" />
             </div>
+
             <div class="flex flex-col gap-1">
                 <button
                     type="button"
@@ -69,6 +70,7 @@
                     disabled={index === 0}
                     aria-label="Monter cette ligne">&uarr;</button
                 >
+
                 <button
                     type="button"
                     class="btn btn-ghost h-7 w-7 px-0 text-xs"
@@ -76,6 +78,7 @@
                     disabled={index === fields.length - 1}
                     aria-label="Descendre cette ligne">&darr;</button
                 >
+
                 <button
                     type="button"
                     class="btn btn-ghost hover:text-alert-500 h-7 w-7 px-0 text-xs"

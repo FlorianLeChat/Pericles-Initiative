@@ -26,6 +26,7 @@
 >
     <div class="flex flex-wrap items-center gap-2">
         <TypeBadge type={entry.type} />
+
         {#if entry.status === "brouillon"}
             <span
                 class="border-paper-300 text-ink-400 dark:border-ink-700 rounded-full border border-dashed px-2 py-0.5 text-xs"

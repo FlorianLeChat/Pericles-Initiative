@@ -19,8 +19,11 @@
             <span class="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold tracking-wide uppercase">
                 Alerte
             </span>
-            <a href={resolve( "/direct" )} class="min-w-0 flex-1 truncate font-medium hover:underline">{item.title}</a>
+
+            <a href={resolve( "/live" )} class="min-w-0 flex-1 truncate font-medium hover:underline">{item.title}</a>
+
             <span class="hidden shrink-0 text-xs text-white/80 sm:block">{relativeTime( item.publishedAt )}</span>
+
             <button
                 type="button"
                 class="shrink-0 cursor-pointer rounded-full px-2 py-0.5 text-white/80 transition hover:bg-white/20 hover:text-white"

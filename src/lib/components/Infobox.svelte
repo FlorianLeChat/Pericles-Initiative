@@ -27,6 +27,7 @@
     {#if entry.image}
         <figure class="border-paper-200 dark:border-ink-800 border-b">
             <img src={entry.image.src} alt={entry.image.alt} class="aspect-video w-full object-cover" />
+
             {#if entry.image.caption}
                 <figcaption class="text-ink-400 px-4 py-2 text-xs leading-relaxed">
                     {entry.image.caption}
@@ -68,6 +69,7 @@
         {#if categories.length > 0}
             <div class="border-paper-200 dark:border-ink-800 space-y-2 border-t pt-4">
                 <p class="text-ink-400 text-xs tracking-wide uppercase">Catégories</p>
+
                 <div class="flex flex-wrap gap-1.5">
                     {#each categories as category ( category.slug )}
                         <CategoryChip {category} />

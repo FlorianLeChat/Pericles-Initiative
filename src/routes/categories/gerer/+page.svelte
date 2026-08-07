@@ -130,12 +130,15 @@
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <nav class="text-ink-400 flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
         <a href={resolve( "/categories" )} class="hover:text-accent-600 dark:hover:text-accent-400">Catégories</a>
+
         <span aria-hidden="true">/</span>
+
         <span>Gestion</span>
     </nav>
 
     <header class="mt-4 max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Gérer les catégories</h1>
+
         <p class="text-ink-400 mt-3 leading-relaxed">
             Renommer une catégorie déplace les fiches concernées vers la nouvelle adresse. La supprimer les
             détache sans les effacer.
@@ -146,12 +149,15 @@
         <div class="space-y-3">
             {#each wiki.categories as category ( category.slug )}
                 {@const count = wiki.entriesInCategory( category.slug, true ).length}
+
                 <article class="surface flex flex-wrap items-center gap-4 p-4">
                     <span class="h-2.5 w-2.5 shrink-0 rounded-full {paletteColor( category.color ).dot}"></span>
 
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-medium">{category.name}</p>
+
                         <p class="text-ink-400 truncate font-mono text-xs">/categories/{category.slug}</p>
+
                         {#if category.description}
                             <p class="text-ink-400 mt-1 line-clamp-2 text-xs leading-relaxed">
                                 {category.description}
@@ -172,6 +178,7 @@
                         >
                             Modifier
                         </button>
+
                         <button
                             type="button"
                             class="btn btn-ghost hover:text-alert-500 px-3 py-1.5 text-xs"
@@ -208,6 +215,7 @@
 
             <div>
                 <label class="field-label" for="category-name">Nom</label>
+
                 <input
                     id="category-name"
                     bind:value={name}
@@ -220,6 +228,7 @@
 
             <div>
                 <label class="field-label" for="category-slug">Adresse</label>
+
                 <input
                     id="category-slug"
                     bind:value={slug}
@@ -228,6 +237,7 @@
                     class="field font-mono text-xs"
                     placeholder="sites-et-installations"
                 />
+
                 {#if slugTaken}
                     <p class="text-alert-500 mt-1.5 text-xs">Cette adresse est déjà utilisée.</p>
                 {/if}
@@ -235,6 +245,7 @@
 
             <div>
                 <label class="field-label" for="category-description">Description</label>
+
                 <textarea
                     id="category-description"
                     bind:value={description}
@@ -246,6 +257,7 @@
 
             <div>
                 <p class="field-label">Couleur</p>
+
                 <div class="flex flex-wrap gap-1.5">
                     {#each PALETTE as option ( option.key )}
                         <button
@@ -267,6 +279,7 @@
                 <button type="submit" class="btn btn-primary flex-1" disabled={!canSave || slugTaken}>
                     {isEditing ? "Enregistrer" : "Créer"}
                 </button>
+
                 {#if isEditing}
                     <button type="button" class="btn btn-ghost" onclick={reset}>Annuler</button>
                 {/if}

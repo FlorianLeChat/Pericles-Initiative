@@ -34,6 +34,7 @@
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <header class="max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Tableau de bord</h1>
+
         <p class="text-ink-400 mt-3 leading-relaxed">
             L'état du corpus, calculé sur ce que le site affiche en ce moment, modifications locales
             comprises.
@@ -50,6 +51,7 @@
     <div class="mt-10 grid items-start gap-6 lg:grid-cols-2">
         <section class="surface p-6">
             <h2 class="font-serif text-xl font-semibold tracking-tight">Par nature</h2>
+
             <div class="mt-5">
                 <BarChart items={stats.byType} />
             </div>
@@ -57,6 +59,7 @@
 
         <section class="surface p-6">
             <h2 class="font-serif text-xl font-semibold tracking-tight">Par catégorie</h2>
+
             <div class="mt-5">
                 {#if stats.byCategory.length === 0}
                     <p class="text-ink-400 text-sm">Aucune catégorie déclarée.</p>
@@ -69,7 +72,9 @@
 
     <section class="surface mt-6 p-6">
         <h2 class="font-serif text-xl font-semibold tracking-tight">Activité d'édition</h2>
+
         <p class="text-ink-400 mt-1 text-sm">Nombre de fiches modifiées par mois, sur un an.</p>
+
         <div class="mt-6">
             <ActivityChart points={stats.activity} />
         </div>
@@ -78,6 +83,7 @@
     <div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
         <section class="surface p-6">
             <h2 class="font-serif text-xl font-semibold tracking-tight">Fiches les plus citées</h2>
+
             {#if stats.mostLinked.length === 0}
                 <p class="text-ink-400 mt-4 text-sm">Aucun lien entre fiches pour l'instant.</p>
             {:else}
@@ -85,9 +91,11 @@
                     {#each stats.mostLinked as item ( item.entry.id )}
                         <li class="flex items-center gap-2">
                             <TypeBadge type={item.entry.type} iconOnly />
+
                             <a href={resolve( `/wiki/${ item.entry.slug }` )} class="wiki-link min-w-0 flex-1 truncate">
                                 {item.entry.title}
                             </a>
+
                             <span class="text-ink-400 font-mono text-xs">
                                 {item.incoming}
                                 {item.incoming === 1 ? "lien" : "liens"}
@@ -100,9 +108,11 @@
 
         <section class="surface p-6">
             <h2 class="font-serif text-xl font-semibold tracking-tight">Pages à écrire</h2>
+
             <p class="text-ink-400 mt-1 text-sm">
                 Les liens rouges, c'est à dire les fiches que le corpus réclame déjà.
             </p>
+
             {#if stats.missing.length === 0}
                 <p class="text-ink-400 mt-4 text-sm">Aucun lien rouge, tout ce qui est cité existe.</p>
             {:else}
@@ -112,9 +122,11 @@
                             <a href={resolve( `/wiki/${ item.slug }` )} class="wiki-link-missing min-w-0 flex-1 truncate font-mono text-xs">
                                 {item.slug}
                             </a>
+
                             <span class="text-ink-400 shrink-0 text-xs">
                                 cité {item.count} {item.count === 1 ? "fois" : "fois"}
                             </span>
+
                             <a href={resolve( `/nouveau?slug=${ item.slug }` )} class="btn btn-outline shrink-0 px-2.5 py-1 text-xs">
                                 Créer
                             </a>
@@ -128,6 +140,7 @@
     <div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
         <section class="surface p-6">
             <h2 class="font-serif text-xl font-semibold tracking-tight">Points d'attention</h2>
+
             {#if stats.issues.length === 0}
                 <p class="text-ink-400 mt-4 text-sm">Rien à signaler sur le corpus.</p>
             {:else}
@@ -138,6 +151,7 @@
                                 {issue.label}
                                 <span class="text-ink-400 font-normal">({issue.entries.length})</span>
                             </p>
+
                             <ul class="mt-1.5 flex flex-wrap gap-1.5">
                                 {#each issue.entries.slice( 0, 8 ) as entry ( entry.id )}
                                     <li>
@@ -149,6 +163,7 @@
                                         </a>
                                     </li>
                                 {/each}
+
                                 {#if issue.entries.length > 8}
                                     <li class="text-ink-400 self-center text-xs">
                                         et {issue.entries.length - 8} autres
@@ -163,14 +178,18 @@
 
         <section class="surface p-6">
             <h2 class="font-serif text-xl font-semibold tracking-tight">Dernières modifications</h2>
+
             <ul class="mt-5 space-y-2.5 text-sm">
                 {#each recent as entry ( entry.id )}
                     <li class="flex items-center gap-2">
                         <TypeBadge type={entry.type} iconOnly />
+
                         <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link min-w-0 flex-1 truncate">{entry.title}</a>
+
                         {#if entry.status === "brouillon"}
                             <span class="text-ink-400 text-xs">brouillon</span>
                         {/if}
+
                         <span class="text-ink-400 shrink-0 font-mono text-xs">
                             {formatShortDate( entry.updatedAt )}
                         </span>

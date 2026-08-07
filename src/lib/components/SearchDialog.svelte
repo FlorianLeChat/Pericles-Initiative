@@ -140,8 +140,10 @@
                             onmouseenter={() => ( selected = index )}
                         >
                             <TypeBadge type={hit.entry.type} iconOnly />
+
                             <span class="min-w-0 flex-1">
                                 <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
+
                                 {#if hit.entry.summary}
                                     <span class="text-ink-400 block truncate text-xs">{hit.entry.summary}</span>
                                 {/if}

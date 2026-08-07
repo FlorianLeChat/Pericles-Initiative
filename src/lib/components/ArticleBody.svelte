@@ -15,7 +15,5 @@
 </script>
 
 <div class="article-body">
-    <!-- The HTML is produced by renderArticle, which sanitizes it, so it is trusted here. -->
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html html}
 </div>

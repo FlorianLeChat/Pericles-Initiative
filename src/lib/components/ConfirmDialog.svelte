@@ -52,10 +52,12 @@
     aria-label={title}
 >
     <p class="text-lg font-semibold tracking-tight">{title}</p>
+
     <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">{message}</p>
 
     <div class="mt-6 flex justify-end gap-2">
         <button type="button" class="btn btn-ghost" onclick={() => ( open = false )}>{cancelLabel}</button>
+
         <button
             type="button"
             class="btn {danger ? "btn-danger" : "btn-primary"}"

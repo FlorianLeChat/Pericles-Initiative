@@ -37,8 +37,11 @@
         <time datetime={item.publishedAt} class="text-ink-400 font-mono text-xs" title={formatDateTime( item.publishedAt )}>
             {formatTime( item.publishedAt )}
         </time>
+
         <span class="text-ink-400 text-xs">· {relativeTime( item.publishedAt )}</span>
+
         <SeverityBadge severity={item.severity} />
+
         {#if item.pinned}
             <span class="border-paper-300 text-ink-400 dark:border-ink-700 rounded-full border px-2 py-0.5 text-xs">
                 Épinglée
@@ -50,8 +53,6 @@
 
     {#if item.body}
         <div class="article-body prose-sm mt-2 max-w-2xl">
-            <!-- The HTML is produced by renderInline, which sanitizes it, so it is trusted here. -->
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html body}
         </div>
     {/if}
@@ -80,6 +81,7 @@
                         Modifier
                     </button>
                 {/if}
+
                 {#if ondelete}
                     <button type="button" class="hover:text-alert-500 underline" onclick={() => ondelete( item )}>
                         Supprimer

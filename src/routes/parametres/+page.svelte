@@ -97,6 +97,7 @@
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <header class="max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Paramètres</h1>
+
         <p class="text-ink-400 mt-3 leading-relaxed">
             L'identité du wiki. Ces champs alimentent l'entête, la page d'accueil et les métadonnées des
             pages. Ils s'exportent avec le reste du contenu.
@@ -121,6 +122,7 @@
         <section class="surface space-y-4 p-6">
             <div>
                 <label class="field-label" for="meta-universe">Nom de l'univers</label>
+
                 <input
                     id="meta-universe"
                     bind:value={universe}
@@ -133,6 +135,7 @@
 
             <div>
                 <label class="field-label" for="meta-tagline">Signature</label>
+
                 <input
                     id="meta-tagline"
                     bind:value={tagline}
@@ -145,6 +148,7 @@
 
             <div>
                 <label class="field-label" for="meta-description">Description</label>
+
                 <textarea
                     id="meta-description"
                     bind:value={description}
@@ -158,6 +162,7 @@
             <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_8rem]">
                 <div>
                     <label class="field-label" for="meta-logo">Logo</label>
+
                     <input
                         id="meta-logo"
                         bind:value={logo}
@@ -166,6 +171,7 @@
                         class="field font-mono text-xs"
                         placeholder="/media/logo.svg"
                     />
+
                     <p class="text-ink-400 mt-1.5 text-xs leading-relaxed">
                         Chemin sous <code class="font-mono">static/media/</code> ou URL absolue. Laissez vide
                         pour garder le monogramme.
@@ -174,6 +180,7 @@
 
                 <div>
                     <label class="field-label" for="meta-version">Version</label>
+
                     <input
                         id="meta-version"
                         bind:value={version}
@@ -186,6 +193,7 @@
 
             <div>
                 <p class="field-label">Aperçu de l'entête</p>
+
                 <div class="border-paper-200 dark:border-ink-800 flex items-center gap-2.5 rounded-xl border p-3">
                     {#if logo.trim()}
                         <img src={logo} alt="" class="h-9 w-9 rounded-xl object-cover" />
@@ -197,10 +205,12 @@
                             {universe.trim().charAt( 0 ).toUpperCase() || "Π"}
                         </span>
                     {/if}
+
                     <span>
                         <span class="block text-sm leading-tight font-semibold tracking-tight">
                             {universe.trim() || "Univers sans nom"}
                         </span>
+
                         <span class="text-ink-400 block text-xs leading-tight">Encyclopédie</span>
                     </span>
                 </div>
@@ -210,6 +220,7 @@
         <section class="surface p-6">
             <div class="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 class="font-serif text-xl font-semibold tracking-tight">Fiches à la une</h2>
+
                 <button
                     type="button"
                     class="text-accent-600 dark:text-accent-400 text-xs underline"
@@ -218,6 +229,7 @@
                     Ajouter une fiche
                 </button>
             </div>
+
             <p class="text-ink-400 mt-1 text-sm leading-relaxed">
                 La première occupe la grande carte de l'accueil, les deux suivantes les cartes latérales.
             </p>
@@ -228,8 +240,10 @@
                 <ol class="mt-4 space-y-2">
                     {#each featured as slug, index ( slug )}
                         {@const entry = wiki.bySlug( slug )}
+
                         <li class="border-paper-200 dark:border-ink-800 flex items-center gap-3 rounded-xl border p-3">
                             <span class="text-ink-400 font-mono text-xs">{index + 1}</span>
+
                             <span class="min-w-0 flex-1">
                                 {#if entry}
                                     <a href={resolve( `/wiki/${ slug }` )} class="text-sm font-medium">{entry.title}</a>
@@ -237,6 +251,7 @@
                                     <span class="text-alert-500 font-mono text-xs">{slug}, fiche absente</span>
                                 {/if}
                             </span>
+
                             <button
                                 type="button"
                                 class="btn btn-ghost h-7 w-7 px-0 text-xs"
@@ -250,6 +265,7 @@
                                 }}
                                 aria-label="Monter">&uarr;</button
                             >
+
                             <button
                                 type="button"
                                 class="btn btn-ghost hover:text-alert-500 h-7 w-7 px-0 text-xs"
@@ -268,9 +284,11 @@
 
         <div class="flex flex-wrap items-center gap-3">
             <button type="submit" class="btn btn-primary" disabled={!canSave || !dirty}>Enregistrer</button>
+
             {#if dirty}
                 <span class="text-signal-500 text-xs">Modifications non enregistrées</span>
             {/if}
+
             {#if hasLocalMeta}
                 <button type="button" class="btn btn-ghost hover:text-alert-500 ml-auto" onclick={() => ( resetOpen = true )}>
                     Revenir à l'identité publiée

@@ -77,6 +77,7 @@
 >
     <div class="border-paper-200 dark:border-ink-800 border-b p-4">
         <p class="mb-2 text-sm font-medium">Lier une fiche</p>
+
         <input
             bind:this={input}
             bind:value={query}
@@ -118,8 +119,10 @@
                             onclick={() => choose( hit.entry.slug, hit.entry.title )}
                         >
                             <TypeBadge type={hit.entry.type} iconOnly />
+
                             <span class="min-w-0 flex-1">
                                 <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
+
                                 <span class="text-ink-400 block truncate font-mono text-xs">
                                     /wiki/{hit.entry.slug}
                                 </span>
@@ -141,10 +144,12 @@
                             >
                                 +
                             </span>
+
                             <span class="min-w-0 flex-1">
                                 <span class="block truncate text-sm font-medium">
                                     Lien rouge vers « {trimmed} »
                                 </span>
+
                                 <span class="text-ink-400 block truncate font-mono text-xs">
                                     /wiki/{plannedSlug}
                                 </span>

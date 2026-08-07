@@ -25,11 +25,13 @@
 {:else if wiki.overlayLoaded}
     <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <p class="text-ink-400 font-mono text-sm">/wiki/{slug}</p>
+
         <EmptyState
             title="Aucune fiche à cette adresse"
             description="Elle a peut être été supprimée, ou son adresse a changé."
         >
             <a href={resolve( `/nouveau?slug=${ slug }` )} class="btn btn-primary">Créer cette fiche</a>
+
             <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
         </EmptyState>
     </div>

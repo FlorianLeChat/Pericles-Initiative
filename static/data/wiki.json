@@ -1,0 +1,463 @@
+{
+    "meta": {
+        "universe": "Périclès Initiative",
+        "tagline": "L'encyclopédie de l'Initiative et du monde qui l'a vue naître",
+        "description": "Encyclopédie consacrée à l'Initiative Périclès, aux personnes qui la composent, aux sites qu'elle occupe et aux événements qui ont fait basculer la gouvernance des données planétaires.",
+        "logo": "",
+        "version": "0.1.0",
+        "updatedAt": "2026-08-05T18:40:00.000Z",
+        "featured": ["initiative-pericles", "le-grand-silence", "protocole-agora"]
+    },
+    "categories": [
+        {
+            "slug": "initiative",
+            "name": "L'Initiative",
+            "description": "Le programme lui même : mandat, direction, services et personnel.",
+            "color": "bleu",
+            "parent": null
+        },
+        {
+            "slug": "fondation",
+            "name": "La Fondation",
+            "description": "Les événements de 2024 et 2025 qui ont rendu l'Initiative nécessaire, puis possible.",
+            "color": "ambre",
+            "parent": null
+        },
+        {
+            "slug": "sites-et-installations",
+            "name": "Sites et installations",
+            "description": "Bâtiments, stations et infrastructures opérés par l'Initiative ou ses partenaires.",
+            "color": "vert",
+            "parent": null
+        },
+        {
+            "slug": "technologies",
+            "name": "Technologies et protocoles",
+            "description": "Instruments de mesure, chaînes de vérification et protocoles de publication.",
+            "color": "cyan",
+            "parent": null
+        },
+        {
+            "slug": "oppositions",
+            "name": "Oppositions et rivalités",
+            "description": "Acteurs privés, États réticents et contestations organisées.",
+            "color": "rose",
+            "parent": null
+        },
+        {
+            "slug": "doctrines",
+            "name": "Doctrines et concepts",
+            "description": "Les idées qui structurent le débat public autour de l'Initiative.",
+            "color": "pierre",
+            "parent": null
+        }
+    ],
+    "entries": [
+        {
+            "id": "ent-initiative-pericles",
+            "slug": "initiative-pericles",
+            "title": "Initiative Périclès",
+            "type": "organisation",
+            "summary": "Programme international créé en avril 2025 pour reconstruire une gouvernance civile des données climatiques après le Grand Silence.",
+            "body": "L'**Initiative Périclès** est un programme international créé le 2 avril 2025, quelques mois après [le Grand Silence](/wiki/le-grand-silence). Elle réunit vingt-neuf États, quatre agences spatiales et un réseau de laboratoires indépendants autour d'un principe unique : aucune mesure de l'état de la planète ne doit dépendre d'un seul propriétaire.\n\nSon nom vient du discours funèbre attribué à Périclès, où la cité tient sa force de la capacité de ses citoyens à juger par eux mêmes. Le choix a été contesté dès les premières semaines, certains délégués y voyant une grandiloquence inutile pour ce qui reste, techniquement, une infrastructure de sauvegarde.\n\n## Mandat\n\nLe mandat tient en trois verbes inscrits à l'article premier de [l'Accord de Délos](/wiki/accord-de-delos) : collecter, vérifier, publier. Chaque mesure transmise à l'Initiative est signée, horodatée et rendue publique dans un délai maximum de soixante douze heures, au moyen du [Protocole Agora](/wiki/protocole-agora).\n\nCe délai, jugé absurde par les opérateurs privés, est devenu le principal marqueur politique du programme : il rend impossible la rétention d'une donnée le temps d'en négocier la valeur.\n\n## Organisation\n\nLa direction générale est assurée par [Athéna Vance](/wiki/athena-vance). L'architecture technique relève de [Noam Keller](/wiki/noam-keller), qui a conçu le protocole avant même la signature de l'accord. Le contrôle interne est confié à [l'Unité Thucydide](/wiki/unite-thucydide), rattachée directement au conseil et non à la direction.\n\nLes opérations quotidiennes se répartissent entre [les Archives du Pnyx](/wiki/archives-du-pnyx), qui conservent, et [la Station Thalassa](/wiki/station-thalassa), qui mesure.\n\n## Critiques\n\nLe [Consortium Hélios](/wiki/consortium-helios) reproche à l'Initiative de publier des données brutes sans capacité d'interprétation, ce qui alimenterait la défiance plus qu'elle ne la corrige. Une partie de cette critique est reprise, sous une forme plus nuancée, par les partisans de la [doctrine du citoyen éclairé](/wiki/doctrine-du-citoyen-eclaire).\n\nLes conclusions de l'audit externe de mai 2026 sont consignées dans le [rapport Argos](/wiki/rapport-argos), dont la publication intégrale reste attendue.",
+            "categories": ["initiative"],
+            "infobox": [
+                { "label": "Type", "value": "Programme intergouvernemental" },
+                { "label": "Création", "value": "2 avril 2025" },
+                { "label": "Siège", "value": "Archives du Pnyx, Athènes" },
+                { "label": "Direction", "value": "Athéna Vance" },
+                { "label": "États membres", "value": "29" },
+                { "label": "Devise", "value": "Collecter, vérifier, publier" }
+            ],
+            "image": null,
+            "timelineDate": "2025-04-02",
+            "status": "publie",
+            "aliases": ["L'Initiative", "Périclès", "Programme Périclès"],
+            "createdAt": "2026-07-02T10:00:00.000Z",
+            "updatedAt": "2026-08-05T18:20:00.000Z"
+        },
+        {
+            "id": "ent-le-grand-silence",
+            "slug": "le-grand-silence",
+            "title": "Le Grand Silence",
+            "type": "evenement",
+            "summary": "Interruption simultanée de la quasi totalité des transmissions satellitaires d'observation de la Terre, du 8 au 19 novembre 2024.",
+            "body": "Le **Grand Silence** désigne l'interruption simultanée, le 8 novembre 2024 à 04 h 12 UTC, de la quasi totalité des transmissions satellitaires d'observation de la Terre. Onze jours plus tard, quand les liaisons sont rétablies, quatre vingt pour cent des séries de mesures présentent une discontinuité que personne n'a su combler depuis.\n\n## Déroulement\n\nLa panne se propage en moins de quarante minutes à travers les six principaux réseaux de relais commerciaux. L'hypothèse d'une cause unique n'a jamais été démontrée. Trois scénarios restent ouverts : une défaillance en cascade d'un même composant de synchronisation, une attaque coordonnée, ou l'effet combiné des deux.\n\n## Conséquences immédiates\n\nPendant onze jours, aucune autorité publique ne dispose de mesure indépendante de la couverture nuageuse, du niveau des océans ou de la température de surface. Les seules données disponibles proviennent d'archives privées, dont l'accès est facturé au tarif du marché de crise.\n\nCet épisode reste la principale justification politique de l'existence de [l'Initiative Périclès](/wiki/initiative-pericles) et de la rédaction de [l'Accord de Délos](/wiki/accord-de-delos) quatre mois plus tard.\n\n## Postérité\n\nDans le vocabulaire courant, l'expression a glissé de l'événement vers le sentiment : on parle d'un grand silence pour décrire toute situation où la mesure existe mais reste inaccessible. [Léna Osei](/wiki/lena-osei) a durablement popularisé cet usage.",
+            "categories": ["fondation"],
+            "infobox": [
+                { "label": "Nature", "value": "Panne de transmission généralisée" },
+                { "label": "Début", "value": "8 novembre 2024, 04 h 12 UTC" },
+                { "label": "Fin", "value": "19 novembre 2024" },
+                { "label": "Durée", "value": "11 jours" },
+                { "label": "Réseaux touchés", "value": "6 opérateurs de relais" },
+                { "label": "Cause", "value": "Non établie" }
+            ],
+            "image": null,
+            "timelineDate": "2024-11-08",
+            "status": "publie",
+            "aliases": ["Silence de novembre", "Panne de novembre 2024"],
+            "createdAt": "2026-07-02T10:05:00.000Z",
+            "updatedAt": "2026-07-28T09:15:00.000Z"
+        },
+        {
+            "id": "ent-accord-de-delos",
+            "slug": "accord-de-delos",
+            "title": "Accord de Délos",
+            "type": "evenement",
+            "summary": "Traité signé le 21 mars 2025 qui fonde l'Initiative Périclès et impose la publication systématique des mesures planétaires.",
+            "body": "L'**Accord de Délos** est signé le 21 mars 2025 par vingt trois États, six s'y ajoutant dans l'année. Il fonde [l'Initiative Périclès](/wiki/initiative-pericles) et fixe l'obligation de publier toute mesure de l'état de la planète dans les soixante douze heures suivant sa collecte.\n\n## Négociation\n\nLes discussions durent dix neuf jours. Le point de blocage n'est pas le principe de publication, accepté rapidement, mais la question de la propriété des instruments : un État peut il être contraint de publier une mesure produite par un capteur privé opérant sous sa licence ?\n\nLa formule retenue à l'article quatre, dite clause de l'instrument neutre, répond par l'affirmative dès lors que le capteur bénéficie d'une orbite attribuée publiquement. Cette rédaction est l'oeuvre de [Noam Keller](/wiki/noam-keller), appelé comme expert technique et resté trois semaines à la table.\n\n## Portée\n\nL'accord crée trois organes : un conseil des parties, une direction générale et [une unité de contrôle indépendante](/wiki/unite-thucydide). Il ne crée aucune sanction. Le seul mécanisme de contrainte prévu est la publication du manquement lui même, ce que ses rédacteurs appellent la sanction du registre.\n\n## Contestations\n\nLe [Consortium Hélios](/wiki/consortium-helios) a engagé quatre recours contre la clause de l'instrument neutre, tous rejetés. Le cinquième, déposé en juin 2026, porte non plus sur le principe mais sur le délai de soixante douze heures.",
+            "categories": ["fondation", "doctrines"],
+            "infobox": [
+                { "label": "Nature", "value": "Traité multilatéral" },
+                { "label": "Signature", "value": "21 mars 2025" },
+                { "label": "Lieu", "value": "Délos" },
+                { "label": "Signataires initiaux", "value": "23 États" },
+                { "label": "Article clé", "value": "Article 4, clause de l'instrument neutre" }
+            ],
+            "image": null,
+            "timelineDate": "2025-03-21",
+            "status": "publie",
+            "aliases": ["Traité de Délos", "Accord fondateur"],
+            "createdAt": "2026-07-02T10:10:00.000Z",
+            "updatedAt": "2026-07-30T14:00:00.000Z"
+        },
+        {
+            "id": "ent-athena-vance",
+            "slug": "athena-vance",
+            "title": "Athéna Vance",
+            "type": "personnage",
+            "summary": "Directrice générale de l'Initiative Périclès depuis sa création, ancienne responsable des systèmes de mesure océanique.",
+            "body": "**Athéna Vance**, née en 1979 à Thessalonique, dirige [l'Initiative Périclès](/wiki/initiative-pericles) depuis avril 2025. Océanographe de formation, elle a passé dix sept ans à concevoir des réseaux de bouées avant d'accepter un poste qu'elle décrit elle même comme administratif au sens le plus ingrat du terme.\n\n## Parcours\n\nElle coordonne à partir de 2016 le réseau de mesure de l'Égée, puis prend la direction technique d'un consortium de recherche océanique. Sa position pendant [le Grand Silence](/wiki/le-grand-silence) la rend incontournable : elle est l'une des rares responsables à avoir refusé d'acheter des données d'archive privées pendant la crise, et à l'avoir dit publiquement.\n\n## À la direction\n\nSa méthode tient en une règle qu'elle répète à chaque conseil : ce qui n'est pas publié n'existe pas. Elle a imposé la publication du journal complet des incidents de [la Station Thalassa](/wiki/station-thalassa), y compris ceux qui mettent l'Initiative en défaut.\n\nSes rapports avec [Noam Keller](/wiki/noam-keller) sont décrits comme une tension productive : elle défend la lisibilité des publications, il défend l'intégrité de la chaîne de vérification, et les deux exigences ne pointent pas toujours dans la même direction.\n\n## Critiques\n\nOn lui reproche une centralisation excessive des décisions et une méfiance systématique envers les acteurs privés, dont le [Consortium Hélios](/wiki/consortium-helios) fait un argument récurrent.",
+            "categories": ["initiative"],
+            "infobox": [
+                { "label": "Naissance", "value": "1979, Thessalonique" },
+                { "label": "Fonction", "value": "Directrice générale" },
+                { "label": "En poste depuis", "value": "2 avril 2025" },
+                { "label": "Formation", "value": "Océanographie physique" },
+                { "label": "Affectation", "value": "Archives du Pnyx" }
+            ],
+            "image": null,
+            "timelineDate": null,
+            "status": "publie",
+            "aliases": ["Vance", "la directrice"],
+            "createdAt": "2026-07-03T08:00:00.000Z",
+            "updatedAt": "2026-08-01T11:30:00.000Z"
+        },
+        {
+            "id": "ent-noam-keller",
+            "slug": "noam-keller",
+            "title": "Noam Keller",
+            "type": "personnage",
+            "summary": "Architecte du Protocole Agora et directeur technique de l'Initiative Périclès.",
+            "body": "**Noam Keller**, né en 1988 à Haïfa, est l'architecte du [Protocole Agora](/wiki/protocole-agora) et le directeur technique de [l'Initiative Périclès](/wiki/initiative-pericles).\n\nIl travaillait sur des chaînes de signature horodatée bien avant [le Grand Silence](/wiki/le-grand-silence), dans une relative indifférence. Les onze jours de panne ont transformé un sujet de laboratoire en question politique, et son prototype en fondation d'un traité.\n\n## Le protocole avant l'accord\n\nLa première version du protocole est publiée en janvier 2025, deux mois avant [l'Accord de Délos](/wiki/accord-de-delos). Cette antériorité est régulièrement invoquée pour souligner que l'Initiative n'a pas conçu son outil, elle l'a adopté.\n\n## Position publique\n\nKeller défend une position minimaliste : le protocole ne doit garantir que l'intégrité et la datation, jamais l'interprétation. Il s'oppose pour cette raison aux propositions de publication commentée portées par une partie du conseil, y compris par [Athéna Vance](/wiki/athena-vance).\n\nIl a témoigné trois fois devant [l'Unité Thucydide](/wiki/unite-thucydide), à chaque fois à sa demande.",
+            "categories": ["initiative", "technologies"],
+            "infobox": [
+                { "label": "Naissance", "value": "1988, Haïfa" },
+                { "label": "Fonction", "value": "Directeur technique" },
+                { "label": "Connu pour", "value": "Protocole Agora" },
+                { "label": "Affectation", "value": "Station Thalassa" }
+            ],
+            "image": null,
+            "timelineDate": null,
+            "status": "publie",
+            "aliases": ["Keller"],
+            "createdAt": "2026-07-03T08:30:00.000Z",
+            "updatedAt": "2026-07-29T16:45:00.000Z"
+        },
+        {
+            "id": "ent-lena-osei",
+            "slug": "lena-osei",
+            "title": "Léna Osei",
+            "type": "personnage",
+            "summary": "Journaliste accréditée auprès de l'Initiative, autrice du suivi quotidien qui alimente le fil en direct.",
+            "body": "**Léna Osei**, née en 1994 à Kumasi, couvre [l'Initiative Périclès](/wiki/initiative-pericles) depuis sa création. Elle est l'une des quatre journalistes disposant d'un accès permanent aux [Archives du Pnyx](/wiki/archives-du-pnyx).\n\nSon suivi quotidien est à l'origine de l'usage courant de l'expression grand silence pour désigner toute donnée existante mais inaccessible.\n\n## Méthode\n\nElle publie ses notes brutes en même temps que ses articles, en revendiquant la même exigence que celle imposée aux États par [l'Accord de Délos](/wiki/accord-de-delos). Cette pratique lui a valu deux procédures de retrait d'accréditation, toutes deux abandonnées.\n\n## Travaux notables\n\nSa série sur les délais réels de publication a établi que sept pour cent des mesures dépassaient les soixante douze heures réglementaires, chiffre repris depuis par [l'Unité Thucydide](/wiki/unite-thucydide) et contesté par le [Consortium Hélios](/wiki/consortium-helios), qui le juge sous évalué.",
+            "categories": ["initiative", "doctrines"],
+            "infobox": [
+                { "label": "Naissance", "value": "1994, Kumasi" },
+                { "label": "Fonction", "value": "Journaliste accréditée" },
+                { "label": "Accréditation", "value": "Depuis mai 2025" },
+                { "label": "Connue pour", "value": "Le suivi quotidien de l'Initiative" }
+            ],
+            "image": null,
+            "timelineDate": null,
+            "status": "publie",
+            "aliases": ["Osei"],
+            "createdAt": "2026-07-04T09:00:00.000Z",
+            "updatedAt": "2026-08-04T07:10:00.000Z"
+        },
+        {
+            "id": "ent-mirko-daskalov",
+            "slug": "mirko-daskalov",
+            "title": "Mirko Daskalov",
+            "type": "personnage",
+            "summary": "Président du Consortium Hélios, principal opposant institutionnel à l'Initiative Périclès.",
+            "body": "**Mirko Daskalov**, né en 1971 à Varna, préside le [Consortium Hélios](/wiki/consortium-helios) depuis 2021. Il est le visage de l'opposition organisée à [l'Initiative Périclès](/wiki/initiative-pericles).\n\n## Argumentaire\n\nSa position ne conteste pas la publication des mesures mais son rythme. Selon lui, publier une donnée brute avant toute vérification contradictoire revient à publier une erreur avec le sceau de l'autorité publique. Il défend un délai de trente jours et une chaîne d'interprétation certifiée.\n\nCette thèse, souvent réduite à un plaidoyer d'intérêt commercial, rejoint sur certains points les objections formulées au nom de la [doctrine du citoyen éclairé](/wiki/doctrine-du-citoyen-eclaire).\n\n## Relations avec l'Initiative\n\nDaskalov a rencontré [Athéna Vance](/wiki/athena-vance) neuf fois en dix huit mois. Les comptes rendus de ces rencontres sont publiés, à la demande de l'Initiative et contre l'avis du Consortium.",
+            "categories": ["oppositions"],
+            "infobox": [
+                { "label": "Naissance", "value": "1971, Varna" },
+                { "label": "Fonction", "value": "Président du Consortium Hélios" },
+                { "label": "En poste depuis", "value": "2021" },
+                { "label": "Position", "value": "Publication différée et certifiée" }
+            ],
+            "image": null,
+            "timelineDate": null,
+            "status": "publie",
+            "aliases": ["Daskalov"],
+            "createdAt": "2026-07-05T10:00:00.000Z",
+            "updatedAt": "2026-07-26T13:20:00.000Z"
+        },
+        {
+            "id": "ent-archives-du-pnyx",
+            "slug": "archives-du-pnyx",
+            "title": "Archives du Pnyx",
+            "type": "lieu",
+            "summary": "Siège et centre de conservation de l'Initiative Périclès, installé sous la colline du Pnyx à Athènes.",
+            "body": "Les **Archives du Pnyx** constituent le siège de [l'Initiative Périclès](/wiki/initiative-pericles) et son centre de conservation. L'installation occupe un ancien abri technique aménagé sous le versant nord de la colline du Pnyx, à Athènes.\n\n## Description\n\nTrois niveaux, dont deux enterrés. Le niveau supérieur accueille la direction et la salle du conseil. Les deux niveaux inférieurs abritent la conservation : six mille supports optiques et une copie sur bande, renouvelée tous les quatre ans.\n\nLa règle de conservation, dite règle des trois lectures, veut que toute donnée archivée reste lisible par trois moyens techniques indépendants. Elle interdit de fait l'adoption de tout format propriétaire.\n\n## Accès\n\nQuatre journalistes disposent d'un accès permanent, dont [Léna Osei](/wiki/lena-osei). Les salles de conservation sont accessibles sur demande motivée, et chaque consultation est inscrite au registre public.\n\n## Symbolique\n\nLe choix du site, où l'assemblée athénienne délibérait, a été présenté comme une évidence par les fondateurs et comme une pose par leurs détracteurs. [Athéna Vance](/wiki/athena-vance) a reconnu que l'argument décisif était l'inertie thermique de la roche.",
+            "categories": ["sites-et-installations", "initiative"],
+            "infobox": [
+                { "label": "Type", "value": "Siège et centre de conservation" },
+                { "label": "Localisation", "value": "Athènes, colline du Pnyx" },
+                { "label": "Ouverture", "value": "Septembre 2025" },
+                { "label": "Niveaux", "value": "3, dont 2 enterrés" },
+                { "label": "Capacité", "value": "6 000 supports optiques" }
+            ],
+            "image": {
+                "src": "/media/archives-du-pnyx.svg",
+                "alt": "Coupe schématique des trois niveaux des Archives du Pnyx",
+                "caption": "Coupe des Archives du Pnyx, les deux niveaux de conservation sous la roche."
+            },
+            "timelineDate": "2025-09-15",
+            "status": "publie",
+            "aliases": ["Le Pnyx", "Les Archives"],
+            "createdAt": "2026-07-06T11:00:00.000Z",
+            "updatedAt": "2026-07-31T10:05:00.000Z"
+        },
+        {
+            "id": "ent-station-thalassa",
+            "slug": "station-thalassa",
+            "title": "Station Thalassa",
+            "type": "lieu",
+            "summary": "Plateforme de mesure océanique et atmosphérique de l'Initiative, en mer Égée, mise en service en janvier 2026.",
+            "body": "La **Station Thalassa** est la principale installation de mesure de [l'Initiative Périclès](/wiki/initiative-pericles). Mise en service le 14 janvier 2026, elle occupe une plateforme reconvertie à quarante deux kilomètres au sud est de Lemnos.\n\n## Fonction\n\nThalassa produit et signe ses propres mesures : température de surface, salinité, hauteur d'eau, colonne atmosphérique. Chaque série est publiée par le [Protocole Agora](/wiki/protocole-agora) sans passer par un relais commercial, ce qui en fait la démonstration opérationnelle du principe fondateur de l'Initiative.\n\n## Équipage\n\nDix neuf personnes en permanence, par rotations de six semaines. [Noam Keller](/wiki/noam-keller) y séjourne un mois par trimestre, arrangement critiqué en interne comme une entorse à la séparation des fonctions.\n\n## Incidents\n\nLe journal des incidents est public. Il consigne notamment l'interruption du 3 mars 2026, quarante et une heures sans transmission, et l'écart d'étalonnage de mai 2026, dont le traitement fait l'objet d'une remarque de [l'Unité Thucydide](/wiki/unite-thucydide).",
+            "categories": ["sites-et-installations", "technologies"],
+            "infobox": [
+                { "label": "Type", "value": "Plateforme de mesure" },
+                { "label": "Position", "value": "Mer Égée, 42 km au sud est de Lemnos" },
+                { "label": "Mise en service", "value": "14 janvier 2026" },
+                { "label": "Équipage", "value": "19 personnes, rotations de 6 semaines" },
+                { "label": "Séries publiées", "value": "4 en continu" }
+            ],
+            "image": {
+                "src": "/media/station-thalassa.svg",
+                "alt": "Silhouette de la plateforme Thalassa et de ses mâts de mesure",
+                "caption": "La plateforme Thalassa, ses quatre mâts de mesure et sa liaison directe."
+            },
+            "timelineDate": "2026-01-14",
+            "status": "publie",
+            "aliases": ["Thalassa"],
+            "createdAt": "2026-07-07T09:30:00.000Z",
+            "updatedAt": "2026-08-05T06:00:00.000Z"
+        },
+        {
+            "id": "ent-protocole-agora",
+            "slug": "protocole-agora",
+            "title": "Protocole Agora",
+            "type": "objet",
+            "summary": "Chaîne ouverte de signature, d'horodatage et de publication des mesures, socle technique de l'Initiative.",
+            "body": "Le **Protocole Agora** est la chaîne technique par laquelle toute mesure collectée par [l'Initiative Périclès](/wiki/initiative-pericles) est signée, horodatée et publiée. Sa première version est publiée en janvier 2025 par [Noam Keller](/wiki/noam-keller), avant même [l'Accord de Délos](/wiki/accord-de-delos).\n\n## Principe\n\nTrois garanties, et trois seulement : la mesure vient bien de l'instrument déclaré, elle n'a pas été modifiée depuis sa collecte, et elle a été publiée à la date indiquée. Le protocole ne garantit ni l'exactitude de la mesure ni la pertinence de son interprétation, distinction que Keller défend comme une limite de conception et non comme une lacune.\n\n## Fonctionnement\n\nChaque instrument dispose d'une clé propre. La signature couvre la mesure, l'instrument et l'instant. Les publications sont chaînées par jour, si bien qu'une suppression rétroactive casse la chaîne de façon visible et publique.\n\nLa règle des trois lectures appliquée aux [Archives du Pnyx](/wiki/archives-du-pnyx) impose au protocole de rester lisible sans outil propriétaire.\n\n## Débats\n\nLe [Consortium Hélios](/wiki/consortium-helios) propose depuis 2025 une extension dite Agora Plus, ajoutant une étape de certification avant publication. L'Initiative la refuse, au motif qu'une étape supplémentaire avant publication est, quel que soit son nom, un délai.",
+            "categories": ["technologies"],
+            "infobox": [
+                { "label": "Type", "value": "Protocole ouvert" },
+                { "label": "Première version", "value": "Janvier 2025" },
+                { "label": "Auteur", "value": "Noam Keller" },
+                { "label": "Garanties", "value": "Origine, intégrité, datation" },
+                { "label": "Délai de publication", "value": "72 heures maximum" }
+            ],
+            "image": {
+                "src": "/media/protocole-agora.svg",
+                "alt": "Schéma de la chaîne de signature quotidienne du Protocole Agora",
+                "caption": "Chaînage quotidien des publications : retirer un maillon reste visible."
+            },
+            "timelineDate": "2025-01-20",
+            "status": "publie",
+            "aliases": ["Agora", "le protocole"],
+            "createdAt": "2026-07-08T14:00:00.000Z",
+            "updatedAt": "2026-08-02T09:45:00.000Z"
+        },
+        {
+            "id": "ent-consortium-helios",
+            "slug": "consortium-helios",
+            "title": "Consortium Hélios",
+            "type": "organisation",
+            "summary": "Groupement d'opérateurs privés de satellites d'observation, principal contradicteur de l'Initiative.",
+            "body": "Le **Consortium Hélios** réunit onze opérateurs privés de satellites d'observation. Présidé par [Mirko Daskalov](/wiki/mirko-daskalov), il détenait avant 2025 l'essentiel des archives exploitables de mesure planétaire.\n\n## Position\n\nHélios ne conteste pas la publication mais son immédiateté. Sa proposition, dite Agora Plus, ajouterait au [Protocole Agora](/wiki/protocole-agora) une certification préalable de trente jours. L'Initiative y voit un droit de veto déguisé.\n\n## Le précédent de novembre 2024\n\nPendant [le Grand Silence](/wiki/le-grand-silence), les membres du Consortium ont vendu des accès à leurs archives au tarif du marché de crise. Cet épisode, jamais contesté dans les faits, pèse sur toutes leurs prises de position ultérieures.\n\nDaskalov soutient que ces ventes ont financé le maintien en orbite de trois satellites qui, sans cela, auraient été désorbités. L'argument est examiné dans le [rapport Argos](/wiki/rapport-argos).\n\n## Recours\n\nCinq recours engagés contre [l'Accord de Délos](/wiki/accord-de-delos), quatre rejetés, un pendant.",
+            "categories": ["oppositions"],
+            "infobox": [
+                { "label": "Type", "value": "Groupement d'opérateurs privés" },
+                { "label": "Membres", "value": "11 opérateurs" },
+                { "label": "Président", "value": "Mirko Daskalov" },
+                { "label": "Proposition", "value": "Agora Plus, certification à 30 jours" },
+                { "label": "Recours engagés", "value": "5" }
+            ],
+            "image": null,
+            "timelineDate": null,
+            "status": "publie",
+            "aliases": ["Hélios"],
+            "createdAt": "2026-07-09T15:00:00.000Z",
+            "updatedAt": "2026-07-27T08:30:00.000Z"
+        },
+        {
+            "id": "ent-unite-thucydide",
+            "slug": "unite-thucydide",
+            "title": "Unité Thucydide",
+            "type": "organisation",
+            "summary": "Service de contrôle interne de l'Initiative, rattaché au conseil des parties et non à la direction.",
+            "body": "**L'Unité Thucydide** est le service de contrôle interne de [l'Initiative Périclès](/wiki/initiative-pericles). Créée par l'article sept de [l'Accord de Délos](/wiki/accord-de-delos), elle rend compte au conseil des parties et non à la direction générale.\n\n## Mission\n\nVérifier que les mesures sont publiées dans les délais, que les écarts d'étalonnage sont déclarés, et que les manquements sont inscrits au registre public. L'Unité ne dispose d'aucun pouvoir de sanction, seulement d'un pouvoir de publication, ce qui reste la logique générale du traité.\n\n## Travaux\n\nSes deux rapports annuels ont établi un taux de dépassement du délai réglementaire de sept pour cent, cohérent avec les relevés de [Léna Osei](/wiki/lena-osei). Le second rapport formule une remarque sur le traitement de l'écart d'étalonnage de [la Station Thalassa](/wiki/station-thalassa).\n\n## Indépendance\n\nSon rattachement au conseil est régulièrement présenté comme la garantie la plus solide du dispositif, et comme sa faiblesse la plus prévisible : le conseil est composé des États qu'elle contrôle.",
+            "categories": ["initiative"],
+            "infobox": [
+                { "label": "Type", "value": "Service de contrôle interne" },
+                { "label": "Création", "value": "Article 7 de l'Accord de Délos" },
+                { "label": "Rattachement", "value": "Conseil des parties" },
+                { "label": "Pouvoir", "value": "Publication, sans sanction" },
+                { "label": "Rapports publiés", "value": "2" }
+            ],
+            "image": null,
+            "timelineDate": "2025-06-10",
+            "status": "publie",
+            "aliases": ["Thucydide", "le contrôle interne"],
+            "createdAt": "2026-07-10T09:00:00.000Z",
+            "updatedAt": "2026-07-25T17:00:00.000Z"
+        },
+        {
+            "id": "ent-doctrine-citoyen-eclaire",
+            "slug": "doctrine-du-citoyen-eclaire",
+            "title": "Doctrine du citoyen éclairé",
+            "type": "concept",
+            "summary": "Thèse selon laquelle la publication brute d'une mesure ne suffit pas à rendre un citoyen capable d'en juger.",
+            "body": "La **doctrine du citoyen éclairé** désigne un ensemble d'objections adressées à [l'Initiative Périclès](/wiki/initiative-pericles) depuis 2025. Sa thèse centrale : publier une mesure ne rend personne capable de l'interpréter, et une donnée brute mal comprise nourrit la défiance qu'elle prétendait dissiper.\n\n## Origine\n\nL'expression apparaît dans un article universitaire de juin 2025 consacré aux effets du [Grand Silence](/wiki/le-grand-silence) sur la confiance envers les institutions scientifiques. Elle est reprise, dans un sens plus étroit, par le [Consortium Hélios](/wiki/consortium-helios) à l'appui de sa proposition de certification préalable.\n\n## Réponse de l'Initiative\n\n[Athéna Vance](/wiki/athena-vance) y répond en séparant deux questions : la disponibilité de la mesure et la capacité à la lire. La première relève du traité, la seconde de l'éducation, et confondre les deux revient selon elle à conditionner la transparence à un niveau de compétence, donc à la refuser.\n\n[Noam Keller](/wiki/noam-keller) tranche autrement, en refusant que le [Protocole Agora](/wiki/protocole-agora) porte quoi que ce soit d'autre que l'origine, l'intégrité et la date.\n\n## Postérité\n\nLa doctrine reste la seule objection à l'Initiative qui ne soit pas réductible à un intérêt économique, ce qui explique sa persistance dans le débat.",
+            "categories": ["doctrines"],
+            "infobox": [
+                { "label": "Nature", "value": "Doctrine, objection théorique" },
+                { "label": "Apparition", "value": "Juin 2025" },
+                { "label": "Thèse", "value": "La mesure brute ne suffit pas à juger" },
+                { "label": "Repris par", "value": "Consortium Hélios" }
+            ],
+            "image": null,
+            "timelineDate": "2025-06-01",
+            "status": "publie",
+            "aliases": ["Citoyen éclairé"],
+            "createdAt": "2026-07-11T10:00:00.000Z",
+            "updatedAt": "2026-07-24T12:00:00.000Z"
+        },
+        {
+            "id": "ent-registre-des-manquements",
+            "slug": "registre-des-manquements",
+            "title": "Registre des manquements",
+            "type": "objet",
+            "summary": "Journal public des retards et écarts constatés, seul mécanisme de contrainte prévu par l'Accord de Délos.",
+            "body": "Le **registre des manquements** est le journal public où [l'Unité Thucydide](/wiki/unite-thucydide) inscrit tout retard de publication et tout écart d'étalonnage constaté.\n\nIl constitue le seul mécanisme de contrainte de [l'Accord de Délos](/wiki/accord-de-delos), qui ne prévoit aucune sanction financière ni suspension. Ses rédacteurs parlent de sanction du registre.\n\nCette page est un brouillon : la structure des entrées du registre et le détail des trois cent quarante et un manquements inscrits depuis 2025 restent à documenter.",
+            "categories": ["initiative", "doctrines"],
+            "infobox": [
+                { "label": "Type", "value": "Registre public" },
+                { "label": "Tenu par", "value": "Unité Thucydide" },
+                { "label": "Entrées", "value": "341 depuis 2025" }
+            ],
+            "image": null,
+            "timelineDate": null,
+            "status": "brouillon",
+            "aliases": ["Le registre"],
+            "createdAt": "2026-08-05T17:00:00.000Z",
+            "updatedAt": "2026-08-05T17:30:00.000Z"
+        }
+    ],
+    "live": [
+        {
+            "id": "live-2026-08-06-0740",
+            "publishedAt": "2026-08-06T07:40:00.000Z",
+            "title": "Thalassa reprend ses transmissions après quatre heures d'interruption",
+            "body": "Les quatre séries de [la Station Thalassa](/wiki/station-thalassa) sont de nouveau publiées. L'interruption, commencée à 03 h 12, est attribuée à une bascule d'alimentation. Elle sera inscrite au [registre des manquements](/wiki/registre-des-manquements).",
+            "severity": "important",
+            "tags": ["Thalassa", "transmissions"],
+            "entrySlug": "station-thalassa",
+            "source": "Salle de conduite, Thalassa",
+            "pinned": false
+        },
+        {
+            "id": "live-2026-08-06-0615",
+            "publishedAt": "2026-08-06T06:15:00.000Z",
+            "title": "Interruption en cours sur les séries de Thalassa",
+            "body": "Aucune mesure publiée depuis 03 h 12. La direction technique confirme une cause matérielle et écarte une atteinte au [Protocole Agora](/wiki/protocole-agora).",
+            "severity": "urgent",
+            "tags": ["Thalassa", "incident"],
+            "entrySlug": "station-thalassa",
+            "source": "Direction technique",
+            "pinned": false
+        },
+        {
+            "id": "live-2026-08-05-1830",
+            "publishedAt": "2026-08-05T18:30:00.000Z",
+            "title": "Le cinquième recours d'Hélios porte désormais sur le délai de 72 heures",
+            "body": "Le [Consortium Hélios](/wiki/consortium-helios) confirme que son recours ne visera pas la clause de l'instrument neutre mais le délai de publication. [Mirko Daskalov](/wiki/mirko-daskalov) évoque une audience à l'automne.",
+            "severity": "important",
+            "tags": ["Hélios", "recours", "Délos"],
+            "entrySlug": "consortium-helios",
+            "source": "Communiqué Hélios",
+            "pinned": true
+        },
+        {
+            "id": "live-2026-08-05-1105",
+            "publishedAt": "2026-08-05T11:05:00.000Z",
+            "title": "Vance confirme la publication intégrale du rapport Argos",
+            "body": "[Athéna Vance](/wiki/athena-vance) annonce que l'audit externe de mai sera publié sans retrait, y compris ses annexes sur les ventes d'archives de novembre 2024.",
+            "severity": "breaking",
+            "tags": ["Argos", "transparence"],
+            "entrySlug": "athena-vance",
+            "source": "Conseil des parties",
+            "pinned": true
+        },
+        {
+            "id": "live-2026-08-04-1550",
+            "publishedAt": "2026-08-04T15:50:00.000Z",
+            "title": "Osei publie ses notes sur les délais réels du mois de juillet",
+            "body": "[Léna Osei](/wiki/lena-osei) relève 6,4 pour cent de dépassements du délai réglementaire en juillet, contre 7,1 pour cent sur l'année.",
+            "severity": "info",
+            "tags": ["délais", "presse"],
+            "entrySlug": "lena-osei",
+            "source": "Notes publiques",
+            "pinned": false
+        },
+        {
+            "id": "live-2026-08-03-0920",
+            "publishedAt": "2026-08-03T09:20:00.000Z",
+            "title": "Deux nouveaux États déposent leur instrument d'adhésion",
+            "body": "L'[Accord de Délos](/wiki/accord-de-delos) comptera trente et un États parties au 1er septembre.",
+            "severity": "info",
+            "tags": ["Délos", "adhésions"],
+            "entrySlug": "accord-de-delos",
+            "source": "Secrétariat du conseil",
+            "pinned": false
+        },
+        {
+            "id": "live-2026-07-31-1400",
+            "publishedAt": "2026-07-31T14:00:00.000Z",
+            "title": "Keller refuse à nouveau l'extension Agora Plus",
+            "body": "Devant le conseil, [Noam Keller](/wiki/noam-keller) qualifie la certification préalable de délai portant un autre nom.",
+            "severity": "info",
+            "tags": ["Agora", "Hélios"],
+            "entrySlug": "protocole-agora",
+            "source": "Conseil des parties",
+            "pinned": false
+        },
+        {
+            "id": "live-2026-07-28-1010",
+            "publishedAt": "2026-07-28T10:10:00.000Z",
+            "title": "Renouvellement des bandes de conservation au Pnyx",
+            "body": "La copie sur bande des [Archives du Pnyx](/wiki/archives-du-pnyx) entre dans son cycle de renouvellement quadriennal. Aucune interruption de consultation prévue.",
+            "severity": "info",
+            "tags": ["Pnyx", "conservation"],
+            "entrySlug": "archives-du-pnyx",
+            "source": "Service de conservation",
+            "pinned": false
+        }
+    ]
+}

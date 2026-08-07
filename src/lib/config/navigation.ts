@@ -17,12 +17,12 @@ export interface NavLink {
 export const NAV_LINKS: readonly NavLink[] = [
     { href: "/wiki", label: "Encyclopédie" },
     { href: "/categories", label: "Catégories" },
-    { href: "/direct", label: "En direct" },
-    { href: "/chronologie", label: "Chronologie" }
+    { href: "/live", label: "En direct" },
+    { href: "/timeline", label: "Chronologie" }
 ];
 
 export const TOOL_LINKS: readonly NavLink[] = [
-    { href: "/tableau-de-bord", label: "Tableau de bord" },
-    { href: "/donnees", label: "Données" },
-    { href: "/parametres", label: "Paramètres" }
+    { href: "/dashboard", label: "Tableau de bord" },
+    { href: "/data", label: "Données" },
+    { href: "/settings", label: "Paramètres" }
 ];
