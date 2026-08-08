@@ -87,7 +87,7 @@
         <div class="ml-auto flex items-center gap-1.5">
             <button
                 type="button"
-                class="border-paper-300 text-muted hover:border-accent-400 hover:text-accent-600 dark:border-ink-800 dark:hover:text-accent-400 hidden items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition sm:flex"
+                class="border-paper-300 text-muted hover:border-accent-400 hover:text-accent-600 dark:border-ink-800 dark:hover:text-accent-400 hidden h-9 items-center gap-2 rounded-full border px-3 text-sm leading-none transition sm:flex"
                 onclick={onsearch}
             >
                 <Icon path={SEARCH} class="h-4 w-4" />
@@ -95,7 +95,7 @@
                 <span>Rechercher</span>
 
                 <kbd
-                    class="border-paper-300 dark:border-ink-700 ml-2 rounded border px-1.5 py-0.5 font-sans text-[10px]"
+                    class="border-paper-300 dark:border-ink-700 ml-2 rounded border px-1.5 py-0.5 font-sans text-[10px] leading-none"
                 >
                     Ctrl K
                 </kbd>
@@ -110,14 +110,16 @@
                 <Icon path={SEARCH} class="h-[18px] w-[18px]" />
             </button>
 
-            <ToolsMenu links={TOOL_LINKS} {isActive} />
-
-            <a href={resolve( "/new" )} class="btn btn-primary hidden px-3.5 py-1.5 sm:inline-flex">
+            <a href={resolve( "/new" )} class="btn btn-primary hidden h-9 px-3.5 sm:inline-flex">
                 <Icon path={PLUS} class="h-4 w-4" />
                 Nouvelle fiche
             </a>
 
-            <ThemeToggle />
+            <div class="border-paper-200 dark:border-ink-800 ml-1 flex items-center gap-1 border-l pl-1.5">
+                <ToolsMenu links={TOOL_LINKS} {isActive} />
+
+                <ThemeToggle />
+            </div>
 
             <button
                 type="button"
