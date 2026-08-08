@@ -31,7 +31,8 @@
     const related = $derived( entry ? wiki.relatedTo( entry ) : [] );
 
     /** Humanised slug, used to prefill the title of a page that does not exist yet. */
-    const plannedTitle = $derived( slug.replace( /-/g, " " ).replace( /^./, ( letter ) => letter.toUpperCase() ) );
+    const spaced = $derived( slug.replaceAll( "-", " " ) );
+    const plannedTitle = $derived( spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 ) );
 
     const categories = $derived(
         ( entry?.categories ?? [] )

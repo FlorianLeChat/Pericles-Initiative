@@ -89,6 +89,9 @@
         return remote.config.syncedChange === wiki.changedAt ? "synced" : "stale";
     } );
 
+    /** True while no transfer has ever happened, which is what automatic publishing waits for. */
+    const neverSynced = $derived( syncState === "unknown" );
+
     /**
      * Persists what is on screen before acting.
      *
@@ -266,7 +269,7 @@
 
         <div class="flex flex-wrap items-center gap-3">
             <button type="submit" class="btn btn-primary" disabled={!canConnect || remote.busy}>
-                {remote.busy ? "Connexion…" : "Tester la connexion"}
+                {remote.busy ? "Connexion..." : "Tester la connexion"}
             </button>
 
             {#if dirty && canConnect}
@@ -334,6 +337,34 @@
                     + "dernière lecture."
                     : "Ce serveur ne suivant pas ses révisions, le dernier envoi écrase le précédent sans avertir."}
             </p>
+
+            <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
+                <label class="flex items-start gap-3 text-sm">
+                    <input
+                        type="checkbox"
+                        class="accent-accent-600 mt-0.5 h-4 w-4 shrink-0"
+                        checked={remote.config.autoPush}
+                        disabled={neverSynced}
+                        onchange={( event ) => remote.save( { autoPush: event.currentTarget.checked } )}
+                    />
+
+                    <span>
+                        Publier automatiquement au retour du réseau
+
+                        <span class="text-muted mt-1 block text-xs leading-relaxed">
+                            {#if neverSynced}
+                                Disponible après une première synchronisation faite à la main : tant que ce navigateur
+                                n'a jamais lu ce serveur, un envoi automatique écraserait une sauvegarde que personne
+                                n'a vue.
+                            {:else}
+                                Vos modifications partent seules quelques secondes après la dernière frappe, et sont
+                                mises en attente tant que vous êtes hors ligne. Un envoi refusé parce que la sauvegarde
+                                distante a changé ne sera jamais forcé : il vous est signalé et vous tranchez ici.
+                            {/if}
+                        </span>
+                    </span>
+                </label>
+            </div>
 
             <dl class="text-muted mt-6 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-[auto_1fr]">
                 <dt class="tracking-wide uppercase">Dernier envoi</dt>

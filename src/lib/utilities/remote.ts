@@ -16,7 +16,7 @@
  */
 
 import type { RemoteConfig, RemoteFailure, RemoteSnapshot } from "$lib/types";
-import { asNullableString, asRecord, asTrimmed, normalizeDataset } from "./dataset";
+import { asBoolean, asNullableString, asRecord, asTrimmed, normalizeDataset } from "./dataset";
 
 /** Path appended to the configured base url, per the contract. */
 const DATASET_PATH = "dataset";
@@ -81,6 +81,7 @@ export const emptyRemoteConfig = (): RemoteConfig => ( {
     baseUrl: "",
     secret: "",
     revision: null,
+    autoPush: false,
     lastPulledAt: null,
     lastPushedAt: null,
     syncedChange: null
@@ -105,6 +106,7 @@ export const normalizeRemoteConfig = ( value: unknown ): RemoteConfig =>
         baseUrl: asTrimmed( raw.baseUrl ),
         secret: asTrimmed( raw.secret ),
         revision: asNullableString( raw.revision ),
+        autoPush: asBoolean( raw.autoPush ),
         lastPulledAt: asNullableString( raw.lastPulledAt ),
         lastPushedAt: asNullableString( raw.lastPushedAt ),
         syncedChange: asNullableString( raw.syncedChange )

@@ -7,10 +7,12 @@
     import "../app.css";
     import { untrack, type Snippet } from "svelte";
     import { onNavigate } from "$app/navigation";
+    import ConnectionStatus from "$lib/components/ConnectionStatus.svelte";
     import BreakingBanner from "$lib/components/live/BreakingBanner.svelte";
     import SearchDialog from "$lib/components/SearchDialog.svelte";
     import SiteFooter from "$lib/components/SiteFooter.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
+    import UpdateBanner from "$lib/components/UpdateBanner.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LayoutData } from "./$types";
 
@@ -112,6 +114,10 @@
 <SiteFooter />
 
 <SearchDialog bind:open={searchOpen} />
+
+<ConnectionStatus />
+
+<UpdateBanner />
 
 {#if wiki.storageError}
     <p class="bg-alert-500 fixed inset-x-0 bottom-0 z-50 px-4 py-3 text-center text-sm text-white" role="alert">

@@ -110,6 +110,11 @@ The static build is the real test: it exercises prerendering, which is where Mar
 the link graph and the crawler actually get proven. Since there is no test runner, these two
 commands are the whole safety net.
 
+`npm run check` runs twice on purpose. SvelteKit excludes `src/service-worker.ts` from the
+application's `tsconfig.json`, since `lib.dom` and `lib.webworker` declare the same identifiers and
+cannot share a program, so the worker is checked separately through `tsconfig.worker.json`. Without
+that second pass it would be the one file nothing verifies.
+
 - To see what the pre-commit hook will say, without committing:
 
 ```bash
@@ -134,7 +139,10 @@ npm run lint
   `mergeDataset`. Upserts are keyed so re-hydrating a seed never discards work in progress.
 - `id` is stable and survives a rename. `slug` is the url and may change, so never key anything
   persistent on it. Categories are the exception: they are keyed by slug.
-- `localStorage` keys are namespaced `pericles:`. Currently `pericles:overlay` and `pericles:theme`.
+- `localStorage` keys are namespaced `pericles:`. Currently `pericles:overlay`, `pericles:theme` and
+  `pericles:remote`, the last one absent until a remote service is configured. The service worker's
+  caches are namespaced `pericles-` followed by the build version, and hold the application only:
+  clearing them loses nothing an author wrote.
 - Images are a path under `/media/` or an absolute URL. Never store base64 in the dataset: the
   overlay shares the roughly five megabyte `localStorage` quota with all the text. Static images
   under `static/media/` are the one thing that still ships with the repository.
@@ -186,6 +194,14 @@ npm run lint
   which today means essentially all content.
 - Server rendered output must never contain overlay data. The overlay is loaded in an effect, after
   hydration, so that the static HTML matches the (empty) seed exactly.
+- `src/service-worker.ts` precaches that build so the site survives a reload with no connection:
+  every chunk, every file under `static/`, the prerendered listings, and `200.html`, which
+  `prerendered` does not list and which carries every page of actual content. The lazily loaded
+  Milkdown chunk is precached too, since a wiki that reads offline but cannot be written to is half a
+  wiki. Cross origin requests are never intercepted, so the remote snapshot service is always
+  answered by the network.
+- A new build waits rather than taking over: `UpdateBanner.svelte` offers the reload, so the shell is
+  never swapped under a half written article.
 
 ## Semantic HTML
 
@@ -240,27 +256,31 @@ pages and back out through the export. Update it in the same commit as any chang
 ```
 src/
     app.css                     theme, dark mode variant, shared component classes
-    app.html                    shell, pre paint theme script
+    app.html                    shell, pre paint theme script, manifest and theme colour
+    service-worker.ts           offline shell, checked by tsconfig.worker.json
     lib/
         components/             presentation components
             dashboard/          figures and charts
+            data/               file backup, remote backup, local content
             editor/             Milkdown editor, page form, link picker
             live/               live feed, composer, alert banner
-        config/                 page types, palette, severities, navigation
+        config/                 page types, palette, severities, navigation, motion
         state/wiki.svelte.ts    seed plus overlay, link graph, mutations, export and import
+        state/remote.svelte.ts  connection to the optional snapshot service
         types.ts                every data contract
-        utils/                  markdown, dataset, search, stats, date, slug
+        utilities/              markdown, dataset, remote, search, stats, date, slug, url
     routes/
         +layout.ts              installs an always empty seed, sets prerender
         +layout.svelte          installs the dataset, frames the site
         wiki/                   index and article pages
         categories/             overview, per category pages, management
-        direct/                 live feed
+        live/                   live feed
         timeline/               dated pages, by year
         dashboard/              dashboard
         new/, edit/             editor, outside prerendering
-        data/                   export and import
+        data/                   export, import, remote backup
         settings/               identity of the wiki
 static/
-    media/                      illustrations referenced by pages
+    media/                      illustrations referenced by pages, installable icons
+    manifest.webmanifest        name, icons and shortcuts of the installed site
 ```

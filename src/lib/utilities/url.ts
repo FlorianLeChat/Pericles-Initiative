@@ -50,7 +50,7 @@ const NAMED_ENTITIES: Readonly<Record<string, string>> = {
  * @author Claude
  */
 export const decodeEntities = ( value: string ): string =>
-    value.replace( HTML_ENTITY, ( match, entity: string ) =>
+    value.replaceAll( HTML_ENTITY, ( match, entity: string ) =>
     {
         const lowered = entity.toLowerCase();
 
@@ -82,7 +82,7 @@ export const decodeEntities = ( value: string ): string =>
  */
 export const isSafeUrl = ( value: string ): boolean =>
 {
-    const decoded = decodeEntities( value ).replace( SCHEME_NOISE, "" ).toLowerCase();
+    const decoded = decodeEntities( value ).replaceAll( SCHEME_NOISE, "" ).toLowerCase();
 
     if ( decoded === "" || !ANY_SCHEME.test( decoded ) )
     {

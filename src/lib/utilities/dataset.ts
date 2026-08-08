@@ -76,7 +76,16 @@ export const asTrimmed = ( value: unknown, fallback = "" ): string => asString( 
 const asStringArray = ( value: unknown ): string[] =>
     Array.isArray( value ) ? value.filter( ( item ): item is string => typeof item === "string" ) : [];
 
-const asBoolean = ( value: unknown, fallback = false ): boolean => ( typeof value === "boolean" ? value : fallback );
+/**
+ * Reads a value as a boolean, falling back when it is anything else.
+ *
+ * @param value Parsed JSON of any shape.
+ * @param fallback Value to use when it is not a boolean.
+ * @returns The boolean to store.
+ * @author Claude
+ */
+export const asBoolean = ( value: unknown, fallback = false ): boolean =>
+    ( typeof value === "boolean" ? value : fallback );
 
 /**
  * Reads a value as a non empty trimmed string, or null.

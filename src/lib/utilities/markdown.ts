@@ -98,10 +98,10 @@ const unquote = ( value: string ): string =>
  */
 export const sanitizeHtml = ( html: string ): string =>
     html
-        .replace( SCRIPT_BLOCKS, "" )
-        .replace( FORBIDDEN_TAGS, "" )
-        .replace( EVENT_ATTRIBUTES, "" )
-        .replace( URL_ATTRIBUTES, ( match, name: string, value: string ) =>
+        .replaceAll( SCRIPT_BLOCKS, "" )
+        .replaceAll( FORBIDDEN_TAGS, "" )
+        .replaceAll( EVENT_ATTRIBUTES, "" )
+        .replaceAll( URL_ATTRIBUTES, ( match, name: string, value: string ) =>
             isSafeUrl( unquote( value ) ) ? match : ` ${ name }="#"` );
 
 /**
@@ -164,10 +164,10 @@ const memoize = <T>( compute: ( markdown: string ) => T ): ( ( markdown: string 
  */
 const stripInlineMarkdown = ( markdown: string ): string =>
     markdown
-        .replace( MARKDOWN_IMAGE, "$1" )
-        .replace( MARKDOWN_LINK, "$1" )
-        .replace( INLINE_MARKERS, "" )
-        .replace( WHITESPACE, " " )
+        .replaceAll( MARKDOWN_IMAGE, "$1" )
+        .replaceAll( MARKDOWN_LINK, "$1" )
+        .replaceAll( INLINE_MARKERS, "" )
+        .replaceAll( WHITESPACE, " " )
         .trim();
 
 /**
@@ -314,7 +314,7 @@ const applyHeadingIds = ( html: string, headings: Heading[] ): string =>
 {
     let index = 0;
 
-    return html.replace( HEADING_TAGS, ( match, tag: string ) =>
+    return html.replaceAll( HEADING_TAGS, ( match, tag: string ) =>
     {
         const heading = headings[ index ];
         index += 1;
@@ -335,12 +335,12 @@ const applyHeadingIds = ( html: string, headings: Heading[] ): string =>
  * @author Claude
  */
 const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string =>
-    html.replace( LINK_TAGS, ( _match, rawAttributes: string ) =>
+    html.replaceAll( LINK_TAGS, ( _match, rawAttributes: string ) =>
     {
         // An authored `class` is dropped rather than kept alongside ours: a duplicate
         // attribute wins over the later one in the browser, which would let a body
         // opt out of the red link styling.
-        const attributes = rawAttributes.replace( CLASS_ATTRIBUTE, "" ).trim();
+        const attributes = rawAttributes.replaceAll( CLASS_ATTRIBUTE, "" ).trim();
         const href = HREF_ATTRIBUTE.exec( attributes )?.[ 1 ] ?? "";
         const internal = INTERNAL_HREF.exec( href );
 
@@ -415,14 +415,14 @@ export const renderInline = ( markdown: string, knownSlugs: ReadonlySet<string> 
  */
 export const markdownToPlainText = memoize( ( markdown: string ): string =>
     ( marked.parse( markdown ) as string )
-        .replace( HTML_TAGS, " " )
-        .replace( /&nbsp;/g, " " )
-        .replace( /&amp;/g, "&" )
-        .replace( /&lt;/g, "<" )
-        .replace( /&gt;/g, ">" )
-        .replace( /&quot;/g, "\"" )
-        .replace( /&#39;/g, "'" )
-        .replace( WHITESPACE, " " )
+        .replaceAll( HTML_TAGS, " " )
+        .replaceAll( "&nbsp;", " " )
+        .replaceAll( "&amp;", "&" )
+        .replaceAll( "&lt;", "<" )
+        .replaceAll( "&gt;", ">" )
+        .replaceAll( "&quot;", "\"" )
+        .replaceAll( "&#39;", "'" )
+        .replaceAll( WHITESPACE, " " )
         .trim() );
 
 /**
@@ -443,7 +443,7 @@ export const excerpt = ( markdown: string, maxLength = 180 ): string =>
 
     const cut = text.slice( 0, maxLength );
     const lastSpace = cut.lastIndexOf( " " );
-    return `${ cut.slice( 0, lastSpace > maxLength * 0.6 ? lastSpace : maxLength ).trimEnd() }…`;
+    return `${ cut.slice( 0, lastSpace > maxLength * 0.6 ? lastSpace : maxLength ).trimEnd() }...`;
 };
 
 /**

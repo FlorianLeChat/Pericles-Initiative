@@ -52,7 +52,7 @@ const trimDashes = ( value: string ): string =>
  * @returns The lowercased, accent free equivalent.
  * @author Claude
  */
-export const deburr = ( value: string ): string => value.normalize( "NFD" ).replace( COMBINING_MARKS, "" ).toLowerCase();
+export const deburr = ( value: string ): string => value.normalize( "NFD" ).replaceAll( COMBINING_MARKS, "" ).toLowerCase();
 
 /**
  * Converts a title into a url safe slug.
@@ -63,7 +63,7 @@ export const deburr = ( value: string ): string => value.normalize( "NFD" ).repl
  */
 export const slugify = ( value: string ): string =>
 {
-    const dashed = deburr( value ).replace( APOSTROPHES, "" ).replace( NON_SLUG_CHARACTERS, "-" );
+    const dashed = deburr( value ).replaceAll( APOSTROPHES, "" ).replaceAll( NON_SLUG_CHARACTERS, "-" );
     const truncated = trimDashes( dashed ).slice( 0, SLUG_LENGTH );
     const slug = trimDashes( truncated );
 

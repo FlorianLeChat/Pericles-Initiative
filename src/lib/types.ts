@@ -144,6 +144,15 @@ export interface RemoteConfig {
     secret: string;
     /** Last `ETag` seen, replayed as `If-Match` on the next write. */
     revision: string | null;
+    /**
+     * Whether local changes are sent on their own once the network is back.
+     *
+     * Off until the reader turns it on, and armed only once a first transfer has
+     * been made by hand: `syncedChange` being null means nothing is known about
+     * what the service holds, and publishing over it unasked could destroy a
+     * backup this browser has never read.
+     */
+    autoPush: boolean;
     lastPulledAt: string | null;
     lastPushedAt: string | null;
     /**

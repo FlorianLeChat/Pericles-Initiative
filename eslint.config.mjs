@@ -102,5 +102,21 @@ export default defineConfig(
 
             "svelte/no-at-html-tags": "off"
         }
+    },
+    {
+        // The service worker is excluded from the application's `tsconfig.json`,
+        // since `lib.dom` and `lib.webworker` cannot share a program. Without this,
+        // the project service finds no configuration covering it and refuses to
+        // parse it at all.
+        files: [ "src/service-worker.ts" ],
+        languageOptions: {
+            globals: {
+                ...globals.serviceworker
+            },
+            parserOptions: {
+                project: "./tsconfig.worker.json",
+                projectService: false
+            }
+        }
     }
 );

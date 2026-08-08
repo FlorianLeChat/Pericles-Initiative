@@ -19,7 +19,8 @@ degraded one.
 - The snapshot is the complete dataset: `meta`, `categories`, `entries`, `live`. It is byte for byte
   the file the export button already downloads as `wiki.json`.
 - Every transfer is a whole snapshot, and every write replaces the previous one entirely.
-- Every transfer is triggered by a human clicking a button.
+- Every transfer is triggered by a human, either by clicking a button or by turning on the automatic
+  publishing described below, which is off until they do.
 
 ## Non-goals
 
@@ -45,6 +46,7 @@ fills the form. Two fields are user facing:
 | -------- | ---------------------------------------------------------- | -------- |
 | Base url | Absolute `http` or `https` origin and path prefix           | yes      |
 | Secret   | Sent as the `X-Pericles-Secret` header when non empty       | no       |
+| Automatic publishing | Whether changes are sent on their own, see below | no       |
 
 The client also remembers, without ever showing them as editable, the last revision it saw and the
 timestamps of the last push and pull.
@@ -69,7 +71,7 @@ Bare, which is what a statically served JSON file already produces:
 
 ```json
 {
-    "meta": { "universe": "…", "version": "1.0.0", "…": "…" },
+    "meta": { "universe": "...", "version": "1.0.0", "...": "..." },
     "categories": [],
     "entries": [],
     "live": []
@@ -83,7 +85,7 @@ Enveloped, when the server tracks its own revisions:
     "revision": "7",
     "updatedAt": "2026-08-08T09:12:44.108Z",
     "dataset": {
-        "meta": { "…": "…" },
+        "meta": { "...": "..." },
         "categories": [],
         "entries": [],
         "live": []
@@ -161,6 +163,40 @@ Conflict handling is best effort, and built entirely on standard HTTP:
 A server that returns no `ETag` gets last write wins, and the client never sends `If-Match`. That is
 an acceptable trade for a single author site. Any opaque, changing string works as an `ETag`: a
 counter, a file modification time, a hash of the body.
+
+## Automatic publishing
+
+The site can be installed and used with no connection at all: a service worker caches the
+application, and the content was never on the network to begin with. What that leaves is a browser
+holding pages the service has not seen, which is what this mode settles.
+
+Once turned on, the client sends the whole snapshot on its own, under four conditions:
+
+1. **A first transfer has already been made by hand.** A browser that has never read this service
+   knows neither what it holds nor its revision, so an unattended write would replace a backup nobody
+   here has ever seen. The toggle stays disabled until then.
+2. **The content has stopped changing.** A send moves the entire dataset, so every edit restarts a
+   five second countdown rather than firing a request per keystroke.
+3. **The browser reports a network.** Going offline cancels the pending send, and coming back starts
+   it again from a clean slate.
+4. **The write stays conditional.** `If-Match` is sent exactly as it is for a manual send, and a
+   `412` stops the loop rather than resolving it. Nothing overwrites a snapshot that moved on without
+   someone deciding to, and the decision is made on the data page.
+
+A failed attempt is retried three times, after five, fifteen and forty five seconds. `navigator.onLine`
+reports a network rather than a working route to the service, so the first attempt after a
+reconnection can legitimately fail against a captive portal, a tunnel still coming up or a server
+still booting. Past those three, the client gives up until something changes, and says so.
+
+This runs in the page, not in the service worker, so it needs an open tab. That is deliberate rather
+than a limitation accepted for lack of effort: the payload is built from `localStorage`, which a
+service worker cannot read, so a Background Sync replay would have to keep its own copy of the
+snapshot and of the secret in IndexedDB, rewrite it on every edit to avoid sending stale content, and
+report its result back to a tab that may no longer exist. It would also only work on Chromium.
+
+The service worker never intercepts this endpoint. It is on another origin, and it is the one part of
+the site where a cached answer would actively mislead: an old backup returned as current, or a failed
+send reported as a success.
 
 ## CORS
 
