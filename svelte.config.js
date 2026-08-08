@@ -3,6 +3,13 @@ import adapter from "@sveltejs/adapter-static";
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
     kit: {
+        typescript: {
+            config: ( config ) =>
+            {
+                config.include.push( "../*.config.*" );
+                return config;
+            }
+        },
         adapter: adapter( {
             pages: "build",
             assets: "build",
@@ -22,6 +29,10 @@ const config = {
             // The seed is always empty until a backend feeds it, so /wiki and /categories crawl
             // to zero links: [slug] routes are legitimately unseen, not a broken build.
             handleUnseenRoutes: "warn"
+        },
+        paths: {
+            // @ts-expect-error Needed for GitLab Pages generation.
+            base: process.argv.includes( "dev" ) ? "" : process.env.BASE_PATH
         }
     }
 };

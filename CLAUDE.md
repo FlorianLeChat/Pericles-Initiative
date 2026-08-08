@@ -26,8 +26,8 @@ rendering Markdown, `@milkdown/crepe` for authoring it.
 
 Tooling is ESLint with a flat config (`typescript-eslint` strict and stylistic, `@stylistic`,
 `eslint-plugin-svelte`), Prettier with `prettier-plugin-svelte`, and commitlint on the conventional
-preset. There is **no test runner**: the type check and the static build are what proves a change,
-and the pipeline itself lives outside of this repository.
+preset. There is **no unit test runner**: the type check, the static build and the Playwright suite
+are what proves a change, and the pipeline itself lives outside of this repository.
 
 Husky enforces all of it, so a mistake here fails a commit rather than a review:
 
@@ -106,9 +106,15 @@ npm run check
 npm run build
 ```
 
-The static build is the real test: it exercises prerendering, which is where Markdown rendering,
-the link graph and the crawler actually get proven. Since there is no test runner, these two
-commands are the whole safety net.
+- For anything touching what a reader sees or does, also run:
+
+```bash
+npm run test
+```
+
+The static build is the real test of the pipeline: it exercises prerendering, which is where Markdown
+rendering, the link graph and the crawler actually get proven. Playwright is the real test of the
+behaviour. These three commands are the whole safety net.
 
 `npm run check` runs twice on purpose. SvelteKit excludes `src/service-worker.ts` from the
 application's `tsconfig.json`, since `lib.dom` and `lib.webworker` declare the same identifiers and
@@ -128,9 +134,10 @@ npm run lint
 
 - The `localStorage` overlay is the **only** source of content for now. `WikiStore`
   (`src/lib/state/wiki.svelte.ts`) still merges it over a `seed`, kept for the day a real backend
-  feeds one, but that seed is always empty today: nothing ships a JSON file to seed the wiki from.
-  Application code never writes anywhere else. Import and export from `/data` are how content moves
-  between browsers or gets backed up, until a backend replaces that.
+  feeds one, but that seed is always empty today: nothing ships a JSON file to seed the wiki from,
+  the end to end suite included, which writes the overlay itself. Application code never writes
+  anywhere else. Import and export from `/data` are how content moves between browsers or gets
+  backed up, until a backend replaces that.
 - Everything installed into the store, seed or overlay, goes through `normalizeDataset` /
   `normalizeOverlay` in `src/lib/utilities/dataset.ts`. Both a missing seed and a missing overlay key
   must degrade into an empty, valid dataset, never throw. When you add a field to a type in
@@ -222,11 +229,66 @@ page type, belong in `src/lib/config/`, not duplicated in markup.
 For any change spanning several files, agree on a plan before writing code. Trivial fixes, a typo,
 a single line, a copy change, go straight to the edit.
 
+## End-to-end tests (Playwright)
+
+Tests live in `tests/e2e/` (config: `playwright.config.ts`) and exercise the whole app end to end.
+Never start a preview or dev server for them by hand: Playwright's own `webServer` builds the site
+and serves it. **Whenever a change touches user facing behaviour, update the matching spec or specs
+in the same commit**:
+
+- `tests/e2e/home.spec.ts` — home page (hero figures, featured pages, live excerpt, category counts,
+  empty wiki).
+- `tests/e2e/wiki.spec.ts` — encyclopedia index (keyword, nature, category and status filters,
+  sorting, empty states).
+- `tests/e2e/article.spec.ts` — a single page (infobox, table of contents, backlinks, related reads,
+  draft marker, red links).
+- `tests/e2e/editor.spec.ts` — creation, edition, deletion, slug derivation and collisions, the
+  Milkdown body, the link picker, the unsaved changes guard.
+- `tests/e2e/categories.spec.ts` — overview, one category, and management (create, rename, delete).
+- `tests/e2e/live.spec.ts` — feed (pinned group, day groups, severity and tag filters, composer,
+  edition, deletion, the site wide alert banner).
+- `tests/e2e/timeline.spec.ts` — chronology (grouping by year, every shape of in universe date).
+- `tests/e2e/dashboard.spec.ts` — figures, breakdowns, most cited pages, red links, points of
+  attention.
+- `tests/e2e/data.spec.ts` — inventory of the browser, export to `wiki.json`, import, reset.
+- `tests/e2e/settings.spec.ts` — identity of the wiki and the pages put forward on the home page.
+  These reach `/settings` by clicking, never by `goto`: the form snapshots the identity when it
+  initialises, which on a cold load happens before the overlay has been read.
+- `tests/e2e/navigation.spec.ts` — header, tools menu, search palette, theme, on both viewports.
+- `tests/e2e/remote-backup.spec.ts` — the optional snapshot service, entirely mocked.
+
+Conventions to follow:
+
+- Reach a starting point through the `wiki` fixture of `tests/e2e/utilities/fixtures.ts`
+  (`open`, `openEmpty`, `openWith`, `navigate`, `storedOverlay`, `storedEntry`) rather than
+  duplicating navigation or storage logic.
+- Nothing in `src/` knows the suite exists, and it must stay that way: no seed file, no test mode, no
+  build flag. `open`, `openEmpty` and `openWith` write the `pericles:overlay` key before the first
+  paint, in the shape `WikiStore` writes it, so a spec exercises the real loading path. Serving a
+  fixture to the app instead would only reintroduce the branch in `+layout.ts` this replaced.
+- Assert on the French strings the components actually render, and reach for accessible queries
+  (`getByRole`, `getByLabel`, `getByText`) over CSS selectors. Never assert on a relative date: those
+  move on their own.
+- Never hardcode content the fixture already describes. Read it through the constants of
+  `tests/e2e/utilities/dataset.ts` (`PAGES`, `CATEGORIES`, `LIVE`, `COUNTS`) so the suite follows the
+  fixture rather than drifting from it.
+- A change that reaches `localStorage` gets checked there too, through `storedOverlay` or
+  `storedEntry`: a page that looks saved but never got persisted is the failure that matters.
+- Mock every external call with `page.route()`, as `remote-backup.spec.ts` does for the snapshot
+  service. No spec ever reaches a real host.
+- Both projects run every spec, `chromium` on a desktop viewport and `Mobile Chrome` on a phone one.
+  The header hides its navigation below the `lg` breakpoint, so branch on `isNarrow( page )` rather
+  than assuming a desktop.
+- `tests/e2e/utilities/host.js` serves `build/` with the `200.html` fallback, since `vite preview`
+  answers 404 for every page that only exists in a browser's storage. Keep the suite on it.
+- Adding a view, a mutation of the store or a shortcut without extending a spec leaves the work
+  incomplete.
+
 ## Preview and dev server
 
 **Never start a dev server on your own initiative.** The user runs it. Verification is done through
-`npm run check` and `npm run build`. If a running preview is genuinely needed to prove a behaviour,
-ask first.
+`npm run check`, `npm run build` and `npm run test`. If a running preview is genuinely needed to
+prove a behaviour, ask first.
 
 ## Commits
 
@@ -283,4 +345,9 @@ src/
 static/
     media/                      illustrations referenced by pages, installable icons
     manifest.webmanifest        name, icons and shortcuts of the installed site
+tests/
+    e2e/                        one spec per section of the site
+        utilities/dataset.ts    the fixture wiki, and the constants specs assert against
+        utilities/fixtures.ts   the `wiki` fixture: seeding, navigation, stored overlay
+        utilities/host.js       static host for `build/`, with the SPA fallback
 ```
