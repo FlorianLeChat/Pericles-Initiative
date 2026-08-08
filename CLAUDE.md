@@ -34,7 +34,10 @@ outside of this repository.
   inline in the component that displays them. Do not introduce a message catalogue for a single
   language.
 - Identifiers that end up in data are French and lowercase: `personnage`, `evenement`, `brouillon`,
-  `publie`, `fusionner`, `remplacer`. Keep that convention when adding one.
+  `publie`. Keep that convention when adding one.
+- Identifiers that never leave the code are English like the rest of it, even when the only thing they
+  ever produce is a French sentence. `RemoteFailure` and `RemoteStatus` in `src/lib/types.ts` are the
+  reference: nothing persists them, so `network` and `loading` are right and `reseau` was not.
 
 ## Content typography
 

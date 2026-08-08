@@ -122,6 +122,45 @@ export interface Overlay {
     meta: Partial<WikiMeta> | null;
 }
 
+/**
+ * Connection to the optional remote snapshot service.
+ *
+ * Absent from `localStorage` until the user configures one, and an empty
+ * `baseUrl` means the site works from the overlay alone, which stays a first
+ * class mode. See `REMOTE-API.md` for the contract this describes.
+ */
+export interface RemoteConfig {
+    /** Absolute http or https origin and path prefix, empty when unconfigured. */
+    baseUrl: string;
+    /** Shared secret sent as `X-Pericles-Secret`, empty to send no header. */
+    secret: string;
+    /** Last `ETag` seen, replayed as `If-Match` on the next write. */
+    revision: string | null;
+    lastPulledAt: string | null;
+    lastPushedAt: string | null;
+}
+
+/** A snapshot read from the remote service, already normalised. */
+export interface RemoteSnapshot {
+    dataset: Dataset;
+    /** `ETag` of the response, when the server sent one. */
+    revision: string | null;
+    /** Server reported timestamp, only present with the enveloped shape. */
+    updatedAt: string | null;
+}
+
+/**
+ * Why a remote request did not succeed.
+ *
+ * Machine readable on purpose: the French sentence shown to the reader is
+ * written in the component that displays it, since there is no message
+ * catalogue for a single language.
+ */
+export type RemoteFailure = "network" | "refused" | "missing" | "unsupported" | "conflict" | "unreadable" | "server";
+
+/** Where a remote request currently stands. */
+export type RemoteStatus = "idle" | "loading" | "success" | "error";
+
 /** A heading of a rendered article, used to build the table of contents. */
 export interface Heading {
     id: string;

@@ -6,14 +6,14 @@
      */
     import { resolve } from "$app/paths";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+    import RemoteBackup from "$lib/components/data/RemoteBackup.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
 
     /** Above this size the browser is close to refusing to store the overlay. */
     const STORAGE_WARNING = 3_500_000;
 
     let importText = $state( "" );
-    let importMode = $state<"fusionner" | "remplacer">( "fusionner" );
-    let feedback = $state<{ kind: "ok" | "error"; text: string } | null>( null );
+    let feedback = $state<{ kind: "success" | "error"; text: string } | null>( null );
     let importOpen = $state( false );
     let resetOpen = $state( false );
 
@@ -69,7 +69,7 @@
         link.click();
         URL.revokeObjectURL( url );
 
-        feedback = { kind: "ok", text: "Export téléchargé." };
+        feedback = { kind: "success", text: "Export téléchargé." };
     };
 
     /**
@@ -82,7 +82,7 @@
         try
         {
             await navigator.clipboard.writeText( wiki.exportJson() );
-            feedback = { kind: "ok", text: "JSON copié dans le presse papier." };
+            feedback = { kind: "success", text: "JSON copié dans le presse papier." };
         }
         catch ( error )
         {
@@ -108,8 +108,8 @@
 
         importText = await file.text();
         feedback = {
-            kind: "ok",
-            text: `${ file.name } chargé. Choisissez le mode, puis lancez l'import.`
+            kind: "success",
+            text: `${ file.name } chargé. Lancez l'import pour remplacer le contenu de ce navigateur.`
         };
     };
 
@@ -122,10 +122,10 @@
     {
         try
         {
-            const counts = wiki.importJson( importText, importMode );
+            const counts = wiki.importJson( importText );
             importText = "";
             feedback = {
-                kind: "ok",
+                kind: "success",
                 text:
                     `Import réussi : ${ counts.entries } ${ counts.entries === 1 ? "fiche" : "fiches" }, `
                     + `${ counts.categories } ${ counts.categories === 1 ? "catégorie" : "catégories" }, `
@@ -149,13 +149,14 @@
 
         <p class="text-ink-400 mt-3 leading-relaxed">
             Le site lit son contenu dans le stockage local de ce navigateur : c'est aujourd'hui la seule source de
-            données. Exportez régulièrement pour ne rien perdre.
+            données. Exportez régulièrement pour ne rien perdre, dans un fichier, ou vers un serveur de sauvegarde si
+            vous en avez configuré un.
         </p>
     </header>
 
     {#if feedback}
         <p
-            class="mt-6 rounded-xl px-4 py-3 text-sm {feedback.kind === "ok"
+            class="mt-6 rounded-xl px-4 py-3 text-sm {feedback.kind === "success"
                 ? "bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100"
                 : "bg-alert-500/15 text-alert-600 dark:text-red-300"}"
             role="status"
@@ -303,7 +304,9 @@
         <h2 class="font-serif text-xl font-semibold tracking-tight">Importer</h2>
 
         <p class="text-ink-400 mt-2 text-sm leading-relaxed">
-            Reprendre un export, ou récupérer le travail fait sur un autre appareil.
+            Reprendre un export, ou récupérer le travail fait sur un autre appareil. L'import est complet : le site
+            affichera exactement le contenu du fichier, et ce que contient ce navigateur sera remplacé. Exportez avant,
+            si vous avez du travail en cours ici.
         </p>
 
         <div class="mt-5 space-y-4">
@@ -331,46 +334,6 @@
                 ></textarea>
             </div>
 
-            <fieldset>
-                <legend class="field-label">Mode</legend>
-
-                <div class="space-y-2 text-sm">
-                    <label class="flex cursor-pointer items-start gap-2">
-                        <input
-                            type="radio"
-                            class="accent-accent-600 mt-1"
-                            checked={importMode === "fusionner"}
-                            onchange={() => ( importMode = "fusionner" )}
-                        />
-
-                        <span>
-                            <strong>Fusionner.</strong>
-
-                            <span class="text-ink-400">
-                                Le contenu importé s'ajoute et remplace les éléments de même identifiant.
-                            </span>
-                        </span>
-                    </label>
-
-                    <label class="flex cursor-pointer items-start gap-2">
-                        <input
-                            type="radio"
-                            class="accent-accent-600 mt-1"
-                            checked={importMode === "remplacer"}
-                            onchange={() => ( importMode = "remplacer" )}
-                        />
-
-                        <span>
-                            <strong>Remplacer.</strong>
-
-                            <span class="text-ink-400">
-                                Le site affiche exactement le contenu importé, le reste est masqué.
-                            </span>
-                        </span>
-                    </label>
-                </div>
-            </fieldset>
-
             <button
                 type="button"
                 class="btn btn-primary"
@@ -381,6 +344,8 @@
             </button>
         </div>
     </section>
+
+    <RemoteBackup />
 
     <section class="border-alert-500/30 mt-6 rounded-2xl border p-6">
         <h2 class="font-serif text-xl font-semibold tracking-tight">Réinitialiser</h2>
@@ -403,9 +368,8 @@
 <ConfirmDialog
     bind:open={importOpen}
     title="Importer ce JSON ?"
-    message={importMode === "remplacer"
-        ? "En mode remplacer, tout le contenu absent de l'import sera masqué sur le site."
-        : "Le contenu importé va s'ajouter à l'existant et écraser les éléments de même identifiant."}
+    message={"Le contenu de ce navigateur va être remplacé par celui du fichier. "
+      + "Tout ce qui n'a pas été exporté sera perdu."}
     confirmLabel="Importer"
     onconfirm={runImport}
 />
@@ -419,6 +383,6 @@
     onconfirm={() =>
     {
         wiki.resetLocal();
-        feedback = { kind: "ok", text: "Modifications locales effacées." };
+        feedback = { kind: "success", text: "Modifications locales effacées." };
     }}
 />

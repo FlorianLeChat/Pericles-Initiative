@@ -47,19 +47,45 @@ export const createId = (): string =>
     return `id-${ Date.now().toString( 36 ) }-${ mintedIds.toString( 36 ) }`;
 };
 
-const asRecord = ( value: unknown ): Record<string, unknown> =>
+/**
+ * Reads a value as an object, so unknown keys can be inspected safely.
+ *
+ * Exported because the remote configuration in `src/lib/utilities/remote.ts`
+ * normalises the same kind of untrusted JSON, and both must judge a malformed
+ * value identically.
+ *
+ * @param value Parsed JSON of any shape.
+ * @returns The value as a record, or an empty one when it is not an object.
+ * @author Claude
+ */
+export const asRecord = ( value: unknown ): Record<string, unknown> =>
     typeof value === "object" && value !== null ? ( value as Record<string, unknown> ) : {};
 
 const asString = ( value: unknown, fallback = "" ): string => ( typeof value === "string" ? value : fallback );
 
-const asTrimmed = ( value: unknown, fallback = "" ): string => asString( value, fallback ).trim();
+/**
+ * Reads a value as a trimmed string.
+ *
+ * @param value Parsed JSON of any shape.
+ * @param fallback Value used when it is not a string.
+ * @returns The trimmed string.
+ * @author Claude
+ */
+export const asTrimmed = ( value: unknown, fallback = "" ): string => asString( value, fallback ).trim();
 
 const asStringArray = ( value: unknown ): string[] =>
     Array.isArray( value ) ? value.filter( ( item ): item is string => typeof item === "string" ) : [];
 
 const asBoolean = ( value: unknown, fallback = false ): boolean => ( typeof value === "boolean" ? value : fallback );
 
-const asNullableString = ( value: unknown ): string | null =>
+/**
+ * Reads a value as a non empty trimmed string, or null.
+ *
+ * @param value Parsed JSON of any shape.
+ * @returns The trimmed string, or null when it is empty or not a string.
+ * @author Claude
+ */
+export const asNullableString = ( value: unknown ): string | null =>
 {
     const text = asTrimmed( value );
     return text || null;
@@ -422,40 +448,27 @@ export const countOverlayChanges = ( overlay: Overlay ): number =>
     + ( overlay.meta ? 1 : 0 );
 
 /**
- * Copies an overlay, detaching it from any reactive proxy.
- *
- * @param overlay Overlay to copy.
- * @returns An independent copy.
- * @author Claude
- */
-const cloneOverlay = ( overlay: Overlay ): Overlay => normalizeOverlay( structuredClone( overlay ) );
-
-/**
  * Turns an imported dataset into an overlay.
  *
- * In `fusionner` mode the import is layered on top of the changes already made
- * in this browser, which are therefore preserved. In `remplacer` mode the
- * overlay is rebuilt from the import alone, and the published items missing
- * from it are marked as deleted, so the site shows exactly what was imported.
+ * An import is complete and replaces everything: the overlay is rebuilt from the
+ * import alone, so whatever this browser held and the import does not mention is
+ * gone. Seed items missing from the import are marked as deleted, which is what
+ * makes the site show exactly what was imported once a backend feeds a seed.
  *
- * An imported item that had been deleted locally comes back: re-importing it is
- * an explicit intent that outweighs the earlier deletion.
+ * There is deliberately no merging mode. Combining two datasets means deciding
+ * which of two independently created pages wins, and nothing in the data answers
+ * that: identifiers are minted per browser, so the same page authored twice has
+ * two of them and no shared history. A complete export and a complete import are
+ * a pair a reader can reason about.
  *
- * @param seed Dataset loaded from JSON.
- * @param imported Dataset read from the imported file.
- * @param mode Import strategy.
- * @param current Overlay currently stored, kept in `fusionner` mode.
+ * @param seed Dataset loaded from JSON, currently always empty.
+ * @param imported Dataset read from the imported file or from the backup service.
  * @returns The overlay to store.
  * @author Claude
  */
-export const buildImportOverlay = (
-    seed: Dataset,
-    imported: Dataset,
-    mode: "fusionner" | "remplacer",
-    current: Overlay = emptyOverlay()
-): Overlay =>
+export const buildImportOverlay = ( seed: Dataset, imported: Dataset ): Overlay =>
 {
-    const overlay = mode === "fusionner" ? cloneOverlay( current ) : emptyOverlay();
+    const overlay = emptyOverlay();
 
     for ( const entry of imported.entries )
     {
@@ -471,27 +484,12 @@ export const buildImportOverlay = (
     }
     overlay.meta = imported.meta;
 
-    if ( mode === "remplacer" )
-    {
-        overlay.deleted = {
-            entries: seed.entries.filter( ( entry ) => !( entry.id in overlay.entries ) ).map( ( entry ) => entry.id ),
-            categories: seed.categories
-                .filter( ( category ) => !( category.slug in overlay.categories ) )
-                .map( ( category ) => category.slug ),
-            live: seed.live.filter( ( item ) => !( item.id in overlay.live ) ).map( ( item ) => item.id )
-        };
-
-        return overlay;
-    }
-
-    const importedEntries = new Set( imported.entries.map( ( entry ) => entry.id ) );
-    const importedCategories = new Set( imported.categories.map( ( category ) => category.slug ) );
-    const importedLive = new Set( imported.live.map( ( item ) => item.id ) );
-
     overlay.deleted = {
-        entries: overlay.deleted.entries.filter( ( id ) => !importedEntries.has( id ) ),
-        categories: overlay.deleted.categories.filter( ( slug ) => !importedCategories.has( slug ) ),
-        live: overlay.deleted.live.filter( ( id ) => !importedLive.has( id ) )
+        entries: seed.entries.filter( ( entry ) => !( entry.id in overlay.entries ) ).map( ( entry ) => entry.id ),
+        categories: seed.categories
+            .filter( ( category ) => !( category.slug in overlay.categories ) )
+            .map( ( category ) => category.slug ),
+        live: seed.live.filter( ( item ) => !( item.id in overlay.live ) ).map( ( item ) => item.id )
     };
 
     return overlay;

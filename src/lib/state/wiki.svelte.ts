@@ -584,19 +584,24 @@ class WikiStore
     }
 
     /**
-     * Replaces or merges the current content with an imported JSON file.
+     * Replaces all of the content with an already normalised dataset.
      *
-     * @param text Raw JSON.
-     * @param mode `remplacer` to show exactly the imported content, `fusionner` to add to it.
+     * The shared entry point of every import, whatever it came from: a pasted
+     * file, or a snapshot read from the remote backup service. A caller holding a
+     * `Dataset` uses this rather than re-serialising it for `importJson`, which
+     * would parse a payload of several megabytes for nothing.
+     *
+     * An import is complete: anything this browser held and the import does not
+     * mention is dropped, the identity of the wiki included. Callers are expected
+     * to confirm with the reader first.
+     *
+     * @param imported Dataset to install, already through `normalizeDataset`.
      * @returns Counts of imported items.
-     * @throws When the text is not valid JSON.
      * @author Claude
      */
-    importJson( text: string, mode: "fusionner" | "remplacer" ): { entries: number; categories: number; live: number }
+    importDataset( imported: Dataset ): { entries: number; categories: number; live: number }
     {
-        const imported = normalizeDataset( JSON.parse( text ) );
-
-        this.overlay = buildImportOverlay( this.seed, imported, mode, this.overlay );
+        this.overlay = buildImportOverlay( this.seed, imported );
         this.persist();
 
         return {
@@ -604,6 +609,19 @@ class WikiStore
             categories: imported.categories.length,
             live: imported.live.length
         };
+    }
+
+    /**
+     * Replaces all of the content with an imported JSON file.
+     *
+     * @param text Raw JSON.
+     * @returns Counts of imported items.
+     * @throws When the text is not valid JSON.
+     * @author Claude
+     */
+    importJson( text: string ): { entries: number; categories: number; live: number }
+    {
+        return this.importDataset( normalizeDataset( JSON.parse( text ) ) );
     }
 
     /**
