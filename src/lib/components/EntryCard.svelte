@@ -33,7 +33,7 @@
 
         {#if entry.status === "brouillon"}
             <span
-                class="border-paper-300 text-ink-400 dark:border-ink-700 rounded-full border border-dashed px-2 py-0.5 text-xs"
+                class="border-paper-300 text-muted dark:border-ink-700 rounded-full border border-dashed px-2 py-0.5 text-xs"
             >
                 Brouillon
             </span>
@@ -53,7 +53,7 @@
         <p class="text-ink-500 dark:text-paper-300/80 line-clamp-3 text-sm leading-relaxed">{lead}</p>
     {/if}
 
-    <p class="text-ink-400 mt-auto text-xs">
+    <p class="text-muted mt-auto text-xs">
         Modifié le {formatShortDate( entry.updatedAt )}
     </p>
 </article>

@@ -128,7 +128,7 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <nav class="text-ink-400 flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
+    <nav class="text-muted flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
         <a href={resolve( "/categories" )} class="hover:text-accent-600 dark:hover:text-accent-400">Catégories</a>
 
         <span aria-hidden="true">/</span>
@@ -139,7 +139,7 @@
     <header class="mt-4 max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Gérer les catégories</h1>
 
-        <p class="text-ink-400 mt-3 leading-relaxed">
+        <p class="text-muted mt-3 leading-relaxed">
             Renommer une catégorie déplace les fiches concernées vers la nouvelle adresse. La supprimer les détache sans
             les effacer.
         </p>
@@ -156,16 +156,16 @@
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-medium">{category.name}</p>
 
-                        <p class="text-ink-400 truncate font-mono text-xs">/categories/{category.slug}</p>
+                        <p class="text-muted truncate font-mono text-xs">/categories/{category.slug}</p>
 
                         {#if category.description}
-                            <p class="text-ink-400 mt-1 line-clamp-2 text-xs leading-relaxed">
+                            <p class="text-muted mt-1 line-clamp-2 text-xs leading-relaxed">
                                 {category.description}
                             </p>
                         {/if}
                     </div>
 
-                    <span class="text-ink-400 text-xs">
+                    <span class="text-muted text-xs">
                         {count}
                         {count === 1 ? "fiche" : "fiches"}
                     </span>
@@ -196,7 +196,7 @@
 
             {#if wiki.categories.length === 0}
                 <p
-                    class="border-paper-300 dark:border-ink-800 text-ink-400 rounded-2xl border border-dashed px-6 py-10 text-center text-sm"
+                    class="border-paper-300 dark:border-ink-800 text-muted rounded-2xl border border-dashed px-6 py-10 text-center text-sm"
                 >
                     Aucune catégorie pour le moment.
                 </p>
@@ -211,7 +211,7 @@
                 submit();
             }}
         >
-            <p class="text-ink-400 text-xs tracking-wide uppercase">
+            <p class="text-muted text-xs tracking-wide uppercase">
                 {isEditing ? `Modifier « ${ editing?.name } »` : "Nouvelle catégorie"}
             </p>
 

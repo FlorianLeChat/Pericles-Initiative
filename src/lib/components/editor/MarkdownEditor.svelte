@@ -162,7 +162,7 @@
             <kbd class="border-paper-300 dark:border-ink-700 ml-1 rounded border px-1 py-0.5 text-[10px]"> Ctrl L </kbd>
         </button>
 
-        <p class="text-ink-400 ml-auto text-xs">
+        <p class="text-muted ml-auto text-xs">
             Markdown. Tapez <kbd class="font-mono">/</kbd> pour un bloc, sélectionnez du texte pour la barre de mise en forme.
         </p>
     </div>
@@ -170,7 +170,7 @@
     <div bind:this={host} class="min-h-96"></div>
 
     {#if !ready}
-        <p class="text-ink-400 px-6 py-4 text-sm">Chargement de l'éditeur...</p>
+        <p class="text-muted px-6 py-4 text-sm">Chargement de l'éditeur...</p>
     {/if}
 </div>
 

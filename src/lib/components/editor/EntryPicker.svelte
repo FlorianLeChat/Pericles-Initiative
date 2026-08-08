@@ -106,7 +106,7 @@
 
     <div class="max-h-[50vh] overflow-y-auto p-2">
         {#if trimmed.length === 0}
-            <p class="text-ink-400 px-3 py-6 text-center text-sm">
+            <p class="text-muted px-3 py-6 text-center text-sm">
                 Cherchez une fiche existante, ou tapez un titre inédit pour poser un lien rouge.
             </p>
         {:else}
@@ -123,7 +123,7 @@
                             <span class="min-w-0 flex-1">
                                 <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
 
-                                <span class="text-ink-400 block truncate font-mono text-xs">
+                                <span class="text-muted block truncate font-mono text-xs">
                                     /wiki/{hit.entry.slug}
                                 </span>
                             </span>
@@ -150,7 +150,7 @@
                                     Lien rouge vers « {trimmed} »
                                 </span>
 
-                                <span class="text-ink-400 block truncate font-mono text-xs">
+                                <span class="text-muted block truncate font-mono text-xs">
                                     /wiki/{plannedSlug}
                                 </span>
                             </span>

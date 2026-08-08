@@ -120,11 +120,11 @@
 
     <div class="max-h-[55vh] overflow-y-auto p-2">
         {#if query.trim().length === 0}
-            <p class="text-ink-400 px-3 py-6 text-center text-sm">
+            <p class="text-muted px-3 py-6 text-center text-sm">
                 {wiki.entries.length} fiches consultables. Tapez pour chercher.
             </p>
         {:else if hits.length === 0}
-            <p class="text-ink-400 px-3 py-6 text-center text-sm">
+            <p class="text-muted px-3 py-6 text-center text-sm">
                 Aucune fiche ne correspond à « {query} ».
             </p>
         {:else}
@@ -146,7 +146,7 @@
                                 <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
 
                                 {#if hit.entry.summary}
-                                    <span class="text-ink-400 block truncate text-xs">{hit.entry.summary}</span>
+                                    <span class="text-muted block truncate text-xs">{hit.entry.summary}</span>
                                 {/if}
                             </span>
                         </button>

@@ -86,7 +86,7 @@
                     {wiki.meta.universe}
                 </span>
 
-                <span class="text-ink-400 hidden truncate text-xs leading-tight sm:block">Encyclopédie</span>
+                <span class="text-muted hidden truncate text-xs leading-tight sm:block">Encyclopédie</span>
             </span>
         </a>
 
@@ -106,7 +106,7 @@
         <div class="ml-auto flex items-center gap-1.5">
             <button
                 type="button"
-                class="border-paper-300 text-ink-400 hover:border-accent-400 hover:text-accent-600 dark:border-ink-800 dark:hover:text-accent-400 hidden items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition sm:flex"
+                class="border-paper-300 text-muted hover:border-accent-400 hover:text-accent-600 dark:border-ink-800 dark:hover:text-accent-400 hidden items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition sm:flex"
                 onclick={onsearch}
             >
                 <Icon path={SEARCH} class="h-4 w-4" />
@@ -206,7 +206,7 @@
                 {/each}
             </ul>
 
-            <p class="text-ink-400 mt-3 px-3 text-xs tracking-wide uppercase">Outils</p>
+            <p class="text-muted mt-3 px-3 text-xs tracking-wide uppercase">Outils</p>
 
             <ul class="mt-1 space-y-1">
                 {#each TOOL_LINKS as link ( link.href )}

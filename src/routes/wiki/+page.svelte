@@ -95,7 +95,7 @@
         <div class="max-w-2xl">
             <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Encyclopédie</h1>
 
-            <p class="text-ink-400 mt-3 leading-relaxed">
+            <p class="text-muted mt-3 leading-relaxed">
                 {wiki.entries.length} fiches, dont {wiki.drafts.length} en brouillon. Filtrez par nature, par catégorie ou
                 par mot clé.
             </p>
@@ -107,7 +107,7 @@
     <div class="surface mt-8 space-y-4 p-5">
         <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
             <div class="relative">
-                <Icon path={SEARCH} class="text-ink-400 absolute top-3 left-3.5 h-4 w-4" />
+                <Icon path={SEARCH} class="text-muted absolute top-3 left-3.5 h-4 w-4" />
 
                 <input
                     bind:value={query}
@@ -119,7 +119,7 @@
             </div>
 
             <label class="flex items-center gap-2">
-                <span class="text-ink-400 sr-only text-sm sm:not-sr-only">Catégorie</span>
+                <span class="text-muted sr-only text-sm sm:not-sr-only">Catégorie</span>
 
                 <select bind:value={category} class="field sm:w-52">
                     <option value="toutes">Toutes</option>
@@ -131,7 +131,7 @@
             </label>
 
             <label class="flex items-center gap-2">
-                <span class="text-ink-400 sr-only text-sm sm:not-sr-only">Tri</span>
+                <span class="text-muted sr-only text-sm sm:not-sr-only">Tri</span>
 
                 <select bind:value={sort} class="field sm:w-44">
                     <option value="alphabetique">Alphabétique</option>
@@ -169,7 +169,7 @@
 
             <span class="bg-paper-300 dark:bg-ink-700 mx-1 hidden h-4 w-px sm:block"></span>
 
-            <label class="text-ink-400 flex items-center gap-2 text-xs">
+            <label class="text-muted flex items-center gap-2 text-xs">
                 <span class="sr-only sm:not-sr-only">Statut</span>
 
                 <select bind:value={status} class="field w-auto py-1.5 text-xs">
@@ -181,7 +181,7 @@
         </div>
     </div>
 
-    <p class="text-ink-400 mt-6 text-sm">
+    <p class="text-muted mt-6 text-sm">
         {filtered.length}
         {filtered.length === 1 ? "fiche" : "fiches"}
     </p>

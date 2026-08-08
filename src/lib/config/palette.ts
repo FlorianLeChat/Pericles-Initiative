@@ -61,7 +61,7 @@ export const PALETTE: readonly PaletteColor[] = [
     }
 ];
 
-const FALLBACK: PaletteColor = PALETTE[ PALETTE.length - 1 ];
+const FALLBACK: PaletteColor = PALETTE.at( -1 ) as PaletteColor;
 
 export const PALETTE_KEYS: readonly string[] = PALETTE.map( ( color ) => color.key );
 

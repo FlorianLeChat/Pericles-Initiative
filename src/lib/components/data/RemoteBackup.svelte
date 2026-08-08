@@ -203,7 +203,7 @@
 <section class="surface mt-6 p-6">
     <h2 class="font-serif text-xl font-semibold tracking-tight">Sauvegarde en ligne</h2>
 
-    <p class="text-ink-400 mt-2 text-sm leading-relaxed">
+    <p class="text-muted mt-2 text-sm leading-relaxed">
         Facultatif, et indépendant de la sauvegarde en local. Le wiki fonctionne très bien sans : tant qu'aucune adresse
         n'est renseignée, aucune requête n'est envoyée et tout reste dans ce navigateur. En renseigner une permet
         d'envoyer le contenu vers un service JSON que vous hébergez, et de le récupérer depuis un autre appareil. La
@@ -241,7 +241,7 @@
                 autocomplete="off"
             />
 
-            <p class="text-ink-400 mt-1.5 text-xs leading-relaxed">
+            <p class="text-muted mt-1.5 text-xs leading-relaxed">
                 Sans le segment final : le client appelle <code class="font-mono">/dataset</code> sous cette adresse.
             </p>
         </div>
@@ -258,7 +258,7 @@
                 autocomplete="off"
             />
 
-            <p class="text-ink-400 mt-1.5 text-xs leading-relaxed">
+            <p class="text-muted mt-1.5 text-xs leading-relaxed">
                 Envoyé dans l'entête <code class="font-mono">X-Pericles-Secret</code>. Conservé en clair dans ce
                 navigateur : ce n'est pas une protection, seulement un garde fou pour un service déjà privé.
             </p>
@@ -290,7 +290,7 @@
                     jour, ou restaurez pour abandonner ces modifications.
                 </p>
             {:else}
-                <p class="text-ink-400 text-sm">
+                <p class="text-muted text-sm">
                     Ce navigateur n'a encore jamais été synchronisé avec ce serveur.
                 </p>
             {/if}
@@ -326,7 +326,7 @@
                 {/if}
             </div>
 
-            <p class="text-ink-400 mt-4 text-sm leading-relaxed">
+            <p class="text-muted mt-4 text-sm leading-relaxed">
                 Les deux sens sont complets : envoyer remplace la sauvegarde du serveur par le contenu de ce navigateur,
                 restaurer remplace le contenu de ce navigateur par la sauvegarde.
                 {remote.conditional
@@ -335,7 +335,7 @@
                     : "Ce serveur ne suivant pas ses révisions, le dernier envoi écrase le précédent sans avertir."}
             </p>
 
-            <dl class="text-ink-400 mt-6 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-[auto_1fr]">
+            <dl class="text-muted mt-6 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-[auto_1fr]">
                 <dt class="tracking-wide uppercase">Dernier envoi</dt>
                 <dd>{remote.config.lastPushedAt ? formatDateTime( remote.config.lastPushedAt ) : "jamais"}</dd>
 

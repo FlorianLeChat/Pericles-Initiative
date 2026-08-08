@@ -24,7 +24,7 @@
     {/key}
 {:else if wiki.overlayLoaded}
     <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-        <p class="text-ink-400 font-mono text-sm">/wiki/{slug}</p>
+        <p class="text-muted font-mono text-sm">/wiki/{slug}</p>
 
         <EmptyState
             title="Aucune fiche à cette adresse"
@@ -36,5 +36,5 @@
         </EmptyState>
     </div>
 {:else}
-    <p class="text-ink-400 mx-auto max-w-3xl px-4 py-16 text-sm sm:px-6">Chargement de la fiche...</p>
+    <p class="text-muted mx-auto max-w-3xl px-4 py-16 text-sm sm:px-6">Chargement de la fiche...</p>
 {/if}

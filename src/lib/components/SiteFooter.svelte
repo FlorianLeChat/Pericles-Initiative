@@ -14,11 +14,11 @@
     <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-4">
         <div class="space-y-2">
             <p class="font-serif text-lg font-semibold tracking-tight">{wiki.meta.universe}</p>
-            <p class="text-ink-400 max-w-sm text-sm leading-relaxed">{wiki.meta.tagline}</p>
+            <p class="text-muted max-w-sm text-sm leading-relaxed">{wiki.meta.tagline}</p>
         </div>
 
         <nav aria-label="Navigation secondaire">
-            <p class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Parcourir</p>
+            <p class="text-muted mb-3 text-xs tracking-wide uppercase">Parcourir</p>
 
             <ul class="space-y-1.5 text-sm">
                 {#each NAV_LINKS as link ( link.href )}
@@ -30,7 +30,7 @@
         </nav>
 
         <nav aria-label="Outils">
-            <p class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Atelier</p>
+            <p class="text-muted mb-3 text-xs tracking-wide uppercase">Atelier</p>
 
             <ul class="space-y-1.5 text-sm">
                 {#each TOOL_LINKS as link ( link.href )}
@@ -42,9 +42,9 @@
         </nav>
 
         <div>
-            <p class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Données</p>
+            <p class="text-muted mb-3 text-xs tracking-wide uppercase">Données</p>
 
-            <dl class="text-ink-400 space-y-1.5 text-sm">
+            <dl class="text-muted space-y-1.5 text-sm">
                 <div class="flex gap-2">
                     <dt>Fiches :</dt>
                     <dd class="text-ink-600 dark:text-paper-300 font-medium">{wiki.entries.length}</dd>

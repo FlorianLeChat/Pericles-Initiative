@@ -50,7 +50,7 @@
     <header class="max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Chronologie</h1>
 
-        <p class="text-ink-400 mt-3 leading-relaxed">
+        <p class="text-muted mt-3 leading-relaxed">
             {wiki.chronology.length} fiches portent une date dans l'univers. Les autres, personnages et concepts sans ancrage
             précis, n'apparaissent pas ici.
         </p>
@@ -81,7 +81,7 @@
                                     aria-hidden="true"
                                 ></span>
 
-                                <p class="text-ink-400 font-mono text-xs">
+                                <p class="text-muted font-mono text-xs">
                                     {formatUniverseDate( entry.timelineDate )}
                                 </p>
 

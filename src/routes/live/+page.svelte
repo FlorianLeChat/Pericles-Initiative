@@ -90,7 +90,7 @@
 
             <h1 class="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Le fil</h1>
 
-            <p class="text-ink-400 mt-3 leading-relaxed">
+            <p class="text-muted mt-3 leading-relaxed">
                 {wiki.live.length} entrées.
                 {#if latest}
                     La dernière remonte à {relativeTime( latest.publishedAt )}.
@@ -174,7 +174,7 @@
             {:else}
                 {#if pinned.length > 0}
                     <section class="mt-8">
-                        <h2 class="text-ink-400 mb-4 text-xs tracking-[0.15em] uppercase">Épinglées</h2>
+                        <h2 class="text-muted mb-4 text-xs tracking-[0.15em] uppercase">Épinglées</h2>
 
                         <div class="border-paper-200 dark:border-ink-800 space-y-8 border-l">
                             <!--
@@ -205,7 +205,7 @@
 
                 {#each days as group ( group.day )}
                     <section class="mt-10">
-                        <h2 class="text-ink-400 mb-4 text-xs tracking-[0.15em] uppercase">
+                        <h2 class="text-muted mb-4 text-xs tracking-[0.15em] uppercase">
                             {formatLongDate( group.day )}
                         </h2>
 
@@ -246,14 +246,14 @@
                 {/key}
             {:else}
                 <div class="surface p-5">
-                    <p class="text-ink-400 text-xs tracking-wide uppercase">Comment ça marche</p>
+                    <p class="text-muted text-xs tracking-wide uppercase">Comment ça marche</p>
 
                     <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">
                         Une entrée du fil est courte et horodatée. Quand un événement mérite mieux, reliez la à une
                         fiche : le lien « Lire la fiche complète » apparaît sous l'entrée.
                     </p>
 
-                    <p class="text-ink-400 mt-3 text-sm leading-relaxed">
+                    <p class="text-muted mt-3 text-sm leading-relaxed">
                         Une entrée en gravité « Alerte » affiche un bandeau sur tout le site pendant vingt quatre
                         heures.
                     </p>
@@ -261,7 +261,7 @@
             {/if}
 
             <div class="surface p-5">
-                <p class="text-ink-400 text-xs tracking-wide uppercase">Stockage</p>
+                <p class="text-muted text-xs tracking-wide uppercase">Stockage</p>
 
                 <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">
                     Chaque publication est écrite directement dans le stockage local de ce navigateur : elle apparaît

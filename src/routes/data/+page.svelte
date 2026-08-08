@@ -26,7 +26,7 @@
     <header class="max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Données</h1>
 
-        <p class="text-ink-400 mt-3 leading-relaxed">
+        <p class="text-muted mt-3 leading-relaxed">
             Le site lit son contenu dans le stockage local de ce navigateur : c'est aujourd'hui la seule source de
             données, et vider ce stockage suffit à tout perdre. Deux sauvegardes existent pour éviter ça, et elles sont
             indépendantes : en local, dans un fichier conservé sur cet appareil, ou en ligne, sur un service que vous
@@ -55,7 +55,7 @@
     <section class="border-alert-500/30 mt-6 rounded-2xl border p-6">
         <h2 class="font-serif text-xl font-semibold tracking-tight">Réinitialiser</h2>
 
-        <p class="text-ink-400 mt-2 text-sm leading-relaxed">
+        <p class="text-muted mt-2 text-sm leading-relaxed">
             Efface tout le contenu enregistré dans ce navigateur. Irréversible : sauvegardez avant, dans un fichier ou
             en ligne.
         </p>

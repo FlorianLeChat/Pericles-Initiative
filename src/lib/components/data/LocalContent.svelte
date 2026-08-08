@@ -50,13 +50,13 @@
     <div class="flex flex-wrap items-baseline justify-between gap-3">
         <h2 class="font-serif text-xl font-semibold tracking-tight">Contenu de ce navigateur</h2>
 
-        <p class="text-ink-400 text-xs">
+        <p class="text-muted text-xs">
             {formatSize( overlaySize )} utilisés dans le stockage du navigateur
         </p>
     </div>
 
     {#if !wiki.hasStoredContent}
-        <p class="text-ink-400 mt-4 text-sm leading-relaxed">
+        <p class="text-muted mt-4 text-sm leading-relaxed">
             Ce navigateur ne contient aucun contenu pour le moment.
             <a href={resolve( "/new" )} class="wiki-link">Créez une fiche</a>
             pour commencer, ou restaurez une sauvegarde plus bas.
@@ -68,7 +68,7 @@
         </p>
 
         {#if wiki.changedAt}
-            <p class="text-ink-400 mt-1.5 text-sm">
+            <p class="text-muted mt-1.5 text-sm">
                 Dernière modification le {formatDateTime( wiki.changedAt )}.
             </p>
         {/if}
@@ -83,7 +83,7 @@
         <div class="mt-5 space-y-5 text-sm">
             {#if storedEntries.length > 0}
                 <div>
-                    <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Fiches</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Fiches</p>
 
                     <ul class="space-y-1.5">
                         {#each storedEntries as entry ( entry.id )}
@@ -91,7 +91,7 @@
                                 <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link">{entry.title}</a>
 
                                 {#if entry.status === "brouillon"}
-                                    <span class="text-ink-400 text-xs">brouillon</span>
+                                    <span class="text-muted text-xs">brouillon</span>
                                 {/if}
                             </li>
                         {/each}
@@ -101,7 +101,7 @@
 
             {#if deletedEntries.length > 0}
                 <div>
-                    <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Fiches supprimées</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Fiches supprimées</p>
 
                     <ul class="space-y-1.5">
                         {#each deletedEntries as item ( item.id )}
@@ -121,7 +121,7 @@
 
             {#if storedCategories.length > 0}
                 <div>
-                    <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Catégories</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Catégories</p>
 
                     <ul class="flex flex-wrap gap-1.5">
                         {#each storedCategories as category ( category.slug )}
@@ -135,7 +135,7 @@
 
             {#if storedLive.length > 0}
                 <div>
-                    <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Fil en direct</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Fil en direct</p>
 
                     <p class="text-ink-500 dark:text-paper-300/80">
                         {storedLive.length}
@@ -146,7 +146,7 @@
 
             {#if wiki.overlay.meta}
                 <div>
-                    <p class="text-ink-400 mb-2 text-xs tracking-wide uppercase">Identité du wiki</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Identité du wiki</p>
 
                     <p class="text-ink-500 dark:text-paper-300/80">
                         Nom, signature, description, logo ou fiches à la une définis depuis

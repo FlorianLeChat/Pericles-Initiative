@@ -96,7 +96,7 @@
     <header class="max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Paramètres</h1>
 
-        <p class="text-ink-400 mt-3 leading-relaxed">
+        <p class="text-muted mt-3 leading-relaxed">
             L'identité du wiki. Ces champs alimentent l'entête, la page d'accueil et les métadonnées des pages. Ils
             s'exportent avec le reste du contenu.
         </p>
@@ -173,7 +173,7 @@
                         placeholder="/media/logo.svg"
                     />
 
-                    <p class="text-ink-400 mt-1.5 text-xs leading-relaxed">
+                    <p class="text-muted mt-1.5 text-xs leading-relaxed">
                         Chemin sous <code class="font-mono">static/media/</code> ou URL absolue. Laissez vide pour garder
                         le monogramme.
                     </p>
@@ -212,7 +212,7 @@
                             {universe.trim() || "Univers sans nom"}
                         </span>
 
-                        <span class="text-ink-400 block text-xs leading-tight">Encyclopédie</span>
+                        <span class="text-muted block text-xs leading-tight">Encyclopédie</span>
                     </span>
                 </div>
             </div>
@@ -231,19 +231,19 @@
                 </button>
             </div>
 
-            <p class="text-ink-400 mt-1 text-sm leading-relaxed">
+            <p class="text-muted mt-1 text-sm leading-relaxed">
                 La première occupe la grande carte de l'accueil, les deux suivantes les cartes latérales.
             </p>
 
             {#if featured.length === 0}
-                <p class="text-ink-400 mt-4 text-sm">Aucune fiche mise en avant.</p>
+                <p class="text-muted mt-4 text-sm">Aucune fiche mise en avant.</p>
             {:else}
                 <ol class="mt-4 space-y-2">
                     {#each featured as slug, index ( slug )}
                         {@const entry = wiki.bySlug( slug )}
 
                         <li class="border-paper-200 dark:border-ink-800 flex items-center gap-3 rounded-xl border p-3">
-                            <span class="text-ink-400 font-mono text-xs">{index + 1}</span>
+                            <span class="text-muted font-mono text-xs">{index + 1}</span>
 
                             <span class="min-w-0 flex-1">
                                 {#if entry}
@@ -302,7 +302,7 @@
         </div>
     </form>
 
-    <p class="text-ink-400 mt-8 text-xs">
+    <p class="text-muted mt-8 text-xs">
         Identité par défaut : « {wiki.seed.meta.universe} », version {wiki.seed.meta.version}.
     </p>
 </div>

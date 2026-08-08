@@ -131,12 +131,12 @@
     }}
 >
     <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <p class="text-ink-400 text-xs tracking-wide uppercase">
+        <p class="text-muted text-xs tracking-wide uppercase">
             {editing ? "Modifier une entrée" : "Publier dans le fil"}
         </p>
 
         {#if editing}
-            <button type="button" class="text-ink-400 hover:text-accent-600 text-xs underline" onclick={oncancel}>
+            <button type="button" class="text-muted hover:text-accent-600 text-xs underline" onclick={oncancel}>
                 Abandonner la modification
             </button>
         {/if}

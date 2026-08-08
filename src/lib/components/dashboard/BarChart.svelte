@@ -43,7 +43,7 @@
                 ></span>
             </span>
 
-            <span class="text-ink-400 text-right font-mono text-xs">{item.count}</span>
+            <span class="text-muted text-right font-mono text-xs">{item.count}</span>
         </li>
     {/each}
 </ul>

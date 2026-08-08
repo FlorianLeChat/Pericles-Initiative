@@ -64,7 +64,7 @@
             {wiki.meta.tagline}
         </p>
 
-        <p class="text-ink-400 rise-in mt-4 max-w-2xl leading-relaxed" style="--rank: 3">
+        <p class="text-muted rise-in mt-4 max-w-2xl leading-relaxed" style="--rank: 3">
             {wiki.meta.description}
         </p>
 
@@ -78,22 +78,22 @@
             style="--rank: 5"
         >
             <div>
-                <dt class="text-ink-400 text-xs tracking-wide uppercase">Fiches</dt>
+                <dt class="text-muted text-xs tracking-wide uppercase">Fiches</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.publishedEntries.length}</dd>
             </div>
 
             <div>
-                <dt class="text-ink-400 text-xs tracking-wide uppercase">Catégories</dt>
+                <dt class="text-muted text-xs tracking-wide uppercase">Catégories</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.categories.length}</dd>
             </div>
 
             <div>
-                <dt class="text-ink-400 text-xs tracking-wide uppercase">Fiches datées</dt>
+                <dt class="text-muted text-xs tracking-wide uppercase">Fiches datées</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.chronology.length}</dd>
             </div>
 
             <div>
-                <dt class="text-ink-400 text-xs tracking-wide uppercase">Brouillons</dt>
+                <dt class="text-muted text-xs tracking-wide uppercase">Brouillons</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.drafts.length}</dd>
             </div>
         </dl>
@@ -178,7 +178,7 @@
                             {/if}
                         </span>
 
-                        <span class="text-ink-400 shrink-0 text-xs">{relativeTime( item.publishedAt )}</span>
+                        <span class="text-muted shrink-0 text-xs">{relativeTime( item.publishedAt )}</span>
                     </li>
                 {/each}
             </ul>

@@ -104,7 +104,7 @@
 <section class="surface mt-6 p-6">
     <h2 class="font-serif text-xl font-semibold tracking-tight">Sauvegarde en local</h2>
 
-    <p class="text-ink-400 mt-2 text-sm leading-relaxed">
+    <p class="text-muted mt-2 text-sm leading-relaxed">
         Tout le contenu du wiki, écrit dans un fichier <code class="font-mono text-xs">wiki.json</code> sur cet
         appareil. Aucun serveur n'intervient, rien n'est envoyé nulle part. Conservez ce fichier comme sauvegarde, ou
         rechargez le ici, ou dans un autre navigateur, pour y retrouver le contenu.
@@ -124,7 +124,7 @@
     <div class="mt-6">
         <h3 class="font-semibold">Enregistrer dans un fichier</h3>
 
-        <p class="text-ink-400 mt-1.5 text-sm leading-relaxed">
+        <p class="text-muted mt-1.5 text-sm leading-relaxed">
             Le fichier contient tout ce que le site affiche actuellement, brouillons compris. L'enregistrer ne vide pas
             ce navigateur : le contenu reste ici, et une sauvegarde n'est qu'une copie.
         </p>
@@ -141,7 +141,7 @@
     <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
         <h3 class="font-semibold">Charger un fichier</h3>
 
-        <p class="text-ink-400 mt-1.5 text-sm leading-relaxed">
+        <p class="text-muted mt-1.5 text-sm leading-relaxed">
             Reprendre une sauvegarde, ou récupérer le travail fait sur un autre appareil. Le chargement est complet : le
             site affichera exactement le contenu du fichier, et ce que contient ce navigateur sera remplacé.
             Enregistrez avant, si vous avez du travail en cours ici.

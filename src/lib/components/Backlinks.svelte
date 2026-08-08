@@ -22,10 +22,10 @@
 </script>
 
 <section class="surface p-5" aria-label={title}>
-    <p class="text-ink-400 mb-3 text-xs tracking-wide uppercase">{title}</p>
+    <p class="text-muted mb-3 text-xs tracking-wide uppercase">{title}</p>
 
     {#if entries.length === 0}
-        <p class="text-ink-400 text-sm">{emptyLabel}</p>
+        <p class="text-muted text-sm">{emptyLabel}</p>
     {:else}
         <ul class="space-y-2.5 text-sm">
             {#each entries as entry ( entry.id )}

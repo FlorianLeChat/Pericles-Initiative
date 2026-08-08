@@ -32,7 +32,7 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <nav class="text-ink-400 flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
+    <nav class="text-muted flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
         <a href={resolve( "/categories" )} class="hover:text-accent-600 dark:hover:text-accent-400">Catégories</a>
 
         <span aria-hidden="true">/</span>
@@ -45,7 +45,7 @@
             <span class="flex items-center gap-2">
                 <span class="h-2.5 w-2.5 rounded-full {color.dot}"></span>
 
-                <span class="text-ink-400 text-xs tracking-wide uppercase">
+                <span class="text-muted text-xs tracking-wide uppercase">
                     {entries.length}
                     {entries.length === 1 ? "fiche" : "fiches"}
                 </span>
@@ -71,7 +71,7 @@
         {:else}
             {#each groups as group ( group.config.id )}
                 <section class="mt-10">
-                    <h2 class="text-ink-400 text-xs tracking-[0.15em] uppercase">{group.config.plural}</h2>
+                    <h2 class="text-muted text-xs tracking-[0.15em] uppercase">{group.config.plural}</h2>
 
                     <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         {#each group.entries as entry, index ( entry.id )}

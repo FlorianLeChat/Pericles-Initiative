@@ -36,18 +36,18 @@
     <div class="flex flex-wrap items-center gap-2">
         <time
             datetime={item.publishedAt}
-            class="text-ink-400 font-mono text-xs"
+            class="text-muted font-mono text-xs"
             title={formatDateTime( item.publishedAt )}
         >
             {formatTime( item.publishedAt )}
         </time>
 
-        <span class="text-ink-400 text-xs">· {relativeTime( item.publishedAt )}</span>
+        <span class="text-muted text-xs">· {relativeTime( item.publishedAt )}</span>
 
         <SeverityBadge severity={item.severity} />
 
         {#if item.pinned}
-            <span class="border-paper-300 text-ink-400 dark:border-ink-700 rounded-full border px-2 py-0.5 text-xs">
+            <span class="border-paper-300 text-muted dark:border-ink-700 rounded-full border px-2 py-0.5 text-xs">
                 Épinglée
             </span>
         {/if}
@@ -61,7 +61,7 @@
         </div>
     {/if}
 
-    <div class="text-ink-400 mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+    <div class="text-muted mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
         {#if target}
             <a href={resolve( `/wiki/${ target.slug }` )} class="wiki-link font-medium">Lire la fiche complète</a>
         {:else if item.entrySlug}

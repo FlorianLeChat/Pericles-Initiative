@@ -208,7 +208,7 @@
         class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/80 sticky top-16 z-30 -mx-4 mb-8 flex flex-wrap items-center gap-3 border-b bg-paper-50/90 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6"
     >
         <div class="min-w-0 flex-1">
-            <p class="text-ink-400 text-xs tracking-wide uppercase">
+            <p class="text-muted text-xs tracking-wide uppercase">
                 {entry ? "Modifier une fiche" : "Nouvelle fiche"}
             </p>
 
@@ -249,12 +249,12 @@
                 <label class="field-label" for="entry-slug">
                     Adresse de la page
                     {#if !slugLocked}
-                        <span class="text-ink-400 font-normal">suit le titre</span>
+                        <span class="text-muted font-normal">suit le titre</span>
                     {/if}
                 </label>
 
                 <div class="flex items-center gap-2">
-                    <span class="text-ink-400 shrink-0 font-mono text-sm">/wiki/</span>
+                    <span class="text-muted shrink-0 font-mono text-sm">/wiki/</span>
 
                     <input
                         id="entry-slug"
@@ -285,7 +285,7 @@
                     placeholder="2025-04-02, ou Juin 2043"
                 />
 
-                <p class="text-ink-400 mt-1.5 text-xs">
+                <p class="text-muted mt-1.5 text-xs">
                     Facultatif. Une date ISO alimente la chronologie, un texte libre est accepté.
                 </p>
             </div>
@@ -313,7 +313,7 @@
 
         <aside class="space-y-5">
             <fieldset class="surface p-5">
-                <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Nature</legend>
+                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Nature</legend>
 
                 <div class="grid grid-cols-2 gap-1.5">
                     {#each ENTRY_TYPES as config ( config.id )}
@@ -331,7 +331,7 @@
             </fieldset>
 
             <fieldset class="surface p-5">
-                <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Statut</legend>
+                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Statut</legend>
 
                 <div class="flex gap-1.5">
                     <button
@@ -357,10 +357,10 @@
             </fieldset>
 
             <fieldset class="surface p-5">
-                <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Catégories</legend>
+                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Catégories</legend>
 
                 {#if wiki.categories.length === 0}
-                    <p class="text-ink-400 text-sm">
+                    <p class="text-muted text-sm">
                         Aucune catégorie déclarée. <a href={resolve( "/categories/manage" )} class="wiki-link">En créer</a
                         >.
                     </p>
@@ -382,13 +382,13 @@
             </fieldset>
 
             <fieldset class="surface p-5">
-                <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Infobox</legend>
+                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Infobox</legend>
 
                 <InfoboxEditor bind:fields={infobox} />
             </fieldset>
 
             <fieldset class="surface space-y-3 p-5">
-                <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Illustration</legend>
+                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Illustration</legend>
 
                 <div>
                     <label class="field-label" for="entry-image">Chemin ou URL</label>
@@ -421,7 +421,7 @@
                         <input id="entry-image-caption" bind:value={imageCaption} type="text" class="field py-2" />
                     </div>
                 {:else}
-                    <p class="text-ink-400 text-xs leading-relaxed">
+                    <p class="text-muted text-xs leading-relaxed">
                         Déposez le fichier dans <code class="font-mono">static/media/</code>, puis indiquez son chemin.
                         Pas de base64 : le stockage local est limité.
                     </p>
@@ -429,11 +429,11 @@
             </fieldset>
 
             <fieldset class="surface p-5">
-                <legend class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Autres noms</legend>
+                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Autres noms</legend>
 
                 <ChipsInput bind:values={aliases} id="entry-aliases" placeholder="Alias, puis Entrée" />
 
-                <p class="text-ink-400 mt-2 text-xs leading-relaxed">
+                <p class="text-muted mt-2 text-xs leading-relaxed">
                     Pris en compte par la recherche, sans créer de page.
                 </p>
             </fieldset>

@@ -13,13 +13,13 @@
 </svelte:head>
 
 <section class="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-    <p class="text-ink-400 font-mono text-sm">{page.status}</p>
+    <p class="text-muted font-mono text-sm">{page.status}</p>
 
     <h1 class="mt-3 font-serif text-4xl font-semibold tracking-tight">
         {page.status === 404 ? "Cette page ne figure pas dans les archives" : "Une erreur est survenue"}
     </h1>
 
-    <p class="text-ink-400 mx-auto mt-4 max-w-lg leading-relaxed">
+    <p class="text-muted mx-auto mt-4 max-w-lg leading-relaxed">
         {page.error?.message ?? "Le chemin demandé ne correspond à aucune fiche connue."}
     </p>
 

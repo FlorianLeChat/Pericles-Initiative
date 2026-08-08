@@ -19,7 +19,7 @@
     <p class="text-lg font-medium">{title}</p>
 
     {#if description}
-        <p class="text-ink-400 mx-auto mt-2 max-w-md text-sm leading-relaxed">{description}</p>
+        <p class="text-muted mx-auto mt-2 max-w-md text-sm leading-relaxed">{description}</p>
     {/if}
 
     {#if children}

@@ -53,7 +53,7 @@
 {#if entry && rendered}
     <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <nav class="text-ink-400 flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
+            <nav class="text-muted flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
                 <a href={resolve( "/wiki" )} class="hover:text-accent-600 dark:hover:text-accent-400">Encyclopédie</a>
 
                 <span aria-hidden="true">/</span>
@@ -91,7 +91,7 @@
                 {/each}
             </div>
 
-            <p class="text-ink-400 mt-5 text-xs">
+            <p class="text-muted mt-5 text-xs">
                 {#if entry.timelineDate}
                     Date dans l'univers : {formatUniverseDate( entry.timelineDate )} ·
                 {/if}
@@ -125,7 +125,7 @@
                                     </div>
 
                                     {#if item.summary}
-                                        <p class="text-ink-400 mt-2 line-clamp-2 text-xs leading-relaxed">
+                                        <p class="text-muted mt-2 line-clamp-2 text-xs leading-relaxed">
                                             {item.summary}
                                         </p>
                                     {/if}
@@ -145,7 +145,7 @@
     </article>
 {:else}
     <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-        <p class="text-ink-400 font-mono text-sm">/wiki/{slug}</p>
+        <p class="text-muted font-mono text-sm">/wiki/{slug}</p>
 
         <EmptyState
             title="Cette fiche n'existe pas encore"

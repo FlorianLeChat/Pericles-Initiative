@@ -18,7 +18,7 @@
 
 {#if headings.length > 1}
     <nav class="surface p-5" aria-label="Sommaire">
-        <p class="text-ink-400 mb-3 text-xs tracking-wide uppercase">Sommaire</p>
+        <p class="text-muted mb-3 text-xs tracking-wide uppercase">Sommaire</p>
 
         <ol class="space-y-1.5 text-sm">
             {#each headings as heading ( heading.id )}

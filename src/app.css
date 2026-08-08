@@ -58,6 +58,29 @@
         --rank-step: 45ms;
     }
 
+    /*
+     * Dark theme neutrals: a slightly lighter, warmer retouch of the ink and
+     * paper scale ("encre réchauffée"), kept out of `@theme` and scoped to
+     * `.dark` so the light theme keeps its own values untouched. Every one of
+     * these stops is only ever read through a `dark:` variant elsewhere in
+     * this file and across components, which is what makes the scoped
+     * override safe: nothing reads the light value while `.dark` is active.
+     */
+    :is(.dark) {
+        --color-ink-700: #343440;
+        --color-ink-800: #26262f;
+        --color-ink-900: #1a1a22;
+        --color-ink-950: #121218;
+
+        --color-paper-100: #f4f0e9;
+        --color-paper-200: #f0ece4;
+        --color-paper-300: #ddd7cb;
+        --color-paper-400: #c9c2b3;
+
+        /* A touch brighter than the light theme's accent, for legibility on ink. */
+        --color-accent-400: #6fa8f5;
+    }
+
     html {
         scroll-behavior: smooth;
         -webkit-text-size-adjust: 100%;
@@ -87,7 +110,17 @@
     }
 
     .field {
-        @apply border-paper-300 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:ring-accent-500/25 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-100 w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm transition focus:ring-4 focus:outline-none;
+        @apply border-paper-300 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:ring-accent-500/25 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-100 dark:placeholder:text-paper-400/70 w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm transition focus:ring-4 focus:outline-none;
+    }
+
+    /*
+     * Muted captions, hints, timestamps and uppercase eyebrow labels. `ink-400`
+     * is tuned for a light background: left unstyled in the dark variant it
+     * renders as dark grey on near black, which is why every one of its call
+     * sites also carries the `dark:` override.
+     */
+    .text-muted {
+        @apply text-ink-400 dark:text-paper-400/80;
     }
 
     .btn {
