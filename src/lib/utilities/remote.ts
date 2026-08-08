@@ -82,7 +82,8 @@ export const emptyRemoteConfig = (): RemoteConfig => ( {
     secret: "",
     revision: null,
     lastPulledAt: null,
-    lastPushedAt: null
+    lastPushedAt: null,
+    syncedChange: null
 } );
 
 /**
@@ -105,7 +106,8 @@ export const normalizeRemoteConfig = ( value: unknown ): RemoteConfig =>
         secret: asTrimmed( raw.secret ),
         revision: asNullableString( raw.revision ),
         lastPulledAt: asNullableString( raw.lastPulledAt ),
-        lastPushedAt: asNullableString( raw.lastPushedAt )
+        lastPushedAt: asNullableString( raw.lastPushedAt ),
+        syncedChange: asNullableString( raw.syncedChange )
     };
 };
 

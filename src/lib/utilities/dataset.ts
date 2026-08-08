@@ -320,7 +320,8 @@ export const emptyOverlay = (): Overlay => ( {
     categories: {},
     live: {},
     deleted: { entries: [], categories: [], live: [] },
-    meta: null
+    meta: null,
+    changedAt: null
 } );
 
 /**
@@ -377,6 +378,7 @@ export const normalizeOverlay = ( value: unknown ): Overlay =>
         live: asStringArray( deleted.live )
     };
     overlay.meta = normalizeMetaPatch( raw.meta );
+    overlay.changedAt = asNullableString( raw.changedAt );
 
     return overlay;
 };
@@ -432,13 +434,18 @@ export const withoutKey = <T>( record: Record<string, T>, key: string ): Record<
     Object.fromEntries( Object.entries( record ).filter( ( [ candidate ] ) => candidate !== key ) );
 
 /**
- * Counts the local changes waiting to be exported.
+ * Counts the items the overlay holds.
  *
- * @param overlay Local changes.
- * @returns The number of created, edited or deleted items.
+ * With an empty seed the overlay is not a delta but the whole content of the
+ * wiki, so this is a count of what this browser stores, not of changes pending
+ * anything. Deletions are counted too: a recorded deletion is one more thing
+ * this browser knows and a backup does not.
+ *
+ * @param overlay Content stored in this browser.
+ * @returns The number of stored or deleted items, the wiki identity included.
  * @author Claude
  */
-export const countOverlayChanges = ( overlay: Overlay ): number =>
+export const countOverlayItems = ( overlay: Overlay ): number =>
     Object.keys( overlay.entries ).length
     + Object.keys( overlay.categories ).length
     + Object.keys( overlay.live ).length

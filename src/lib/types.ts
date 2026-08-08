@@ -120,6 +120,14 @@ export interface Overlay {
         live: string[];
     };
     meta: Partial<WikiMeta> | null;
+    /**
+     * ISO timestamp of the last write to this overlay, null while nothing has been stored.
+     *
+     * Stamped on every save because no other field can answer «has anything changed
+     * since my last backup?»: categories carry no timestamp, and a deletion removes
+     * the only item that could have carried one.
+     */
+    changedAt: string | null;
 }
 
 /**
@@ -138,6 +146,14 @@ export interface RemoteConfig {
     revision: string | null;
     lastPulledAt: string | null;
     lastPushedAt: string | null;
+    /**
+     * Marker of the local content last known to match the remote snapshot.
+     *
+     * Opaque to the remote store, which never reads content: the panel hands it
+     * `Overlay.changedAt` and compares the two to tell an up to date backup from a
+     * stale one. Null means this browser has never been in sync with the service.
+     */
+    syncedChange: string | null;
 }
 
 /** A snapshot read from the remote service, already normalised. */

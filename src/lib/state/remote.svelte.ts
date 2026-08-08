@@ -113,7 +113,9 @@ class RemoteStore
      *
      * Changing the endpoint clears the known revision: a revision identifies a
      * snapshot on one service, and replaying it against another would either be
-     * refused or, worse, match something unrelated.
+     * refused or, worse, match something unrelated. The synchronisation marker
+     * goes with it, for the same reason: another service holds another snapshot,
+     * so nothing is known to match it yet.
      *
      * @param patch Fields to change.
      * @author Claude
@@ -126,11 +128,28 @@ class RemoteStore
             ...this.config,
             ...patch,
             baseUrl: patch.baseUrl === undefined ? this.config.baseUrl : patch.baseUrl.trim(),
-            ...( movedEndpoint ? { revision: null } : {} )
+            ...( movedEndpoint ? { revision: null, syncedChange: null } : {} )
         };
 
         this.status = "idle";
         this.failure = null;
+        this.persist();
+    }
+
+    /**
+     * Records that the local content is known to match the remote snapshot.
+     *
+     * The marker is opaque here on purpose: this store never reads the wiki, so
+     * the panel is the one that knows the value identifies a state of the overlay.
+     * Called after a successful send, and after a restore has been installed, the
+     * two moments where both sides genuinely hold the same thing.
+     *
+     * @param marker Value identifying the local content, or null to forget the synchronisation.
+     * @author Claude
+     */
+    markSynced( marker: string | null ): void
+    {
+        this.config = { ...this.config, syncedChange: marker };
         this.persist();
     }
 

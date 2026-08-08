@@ -19,7 +19,7 @@ import { browser } from "$app/environment";
 import type { Category, Dataset, Entry, LiveEntry, Overlay, WikiMeta } from "$lib/types";
 import { timelineSortKey } from "$lib/utilities/date";
 import { buildImportOverlay,
-    countOverlayChanges,
+    countOverlayItems,
     emptyDataset,
     emptyOverlay,
     mergeDataset,
@@ -177,9 +177,23 @@ class WikiStore
     /** Most recently edited pages first. */
     recentlyUpdated = $derived( [ ...this.entries ].sort( ( a, b ) => b.updatedAt.localeCompare( a.updatedAt ) ) );
 
-    localChangeCount = $derived( countOverlayChanges( this.overlay ) );
+    /**
+     * How many items this browser stores.
+     *
+     * Not a count of unsaved changes: the seed being empty, the overlay holds the
+     * whole wiki, and exporting it does not empty it.
+     */
+    storedItemCount = $derived( countOverlayItems( this.overlay ) );
 
-    hasLocalChanges = $derived( this.localChangeCount > 0 );
+    hasStoredContent = $derived( this.storedItemCount > 0 );
+
+    /**
+     * When this browser last wrote something, null while it stores nothing.
+     *
+     * Doubles as the marker a backup compares itself against: two equal values
+     * mean the content has not moved since.
+     */
+    changedAt = $derived( this.overlay.changedAt );
 
     /**
      * Installs the seed dataset.
@@ -236,7 +250,11 @@ class WikiStore
     }
 
     /**
-     * Writes the overlay back to `localStorage`.
+     * Writes the overlay back to `localStorage`, stamping when the content moved.
+     *
+     * The stamp is taken even if the write then fails: what the site displays has
+     * changed, so a backup made before this point is stale whatever the browser
+     * did with the bytes.
      *
      * @author Claude
      */
@@ -246,6 +264,8 @@ class WikiStore
         {
             return;
         }
+
+        this.overlay.changedAt = new Date().toISOString();
 
         try
         {

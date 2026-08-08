@@ -5,7 +5,9 @@
      * This component owns the wiring between the two stores: it hands
      * `WikiStore.exportJson()` to the service, and hands what the service returns
      * back to `WikiStore.importDataset()`. Neither store knows about the other,
-     * which is what keeps the overlay independent from the network.
+     * which is what keeps the overlay independent from the network. Telling an up
+     * to date backup from a stale one is part of that wiring: the marker compared
+     * here means something to the wiki and nothing to the service.
      *
      * Everything here is optional. With no endpoint configured, the panel explains
      * that the wiki works from this browser alone and fires no request at all.
@@ -71,6 +73,23 @@
     const conflicted = $derived( remote.failure === "conflict" );
 
     /**
+     * Where the online backup stands against the content of this browser.
+     *
+     * Compared by marker rather than by date: a wall clock comparison would call a
+     * restore stale, since installing the snapshot is itself a local write, and it
+     * happens after the read that brought it in.
+     */
+    const syncState = $derived.by( (): "unknown" | "synced" | "stale" =>
+    {
+        if ( remote.config.syncedChange === null )
+        {
+            return "unknown";
+        }
+
+        return remote.config.syncedChange === wiki.changedAt ? "synced" : "stale";
+    } );
+
+    /**
      * Persists what is on screen before acting.
      *
      * The buttons always operate on the values the reader can see, so a url typed
@@ -131,10 +150,18 @@
         commit();
         feedback = null;
 
+        // Read before the request, not after: what leaves this browser is the content
+        // as it stands now, and an edit made while the request flies is not in it.
+        const sent = wiki.changedAt;
         const stored = await remote.push( wiki.exportJson(), conditional );
 
+        if ( stored )
+        {
+            remote.markSynced( sent );
+        }
+
         feedback = stored
-            ? { kind: "success", text: "Sauvegarde envoyée au serveur." }
+            ? { kind: "success", text: "Sauvegarde en ligne mise à jour." }
             : { kind: "error", text: failureText };
     };
 
@@ -159,6 +186,10 @@
 
         const counts = wiki.importDataset( snapshot.dataset );
 
+        // Marked after the import, since installing the snapshot is itself a write:
+        // the marker to remember is the one that write just produced.
+        remote.markSynced( wiki.changedAt );
+
         feedback = {
             kind: "success",
             text:
@@ -170,13 +201,13 @@
 </script>
 
 <section class="surface mt-6 p-6">
-    <h2 class="font-serif text-xl font-semibold tracking-tight">Serveur de sauvegarde</h2>
+    <h2 class="font-serif text-xl font-semibold tracking-tight">Sauvegarde en ligne</h2>
 
     <p class="text-ink-400 mt-2 text-sm leading-relaxed">
-        Facultatif. Le wiki fonctionne très bien sans : tant qu'aucune adresse n'est renseignée, aucune requête n'est
-        envoyée et tout reste dans ce navigateur. En renseigner une permet d'envoyer le contenu vers un service JSON et
-        de le récupérer ailleurs. La mise en place d'un tel service est décrite dans
-        <code class="font-mono text-xs">SETUP.md</code>.
+        Facultatif, et indépendant de la sauvegarde en local. Le wiki fonctionne très bien sans : tant qu'aucune adresse
+        n'est renseignée, aucune requête n'est envoyée et tout reste dans ce navigateur. En renseigner une permet
+        d'envoyer le contenu vers un service JSON que vous hébergez, et de le récupérer depuis un autre appareil. La
+        mise en place d'un tel service est décrite dans <code class="font-mono text-xs">REMOTE-API.md</code>.
     </p>
 
     {#if feedback}
@@ -246,7 +277,25 @@
 
     {#if remote.configured}
         <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
-            <div class="flex flex-wrap gap-2">
+            {#if syncState === "synced"}
+                <p
+                    class="bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100 rounded-xl px-4
+                           py-3 text-sm"
+                >
+                    Sauvegarde en ligne à jour : elle contient exactement ce que contient ce navigateur.
+                </p>
+            {:else if syncState === "stale"}
+                <p class="bg-signal-500/15 text-signal-500 rounded-xl px-4 py-3 text-sm">
+                    Ce navigateur a changé depuis la dernière synchronisation. Envoyez la sauvegarde pour la remettre à
+                    jour, ou restaurez pour abandonner ces modifications.
+                </p>
+            {:else}
+                <p class="text-ink-400 text-sm">
+                    Ce navigateur n'a encore jamais été synchronisé avec ce serveur.
+                </p>
+            {/if}
+
+            <div class="mt-5 flex flex-wrap gap-2">
                 <button
                     type="button"
                     class="btn btn-primary"
@@ -308,12 +357,12 @@
 <ConfirmDialog
     bind:open={sendOpen}
     title="Envoyer la sauvegarde ?"
-    message={wiki.hasLocalChanges
+    message={wiki.hasStoredContent
         ? "Le contenu de ce navigateur va remplacer entièrement la sauvegarde du serveur."
         : "Ce navigateur ne contient aucun contenu. L'envoi va donc remplacer la sauvegarde du serveur "
           + "par un wiki vide."}
     confirmLabel="Envoyer"
-    danger={!wiki.hasLocalChanges}
+    danger={!wiki.hasStoredContent}
     onconfirm={() => void send( true )}
 />
 

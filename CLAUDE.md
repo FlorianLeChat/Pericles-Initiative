@@ -22,8 +22,19 @@ backend, a build step that writes into `static/`, or an authentication shim.
 ## Stack
 
 SvelteKit 2 with Svelte 5 runes, TypeScript, `adapter-static`, Tailwind CSS 4, `marked` for
-rendering Markdown, `@milkdown/crepe` for authoring it. No linter and no test runner: CI is handled
-outside of this repository.
+rendering Markdown, `@milkdown/crepe` for authoring it.
+
+Tooling is ESLint with a flat config (`typescript-eslint` strict and stylistic, `@stylistic`,
+`eslint-plugin-svelte`), Prettier with `prettier-plugin-svelte`, and commitlint on the conventional
+preset. There is **no test runner**: the type check and the static build are what proves a change,
+and the pipeline itself lives outside of this repository.
+
+Husky enforces all of it, so a mistake here fails a commit rather than a review:
+
+- `pre-commit` runs `lint-staged`, which is `eslint --fix` on every staged `.js`, `.ts` and `.svelte`
+  file. Expect your staged files to come back reformatted.
+- `commit-msg` runs commitlint, so a message off the convention is rejected outright.
+- `pre-push` runs `npm run build`, so a push cannot carry a broken build.
 
 ## Language
 
@@ -74,10 +85,15 @@ with a comment, never inline inside a call.
 
 ## Code style
 
-- Four spaces for indentation, LF line endings, final newline, 120 column soft limit. This is
-  enforced by `.editorconfig` and nothing else, so respect it by hand.
-- Single quotes in TypeScript, double quotes in markup attributes.
-- No linter and no formatter is configured. Match the surrounding file.
+- Four spaces for indentation, LF line endings, final newline, 120 column limit. `.editorconfig`
+  states it, ESLint enforces the indentation and Prettier reads the column limit from there.
+- **Double quotes everywhere**, in TypeScript as in markup attributes. `@stylistic/quotes` is set to
+  double, so single quotes are an error, not a preference.
+- Spacing rules that make this codebase look unusual are all enforced, and worth writing by hand
+  rather than discovering through a failed commit: spaces inside parentheses, `( value )`, inside
+  array brackets, `[ "a", "b" ]`, inside computed properties, `record[ key ]`, and inside template
+  expressions, `${ value }`. Braces follow Allman style, on their own line. No trailing comma, ever.
+  Semicolons always.
 - Before considering work finished, run:
 
 ```bash
@@ -91,7 +107,17 @@ npm run build
 ```
 
 The static build is the real test: it exercises prerendering, which is where Markdown rendering,
-the link graph and the crawler actually get proven.
+the link graph and the crawler actually get proven. Since there is no test runner, these two
+commands are the whole safety net.
+
+- To see what the pre-commit hook will say, without committing:
+
+```bash
+npm run lint
+```
+
+- `npm run format` runs Prettier over the whole codebase. Reach for it on a file you rewrote, not on
+  a two line edit: it touches everything it disagrees with and drowns the real change in the diff.
 
 ## Data rules
 
