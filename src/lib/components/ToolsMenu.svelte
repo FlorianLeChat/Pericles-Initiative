@@ -27,6 +27,7 @@
 
     let open = $state( false );
     let container: HTMLDivElement | null = $state( null );
+    let trigger: HTMLButtonElement | null = $state( null );
 
     /**
      * Closes the menu when the click landed outside of it.
@@ -41,16 +42,34 @@
             open = false;
         }
     };
+
+    /**
+     * Closes the menu on `Échap` and returns focus to the trigger, so a
+     * keyboard user is never left with an open popup and no way out.
+     *
+     * @param event Keydown event on the window.
+     * @author Claude
+     */
+    const onWindowKeydown = ( event: KeyboardEvent ): void =>
+    {
+        if ( open && event.key === "Escape" )
+        {
+            open = false;
+            trigger?.focus();
+        }
+    };
 </script>
 
-<svelte:window onclick={onWindowClick} />
+<svelte:window onclick={onWindowClick} onkeydown={onWindowKeydown} />
 
 <div class="relative hidden lg:block" bind:this={container}>
     <button
+        bind:this={trigger}
         type="button"
         class="btn btn-ghost h-9 w-9 px-0"
         onclick={() => ( open = !open )}
         aria-expanded={open}
+        aria-haspopup="true"
         aria-label="Outils"
         title="Outils"
     >

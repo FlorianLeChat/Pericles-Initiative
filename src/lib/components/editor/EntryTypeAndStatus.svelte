@@ -26,6 +26,7 @@
                     ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
                     : "bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
                 onclick={() => ( type = config.id )}
+                aria-pressed={type === config.id}
             >
                 {config.label}
             </button>
@@ -43,6 +44,7 @@
                 ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
                 : "bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
             onclick={() => ( status = "publie" )}
+            aria-pressed={status === "publie"}
         >
             Publiée
         </button>
@@ -53,6 +55,7 @@
                 ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
                 : "bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
             onclick={() => ( status = "brouillon" )}
+            aria-pressed={status === "brouillon"}
         >
             Brouillon
         </button>

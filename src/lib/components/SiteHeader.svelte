@@ -124,6 +124,7 @@
                 class="btn btn-ghost h-9 w-9 px-0 lg:hidden"
                 onclick={() => ( menuOpen = !menuOpen )}
                 aria-expanded={menuOpen}
+                aria-controls="mobile-nav"
                 aria-label="Ouvrir la navigation"
             >
                 <Icon path={menuOpen ? CLOSE : MENU} class="h-[18px] w-[18px]" />
@@ -133,6 +134,7 @@
 
     {#if menuOpen}
         <nav
+            id="mobile-nav"
             class="border-paper-200 dark:border-ink-800 border-t px-4 py-3 lg:hidden"
             aria-label="Navigation mobile"
             transition:slide={{ duration: 220, easing: cubicOut }}

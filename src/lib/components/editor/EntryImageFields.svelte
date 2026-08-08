@@ -31,7 +31,7 @@
     {#if src.trim()}
         <img
             {src}
-            {alt}
+            alt={alt || "Aperçu de l'illustration"}
             class="border-paper-200 dark:border-ink-800 aspect-video w-full rounded-xl border object-cover"
         />
 

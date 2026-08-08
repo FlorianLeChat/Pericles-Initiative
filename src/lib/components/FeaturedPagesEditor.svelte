@@ -71,6 +71,19 @@
 
                     <button
                         type="button"
+                        class="btn btn-ghost h-7 w-7 px-0 text-xs"
+                        disabled={index === slugs.length - 1}
+                        onclick={() =>
+                        {
+                            const next = [ ...slugs ];
+                            [ next[ index ], next[ index + 1 ] ] = [ next[ index + 1 ], next[ index ] ];
+                            slugs = next;
+                        }}
+                        aria-label="Descendre">&darr;</button
+                    >
+
+                    <button
+                        type="button"
                         class="btn btn-ghost hover:text-alert-500 h-7 w-7 px-0 text-xs"
                         onclick={() => ( slugs = slugs.filter( ( item ) => item !== slug ) )}
                         aria-label="Retirer">&times;</button

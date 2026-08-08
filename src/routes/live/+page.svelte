@@ -120,6 +120,7 @@
                         ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
                         : "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
                     onclick={() => ( severity = "toutes" )}
+                    aria-pressed={severity === "toutes"}
                 >
                     Toutes gravités
                 </button>
