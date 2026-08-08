@@ -9,6 +9,7 @@
      */
     import { resolve } from "$app/paths";
     import type { Pathname } from "$app/types";
+    import { staggerRank } from "$lib/config/motion";
     import type { CountByKey } from "$lib/utilities/stats";
 
     interface Props {
@@ -23,7 +24,7 @@
 </script>
 
 <ul class="space-y-2.5">
-    {#each items as item ( item.key )}
+    {#each items as item, index ( item.key )}
         <li class="grid grid-cols-[minmax(6rem,10rem)_minmax(0,1fr)_2.5rem] items-center gap-3 text-sm">
             <span class="truncate">
                 {#if href}
@@ -36,7 +37,9 @@
             </span>
 
             <span class="bg-paper-200 dark:bg-ink-800 h-2.5 overflow-hidden rounded-full">
-                <span class="bg-accent-500 block h-full rounded-full" style="width: {( item.count / largest ) * 100}%"
+                <span
+                    class="bg-accent-500 grow-x block h-full rounded-full"
+                    style="width: {( item.count / largest ) * 100}%; --rank: {staggerRank( index )}"
                 ></span>
             </span>
 

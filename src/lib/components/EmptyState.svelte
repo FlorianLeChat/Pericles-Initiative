@@ -15,7 +15,7 @@
     let { title, description, children }: Props = $props();
 </script>
 
-<div class="border-paper-300 dark:border-ink-800 rounded-2xl border border-dashed px-6 py-14 text-center">
+<div class="border-paper-300 dark:border-ink-800 rise-in rounded-2xl border border-dashed px-6 py-14 text-center">
     <p class="text-lg font-medium">{title}</p>
 
     {#if description}

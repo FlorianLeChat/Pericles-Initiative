@@ -6,6 +6,7 @@
      */
     import { goto } from "$app/navigation";
     import { resolve } from "$app/paths";
+    import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
     import { searchEntries } from "$lib/utilities/search";
     import TypeBadge from "./TypeBadge.svelte";
@@ -129,7 +130,7 @@
         {:else}
             <ul>
                 {#each hits as hit, index ( hit.entry.id )}
-                    <li>
+                    <li class="rise-in" style="--rank: {staggerRank( index )}">
                         <button
                             type="button"
                             class="hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition {index

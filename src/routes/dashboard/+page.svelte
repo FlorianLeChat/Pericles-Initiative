@@ -41,14 +41,20 @@
     </header>
 
     <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Fiches" value={stats.total} hint="{stats.published} publiées, {stats.drafts} en brouillon" />
+        <StatCard
+            label="Fiches"
+            value={stats.total}
+            hint="{stats.published} publiées, {stats.drafts} en brouillon"
+            index={0}
+        />
         <StatCard
             label="Mots"
             value={stats.words.toLocaleString( "fr-FR" )}
             hint="{stats.averageWords} par fiche en moyenne"
+            index={1}
         />
-        <StatCard label="Catégories" value={stats.categories} />
-        <StatCard label="Fil en direct" value={stats.liveItems} hint="entrées publiées" />
+        <StatCard label="Catégories" value={stats.categories} index={2} />
+        <StatCard label="Fil en direct" value={stats.liveItems} hint="entrées publiées" index={3} />
     </div>
 
     <div class="mt-10 grid items-start gap-6 lg:grid-cols-2">

@@ -7,6 +7,7 @@
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
+    import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry } from "$lib/types";
     import { extractYear, formatUniverseDate } from "$lib/utilities/date";
@@ -73,8 +74,8 @@
                     </h2>
 
                     <ol class="border-paper-200 dark:border-ink-800 mt-5 space-y-7 border-l">
-                        {#each entries as entry ( entry.id )}
-                            <li class="relative pl-6">
+                        {#each entries as entry, index ( entry.id )}
+                            <li class="rise-in relative pl-6" style="--rank: {staggerRank( index )}">
                                 <span
                                     class="bg-accent-500 border-paper-50 dark:border-ink-950 absolute top-2 left-[-5px] h-2.5 w-2.5 rounded-full border-2"
                                     aria-hidden="true"

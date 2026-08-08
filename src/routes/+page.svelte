@@ -10,6 +10,7 @@
     import EntryCard from "$lib/components/EntryCard.svelte";
     import SeverityBadge from "$lib/components/live/SeverityBadge.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
+    import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry } from "$lib/types";
     import { relativeTime } from "$lib/utilities/date";
@@ -41,26 +42,41 @@
 
 <section class="border-paper-200 dark:border-ink-800 border-b">
     <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
-        <p class="text-accent-600 dark:text-accent-400 text-xs font-medium tracking-[0.2em] uppercase">Encyclopédie</p>
+        <!-- The hero arrives line by line, each `--rank` being one step later than the one above it. -->
+        <p
+            class="text-accent-600 dark:text-accent-400 rise-in text-xs font-medium tracking-[0.2em] uppercase"
+            style="--rank: 0"
+        >
+            Encyclopédie
+        </p>
 
-        <h1 class="mt-4 max-w-3xl font-serif text-4xl leading-[1.05] font-semibold tracking-tight sm:text-6xl">
+        <h1
+            class="rise-in mt-4 max-w-3xl font-serif text-4xl leading-[1.05] font-semibold tracking-tight sm:text-6xl"
+            style="--rank: 1"
+        >
             {wiki.meta.universe}
         </h1>
 
-        <p class="text-ink-600 dark:text-paper-300 mt-6 max-w-2xl text-lg leading-relaxed sm:text-xl">
+        <p
+            class="text-ink-600 dark:text-paper-300 rise-in mt-6 max-w-2xl text-lg leading-relaxed sm:text-xl"
+            style="--rank: 2"
+        >
             {wiki.meta.tagline}
         </p>
 
-        <p class="text-ink-400 mt-4 max-w-2xl leading-relaxed">
+        <p class="text-ink-400 rise-in mt-4 max-w-2xl leading-relaxed" style="--rank: 3">
             {wiki.meta.description}
         </p>
 
-        <div class="mt-9 flex flex-wrap gap-3">
+        <div class="rise-in mt-9 flex flex-wrap gap-3" style="--rank: 4">
             <a href={resolve( "/wiki" )} class="btn btn-primary px-5 py-2.5">Parcourir les fiches</a>
             <a href={resolve( "/categories" )} class="btn btn-outline px-5 py-2.5">Explorer les catégories</a>
         </div>
 
-        <dl class="border-paper-200 dark:border-ink-800 mt-14 grid grid-cols-2 gap-6 border-t pt-8 sm:grid-cols-4">
+        <dl
+            class="border-paper-200 dark:border-ink-800 rise-in mt-14 grid grid-cols-2 gap-6 border-t pt-8 sm:grid-cols-4"
+            style="--rank: 5"
+        >
             <div>
                 <dt class="text-ink-400 text-xs tracking-wide uppercase">Fiches</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.publishedEntries.length}</dd>
@@ -89,9 +105,13 @@
         <h2 class="font-serif text-2xl font-semibold tracking-tight">À la une</h2>
 
         <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-            <article class="surface overflow-hidden">
+            <article class="surface surface-lift rise-in group relative overflow-hidden">
                 {#if headline.image}
-                    <img src={headline.image.src} alt={headline.image.alt} class="aspect-[16/7] w-full object-cover" />
+                    <img
+                        src={headline.image.src}
+                        alt={headline.image.alt}
+                        class="aspect-[16/7] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                    />
                 {/if}
 
                 <div class="space-y-4 p-6 sm:p-8">
@@ -100,7 +120,7 @@
                     <h3 class="font-serif text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
                         <a
                             href={resolve( `/wiki/${ headline.slug }` )}
-                            class="hover:text-accent-600 dark:hover:text-accent-400"
+                            class="hover:text-accent-600 dark:hover:text-accent-400 stretched-link"
                         >
                             {headline.title}
                         </a>
@@ -110,15 +130,19 @@
                         {headline.summary || excerpt( headline.body, 240 )}
                     </p>
 
-                    <a href={resolve( `/wiki/${ headline.slug }` )} class="wiki-link inline-block text-sm font-medium">
+                    <!-- Positioned so it paints above the overlay of the title and keeps its own hover. -->
+                    <a
+                        href={resolve( `/wiki/${ headline.slug }` )}
+                        class="wiki-link relative inline-block text-sm font-medium"
+                    >
                         Lire la fiche
                     </a>
                 </div>
             </article>
 
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-                {#each secondary as entry ( entry.id )}
-                    <EntryCard {entry} />
+                {#each secondary as entry, index ( entry.id )}
+                    <EntryCard {entry} {index} />
                 {/each}
             </div>
         </div>
@@ -138,8 +162,10 @@
             </div>
 
             <ul class="mt-6 space-y-4">
-                {#each latestLive as item ( item.id )}
-                    <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                {#each latestLive as item, index ( item.id )}
+                    <li class="rise-in flex flex-wrap items-baseline gap-x-3 gap-y-1" style="--rank: {staggerRank(
+                        index
+                    )}">
                         <SeverityBadge severity={item.severity} />
 
                         <span class="min-w-0 flex-1">
@@ -178,8 +204,8 @@
         </div>
     {:else}
         <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {#each latest as entry ( entry.id )}
-                <EntryCard {entry} />
+            {#each latest as entry, index ( entry.id )}
+                <EntryCard {entry} {index} />
             {/each}
         </div>
     {/if}

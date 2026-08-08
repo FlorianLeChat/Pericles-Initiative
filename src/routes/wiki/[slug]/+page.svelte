@@ -17,6 +17,7 @@
     import TableOfContents from "$lib/components/TableOfContents.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { entryTypeConfig } from "$lib/config/entry-types";
+    import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Category } from "$lib/types";
     import { formatDateTime, formatUniverseDate } from "$lib/utilities/date";
@@ -63,7 +64,7 @@
             <a href={resolve( `/edit/${ entry.slug }` )} class="btn btn-outline px-3.5 py-1.5 text-xs">Modifier</a>
         </div>
 
-        <header class="border-paper-200 dark:border-ink-800 mt-4 border-b pb-8">
+        <header class="border-paper-200 dark:border-ink-800 rise-in mt-4 border-b pb-8">
             {#if entry.status === "brouillon"}
                 <p
                     class="border-signal-500/40 bg-signal-500/10 text-signal-500 mb-4 inline-block rounded-full border px-3 py-1 text-xs font-medium"
@@ -99,7 +100,7 @@
         </header>
 
         <div class="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            <div class="order-2 min-w-0 lg:order-1">
+            <div class="rise-in order-2 min-w-0 lg:order-1" style="--rank: 1">
                 <ArticleBody html={rendered.html} />
 
                 {#if related.length > 0}
@@ -107,14 +108,20 @@
                         <h2 class="font-serif text-xl font-semibold tracking-tight">À lire aussi</h2>
 
                         <ul class="mt-4 grid gap-3 sm:grid-cols-2">
-                            {#each related as item ( item.id )}
-                                <li class="surface p-4">
+                            {#each related as item, index ( item.id )}
+                                <li
+                                    class="surface surface-lift rise-in relative p-4"
+                                    style="--rank: {staggerRank( index )}"
+                                >
                                     <div class="flex items-center gap-2">
                                         <TypeBadge type={item.type} iconOnly />
 
-                                        <a href={resolve( `/wiki/${ item.slug }` )} class="text-sm font-medium"
-                                            >{item.title}</a
+                                        <a
+                                            href={resolve( `/wiki/${ item.slug }` )}
+                                            class="stretched-link text-sm font-medium"
                                         >
+                                            {item.title}
+                                        </a>
                                     </div>
 
                                     {#if item.summary}
@@ -129,7 +136,7 @@
                 {/if}
             </div>
 
-            <aside class="order-1 space-y-5 lg:sticky lg:top-20 lg:order-2">
+            <aside class="rise-in order-1 space-y-5 lg:sticky lg:top-20 lg:order-2" style="--rank: 2">
                 <Infobox {entry} />
                 <TableOfContents headings={rendered.headings} />
                 <Backlinks entries={backlinks} />

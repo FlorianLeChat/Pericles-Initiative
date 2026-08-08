@@ -206,8 +206,8 @@
         </div>
     {:else}
         <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {#each filtered as entry ( entry.id )}
-                <EntryCard {entry} />
+            {#each filtered as entry, index ( entry.id )}
+                <EntryCard {entry} {index} />
             {/each}
         </div>
     {/if}

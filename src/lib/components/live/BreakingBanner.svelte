@@ -4,6 +4,8 @@
      *
      * @author Claude
      */
+    import { cubicOut } from "svelte/easing";
+    import { slide } from "svelte/transition";
     import { resolve } from "$app/paths";
     import { wiki } from "$lib/state/wiki.svelte";
     import { relativeTime } from "$lib/utilities/date";
@@ -14,7 +16,11 @@
 </script>
 
 {#if item && !dismissed}
-    <aside class="bg-alert-500 text-white" aria-label="Alerte en cours">
+    <aside
+        class="bg-alert-500 text-white"
+        aria-label="Alerte en cours"
+        transition:slide={{ duration: 260, easing: cubicOut }}
+    >
         <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2 text-sm sm:px-6">
             <span class="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold tracking-wide uppercase">
                 Alerte

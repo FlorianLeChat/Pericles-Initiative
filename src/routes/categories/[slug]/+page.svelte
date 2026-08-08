@@ -74,8 +74,8 @@
                     <h2 class="text-ink-400 text-xs tracking-[0.15em] uppercase">{group.config.plural}</h2>
 
                     <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                        {#each group.entries as entry ( entry.id )}
-                            <EntryCard {entry} />
+                        {#each group.entries as entry, index ( entry.id )}
+                            <EntryCard {entry} {index} />
                         {/each}
                     </div>
                 </section>

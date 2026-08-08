@@ -6,6 +6,7 @@
      */
     import "../app.css";
     import { untrack, type Snippet } from "svelte";
+    import { onNavigate } from "$app/navigation";
     import BreakingBanner from "$lib/components/live/BreakingBanner.svelte";
     import SearchDialog from "$lib/components/SearchDialog.svelte";
     import SiteFooter from "$lib/components/SiteFooter.svelte";
@@ -18,7 +19,50 @@
         children: Snippet;
     }
 
+    const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+
     let { data, children }: Props = $props();
+
+    /**
+     * Crossfades the two pages during a client side navigation.
+     *
+     * The callback given to the browser is what it snapshots around, so the
+     * promise SvelteKit waits on has to be resolved from inside it, and the
+     * navigation has to be awaited before the second snapshot is taken.
+     *
+     * A browser without the api, or a reader who asked for less motion, simply
+     * swaps the page: this is the sole place where that choice is made, which is
+     * why nothing in `app.css` repeats it.
+     *
+     * Reaching the page already open is the other case left alone. Nothing moves
+     * on screen, so crossfading a page with itself would only read as a jolt.
+     *
+     * @param navigation Navigation about to happen.
+     * @returns A promise resolved once the outgoing page has been captured.
+     * @author Claude
+     */
+    onNavigate( ( navigation ) =>
+    {
+        const destination = navigation.to?.url.pathname;
+        const staysOnPage = destination === undefined || destination === navigation.from?.url.pathname;
+
+        const animatable = typeof document.startViewTransition === "function"
+          && !window.matchMedia( REDUCED_MOTION ).matches;
+
+        if ( staysOnPage || !animatable )
+        {
+            return;
+        }
+
+        return new Promise<void>( ( resolve ) =>
+        {
+            document.startViewTransition( async () =>
+            {
+                resolve();
+                await navigation.complete;
+            } );
+        } );
+    } );
 
     // Effects never run while prerendering, so the dataset is installed here as
     // well: this is what puts the content into the static HTML.

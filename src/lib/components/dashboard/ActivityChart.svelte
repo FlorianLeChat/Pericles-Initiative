@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import { staggerRank } from "$lib/config/motion";
     import type { ActivityPoint } from "$lib/utilities/stats";
 
     interface Props {
@@ -16,7 +17,7 @@
 </script>
 
 <div class="flex items-end gap-1.5" role="img" aria-label="Activité d'édition des douze derniers mois">
-    {#each points as point ( point.month )}
+    {#each points as point, index ( point.month )}
         <div class="flex flex-1 flex-col items-center gap-1.5">
             <span class="text-ink-400 font-mono text-[10px]">{point.count > 0 ? point.count : ""}</span>
 
@@ -26,8 +27,10 @@
                 title="{point.label} : {point.count}"
             >
                 <span
-                    class="bg-accent-500 block w-full rounded-md"
-                    style="height: {point.count === 0 ? 2 : ( point.count / largest ) * 100}%"
+                    class="bg-accent-500 grow-y block w-full rounded-md"
+                    style="height: {point.count === 0 ? 2 : ( point.count / largest ) * 100}%; --rank: {staggerRank(
+                        index
+                    )}"
                 ></span>
             </span>
 

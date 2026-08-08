@@ -42,6 +42,22 @@
 }
 
 @layer base {
+    /*
+     * Motion tokens.
+     *
+     * `--ease-rise` decelerates hard at the end, which is what makes a short
+     * entrance read as deliberate rather than abrupt. They are declared here
+     * rather than in `@theme` because nothing should generate a utility from
+     * them: they are only ever read by the animations below.
+     */
+    :root {
+        --ease-rise: cubic-bezier(0.22, 1, 0.36, 1);
+        --duration-rise: 380ms;
+        --duration-swap: 200ms;
+        /* Kept in step with `RANK_STEP` in `src/lib/config/motion.ts`. */
+        --rank-step: 45ms;
+    }
+
     html {
         scroll-behavior: smooth;
         -webkit-text-size-adjust: 100%;
@@ -75,7 +91,7 @@
     }
 
     .btn {
-        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
+        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
     }
 
     .btn-primary {
@@ -102,6 +118,147 @@
     /* A link pointing at a page that does not exist yet. */
     .wiki-link-missing {
         @apply text-alert-500 decoration-alert-500/50 underline decoration-dotted underline-offset-2;
+    }
+
+    /* A surface the reader can click through, which lifts under the pointer. */
+    .surface-lift {
+        @apply transition duration-200 hover:-translate-y-1 hover:shadow-lg;
+    }
+
+    /*
+     * Spreads a link over its closest positioned ancestor, so a whole card is
+     * clickable while the accessible name stays on the title alone. A card is
+     * never given a second link: this overlay would swallow it.
+     */
+    .stretched-link::after {
+        @apply absolute inset-0 content-[''];
+    }
+
+    /*
+     * Entrance of an element that appears inside a listing. `--rank` carries the
+     * position of the item, so a grid arrives in a wave instead of all at once.
+     * `staggerRank` in `src/lib/config/motion.ts` is what caps that rank.
+     *
+     * The fill mode is `backwards` and never `both`: a filling animation keeps
+     * its final value at the animation cascade level, which would then win over
+     * the hover transform of the very cards this is applied to.
+     */
+    .rise-in {
+        animation: rise var(--duration-rise) var(--ease-rise) backwards;
+        animation-delay: calc(var(--rank, 0) * var(--rank-step));
+    }
+
+    /* Bar of a chart, drawn from its own baseline rather than from its centre. */
+    .grow-x {
+        animation: grow-x 700ms var(--ease-rise) backwards;
+        animation-delay: calc(var(--rank, 0) * var(--rank-step));
+        transform-origin: left center;
+    }
+
+    .grow-y {
+        animation: grow-y 700ms var(--ease-rise) backwards;
+        animation-delay: calc(var(--rank, 0) * var(--rank-step));
+        transform-origin: center bottom;
+    }
+}
+
+/*
+ * Keyframes.
+ *
+ * Each one declares a single edge, `from` or `to`. The other end is whatever the
+ * element computes to on its own, so no animation has to restate, or fight, the
+ * layout it lands in.
+ */
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(0.75rem);
+    }
+}
+
+@keyframes grow-x {
+    from {
+        transform: scaleX(0);
+    }
+}
+
+@keyframes grow-y {
+    from {
+        transform: scaleY(0);
+    }
+}
+
+@keyframes page-leave {
+    to {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+}
+
+@keyframes page-enter {
+    from {
+        opacity: 0;
+        transform: translateY(0.75rem);
+    }
+}
+
+/*
+ * Navigation between pages.
+ *
+ * `onNavigate` in the root layout wraps the swap in a view transition, and skips
+ * it when the browser has no such thing or when motion is not wanted, so this
+ * only ever has to describe the animation itself. A browser without the api
+ * simply swaps the page, which is what it did before any of this existed.
+ */
+::view-transition-old(root) {
+    animation: page-leave 140ms var(--ease-rise) both;
+}
+
+::view-transition-new(root) {
+    animation: page-enter 280ms var(--ease-rise) both;
+}
+
+/*
+ * Native dialogs.
+ *
+ * `showModal` and `close` are what open and shut these, so the entrance and the
+ * exit are described with `@starting-style` and `allow-discrete` rather than
+ * with a Svelte transition: nothing else can animate around those two calls.
+ */
+dialog {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.98);
+    transition:
+        opacity var(--duration-swap) var(--ease-rise),
+        transform var(--duration-swap) var(--ease-rise),
+        overlay var(--duration-swap) allow-discrete,
+        display var(--duration-swap) allow-discrete;
+}
+
+dialog[open] {
+    opacity: 1;
+    transform: none;
+
+    @starting-style {
+        opacity: 0;
+        transform: translateY(0.75rem) scale(0.98);
+    }
+}
+
+dialog::backdrop {
+    opacity: 0;
+    transition:
+        opacity var(--duration-swap) var(--ease-rise),
+        overlay var(--duration-swap) allow-discrete,
+        display var(--duration-swap) allow-discrete;
+}
+
+dialog[open]::backdrop {
+    opacity: 1;
+
+    @starting-style {
+        opacity: 0;
     }
 }
 
@@ -189,11 +346,21 @@
     min-height: 24rem;
 }
 
+/*
+ * Everything above is neutralised here, in one place.
+ *
+ * The negative delay matters as much as the duration: staggered entrances start
+ * from an invisible keyframe, so leaving their delay alone would hide a listing
+ * for half a second before revealing it in one block.
+ */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
         animation-duration: 0.01ms !important;
+        animation-delay: -0.01ms !important;
+        animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }

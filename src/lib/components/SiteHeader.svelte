@@ -4,6 +4,8 @@
      *
      * @author Claude
      */
+    import { cubicOut } from "svelte/easing";
+    import { fly, slide } from "svelte/transition";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import { NAV_LINKS, TOOL_LINKS } from "$lib/config/navigation";
@@ -66,13 +68,13 @@
                 <img
                     src={wiki.meta.logo}
                     alt=""
-                    class="h-9 w-9 shrink-0 rounded-xl object-cover"
+                    class="h-9 w-9 shrink-0 rounded-xl object-cover transition duration-200 group-hover:scale-105"
                     width="36"
                     height="36"
                 />
             {:else}
                 <span
-                    class="bg-accent-600 grid h-9 w-9 shrink-0 place-items-center rounded-xl font-serif text-lg font-semibold text-white"
+                    class="bg-accent-600 grid h-9 w-9 shrink-0 place-items-center rounded-xl font-serif text-lg font-semibold text-white transition duration-200 group-hover:scale-105"
                     aria-hidden="true"
                 >
                     {monogram}
@@ -140,7 +142,10 @@
                 </button>
 
                 {#if toolsOpen}
-                    <div class="surface absolute right-0 z-50 mt-2 w-52 p-1.5">
+                    <div
+                        class="surface absolute right-0 z-50 mt-2 w-52 origin-top-right p-1.5"
+                        transition:fly={{ y: -6, duration: 180, easing: cubicOut }}
+                    >
                         <ul>
                             {#each TOOL_LINKS as link ( link.href )}
                                 <li>
@@ -182,7 +187,11 @@
     </div>
 
     {#if menuOpen}
-        <nav class="border-paper-200 dark:border-ink-800 border-t px-4 py-3 lg:hidden" aria-label="Navigation mobile">
+        <nav
+            class="border-paper-200 dark:border-ink-800 border-t px-4 py-3 lg:hidden"
+            aria-label="Navigation mobile"
+            transition:slide={{ duration: 220, easing: cubicOut }}
+        >
             <ul class="space-y-1">
                 {#each NAV_LINKS as link ( link.href )}
                     <li>

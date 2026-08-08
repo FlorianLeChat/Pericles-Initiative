@@ -8,6 +8,8 @@
      * @author Claude
      */
     import { onMount } from "svelte";
+    import { cubicOut } from "svelte/easing";
+    import { scale } from "svelte/transition";
     import Icon from "./Icon.svelte";
 
     const SUN
@@ -50,5 +52,9 @@
     aria-label={dark ? "Passer au thème clair" : "Passer au thème sombre"}
     title={dark ? "Thème clair" : "Thème sombre"}
 >
-    <Icon path={dark ? SUN : MOON} class="h-[18px] w-[18px]" />
+    {#key dark}
+        <span class="grid place-items-center" in:scale={{ start: 0.4, duration: 260, easing: cubicOut }}>
+            <Icon path={dark ? SUN : MOON} class="h-[18px] w-[18px]" />
+        </span>
+    {/key}
 </button>

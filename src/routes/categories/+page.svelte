@@ -6,6 +6,7 @@
      */
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
+    import { staggerRank } from "$lib/config/motion";
     import { paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
 
@@ -48,10 +49,11 @@
         </div>
     {:else}
         <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {#each groups as group ( group.category.slug )}
+            {#each groups as group, index ( group.category.slug )}
                 <a
                     href={resolve( `/categories/${ group.category.slug }` )}
-                    class="surface hover:border-accent-300 dark:hover:border-accent-700 group flex flex-col gap-3 p-6 transition"
+                    class="surface surface-lift rise-in hover:border-accent-300 dark:hover:border-accent-700 group flex flex-col gap-3 p-6"
+                    style="--rank: {staggerRank( index )}"
                 >
                     <span class="flex items-center gap-2">
                         <span class="h-2 w-2 rounded-full {group.color.dot}"></span>
