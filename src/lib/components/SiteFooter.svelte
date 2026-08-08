@@ -59,7 +59,7 @@
                     <div class="flex gap-2">
                         <dt>Mise à jour :</dt>
                         <dd class="text-ink-600 dark:text-paper-300 font-medium">
-                            {formatShortDate( wiki.meta.updatedAt )}
+                            <time datetime={wiki.meta.updatedAt}>{formatShortDate( wiki.meta.updatedAt )}</time>
                         </dd>
                     </div>
                 {/if}

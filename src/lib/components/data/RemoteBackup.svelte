@@ -368,10 +368,22 @@
 
             <dl class="text-muted mt-6 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-[auto_1fr]">
                 <dt class="tracking-wide uppercase">Dernier envoi</dt>
-                <dd>{remote.config.lastPushedAt ? formatDateTime( remote.config.lastPushedAt ) : "jamais"}</dd>
+                <dd>
+                    {#if remote.config.lastPushedAt}
+                        <time datetime={remote.config.lastPushedAt}>{formatDateTime( remote.config.lastPushedAt )}</time>
+                    {:else}
+                        jamais
+                    {/if}
+                </dd>
 
                 <dt class="tracking-wide uppercase">Dernière lecture</dt>
-                <dd>{remote.config.lastPulledAt ? formatDateTime( remote.config.lastPulledAt ) : "jamais"}</dd>
+                <dd>
+                    {#if remote.config.lastPulledAt}
+                        <time datetime={remote.config.lastPulledAt}>{formatDateTime( remote.config.lastPulledAt )}</time>
+                    {:else}
+                        jamais
+                    {/if}
+                </dd>
             </dl>
 
             <button

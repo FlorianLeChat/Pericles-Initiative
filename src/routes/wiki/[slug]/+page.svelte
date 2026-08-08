@@ -96,7 +96,7 @@
                 {#if entry.timelineDate}
                     Date dans l'univers : {formatUniverseDate( entry.timelineDate )} ·
                 {/if}
-                Dernière modification le {formatDateTime( entry.updatedAt )}
+                Dernière modification le <time datetime={entry.updatedAt}>{formatDateTime( entry.updatedAt )}</time>
             </p>
         </header>
 

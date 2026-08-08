@@ -178,7 +178,9 @@
                             {/if}
                         </span>
 
-                        <span class="text-muted shrink-0 text-xs">{relativeTime( item.publishedAt )}</span>
+                        <time datetime={item.publishedAt} class="text-muted shrink-0 text-xs">
+                            {relativeTime( item.publishedAt )}
+                        </time>
                     </li>
                 {/each}
             </ul>

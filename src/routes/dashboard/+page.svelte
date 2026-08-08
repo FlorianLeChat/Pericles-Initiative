@@ -208,9 +208,9 @@
                             <span class="text-muted text-xs">brouillon</span>
                         {/if}
 
-                        <span class="text-muted shrink-0 font-mono text-xs">
+                        <time datetime={entry.updatedAt} class="text-muted shrink-0 font-mono text-xs">
                             {formatShortDate( entry.updatedAt )}
-                        </span>
+                        </time>
                     </li>
                 {/each}
             </ul>

@@ -54,6 +54,6 @@
     {/if}
 
     <p class="text-muted mt-auto text-xs">
-        Modifié le {formatShortDate( entry.updatedAt )}
+        Modifié le <time datetime={entry.updatedAt}>{formatShortDate( entry.updatedAt )}</time>
     </p>
 </article>

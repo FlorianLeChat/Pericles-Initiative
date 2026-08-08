@@ -69,7 +69,7 @@
 
         {#if wiki.changedAt}
             <p class="text-muted mt-1.5 text-sm">
-                Dernière modification le {formatDateTime( wiki.changedAt )}.
+                Dernière modification le <time datetime={wiki.changedAt}>{formatDateTime( wiki.changedAt )}</time>.
             </p>
         {/if}
 

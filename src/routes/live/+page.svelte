@@ -91,7 +91,7 @@
             <p class="text-muted mt-3 leading-relaxed">
                 {wiki.live.length} entrées.
                 {#if latest}
-                    La dernière remonte à {relativeTime( latest.publishedAt )}.
+                    La dernière remonte à <time datetime={latest.publishedAt}>{relativeTime( latest.publishedAt )}</time>.
                 {/if}
             </p>
         </div>

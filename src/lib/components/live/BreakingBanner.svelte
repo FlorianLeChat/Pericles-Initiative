@@ -28,7 +28,9 @@
 
             <a href={resolve( "/live" )} class="min-w-0 flex-1 truncate font-medium hover:underline">{item.title}</a>
 
-            <span class="hidden shrink-0 text-xs text-white/80 sm:block">{relativeTime( item.publishedAt )}</span>
+            <time datetime={item.publishedAt} class="hidden shrink-0 text-xs text-white/80 sm:block">
+                {relativeTime( item.publishedAt )}
+            </time>
 
             <button
                 type="button"
