@@ -5,13 +5,14 @@
      * @author Claude
      */
     import { cubicOut } from "svelte/easing";
-    import { fly, slide } from "svelte/transition";
+    import { slide } from "svelte/transition";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import { NAV_LINKS, TOOL_LINKS } from "$lib/config/navigation";
     import { wiki } from "$lib/state/wiki.svelte";
     import Icon from "./Icon.svelte";
     import ThemeToggle from "./ThemeToggle.svelte";
+    import ToolsMenu from "./ToolsMenu.svelte";
 
     interface Props {
         /** Opens the search palette. */
@@ -24,12 +25,8 @@
     const MENU = "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5";
     const CLOSE = "M6 18 18 6M6 6l12 12";
     const PLUS = "M12 4.5v15m7.5-7.5h-15";
-    const TOOLS
-        = "M4.5 12a7.5 7.5 0 0 0 15 0m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077 1.41-.513m14.095-5.13 1.41-.513M5.106 17.785l1.15-.964m11.49-9.642 1.149-.964M7.501 19.795l.75-1.3m7.5-12.99.75-1.3m-6.063 16.658.26-1.477m2.605-14.772.26-1.477m0 17.726-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205 12 12m6.894 5.785-1.149-.964M20.55 8.51l-1.41-.513";
 
     let menuOpen = $state( false );
-    let toolsOpen = $state( false );
-    let toolsContainer: HTMLDivElement | null = $state( null );
 
     const monogram = $derived( wiki.meta.universe.trim().charAt( 0 ).toUpperCase() || "Π" );
 
@@ -41,23 +38,7 @@
      * @author Claude
      */
     const isActive = ( href: string ): boolean => page.url.pathname === href || page.url.pathname.startsWith( `${ href }/` );
-
-    /**
-     * Closes the tools menu when the click landed outside of it.
-     *
-     * @param event Click event on the window.
-     * @author Claude
-     */
-    const onWindowClick = ( event: MouseEvent ): void =>
-    {
-        if ( toolsOpen && toolsContainer && !toolsContainer.contains( event.target as Node ) )
-        {
-            toolsOpen = false;
-        }
-    };
 </script>
-
-<svelte:window onclick={onWindowClick} />
 
 <header
     class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/80 sticky top-0 z-40 border-b bg-white/85 backdrop-blur"
@@ -129,43 +110,7 @@
                 <Icon path={SEARCH} class="h-[18px] w-[18px]" />
             </button>
 
-            <div class="relative hidden lg:block" bind:this={toolsContainer}>
-                <button
-                    type="button"
-                    class="btn btn-ghost h-9 w-9 px-0"
-                    onclick={() => ( toolsOpen = !toolsOpen )}
-                    aria-expanded={toolsOpen}
-                    aria-label="Outils"
-                    title="Outils"
-                >
-                    <Icon path={TOOLS} class="h-[18px] w-[18px]" />
-                </button>
-
-                {#if toolsOpen}
-                    <div
-                        class="surface absolute right-0 z-50 mt-2 w-52 origin-top-right p-1.5"
-                        transition:fly={{ y: -6, duration: 180, easing: cubicOut }}
-                    >
-                        <ul>
-                            {#each TOOL_LINKS as link ( link.href )}
-                                <li>
-                                    <a
-                                        href={resolve( link.href )}
-                                        class="hover:bg-paper-100 dark:hover:bg-ink-800 block rounded-lg px-3 py-2 text-sm {isActive(
-                                            link.href
-                                        )
-                                            ? "text-accent-600 dark:text-accent-400 font-medium"
-                                            : ""}"
-                                        onclick={() => ( toolsOpen = false )}
-                                    >
-                                        {link.label}
-                                    </a>
-                                </li>
-                            {/each}
-                        </ul>
-                    </div>
-                {/if}
-            </div>
+            <ToolsMenu links={TOOL_LINKS} {isActive} />
 
             <a href={resolve( "/new" )} class="btn btn-primary hidden px-3.5 py-1.5 sm:inline-flex">
                 <Icon path={PLUS} class="h-4 w-4" />

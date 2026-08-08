@@ -10,7 +10,7 @@
     import { resolve } from "$app/paths";
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-    import EntryPicker from "$lib/components/editor/EntryPicker.svelte";
+    import FeaturedPagesEditor from "$lib/components/FeaturedPagesEditor.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
 
     /** Seeded once: the form is a draft of the identity, applied on save. */
@@ -30,7 +30,6 @@
     let version = $state( initial.version );
     let featured = $state<string[]>( initial.featured );
 
-    let pickerOpen = $state( false );
     let resetOpen = $state( false );
     let saved = $state( false );
 
@@ -218,70 +217,7 @@
             </div>
         </section>
 
-        <section class="surface p-6">
-            <div class="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 class="font-serif text-xl font-semibold tracking-tight">Fiches à la une</h2>
-
-                <button
-                    type="button"
-                    class="text-accent-600 dark:text-accent-400 text-xs underline"
-                    onclick={() => ( pickerOpen = true )}
-                >
-                    Ajouter une fiche
-                </button>
-            </div>
-
-            <p class="text-muted mt-1 text-sm leading-relaxed">
-                La première occupe la grande carte de l'accueil, les deux suivantes les cartes latérales.
-            </p>
-
-            {#if featured.length === 0}
-                <p class="text-muted mt-4 text-sm">Aucune fiche mise en avant.</p>
-            {:else}
-                <ol class="mt-4 space-y-2">
-                    {#each featured as slug, index ( slug )}
-                        {@const entry = wiki.bySlug( slug )}
-
-                        <li class="border-paper-200 dark:border-ink-800 flex items-center gap-3 rounded-xl border p-3">
-                            <span class="text-muted font-mono text-xs">{index + 1}</span>
-
-                            <span class="min-w-0 flex-1">
-                                {#if entry}
-                                    <a href={resolve( `/wiki/${ slug }` )} class="text-sm font-medium">{entry.title}</a>
-                                {:else}
-                                    <span class="text-alert-500 font-mono text-xs">{slug}, fiche absente</span>
-                                {/if}
-                            </span>
-
-                            <button
-                                type="button"
-                                class="btn btn-ghost h-7 w-7 px-0 text-xs"
-                                disabled={index === 0}
-                                onclick={() =>
-                                {
-                                    const next = [ ...featured ];
-                                    [ next[ index - 1 ], next[ index ] ] = [ next[ index ], next[ index - 1 ] ];
-                                    featured = next;
-                                    saved = false;
-                                }}
-                                aria-label="Monter">&uarr;</button
-                            >
-
-                            <button
-                                type="button"
-                                class="btn btn-ghost hover:text-alert-500 h-7 w-7 px-0 text-xs"
-                                onclick={() =>
-                                {
-                                    featured = featured.filter( ( item ) => item !== slug );
-                                    saved = false;
-                                }}
-                                aria-label="Retirer">&times;</button
-                            >
-                        </li>
-                    {/each}
-                </ol>
-            {/if}
-        </section>
+        <FeaturedPagesEditor bind:slugs={featured} />
 
         <div class="flex flex-wrap items-center gap-3">
             <button type="submit" class="btn btn-primary" disabled={!canSave || !dirty}>Enregistrer</button>
@@ -306,18 +242,6 @@
         Identité par défaut : « {wiki.seed.meta.universe} », version {wiki.seed.meta.version}.
     </p>
 </div>
-
-<EntryPicker
-    bind:open={pickerOpen}
-    onselect={( slug ) =>
-    {
-        if ( !featured.includes( slug ) )
-        {
-            featured = [ ...featured, slug ];
-            saved = false;
-        }
-    }}
-/>
 
 <ConfirmDialog
     bind:open={resetOpen}

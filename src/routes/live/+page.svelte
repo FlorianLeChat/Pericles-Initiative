@@ -7,14 +7,12 @@
      *
      * @author Claude
      */
-    import { flip } from "svelte/animate";
     import { cubicOut } from "svelte/easing";
-    import { fly, slide } from "svelte/transition";
+    import { fly } from "svelte/transition";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import LiveComposer from "$lib/components/live/LiveComposer.svelte";
-    import LiveItem from "$lib/components/live/LiveItem.svelte";
-    import { staggerDelay } from "$lib/config/motion";
+    import LiveFeedGroup from "$lib/components/live/LiveFeedGroup.svelte";
     import { SEVERITIES } from "$lib/config/severities";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LiveEntry, LiveSeverity } from "$lib/types";
@@ -110,7 +108,6 @@
             >
                 {composerOpen && !editing ? "Fermer le composeur" : "Publier une entrée"}
             </button>
-
         </div>
     </header>
 
@@ -173,62 +170,29 @@
                 </div>
             {:else}
                 {#if pinned.length > 0}
-                    <section class="mt-8">
-                        <h2 class="text-muted mb-4 text-xs tracking-[0.15em] uppercase">Épinglées</h2>
-
-                        <div class="border-paper-200 dark:border-ink-800 space-y-8 border-l">
-                            <!--
-                                The wrapper carries the motion so the feed can be
-                                reordered: `animate:flip` only works on an element
-                                that is an immediate child of a keyed each.
-                            -->
-                            {#each pinned as item, index ( item.id )}
-                                <div
-                                    animate:flip={{ duration: 260, easing: cubicOut }}
-                                    in:fly={{ y: 12, duration: 260, delay: staggerDelay( index ), easing: cubicOut }}
-                                    out:slide={{ duration: 200, easing: cubicOut }}
-                                >
-                                    <LiveItem
-                                        {item}
-                                        onedit={startEdit}
-                                        ondelete={( target ) =>
-                                        {
-                                            pendingDeletion = target;
-                                            deleteOpen = true;
-                                        }}
-                                    />
-                                </div>
-                            {/each}
-                        </div>
-                    </section>
+                    <LiveFeedGroup
+                        heading="Épinglées"
+                        items={pinned}
+                        onedit={startEdit}
+                        ondelete={( target ) =>
+                        {
+                            pendingDeletion = target;
+                            deleteOpen = true;
+                        }}
+                    />
                 {/if}
 
                 {#each days as group ( group.day )}
-                    <section class="mt-10">
-                        <h2 class="text-muted mb-4 text-xs tracking-[0.15em] uppercase">
-                            {formatLongDate( group.day )}
-                        </h2>
-
-                        <div class="border-paper-200 dark:border-ink-800 space-y-8 border-l">
-                            {#each group.items as item, index ( item.id )}
-                                <div
-                                    animate:flip={{ duration: 260, easing: cubicOut }}
-                                    in:fly={{ y: 12, duration: 260, delay: staggerDelay( index ), easing: cubicOut }}
-                                    out:slide={{ duration: 200, easing: cubicOut }}
-                                >
-                                    <LiveItem
-                                        {item}
-                                        onedit={startEdit}
-                                        ondelete={( target ) =>
-                                        {
-                                            pendingDeletion = target;
-                                            deleteOpen = true;
-                                        }}
-                                    />
-                                </div>
-                            {/each}
-                        </div>
-                    </section>
+                    <LiveFeedGroup
+                        heading={formatLongDate( group.day )}
+                        items={group.items}
+                        onedit={startEdit}
+                        ondelete={( target ) =>
+                        {
+                            pendingDeletion = target;
+                            deleteOpen = true;
+                        }}
+                    />
                 {/each}
             {/if}
         </div>

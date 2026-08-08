@@ -8,11 +8,12 @@
     import { resolve } from "$app/paths";
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-    import { ENTRY_TYPES } from "$lib/config/entry-types";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry, EntryStatus, EntryType, InfoboxField } from "$lib/types";
     import { slugify } from "$lib/utilities/slug";
     import ChipsInput from "./ChipsInput.svelte";
+    import EntryImageFields from "./EntryImageFields.svelte";
+    import EntryTypeAndStatus from "./EntryTypeAndStatus.svelte";
     import InfoboxEditor from "./InfoboxEditor.svelte";
     import MarkdownEditor from "./MarkdownEditor.svelte";
 
@@ -312,49 +313,7 @@
         </div>
 
         <aside class="space-y-5">
-            <fieldset class="surface p-5">
-                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Nature</legend>
-
-                <div class="grid grid-cols-2 gap-1.5">
-                    {#each ENTRY_TYPES as config ( config.id )}
-                        <button
-                            type="button"
-                            class="rounded-xl px-2.5 py-2 text-xs font-medium transition {type === config.id
-                                ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-                                : "bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
-                            onclick={() => ( type = config.id )}
-                        >
-                            {config.label}
-                        </button>
-                    {/each}
-                </div>
-            </fieldset>
-
-            <fieldset class="surface p-5">
-                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Statut</legend>
-
-                <div class="flex gap-1.5">
-                    <button
-                        type="button"
-                        class="flex-1 rounded-xl px-3 py-2 text-xs font-medium transition {status === "publie"
-                            ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-                            : "bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
-                        onclick={() => ( status = "publie" )}
-                    >
-                        Publiée
-                    </button>
-
-                    <button
-                        type="button"
-                        class="flex-1 rounded-xl px-3 py-2 text-xs font-medium transition {status === "brouillon"
-                            ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-                            : "bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
-                        onclick={() => ( status = "brouillon" )}
-                    >
-                        Brouillon
-                    </button>
-                </div>
-            </fieldset>
+            <EntryTypeAndStatus bind:type bind:status />
 
             <fieldset class="surface p-5">
                 <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Catégories</legend>
@@ -387,46 +346,7 @@
                 <InfoboxEditor bind:fields={infobox} />
             </fieldset>
 
-            <fieldset class="surface space-y-3 p-5">
-                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Illustration</legend>
-
-                <div>
-                    <label class="field-label" for="entry-image">Chemin ou URL</label>
-
-                    <input
-                        id="entry-image"
-                        bind:value={imageSrc}
-                        type="text"
-                        class="field font-mono text-xs"
-                        placeholder="/media/exemple.svg"
-                    />
-                </div>
-
-                {#if imageSrc.trim()}
-                    <img
-                        src={imageSrc}
-                        alt={imageAlt}
-                        class="border-paper-200 dark:border-ink-800 aspect-video w-full rounded-xl border object-cover"
-                    />
-
-                    <div>
-                        <label class="field-label" for="entry-image-alt">Texte alternatif</label>
-
-                        <input id="entry-image-alt" bind:value={imageAlt} type="text" class="field py-2" />
-                    </div>
-
-                    <div>
-                        <label class="field-label" for="entry-image-caption">Légende</label>
-
-                        <input id="entry-image-caption" bind:value={imageCaption} type="text" class="field py-2" />
-                    </div>
-                {:else}
-                    <p class="text-muted text-xs leading-relaxed">
-                        Déposez le fichier dans <code class="font-mono">static/media/</code>, puis indiquez son chemin.
-                        Pas de base64 : le stockage local est limité.
-                    </p>
-                {/if}
-            </fieldset>
+            <EntryImageFields bind:src={imageSrc} bind:alt={imageAlt} bind:caption={imageCaption} />
 
             <fieldset class="surface p-5">
                 <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Autres noms</legend>
