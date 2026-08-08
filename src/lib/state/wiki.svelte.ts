@@ -362,7 +362,7 @@ class WikiStore
             .filter( ( item ) => item.shared > 0 );
 
         return scored
-            .sort( ( a, b ) => b.shared - a.shared || a.candidate.title.localeCompare( b.candidate.title, "fr" ) )
+            .toSorted( ( a, b ) => b.shared - a.shared || a.candidate.title.localeCompare( b.candidate.title, "fr" ) )
             .slice( 0, limit )
             .map( ( item ) => item.candidate );
     }

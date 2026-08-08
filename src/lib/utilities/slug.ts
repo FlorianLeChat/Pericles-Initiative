@@ -10,6 +10,41 @@ const COMBINING_MARKS = /\p{Mn}/gu;
 /** Apostrophes are dropped rather than turned into dashes, so `l'Initiative` gives `linitiative`. */
 const APOSTROPHES = /['’]/g;
 
+/** Everything a slug cannot hold, collapsed into a single dash. */
+const NON_SLUG_CHARACTERS = /[^a-z0-9]+/g;
+
+/** Longest slug we are willing to put in a url. */
+const SLUG_LENGTH = 80;
+
+/**
+ * Removes the leading and trailing dashes of an already normalised slug.
+ *
+ * Written as two scans rather than as `/^-+|-+$/g`: a run of dashes makes that
+ * pattern backtrack quadratically, which SonarQube reports as a super linear
+ * regular expression, and the loops are linear as well as easier to read.
+ *
+ * @param value Slug made only of lowercase letters, digits and dashes.
+ * @returns The same slug without its outer dashes.
+ * @author Claude
+ */
+const trimDashes = ( value: string ): string =>
+{
+    let start = 0;
+    let end = value.length;
+
+    while ( start < end && value[ start ] === "-" )
+    {
+        start += 1;
+    }
+
+    while ( end > start && value[ end - 1 ] === "-" )
+    {
+        end -= 1;
+    }
+
+    return value.slice( start, end );
+};
+
 /**
  * Removes diacritics and lowercases a string, for slugs and search matching.
  *
@@ -28,12 +63,9 @@ export const deburr = ( value: string ): string => value.normalize( "NFD" ).repl
  */
 export const slugify = ( value: string ): string =>
 {
-    const slug = deburr( value )
-        .replace( APOSTROPHES, "" )
-        .replace( /[^a-z0-9]+/g, "-" )
-        .replace( /^-+/, "" )
-        .slice( 0, 80 )
-        .replace( /-+$/, "" );
+    const dashed = deburr( value ).replace( APOSTROPHES, "" ).replace( NON_SLUG_CHARACTERS, "-" );
+    const truncated = trimDashes( dashed ).slice( 0, SLUG_LENGTH );
+    const slug = trimDashes( truncated );
 
     return slug || "sans-titre";
 };

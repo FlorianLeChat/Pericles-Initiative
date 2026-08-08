@@ -38,14 +38,40 @@ const URL_ATTRIBUTES = /\s(href|src|formaction|xlink:href)\s*=\s*("[^"]*"|'[^']*
 /** Opening tags of the headings that feed the table of contents. */
 const HEADING_TAGS = /<(h[2-4])>/g;
 
-/** Opening tags of links, captured with their attributes. */
-const LINK_TAGS = /<a\s+([^>]*)>/g;
+/**
+ * Opening tags of links, captured with their attributes.
+ *
+ * A single `\s` rather than `\s+`: the following `[^>]*` also matches spaces, so
+ * the two quantifiers overlap and the pattern backtracks quadratically, which
+ * SonarQube reports as a super linear regular expression. The leftover spaces
+ * are removed by the `trim` in `decorateLinks`.
+ */
+const LINK_TAGS = /<a\s([^>]*)>/g;
 
 /** A `class` attribute already present on an authored link, which ours replaces. */
 const CLASS_ATTRIBUTE = /\sclass\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
 
+/** The `href` of an authored link, read back from its attributes. */
+const HREF_ATTRIBUTE = /href\s*=\s*"([^"]*)"/;
+
 /** Inline Markdown markers stripped when a heading or excerpt needs plain text. */
 const INLINE_MARKERS = /[*_`~]/g;
+
+/**
+ * Inline images and links, reduced to their label.
+ *
+ * Labels exclude `[` and targets exclude `(` so that a failed match restarts
+ * past the offending bracket instead of rescanning the whole run, which is what
+ * makes the naive `\[([^\]]*)\]\([^)]*\)` quadratic on a line of brackets.
+ */
+const MARKDOWN_IMAGE = /!\[([^\][]*)\]\([^()]*\)/g;
+const MARKDOWN_LINK = /\[([^\][]*)\]\([^()]*\)/g;
+
+/** Runs of whitespace, collapsed into a single space. */
+const WHITESPACE = /\s+/g;
+
+/** Any HTML tag, dropped when a body is reduced to plain text. */
+const HTML_TAGS = /<[^<>]*>/g;
 
 /**
  * Removes the quotes around an attribute value, when it has any.
@@ -138,10 +164,10 @@ const memoize = <T>( compute: ( markdown: string ) => T ): ( ( markdown: string 
  */
 const stripInlineMarkdown = ( markdown: string ): string =>
     markdown
-        .replace( /!\[([^\]]*)\]\([^)]*\)/g, "$1" )
-        .replace( /\[([^\]]*)\]\([^)]*\)/g, "$1" )
+        .replace( MARKDOWN_IMAGE, "$1" )
+        .replace( MARKDOWN_LINK, "$1" )
         .replace( INLINE_MARKERS, "" )
-        .replace( /\s+/g, " " )
+        .replace( WHITESPACE, " " )
         .trim();
 
 /**
@@ -217,7 +243,7 @@ const analyzeBody = memoize( ( markdown: string ): BodyAnalysis =>
     {
         if ( token.type === "link" )
         {
-            const match = ( token as Tokens.Link ).href.match( INTERNAL_HREF );
+            const match = INTERNAL_HREF.exec( ( token as Tokens.Link ).href );
             if ( match )
             {
                 slugs.add( match[ 1 ] );
@@ -315,8 +341,8 @@ const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string 
         // attribute wins over the later one in the browser, which would let a body
         // opt out of the red link styling.
         const attributes = rawAttributes.replace( CLASS_ATTRIBUTE, "" ).trim();
-        const href = attributes.match( /href\s*=\s*"([^"]*)"/ )?.[ 1 ] ?? "";
-        const internal = href.match( INTERNAL_HREF );
+        const href = HREF_ATTRIBUTE.exec( attributes )?.[ 1 ] ?? "";
+        const internal = INTERNAL_HREF.exec( href );
 
         if ( internal )
         {
@@ -389,14 +415,14 @@ export const renderInline = ( markdown: string, knownSlugs: ReadonlySet<string> 
  */
 export const markdownToPlainText = memoize( ( markdown: string ): string =>
     ( marked.parse( markdown ) as string )
-        .replace( /<[^>]*>/g, " " )
+        .replace( HTML_TAGS, " " )
         .replace( /&nbsp;/g, " " )
         .replace( /&amp;/g, "&" )
         .replace( /&lt;/g, "<" )
         .replace( /&gt;/g, ">" )
         .replace( /&quot;/g, "\"" )
         .replace( /&#39;/g, "'" )
-        .replace( /\s+/g, " " )
+        .replace( WHITESPACE, " " )
         .trim() );
 
 /**

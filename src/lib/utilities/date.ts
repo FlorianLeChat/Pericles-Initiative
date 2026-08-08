@@ -16,6 +16,12 @@ const RELATIVE = new Intl.RelativeTimeFormat( "fr-FR", { numeric: "auto" } );
 /** Sort key used for entries whose in universe date cannot be parsed. */
 const UNDATED_SORT_KEY = Number.MAX_SAFE_INTEGER;
 
+/** First four digit run of a free text date, which we read as its year. */
+const YEAR = /(\d{4})/;
+
+/** Leading `2043`, `2043-06` or `2043-06-12` of an otherwise free text date. */
+const ISO_DATE_PREFIX = /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/;
+
 /**
  * Parses a value into a Date, or null when it is not a usable date.
  *
@@ -182,7 +188,7 @@ export const extractYear = ( value: string | null | undefined ): number | null =
         return null;
     }
 
-    const match = value.match( /(\d{4})/ );
+    const match = YEAR.exec( value );
     return match ? Number( match[ 1 ] ) : null;
 };
 
@@ -203,7 +209,7 @@ export const timelineSortKey = ( value: string | null | undefined ): number =>
         return UNDATED_SORT_KEY;
     }
 
-    const iso = value.match( /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/ );
+    const iso = ISO_DATE_PREFIX.exec( value );
     if ( iso )
     {
         const [ , year, month = "00", day = "00" ] = iso;

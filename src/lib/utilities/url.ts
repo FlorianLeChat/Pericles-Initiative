@@ -9,7 +9,7 @@
  */
 
 /** Numeric and named entities, which the HTML parser decodes before reading a scheme. */
-const HTML_ENTITY = /&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi;
+const HTML_ENTITY = /&(#x[0-9a-f]+|#\d+|[a-z]+);/gi;
 
 /**
  * Everything that is not printable ASCII.

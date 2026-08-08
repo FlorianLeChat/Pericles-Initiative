@@ -26,6 +26,9 @@ const LIVE_SEVERITIES: ReadonlySet<LiveSeverity> = new Set( [ "info", "important
 
 const DEFAULT_COLOR = "pierre";
 
+/** Distinguishes the identifiers minted within the same millisecond by the fallback below. */
+let mintedIds = 0;
+
 /**
  * Generates a stable identifier for a new item.
  *
@@ -39,7 +42,9 @@ export const createId = (): string =>
         return crypto.randomUUID();
     }
 
-    return `id-${ Date.now().toString( 36 ) }-${ Math.random().toString( 36 ).slice( 2, 10 ) }`;
+    mintedIds += 1;
+
+    return `id-${ Date.now().toString( 36 ) }-${ mintedIds.toString( 36 ) }`;
 };
 
 const asRecord = ( value: unknown ): Record<string, unknown> =>
