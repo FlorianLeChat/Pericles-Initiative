@@ -21,8 +21,6 @@ export const TAGLINE = "Une chronique des cités flottantes.";
 
 export const DESCRIPTION = "Les gens, les lieux et les décisions qui font tenir un archipel bâti sur l’eau.";
 
-export const VERSION = "1.4.0";
-
 /** A page every fixture body links to, and that nothing ever creates: the red link of the suite. */
 export const MISSING_SLUG = "conseil-des-parties";
 
@@ -319,8 +317,6 @@ export const sampleDataset = (): Dataset => ( {
         tagline: TAGLINE,
         description: DESCRIPTION,
         logo: "",
-        version: VERSION,
-        updatedAt: hoursAgo( 2 ),
         featured: [ PAGES.athena.slug, PAGES.port.slug, PAGES.traite.slug ]
     },
     categories: structuredClone( CATEGORY_LIST ),

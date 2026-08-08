@@ -594,7 +594,6 @@ class WikiStore
     {
         const dataset: Dataset = {
             ...this.dataset,
-            meta: { ...this.meta, updatedAt: new Date().toISOString() },
             categories: this.categories,
             entries: this.entries,
             live: this.live

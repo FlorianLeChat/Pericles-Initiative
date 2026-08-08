@@ -8,7 +8,7 @@
  */
 
 import type { Page } from "@playwright/test";
-import { PAGES, UNIVERSE, VERSION } from "./utilities/dataset";
+import { PAGES, UNIVERSE } from "./utilities/dataset";
 import { expect, isNarrow, test, type WikiHelper } from "./utilities/fixtures";
 
 /**
@@ -50,7 +50,6 @@ test.describe( "settings", () =>
         await openSettings( page, wiki );
 
         await expect( page.getByLabel( "Nom de l'univers" ) ).toHaveValue( UNIVERSE );
-        await expect( page.getByLabel( "Version" ) ).toHaveValue( VERSION );
 
         await page.getByLabel( "Nom de l'univers" ).fill( "" );
 

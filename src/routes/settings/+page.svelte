@@ -23,7 +23,6 @@
         tagline: wiki.meta.tagline,
         description: wiki.meta.description,
         logo: wiki.meta.logo,
-        version: wiki.meta.version,
         featured: [ ...wiki.meta.featured ]
     } ) );
 
@@ -31,13 +30,12 @@
     let tagline = $state( initial.tagline );
     let description = $state( initial.description );
     let logo = $state( initial.logo );
-    let version = $state( initial.version );
     let featured = $state<string[]>( initial.featured );
 
     let resetOpen = $state( false );
     let saved = $state( false );
 
-    const snapshot = (): string => JSON.stringify( { universe, tagline, description, logo, version, featured } );
+    const snapshot = (): string => JSON.stringify( { universe, tagline, description, logo, featured } );
 
     /** Last state written to the dataset, so saving clears the pending marker. */
     let baseline = $state( JSON.stringify( initial ) );
@@ -63,7 +61,6 @@
             tagline: tagline.trim(),
             description: description.trim(),
             logo: logo.trim(),
-            version: version.trim(),
             featured: [ ...featured ]
         } );
 
@@ -84,7 +81,6 @@
         tagline = wiki.seed.meta.tagline;
         description = wiki.seed.meta.description;
         logo = wiki.seed.meta.logo;
-        version = wiki.seed.meta.version;
         featured = [ ...wiki.seed.meta.featured ];
         baseline = snapshot();
         saved = false;
@@ -163,36 +159,22 @@
                 ></textarea>
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_8rem]">
-                <div>
-                    <label class="field-label" for="meta-logo">Logo</label>
+            <div>
+                <label class="field-label" for="meta-logo">Logo</label>
 
-                    <input
-                        id="meta-logo"
-                        bind:value={logo}
-                        oninput={() => ( saved = false )}
-                        type="text"
-                        class="field font-mono text-xs"
-                        placeholder="/media/logo.svg"
-                    />
+                <input
+                    id="meta-logo"
+                    bind:value={logo}
+                    oninput={() => ( saved = false )}
+                    type="text"
+                    class="field font-mono text-xs"
+                    placeholder="/media/logo.svg"
+                />
 
-                    <p class="text-muted mt-1.5 text-xs leading-relaxed">
-                        Chemin sous <code class="font-mono">static/media/</code> ou URL absolue. Laissez vide pour garder
-                        le monogramme.
-                    </p>
-                </div>
-
-                <div>
-                    <label class="field-label" for="meta-version">Version</label>
-
-                    <input
-                        id="meta-version"
-                        bind:value={version}
-                        oninput={() => ( saved = false )}
-                        type="text"
-                        class="field font-mono text-xs"
-                    />
-                </div>
+                <p class="text-muted mt-1.5 text-xs leading-relaxed">
+                    Chemin sous <code class="font-mono">static/media/</code> ou URL absolue. Laissez vide pour garder le
+                    monogramme.
+                </p>
             </div>
 
             <div>
@@ -261,10 +243,6 @@
             {/if}
         </div>
     </form>
-
-    <p class="text-muted mt-8 text-xs">
-        Identité par défaut : « {wiki.seed.meta.universe} », version {wiki.seed.meta.version}.
-    </p>
 </div>
 
 <ConfirmDialog

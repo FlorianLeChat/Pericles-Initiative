@@ -247,8 +247,6 @@ export const normalizeMeta = ( value: unknown ): WikiMeta =>
         tagline: asTrimmed( raw.tagline ),
         description: asTrimmed( raw.description ),
         logo: normalizeImageSource( raw.logo ),
-        version: asTrimmed( raw.version ) || "0.0.0",
-        updatedAt: asTrimmed( raw.updatedAt ),
         featured: [ ...new Set( asStringArray( raw.featured ).map( slugify ) ) ]
     };
 };
@@ -276,26 +274,22 @@ export const normalizeMetaPatch = ( value: unknown ): Partial<WikiMeta> | null =
     {
         patch.universe = asTrimmed( raw.universe ) || "Univers sans nom";
     }
+
     if ( "tagline" in raw )
     {
         patch.tagline = asTrimmed( raw.tagline );
     }
+
     if ( "description" in raw )
     {
         patch.description = asTrimmed( raw.description );
     }
+
     if ( "logo" in raw )
     {
         patch.logo = normalizeImageSource( raw.logo );
     }
-    if ( "version" in raw )
-    {
-        patch.version = asTrimmed( raw.version ) || "0.0.0";
-    }
-    if ( "updatedAt" in raw )
-    {
-        patch.updatedAt = asTrimmed( raw.updatedAt );
-    }
+
     if ( "featured" in raw )
     {
         patch.featured = [ ...new Set( asStringArray( raw.featured ).map( slugify ) ) ];
