@@ -9,7 +9,7 @@
 
 import type { Page } from "@playwright/test";
 import { PAGES, UNIVERSE, VERSION } from "./utilities/dataset";
-import { expect, test, type WikiHelper } from "./utilities/fixtures";
+import { expect, isNarrow, test, type WikiHelper } from "./utilities/fixtures";
 
 /**
  * Reaches the settings the way a reader does, from a page already open.
@@ -17,7 +17,8 @@ import { expect, test, type WikiHelper } from "./utilities/fixtures";
  * Deliberately not a direct `goto`: the form snapshots the identity when the
  * component initialises, and on a cold load that happens before the overlay has
  * been read, so the fields come up empty. Unlike `/edit/[slug]`, which waits for
- * `wiki.overlayLoaded`, this page has no such guard.
+ * `wiki.overlayLoaded`, this page has no such guard. The link lives in the
+ * authoring tools, hidden behind a burger below the `lg` breakpoint.
  *
  * @param page Page under test.
  * @param wiki Fixture helper.
@@ -26,7 +27,18 @@ import { expect, test, type WikiHelper } from "./utilities/fixtures";
 const openSettings = async ( page: Page, wiki: WikiHelper ): Promise<void> =>
 {
     await wiki.open( "/" );
-    await page.getByRole( "contentinfo" ).getByRole( "link", { name: "Paramètres" } ).click();
+
+    if ( isNarrow( page ) )
+    {
+        await page.getByRole( "button", { name: "Ouvrir la navigation" } ).click();
+        await page.getByRole( "navigation", { name: "Navigation mobile" } )
+            .getByRole( "link", { name: "Paramètres" } ).click();
+    }
+    else
+    {
+        await page.getByRole( "button", { name: "Outils" } ).click();
+        await page.getByRole( "banner" ).getByRole( "link", { name: "Paramètres" } ).click();
+    }
 
     await expect( page ).toHaveURL( /\/settings$/ );
 };

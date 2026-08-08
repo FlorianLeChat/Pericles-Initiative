@@ -8,10 +8,14 @@
      * @author Claude
      */
     import { resolve } from "$app/paths";
+    import { env } from "$env/dynamic/public";
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import FeaturedPagesEditor from "$lib/components/FeaturedPagesEditor.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
+
+    /** Repository the application is built from, not part of the fiction. */
+    const REPOSITORY_URL = "https://github.com/FlorianLeChat/Pericles-Initiative";
 
     /** Seeded once: the form is a draft of the identity, applied on save. */
     const initial = untrack( () => ( {
@@ -218,6 +222,26 @@
         </section>
 
         <FeaturedPagesEditor bind:slugs={featured} />
+
+        <section class="surface space-y-3 p-6" aria-labelledby="about-heading">
+            <h2 id="about-heading" class="font-serif text-xl font-semibold tracking-tight">À propos</h2>
+
+            <dl class="text-muted space-y-1.5 text-sm">
+                <div class="flex gap-2">
+                    <dt>Version de l'application :</dt>
+
+                    <dd class="text-ink-600 dark:text-paper-300 font-medium">{env.PUBLIC_VERSION ?? "0.0.1"}</dd>
+                </div>
+
+                <div class="flex gap-2">
+                    <dt>Code source :</dt>
+
+                    <dd class="text-ink-600 dark:text-paper-300 font-medium">
+                        <a href={REPOSITORY_URL} class="wiki-link" target="_blank" rel="noreferrer">{REPOSITORY_URL}</a>
+                    </dd>
+                </div>
+            </dl>
+        </section>
 
         <div class="flex flex-wrap items-center gap-3">
             <button type="submit" class="btn btn-primary" disabled={!canSave || !dirty}>Enregistrer</button>

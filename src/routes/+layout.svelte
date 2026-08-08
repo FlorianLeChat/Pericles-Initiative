@@ -10,7 +10,6 @@
     import ConnectionStatus from "$lib/components/ConnectionStatus.svelte";
     import BreakingBanner from "$lib/components/live/BreakingBanner.svelte";
     import SearchDialog from "$lib/components/SearchDialog.svelte";
-    import SiteFooter from "$lib/components/SiteFooter.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
     import UpdateBanner from "$lib/components/UpdateBanner.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -110,8 +109,6 @@
 <main class="flex-1">
     {@render children()}
 </main>
-
-<SiteFooter />
 
 <SearchDialog bind:open={searchOpen} />
 
