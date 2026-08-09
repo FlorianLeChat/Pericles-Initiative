@@ -209,16 +209,16 @@
             <h2 id="about-heading" class="font-serif text-xl font-semibold tracking-tight">À propos</h2>
 
             <dl class="text-muted space-y-1.5 text-sm">
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     <dt>Version de l'application :</dt>
 
                     <dd class="text-ink-600 dark:text-paper-300 font-medium">{env.PUBLIC_VERSION ?? "0.0.1"}</dd>
                 </div>
 
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     <dt>Code source :</dt>
 
-                    <dd class="text-ink-600 dark:text-paper-300 font-medium">
+                    <dd class="text-ink-600 dark:text-paper-300 min-w-0 font-medium break-all">
                         <a href={REPOSITORY_URL} class="wiki-link" target="_blank" rel="noreferrer">{REPOSITORY_URL}</a>
                     </dd>
                 </div>
