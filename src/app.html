@@ -1,29 +1,57 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="fr" class="h-full">
     <head>
         <meta charset="utf-8" />
-        <link rel="icon" href="%sveltekit.assets%/favicon.svg" />
-        <link rel="apple-touch-icon" href="%sveltekit.assets%/media/icon-192.png" />
-        <link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="color-scheme" content="light dark" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content="#fdfcfa" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#121218" media="(prefers-color-scheme: dark)" />
+        <meta name="text-scale" content="scale" />
+        <meta name="description" content="🌄 An alternative wiki-style website to create an encyclopedia about your own custom universe." />
+        <meta name="keywords" content="npm,terminal,interactive-stories,ai-generation,typescript,eslint,a11y,prettier,svelte,husky,tailwindcss,vite,sveltekit,inlang" />
+
+        <title>Périclès Initiative</title>
+
+        <link rel="author" href="https://github.com/FlorianLeChat" />
+        <meta name="author" content="Florian Trayon" />
+
+        <meta property="og:title" content="Périclès Initiative" />
+        <meta property="og:description" content="🌄 An alternative wiki-style website to create an encyclopedia about your own custom universe." />
+        <meta property="og:url" content="https://github.com/FlorianLeChat/Pericles-Initiative" />
+        <meta property="og:image" content="https://opengraph.githubassets.com/e2e560fe232b491a74dee246db664d8fe51da79d/FlorianLeChat/Pericles-Initiative" />
+        <meta property="og:type" content="website" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:creator" content="@FlorianTrayon" />
+        <meta name="twitter:title" content="Périclès Initiative" />
+        <meta name="twitter:description" content="🌄 An alternative wiki-style website to create an encyclopedia about your own custom universe." />
+        <meta name="twitter:image" content="https://opengraph.githubassets.com/e2e560fe232b491a74dee246db664d8fe51da79d/FlorianLeChat/Pericles-Initiative" />
+
         <script>
-            // Applied before first paint so the stored theme never flashes.
-            try {
-                const stored = localStorage.getItem('pericles:theme');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (stored === 'dark' || (!stored && prefersDark)) {
-                    document.documentElement.classList.add('dark');
-                }
-            } catch {
-                /* storage unavailable, keep the light theme */
+            const key = "pericles:theme";
+            const stored = localStorage.getItem(key);
+            const element = document.documentElement;
+
+            element.classList.remove("light", "dark");
+
+            if (stored === "light" || stored === "dark") {
+                element.classList.add(stored);
+            } else {
+                const isDark = matchMedia("(prefers-color-scheme: dark)").matches;
+                const target = isDark ? "dark" : "light";
+
+                element.classList.add(target);
+
+                localStorage.setItem(key, target);
             }
         </script>
+
         %sveltekit.head%
     </head>
-    <body data-sveltekit-preload-data="hover" class="h-full">
-        <div class="flex min-h-full flex-col">%sveltekit.body%</div>
+
+    <body class="h-full" data-sveltekit-preload-data="hover">
+        <div class="flex min-h-full flex-col">
+            %sveltekit.body%
+        </div>
     </body>
 </html>

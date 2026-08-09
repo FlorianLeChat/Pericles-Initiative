@@ -5,6 +5,7 @@
      * @author Claude
      */
     import "../app.css";
+    import { asset } from "$app/paths";
     import { untrack, type Snippet } from "svelte";
     import { onNavigate } from "$app/navigation";
     import ConnectionStatus from "$lib/components/ConnectionStatus.svelte";
@@ -99,6 +100,11 @@
         }
     };
 </script>
+
+<svelte:head>
+    <link rel="icon" href={asset( "/assets/favicon.svg" )} type="image/svg+xml" sizes="any" />
+    <link rel="manifest" href={asset( "/manifest.webmanifest" )} crossorigin="use-credentials" />
+</svelte:head>
 
 <svelte:window onkeydown={onKeydown} />
 
