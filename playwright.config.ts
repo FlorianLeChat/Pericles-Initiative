@@ -21,7 +21,6 @@ export default defineConfig( {
     webServer: {
         port,
         command: "vite build && node tests/e2e/utilities/host.js",
-        timeout: 180000,
         reuseExistingServer: !process.env.CI
     },
     projects: [
