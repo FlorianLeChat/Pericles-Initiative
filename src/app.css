@@ -4,12 +4,89 @@
 /* Class based dark mode: the theme toggle writes `.dark` on <html>. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Self hosted faces: Newsreader for titles, IBM Plex Sans for everything the
+ * reader types or clicks, IBM Plex Mono for slugs, paths and code.
+ *
+ * The files live in `static/assets/fonts/`, beside the licence they ship
+ * under, rather than in a package: the site has to survive offline, so the
+ * shell must own its typography the way it already owns its icons. Being
+ * under `static/` also puts them in the `files` list the service worker
+ * precaches, so a cold start with no connection paints in the real faces
+ * instead of the fallbacks.
+ *
+ * Only the `latin` subset is kept, and only one axis per face, since the
+ * whole set is downloaded on install: `wght` alone for Plex Sans, whose
+ * width axis nothing here asks for, and `wght` plus `opsz` for Newsreader,
+ * the optical size being what makes a title at sixty pixels read tighter
+ * than a heading at twenty rather than the same drawing blown up.
+ *
+ * The `latin` subset covers French whole: accented letters and « » live in
+ * U+0000-00FF, the œ ligature at U+0152-0153, the typographic apostrophe in
+ * U+2000-206F.
+ */
+@font-face {
+    font-family: 'Newsreader';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url('/assets/fonts/newsreader-latin-variable.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+        U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 100 700;
+    src: url('/assets/fonts/ibm-plex-sans-latin-variable.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+        U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Markdown emphasis is the common case in a body, so the italics are real, not slanted by the browser. */
+@font-face {
+    font-family: 'IBM Plex Sans';
+    font-style: italic;
+    font-display: swap;
+    font-weight: 100 700;
+    src: url('/assets/fonts/ibm-plex-sans-latin-variable-italic.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+        U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Plex Mono has no variable cut, so only the two weights the site actually asks for are shipped. */
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 400;
+    src: url('/assets/fonts/ibm-plex-mono-latin-400.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+        U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* The weight `prose code` asks for, and the only one anything bold in a monospace run ever needs. */
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 600;
+    src: url('/assets/fonts/ibm-plex-mono-latin-600.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+        U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @theme {
-    --font-sans:
-        'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
-        sans-serif;
-    --font-serif: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-    --font-mono: ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+    /*
+     * Fallbacks are named faces rather than the `ui-*` generics: those resolve
+     * to whatever the system considers a serif, which is a different page on
+     * every machine and the reason the site read as generic before.
+     */
+    --font-sans: 'IBM Plex Sans', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-serif: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
 
     /* Editorial palette: warm paper, deep ink, one cold accent. */
     --color-paper-50: #fdfcfa;

@@ -343,6 +343,7 @@ src/
         data/                   export, import, remote backup
         settings/               identity of the wiki
 static/
+    assets/fonts/               self hosted Newsreader and IBM Plex, latin subset, with their OFL notice
     media/                      illustrations referenced by pages, installable icons
     manifest.webmanifest        name, icons and shortcuts of the installed site
 tests/

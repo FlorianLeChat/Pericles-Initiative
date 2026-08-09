@@ -118,10 +118,6 @@
         <section class="surface p-6">
             <h2 class="font-serif text-xl font-semibold tracking-tight">Pages à écrire</h2>
 
-            <p class="text-muted mt-1 text-sm">
-                Les liens rouges, c'est à dire les fiches que le corpus réclame déjà.
-            </p>
-
             {#if stats.missing.length === 0}
                 <p class="text-muted mt-4 text-sm">Aucun lien rouge, tout ce qui est cité existe.</p>
             {:else}
