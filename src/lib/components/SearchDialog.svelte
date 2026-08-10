@@ -5,8 +5,13 @@
      * The arrow keys move a selection that used to be visual only: the input is
      * declared as a combobox owning the list of hits, and points at the active
      * one through `aria-activedescendant`, so a screen reader announces what the
-     * arrows land on. Focus never leaves the input, which is what that pattern
-     * asks for, and is why the hits are options rather than buttons.
+     * arrows land on.
+     *
+     * Each hit is a button wearing the `option` role: the role is what the
+     * combobox pattern asks for, and the button is what makes a click a native
+     * activation rather than a handler on an inert element. They are taken out of
+     * the tab order, since that same pattern requires focus never to leave the
+     * input.
      *
      * The field is a plain text input rather than a `search` one on purpose. A
      * search field spends the first Escape emptying itself, so closing the
@@ -74,7 +79,6 @@
         }
     } );
 
-    // Any new query starts the selection back at the first hit.
     $effect( () =>
     {
         void query;
@@ -184,28 +188,31 @@
 
     <ul id={LIST_ID} role="listbox" aria-label="Fiches trouvées">
         {#each hits as hit, index ( hit.entry.id )}
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <li
-                id="recherche-resultat-{index}"
-                role="option"
-                aria-selected={index === selected}
-                class="rise-in hover:bg-paper-100 dark:hover:bg-ink-800 flex cursor-pointer items-center gap-3
-                       rounded-xl px-3 py-2.5 text-left transition {index === selected
-                           ? "bg-paper-100 dark:bg-ink-800"
-                           : ""}"
-                style="--rank: {staggerRank( index )}"
-                onclick={() => openEntry( hit.entry.slug )}
-                onmouseenter={() => ( selected = index )}
-            >
-                <TypeBadge type={hit.entry.type} iconOnly />
+            <li role="none">
+                <button
+                    id="recherche-resultat-{index}"
+                    type="button"
+                    role="option"
+                    tabindex="-1"
+                    aria-selected={index === selected}
+                    class="rise-in hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full cursor-pointer items-center
+                           gap-3 rounded-xl px-3 py-2.5 text-left transition {index === selected
+                               ? "bg-paper-100 dark:bg-ink-800"
+                               : ""}"
+                    style="--rank: {staggerRank( index )}"
+                    onclick={() => openEntry( hit.entry.slug )}
+                    onmouseenter={() => ( selected = index )}
+                >
+                    <TypeBadge type={hit.entry.type} iconOnly />
 
-                <span class="min-w-0 flex-1">
-                    <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
+                    <span class="min-w-0 flex-1">
+                        <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
 
-                    {#if hit.entry.summary}
-                        <span class="text-muted block truncate text-xs">{hit.entry.summary}</span>
-                    {/if}
-                </span>
+                        {#if hit.entry.summary}
+                            <span class="text-muted block truncate text-xs">{hit.entry.summary}</span>
+                        {/if}
+                    </span>
+                </button>
             </li>
         {/each}
     </ul>

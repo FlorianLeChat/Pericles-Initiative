@@ -332,20 +332,6 @@ class WikiStore
     }
 
     /**
-     * Lists the existing pages a given page links to.
-     *
-     * @param entry Source page.
-     * @returns The linked pages that exist.
-     * @author Claude
-     */
-    outgoingOf( entry: Entry ): Entry[]
-    {
-        return ( this.outgoingLinks.get( entry.slug ) ?? [] )
-            .map( ( slug ) => this.entriesBySlug.get( slug ) )
-            .filter( ( target ): target is Entry => target !== undefined && target.slug !== entry.slug );
-    }
-
-    /**
      * Lists the pages of a category.
      *
      * @param slug Category slug.

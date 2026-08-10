@@ -133,10 +133,7 @@
                                 {item.slug}
                             </a>
 
-                            <span class="text-muted shrink-0 text-xs">
-                                cité {item.count}
-                                {item.count === 1 ? "fois" : "fois"}
-                            </span>
+                            <span class="text-muted shrink-0 text-xs">cité {item.count} fois</span>
 
                             <Button
                                 href={resolve( `/new?slug=${ item.slug }` )}

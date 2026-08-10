@@ -117,7 +117,6 @@
         return owner !== undefined && owner.id !== entry?.id;
     } );
 
-    // The slug follows the title until it is edited by hand.
     $effect( () =>
     {
         if ( !slugLocked )

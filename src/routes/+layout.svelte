@@ -80,7 +80,6 @@
         wiki.hydrate( data.dataset );
     } );
 
-    // Local changes are only read in the browser, after hydration.
     $effect( () =>
     {
         wiki.loadOverlay();

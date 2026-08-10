@@ -16,6 +16,9 @@ export interface SearchHit {
     score: number;
 }
 
+/** Runs of whitespace, which is what separates two terms of a query. */
+const WHITESPACE = /\s+/g;
+
 /** Weight of a match, by field. */
 const WEIGHTS = {
     exactTitle: 120,
@@ -86,7 +89,7 @@ const toSearchable = ( entry: Entry ): SearchableEntry =>
  * @returns Accent free lowercase terms.
  * @author Claude
  */
-const terms = ( query: string ): string[] => deburr( query ).split( /\s+/ ).filter( Boolean );
+const terms = ( query: string ): string[] => deburr( query ).split( WHITESPACE ).filter( Boolean );
 
 /**
  * Scores a page against a single search term.

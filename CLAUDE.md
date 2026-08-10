@@ -22,8 +22,9 @@ backend, a build step that writes into `static/`, or an authentication shim.
 ## Stack
 
 SvelteKit 2 with Svelte 5 runes, TypeScript, `adapter-static`, Tailwind CSS 4, `flowbite-svelte` for
-the interface components, `@lucide/svelte` for the icons, `apexcharts` for the dashboard charts,
-`marked` for rendering Markdown, `@milkdown/crepe` for authoring it.
+the interface components, `@lucide/svelte` for the icons, `marked` for rendering Markdown,
+`@milkdown/crepe` for authoring it. No charting library: the two dashboard charts are laid out with
+the grid, as explained under Flowbite below.
 
 Tooling is ESLint with a flat config (`typescript-eslint` strict and stylistic, `@stylistic`,
 `eslint-plugin-svelte`), Prettier with `prettier-plugin-svelte`, and commitlint on the conventional
@@ -130,6 +131,51 @@ npm run lint
 
 - `npm run format` runs Prettier over the whole codebase. Reach for it on a file you rewrote, not on
   a two line edit: it touches everything it disagrees with and drowns the real change in the diff.
+
+## Review your own change before calling it finished
+
+The three commands prove the change runs. They prove nothing about what it leaves behind, so reread
+the diff yourself and answer each of these. This is not a release checklist, it belongs to every
+change, however small.
+
+- **Dead code.** Anything the change orphaned goes with it: a helper nothing calls any more, a store
+  member no component reads, a CSS class no markup carries, an export used only inside its own
+  module, a type nothing annotates, a branch that can no longer be reached. An `export` is an
+  assertion that something outside needs it; when nothing does, drop the keyword rather than the
+  declaration. The seed of `WikiStore` is the one deliberate exception: it is the documented hook a
+  future backend feeds, and the code handling it stays even though the seed is always empty today.
+- **Duplication.** A literal list repeated beside the config that already declares it, a plural
+  written by hand where `plural` and `counted` exist, a colour or an icon spelled out where
+  `src/lib/config/` holds it. Two copies drift; one of them is always the wrong one first.
+- **Comments.** Keep the ones recording a constraint, a trap or a decision that the code cannot
+  state. Delete the ones restating what the line below already says, and the commented out code
+  nobody dares remove. A comment that would still be true if the code changed underneath it is worse
+  than none.
+- **Accessibility.** Every interactive control has an accessible name, in French, and Flowbite gives
+  its own in English. A control the pointer can reach, the keyboard reaches too. Anything that
+  scrolls is reachable without a mouse. `tests/e2e/accessibility.spec.ts` runs axe over every page on
+  both viewports, and a new page belongs in its list.
+- **Performance.** Prefer one pass over the corpus to one pass per type, per category and per page,
+  as `computeStats` and `analyzeBody` do. Watch what a listing recomputes per card, and what an
+  effect re-runs on every keystroke. Nothing new is added to the bundle without weighing it: a
+  library that costs more than the rest of the application put together does not stay, which is how
+  ApexCharts left.
+- **Tests.** A change touching what a reader sees or does updates its spec in the same commit. A
+  spec that asserts nothing the components could break, duplicates the case above it, or only proves
+  the framework works, is deleted rather than kept for the count.
+
+Two rules with no exception, because both hide the very thing these questions look for:
+
+- **No suppression comment.** No `svelte-ignore`, no `eslint-disable`, no `@ts-ignore`, no
+  `@ts-expect-error`, and no rule switched off in a config to the same end. A warning is a
+  description of the markup or of the types; the fix is to change what is being described. When a
+  rule genuinely does not apply, the shape of the code is what has to say so: the search palette
+  makes its hits real buttons rather than silencing the click handler warning, and the activity chart
+  lays its columns down on a phone rather than silencing the tab stop warning. The single
+  `@ts-expect-error` in `svelte.config.js` predates this and covers an adapter option the types do
+  not know; it is not a precedent.
+- **No test mode in `src/`.** Nothing in the application knows the suite exists: no seed file, no
+  build flag, no branch taken only under test.
 
 ## Data rules
 
@@ -292,8 +338,16 @@ a single line, a copy change, go straight to the edit.
 
 Tests live in `tests/e2e/` (config: `playwright.config.ts`) and exercise the whole app end to end.
 Never start a preview or dev server for them by hand: Playwright's own `webServer` builds the site
-and serves it. **Whenever a change touches user facing behaviour, update the matching spec or specs
-in the same commit**:
+and serves it.
+
+**Running `npm run test` needs no permission**, on any change and as often as it takes. Playwright
+runs headless unless told otherwise and `playwright.config.ts` never tells it otherwise, so a run
+opens no window and steals no focus. Keep it that way: never pass `--headed`, `--ui` or `--debug`,
+which would put a browser in front of whatever the user is doing. Everything a failure leaves behind
+is on disk, the report in `playwright-report/` and the traces and screenshots in `test-results/`.
+
+**Whenever a change touches user facing behaviour, update the matching spec or specs in the same
+commit**:
 
 - `tests/e2e/home.spec.ts` — home page (hero figures, featured pages, live excerpt, category counts,
   empty wiki).
@@ -307,8 +361,8 @@ in the same commit**:
 - `tests/e2e/live.spec.ts` — feed (pinned group, day groups, severity and tag filters, composer,
   edition, deletion, the site wide alert banner).
 - `tests/e2e/timeline.spec.ts` — chronology (grouping by year, every shape of in universe date).
-- `tests/e2e/dashboard.spec.ts` — figures, breakdowns, most cited pages, red links, points of
-  attention.
+- `tests/e2e/dashboard.spec.ts` — figures, breakdowns, the activity chart, most cited pages, red
+  links, points of attention.
 - `tests/e2e/data.spec.ts` — inventory of the browser, export to `wiki.json`, import, reset.
 - `tests/e2e/settings.spec.ts` — identity of the wiki and the pages put forward on the home page.
   These reach `/settings` by clicking, never by `goto`: the form snapshots the identity when it
@@ -355,8 +409,9 @@ Conventions to follow:
 ## Preview and dev server
 
 **Never start a dev server on your own initiative.** The user runs it. Verification is done through
-`npm run check`, `npm run build` and `npm run test`. If a running preview is genuinely needed to
-prove a behaviour, ask first.
+`npm run check`, `npm run build` and `npm run test`, none of which needs asking. If a running preview
+is genuinely needed to prove a behaviour, ask first: a dev server holds the terminal and paints a
+window, which is exactly what the headless suite is there to avoid.
 
 ## Commits
 

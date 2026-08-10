@@ -10,6 +10,7 @@
 
 import { isEntryType } from "$lib/config/entry-types";
 import { PALETTE_KEYS } from "$lib/config/palette";
+import { SEVERITY_IDS } from "$lib/config/severities";
 import type { Category,
     Dataset,
     Entry,
@@ -21,8 +22,6 @@ import type { Category,
     WikiMeta } from "$lib/types";
 import { slugify } from "./slug";
 import { isSafeUrl } from "./url";
-
-const LIVE_SEVERITIES: ReadonlySet<LiveSeverity> = new Set( [ "info", "important", "urgent", "breaking" ] );
 
 const DEFAULT_COLOR = "pierre";
 
@@ -217,7 +216,7 @@ export const normalizeLiveEntry = ( value: unknown ): LiveEntry =>
         publishedAt: asTrimmed( raw.publishedAt ),
         title: asTrimmed( raw.title ) || "Sans titre",
         body: asString( raw.body ),
-        severity: LIVE_SEVERITIES.has( severity ) ? severity : "info",
+        severity: SEVERITY_IDS.includes( severity ) ? severity : "info",
         tags: [
             ...new Set(
                 asStringArray( raw.tags )

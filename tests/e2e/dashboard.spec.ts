@@ -11,6 +11,15 @@ import type { Locator, Page } from "@playwright/test";
 import { CATEGORIES, COUNTS, MISSING_SLUG, PAGES } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
 
+/** How many months the activity chart draws, as `buildActivity` counts them. */
+const ACTIVITY_MONTHS = 12;
+
+/** How a month of that chart is named, as `src/lib/utilities/stats.ts` names it. */
+const MONTH_LABEL = new Intl.DateTimeFormat( "fr-FR", { month: "short" } );
+
+/** The figure of a row, the month label beside it carrying no digit of its own. */
+const COUNT_IN_ROW = /\d+/;
+
 /**
  * Locates one panel of the dashboard, by its heading.
  *
@@ -69,6 +78,23 @@ test.describe( "dashboard", () =>
         await missing.getByRole( "link", { name: "Créer" } ).click();
 
         await expect( page ).toHaveURL( new RegExp( `/new\\?slug=${ MISSING_SLUG }$` ) );
+    } );
+
+    test( "spreads the edition activity over the last twelve months", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/dashboard" );
+
+        const months = panel( page, "Activité d'édition" ).getByRole( "listitem" );
+
+        await expect( months ).toHaveCount( ACTIVITY_MONTHS );
+        await expect( months.last() ).toContainText( MONTH_LABEL.format( new Date() ) );
+
+        // Every page of the fixture was edited within the last week, so the whole
+        // corpus is somewhere in the strip whatever day the suite runs on.
+        const rows = await months.allInnerTexts();
+        const counted = rows.reduce( ( total, row ) => total + Number( COUNT_IN_ROW.exec( row )?.[ 0 ] ?? 0 ), 0 );
+
+        expect( counted ).toBe( COUNTS.entries );
     } );
 
     test( "points at what the corpus is missing", async ( { page, wiki } ) =>

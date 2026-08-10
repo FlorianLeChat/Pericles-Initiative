@@ -230,6 +230,12 @@
         </Alert>
     {/if}
 
+    {#if remote.storageError}
+        <Alert color="red" class="mt-5 rounded-xl text-sm" role="alert">
+            {remote.storageError} Le serveur reste utilisable, mais il sera oublié en quittant cette page.
+        </Alert>
+    {/if}
+
     <form
         class="mt-5 space-y-4"
         onsubmit={( event ) =>

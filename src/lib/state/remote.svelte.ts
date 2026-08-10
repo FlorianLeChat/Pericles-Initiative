@@ -40,7 +40,7 @@ class RemoteStore
     /** Cause of the last failure, kept for the component to phrase in French. */
     failure = $state<RemoteFailure | null>( null );
 
-    /** Set when the browser refused to store the connection. */
+    /** Set when the browser refused to store the connection, and shown by the panel. */
     storageError = $state<string | null>( null );
 
     /** True when an endpoint is configured. False means the site runs on the overlay alone. */

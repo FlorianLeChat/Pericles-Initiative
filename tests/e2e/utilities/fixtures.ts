@@ -18,7 +18,7 @@ import type { Dataset, Entry, Overlay } from "$lib/types";
 import { sampleDataset, toOverlay } from "./dataset";
 
 /** Where the application keeps the content written from this browser. */
-export const OVERLAY_KEY = "pericles:overlay";
+const OVERLAY_KEY = "pericles:overlay";
 
 /** Where the application remembers the chosen theme. */
 export const THEME_KEY = "pericles:theme";

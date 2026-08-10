@@ -10,6 +10,7 @@
 
 const LONG_DATE = new Intl.DateTimeFormat( "fr-FR", { day: "numeric", month: "long", year: "numeric" } );
 const SHORT_DATE = new Intl.DateTimeFormat( "fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" } );
+const MONTH_AND_YEAR = new Intl.DateTimeFormat( "fr-FR", { month: "long", year: "numeric" } );
 const TIME = new Intl.DateTimeFormat( "fr-FR", { hour: "2-digit", minute: "2-digit" } );
 const RELATIVE = new Intl.RelativeTimeFormat( "fr-FR", { numeric: "auto" } );
 
@@ -21,6 +22,12 @@ const YEAR = /(\d{4})/;
 
 /** Leading `2043`, `2043-06` or `2043-06-12` of an otherwise free text date. */
 const ISO_DATE_PREFIX = /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/;
+
+/** An in universe date that names a year and nothing else. */
+const YEAR_ONLY = /^\d{4}$/;
+
+/** An in universe date that stops at the month, such as `2043-06`. */
+const YEAR_AND_MONTH = /^\d{4}-\d{2}$/;
 
 /**
  * Parses a value into a Date, or null when it is not a usable date.
@@ -234,14 +241,14 @@ export const formatUniverseDate = ( value: string | null | undefined ): string =
         return "";
     }
 
-    if ( /^\d{4}$/.test( value ) )
+    if ( YEAR_ONLY.test( value ) )
     {
         return value;
     }
-    if ( /^\d{4}-\d{2}$/.test( value ) )
+    if ( YEAR_AND_MONTH.test( value ) )
     {
         const date = toDate( `${ value }-01` );
-        return date ? new Intl.DateTimeFormat( "fr-FR", { month: "long", year: "numeric" } ).format( date ) : value;
+        return date ? MONTH_AND_YEAR.format( date ) : value;
     }
 
     return formatLongDate( value );

@@ -76,7 +76,7 @@ export const ENTRY_TYPES: readonly EntryTypeConfig[] = [
 /** Fallback used when a dataset carries an unknown type. */
 const FALLBACK: EntryTypeConfig = ENTRY_TYPES.at( -1 ) as EntryTypeConfig;
 
-export const ENTRY_TYPE_IDS: readonly EntryType[] = ENTRY_TYPES.map( ( type ) => type.id );
+const ENTRY_TYPE_IDS: readonly EntryType[] = ENTRY_TYPES.map( ( type ) => type.id );
 
 /**
  * Checks whether a raw value is a supported page type.

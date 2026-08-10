@@ -20,6 +20,7 @@
     import { wiki } from "$lib/state/wiki.svelte";
     import type { EntryStatus, EntryType } from "$lib/types";
     import { timelineSortKey } from "$lib/utilities/date";
+    import { counted } from "$lib/utilities/plural";
     import { deburr } from "$lib/utilities/slug";
 
     type TypeFilter = EntryType | "tous";
@@ -197,10 +198,7 @@
         </div>
     </div>
 
-    <p class="text-muted mt-6 text-sm">
-        {filtered.length}
-        {filtered.length === 1 ? "fiche" : "fiches"}
-    </p>
+    <p class="text-muted mt-6 text-sm">{counted( filtered.length, "fiche" )}</p>
 
     {#if wiki.entries.length === 0}
         <div class="mt-6">

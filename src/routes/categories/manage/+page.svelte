@@ -47,7 +47,6 @@
         return owner !== undefined && owner.slug !== editing?.slug;
     } );
 
-    // The slug follows the name until it is edited by hand.
     $effect( () =>
     {
         if ( !slugLocked )

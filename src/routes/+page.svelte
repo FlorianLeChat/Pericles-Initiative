@@ -43,7 +43,6 @@
 
 <section class="border-paper-200 dark:border-ink-800 border-b">
     <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-24">
-        <!-- The hero arrives line by line, each `--rank` being one step later than the one above it. -->
         <p
             class="text-accent-600 dark:text-accent-400 rise-in text-xs font-medium tracking-[0.2em] uppercase"
             style="--rank: 0"

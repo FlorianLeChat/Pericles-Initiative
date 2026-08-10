@@ -272,7 +272,6 @@
 }
 
 @layer components {
-    /* Shared surface for cards, panels and toolbars. */
     .surface {
         @apply border-paper-200 dark:border-ink-800 dark:bg-ink-900/60 rounded-2xl border bg-white/80 shadow-sm;
     }
@@ -302,12 +301,10 @@
         @apply text-accent-600 decoration-accent-300 dark:text-accent-400 dark:decoration-accent-700 underline decoration-1 underline-offset-2 transition hover:decoration-2;
     }
 
-    /* A link pointing at a page that does not exist yet. */
     .wiki-link-missing {
         @apply text-alert-500 decoration-alert-500/50 underline decoration-dotted underline-offset-2;
     }
 
-    /* A surface the reader can click through, which lifts under the pointer. */
     .surface-lift {
         @apply transition duration-200 hover:-translate-y-1 hover:shadow-lg;
     }
@@ -342,10 +339,30 @@
         transform-origin: left center;
     }
 
-    .grow-y {
-        animation: grow-y 700ms var(--ease-rise) backwards;
+    /*
+     * Column of the activity chart, whose length is carried by `--length`.
+     *
+     * It lies down below `sm`, where twelve columns cannot fit across a phone,
+     * and stands up above it. The two orientations live here rather than in the
+     * component because the length is an inline custom property, and an inline
+     * style has no breakpoint to answer to.
+     */
+    .chart-column {
+        display: block;
+        width: var(--length);
+        height: 100%;
+        animation: grow-x 700ms var(--ease-rise) backwards;
         animation-delay: calc(var(--rank, 0) * var(--rank-step));
-        transform-origin: center bottom;
+        transform-origin: left center;
+    }
+
+    @media (width >= 40rem) {
+        .chart-column {
+            width: 100%;
+            height: var(--length);
+            animation-name: grow-y;
+            transform-origin: center bottom;
+        }
     }
 }
 
@@ -464,7 +481,6 @@ dialog[open]::backdrop {
     }
 }
 
-/* Rendered article body: the Markdown output is displayed through this wrapper. */
 .article-body {
     @apply prose prose-lg dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-a:font-normal prose-img:rounded-2xl prose-blockquote:border-accent-400 prose-blockquote:not-italic max-w-none;
 }

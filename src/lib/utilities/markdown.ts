@@ -22,6 +22,9 @@ marked.use( { gfm: true, breaks: false } );
 /** Matches the slug of an internal page url, ignoring any anchor or query. */
 const INTERNAL_HREF = /^\/wiki\/([^#?/]+)/;
 
+/** A link leaving the site, which is opened in a new tab. */
+const EXTERNAL_HREF = /^https?:\/\//i;
+
 /** Script and style blocks are removed with their content. */
 const SCRIPT_BLOCKS = /<(script|style)\b[\s\S]*?<\/\1\s*>/gi;
 
@@ -361,7 +364,7 @@ const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string 
             return `<a ${ attributes } class="${ classes }"${ hint }>`;
         }
 
-        if ( /^https?:\/\//i.test( href ) )
+        if ( EXTERNAL_HREF.test( href ) )
         {
             return `<a ${ attributes } class="wiki-link" target="_blank" rel="noopener noreferrer">`;
         }
@@ -491,5 +494,5 @@ export const excerpt = ( markdown: string, maxLength = 180 ): string =>
 export const countWords = memoize( ( markdown: string ): number =>
 {
     const text = markdownToPlainText( markdown );
-    return text ? text.split( /\s+/ ).length : 0;
+    return text ? text.split( WHITESPACE ).length : 0;
 } );

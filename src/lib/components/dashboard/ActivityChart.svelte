@@ -2,10 +2,12 @@
     /**
      * Edition activity over the last months, as a small column chart.
      *
-     * Twelve columns do not fit across a phone: flattened to the width of one
-     * they gave labels a couple of characters wide, overlapping each other. Each
-     * column is given the room it needs instead and the strip scrolls sideways,
-     * so a month stays legible at every size.
+     * Twelve columns do not fit across a phone, so the chart lies down instead of
+     * scrolling: below `sm` each month is a row, label, bar and figure, and from
+     * `sm` up it stands back up as the strip of columns. Nothing overflows at any
+     * width, which is what keeps the chart out of a scrolling container: such a
+     * container has to be focusable to be reachable without a mouse, and a tab
+     * stop on a graphic is a stop the reader gains nothing from.
      *
      * The figures are plain text, above and below each column, so this reads as a
      * list of months and counts without anything being restated for a screen
@@ -23,42 +25,42 @@
 
     let { points }: Props = $props();
 
-    /** Room one month needs for its column and its label to stay readable. */
-    const COLUMN_WIDTH = 44;
+    /** Length given to an empty month, so it reads as a bar at zero rather than as nothing. */
+    const EMPTY_LENGTH = 2;
 
     const largest = $derived( Math.max( 1, ...points.map( ( point ) => point.count ) ) );
-    const minimumWidth = $derived( `${ points.length * COLUMN_WIDTH }px` );
+
+    /**
+     * Length of the bar of a month, as a percentage of the longest one.
+     *
+     * @param count Pages edited that month.
+     * @returns The length, ready for the `--length` custom property.
+     * @author Claude
+     */
+    const barLength = ( count: number ): string =>
+        `${ count === 0 ? EMPTY_LENGTH : ( count / largest ) * 100 }%`;
 </script>
 
-<!--
-    Focusable and named, because a strip that scrolls sideways and cannot be
-    reached by the keyboard is unreachable without a mouse.
+<ul class="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-1.5">
+    {#each points as point, index ( point.month )}
+        <li class="flex items-center gap-3 sm:flex-1 sm:flex-col sm:gap-1.5">
+            <span class="text-muted w-12 shrink-0 text-[10px] whitespace-nowrap sm:order-last sm:w-auto">
+                {point.label}
+            </span>
 
-    The rule against a tab stop on something non interactive is right in general
-    and wrong for a scroll container, which is the one case where the guidelines
-    ask for exactly this.
--->
-<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-<div class="overflow-x-auto" tabindex="0" role="group" aria-label="Fiches modifiées par mois">
-    <ul class="flex items-end gap-1.5" style="min-width: {minimumWidth}">
-        {#each points as point, index ( point.month )}
-            <li class="flex flex-1 flex-col items-center gap-1.5">
-                <span class="text-muted font-mono text-[10px]">{point.count > 0 ? point.count : ""}</span>
-
+            <span
+                class="bg-paper-200 dark:bg-ink-800 h-2.5 flex-1 overflow-hidden rounded-md sm:order-none sm:flex
+                       sm:h-[4.5rem] sm:w-full sm:flex-none sm:items-end"
+            >
                 <span
-                    class="bg-paper-200 dark:bg-ink-800 flex w-full items-end overflow-hidden rounded-md"
-                    style="height: 4.5rem"
-                >
-                    <span
-                        class="bg-accent-500 grow-y block w-full rounded-md"
-                        style="height: {point.count === 0 ? 2 : ( point.count / largest ) * 100}%; --rank: {staggerRank(
-                            index
-                        )}"
-                    ></span>
-                </span>
+                    class="bg-accent-500 chart-column rounded-md"
+                    style="--length: {barLength( point.count )}; --rank: {staggerRank( index )}"
+                ></span>
+            </span>
 
-                <span class="text-muted text-[10px] whitespace-nowrap">{point.label}</span>
-            </li>
-        {/each}
-    </ul>
-</div>
+            <span class="text-muted w-5 shrink-0 text-right font-mono text-[10px] sm:order-first sm:w-auto">
+                {point.count > 0 ? point.count : ""}
+            </span>
+        </li>
+    {/each}
+</ul>
