@@ -4,6 +4,11 @@
      *
      * @author Claude
      */
+    import Helper from "flowbite-svelte/Helper.svelte";
+    import Input from "flowbite-svelte/Input.svelte";
+    import Label from "flowbite-svelte/Label.svelte";
+    import { SMALL_FIELD } from "$lib/config/forms";
+
     interface Props {
         src: string;
         alt: string;
@@ -17,15 +22,9 @@
     <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Illustration</legend>
 
     <div>
-        <label class="field-label" for="entry-image">Chemin ou URL</label>
+        <Label for="entry-image" class="field-label">Adresse de l'image</Label>
 
-        <input
-            id="entry-image"
-            bind:value={src}
-            type="text"
-            class="field font-mono text-xs"
-            placeholder="/media/exemple.svg"
-        />
+        <Input id="entry-image" bind:value={src} type="text" class="font-mono text-xs" placeholder="https://exemple.fr/image.jpg" />
     </div>
 
     {#if src.trim()}
@@ -36,20 +35,20 @@
         />
 
         <div>
-            <label class="field-label" for="entry-image-alt">Texte alternatif</label>
+            <Label for="entry-image-alt" class="field-label">Texte alternatif</Label>
 
-            <input id="entry-image-alt" bind:value={alt} type="text" class="field py-2" />
+            <Input id="entry-image-alt" bind:value={alt} type="text" size="sm" class={SMALL_FIELD} />
         </div>
 
         <div>
-            <label class="field-label" for="entry-image-caption">Légende</label>
+            <Label for="entry-image-caption" class="field-label">Légende</Label>
 
-            <input id="entry-image-caption" bind:value={caption} type="text" class="field py-2" />
+            <Input id="entry-image-caption" bind:value={caption} type="text" size="sm" class={SMALL_FIELD} />
         </div>
     {:else}
-        <p class="text-muted text-xs leading-relaxed">
-            Déposez le fichier dans <code class="font-mono">static/media/</code>, puis indiquez son chemin. Pas de
-            base64 : le stockage local est limité.
-        </p>
+        <Helper class="text-xs leading-relaxed">
+            Collez l'adresse d'une image en ligne. Si vous avez accès aux fichiers du site, déposez la dans le
+            dossier des médias et indiquez son chemin.
+        </Helper>
     {/if}
 </fieldset>

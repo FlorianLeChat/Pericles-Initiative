@@ -4,6 +4,13 @@
      *
      * @author Claude
      */
+    import Trash2 from "@lucide/svelte/icons/trash-2";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Checkbox from "flowbite-svelte/Checkbox.svelte";
+    import Helper from "flowbite-svelte/Helper.svelte";
+    import Input from "flowbite-svelte/Input.svelte";
+    import Label from "flowbite-svelte/Label.svelte";
+    import Textarea from "flowbite-svelte/Textarea.svelte";
     import { beforeNavigate, goto } from "$app/navigation";
     import { resolve } from "$app/paths";
     import { untrack } from "svelte";
@@ -206,9 +213,10 @@
     }}
 >
     <div
-        class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/80 sticky top-16 z-30 -mx-4 mb-8 flex flex-wrap items-center gap-3 border-b bg-paper-50/90 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6"
+        class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/80 bg-paper-50/90 sticky top-16 z-30 -mx-4 mb-8
+               flex items-center gap-2 border-b px-4 py-3 backdrop-blur sm:-mx-6 sm:gap-3 sm:px-6"
     >
-        <div class="min-w-0 flex-1">
+        <div class="hidden min-w-0 flex-1 sm:block">
             <p class="text-muted text-xs tracking-wide uppercase">
                 {entry ? "Modifier une fiche" : "Nouvelle fiche"}
             </p>
@@ -217,29 +225,45 @@
         </div>
 
         {#if dirty}
-            <span class="text-signal-500 text-xs">Modifications non enregistrées</span>
+            <span class="bg-signal-500 h-2 w-2 shrink-0 rounded-full lg:hidden" aria-hidden="true"></span>
+
+            <span class="text-signal-500 sr-only shrink-0 text-xs lg:not-sr-only" role="status">
+                Modifications non enregistrées
+            </span>
         {/if}
 
-        {#if entry}
-            <button type="button" class="btn btn-ghost hover:text-alert-500" onclick={() => ( deleteOpen = true )}>
-                Supprimer
-            </button>
-        {/if}
+        <div class="ml-auto flex shrink-0 items-center gap-2">
+            {#if entry}
+                <Button
+                    color="alternative"
+                    size="sm"
+                    class="hover:text-alert-500 border-0 px-2 sm:px-3"
+                    onclick={() => ( deleteOpen = true )}
+                    aria-label="Supprimer la fiche"
+                >
+                    <Trash2 class="h-4 w-4 sm:hidden" />
 
-        <a href={resolve( entry ? `/wiki/${ entry.slug }` : "/wiki" )} class="btn btn-outline">Annuler</a>
+                    <span class="hidden sm:inline">Supprimer</span>
+                </Button>
+            {/if}
 
-        <button type="submit" class="btn btn-primary" disabled={!canSave}>Enregistrer</button>
+            <Button href={resolve( entry ? `/wiki/${ entry.slug }` : "/wiki" )} color="alternative" size="sm">
+                Annuler
+            </Button>
+
+            <Button type="submit" color="primary" size="sm" disabled={!canSave}>Enregistrer</Button>
+        </div>
     </div>
 
     <div class="space-y-4">
         <div>
-            <label class="field-label" for="entry-title">Titre</label>
+            <Label for="entry-title" class="field-label">Titre</Label>
 
-            <input
+            <Input
                 id="entry-title"
                 bind:value={title}
                 type="text"
-                class="field font-serif text-xl"
+                class="font-serif text-xl"
                 placeholder="Nom du personnage, du lieu, de l'événement..."
                 required
             />
@@ -247,61 +271,64 @@
 
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
-                <label class="field-label" for="entry-slug">
+                <Label for="entry-slug" class="field-label">
                     Adresse de la page
                     {#if !slugLocked}
                         <span class="text-muted font-normal">suit le titre</span>
                     {/if}
-                </label>
+                </Label>
 
                 <div class="flex items-center gap-2">
                     <span class="text-muted shrink-0 font-mono text-sm">/wiki/</span>
 
-                    <input
+                    <Input
                         id="entry-slug"
                         bind:value={slug}
                         oninput={() => ( slugLocked = true )}
                         onblur={() => ( slug = slug.trim() ? slugify( slug ) : "" )}
                         type="text"
-                        class="field font-mono text-sm"
+                        class="font-mono"
+                        color={slugTaken ? "red" : "default"}
+                        aria-invalid={slugTaken}
+                        aria-describedby={slugTaken ? "entry-slug-taken" : undefined}
                         placeholder="adresse-de-la-page"
                     />
                 </div>
 
                 {#if slugTaken}
-                    <p class="text-signal-500 mt-1.5 text-xs">
-                        Cette adresse est déjà prise, un suffixe sera ajouté à l'enregistrement.
-                    </p>
+                    <Helper id="entry-slug-taken" color="red" class="mt-1.5 text-xs">
+                        Une autre fiche utilise déjà cette adresse. Un numéro sera ajouté à la fin.
+                    </Helper>
                 {/if}
             </div>
 
             <div>
-                <label class="field-label" for="entry-date">Date dans l'univers</label>
+                <Label for="entry-date" class="field-label">Date dans l'univers</Label>
 
-                <input
+                <Input
                     id="entry-date"
                     bind:value={timelineDate}
                     type="text"
-                    class="field"
+                    aria-describedby="entry-date-hint"
                     placeholder="2025-04-02, ou Juin 2043"
                 />
 
-                <p class="text-muted mt-1.5 text-xs">
-                    Facultatif. Une date ISO alimente la chronologie, un texte libre est accepté.
-                </p>
+                <Helper id="entry-date-hint" class="mt-1.5 text-xs">
+                    Facultatif. Une date comme 2043-06-12 place la fiche dans la chronologie ; « Juin 2043 » ou « Le troisième hiver » sont acceptés aussi.
+                </Helper>
             </div>
         </div>
 
         <div>
-            <label class="field-label" for="entry-summary">Résumé</label>
+            <Label for="entry-summary" class="field-label">Résumé</Label>
 
-            <textarea
+            <Textarea
                 id="entry-summary"
                 bind:value={summary}
-                rows="2"
-                class="field resize-y"
-                placeholder="Une ou deux phrases, en texte brut, reprises dans les listes et les résultats de recherche."
-            ></textarea>
+                rows={2}
+                class="w-full resize-y"
+                placeholder="Une ou deux phrases. Elles apparaissent sous le titre, dans les listes et dans la recherche."
+            />
         </div>
     </div>
 
@@ -326,15 +353,13 @@
                 {:else}
                     <div class="space-y-1.5">
                         {#each wiki.categories as item ( item.slug )}
-                            <label class="flex cursor-pointer items-center gap-2 text-sm">
-                                <input
-                                    type="checkbox"
-                                    class="accent-accent-600 h-4 w-4"
-                                    checked={categories.includes( item.slug )}
-                                    onchange={() => toggleCategory( item.slug )}
-                                />
+                            <Checkbox
+                                classes={{ div: "flex min-h-9 items-center text-sm" }}
+                                checked={categories.includes( item.slug )}
+                                onchange={() => toggleCategory( item.slug )}
+                            >
                                 {item.name}
-                            </label>
+                            </Checkbox>
                         {/each}
                     </div>
                 {/if}

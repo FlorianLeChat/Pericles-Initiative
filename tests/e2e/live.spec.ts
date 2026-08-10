@@ -49,18 +49,18 @@ test.describe( "live feed", () =>
     {
         await wiki.open( "/live" );
 
-        await page.getByRole( "button", { name: "N'afficher que la gravité Urgent" } ).click();
+        await page.getByRole( "radio", { name: "Urgent", exact: true } ).check();
 
         await expect( page.getByRole( "article" ) ).toHaveCount( 1 );
         await expect( item( page, LIVE.older.title ) ).toBeVisible();
 
-        await page.getByRole( "button", { name: "Toutes gravités" } ).click();
+        await page.getByRole( "radio", { name: "Toutes gravités" } ).check();
         await page.getByLabel( "Filtrer par étiquette" ).selectOption( "port" );
 
         await expect( page.getByRole( "article" ) ).toHaveCount( 1 );
         await expect( item( page, LIVE.pinned.title ) ).toBeVisible();
 
-        await page.getByRole( "button", { name: "N'afficher que la gravité Alerte" } ).click();
+        await page.getByRole( "radio", { name: "Alerte", exact: true } ).check();
 
         await expect( page.getByText( "Rien à cette gravité" ) ).toBeVisible();
 
@@ -77,7 +77,8 @@ test.describe( "live feed", () =>
 
         await page.getByLabel( "Titre" ).fill( "Le détroit rouvre à la navigation" );
         await page.getByLabel( "Corps" ).fill( "Les quatre sas fonctionnent de nouveau." );
-        await page.getByRole( "button", { name: "Gravité Important", exact: true } ).click();
+        await page.getByRole( "group", { name: "Gravité", exact: true } )
+            .getByRole( "radio", { name: "Important", exact: true } ).check();
         await page.getByLabel( "Étiquettes" ).fill( "detroit" );
         await page.getByLabel( "Étiquettes" ).press( "Enter" );
         await page.getByRole( "button", { name: "Publier", exact: true } ).click();
@@ -104,8 +105,7 @@ test.describe( "live feed", () =>
         await expect( item( page, "Le traité des marées est suspendu" ) ).toBeVisible();
 
         await item( page, "Le traité des marées est suspendu" ).getByRole( "button", { name: "Supprimer" } ).click();
-        await page.getByRole( "dialog", { name: "Supprimer cette entrée ?" } )
-            .getByRole( "button", { name: "Supprimer" } ).click();
+        await wiki.confirm( "Supprimer cette entrée ?", "Supprimer" );
 
         await expect( page.getByRole( "article" ) ).toHaveCount( COUNTS.live - 1 );
         expect( ( await wiki.storedOverlay() )?.live[ LIVE.older.id ] ).toBeUndefined();

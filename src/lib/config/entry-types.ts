@@ -7,6 +7,13 @@
  * @author Claude
  */
 
+import Box from "@lucide/svelte/icons/box";
+import Building2 from "@lucide/svelte/icons/building-2";
+import Lightbulb from "@lucide/svelte/icons/lightbulb";
+import MapPin from "@lucide/svelte/icons/map-pin";
+import User from "@lucide/svelte/icons/user";
+import Zap from "@lucide/svelte/icons/zap";
+import type { Component } from "svelte";
 import type { EntryType } from "$lib/types";
 
 export interface EntryTypeConfig {
@@ -15,8 +22,8 @@ export interface EntryTypeConfig {
     label: string;
     /** Plural label, shown in listing headers and filters. */
     plural: string;
-    /** SVG path data, drawn with `fill="none" stroke="currentColor"` on a 24x24 viewBox. */
-    icon: string;
+    /** Icon component, rendered decoratively beside the label. */
+    icon: Component;
     /** Tailwind classes of the badge, light and dark. */
     badge: string;
 }
@@ -26,42 +33,42 @@ export const ENTRY_TYPES: readonly EntryTypeConfig[] = [
         id: "personnage",
         label: "Personnage",
         plural: "Personnages",
-        icon: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.1a7.5 7.5 0 0 1 15 0A17.9 17.9 0 0 1 12 21.75c-2.7 0-5.2-.6-7.5-1.65Z",
+        icon: User,
         badge: "bg-accent-100 text-accent-700 dark:bg-accent-900/60 dark:text-accent-200"
     },
     {
         id: "lieu",
         label: "Lieu",
         plural: "Lieux",
-        icon: "M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z M19.5 10.5c0 7.14-7.5 11.25-7.5 11.25S4.5 17.64 4.5 10.5a7.5 7.5 0 1 1 15 0Z",
+        icon: MapPin,
         badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200"
     },
     {
         id: "evenement",
         label: "Événement",
         plural: "Événements",
-        icon: "m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z",
+        icon: Zap,
         badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-200"
     },
     {
         id: "organisation",
         label: "Organisation",
         plural: "Organisations",
-        icon: "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21",
+        icon: Building2,
         badge: "bg-violet-100 text-violet-700 dark:bg-violet-900/60 dark:text-violet-200"
     },
     {
         id: "objet",
         label: "Objet",
         plural: "Objets",
-        icon: "m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9",
+        icon: Box,
         badge: "bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-200"
     },
     {
         id: "concept",
         label: "Concept",
         plural: "Concepts",
-        icon: "M12 18v-5.25m0 0a6 6 0 0 0 1.5-.189m-1.5.189a6 6 0 0 1-1.5-.189m3.75 7.478a12 12 0 0 1-4.5 0m3.75 2.383a14.4 14.4 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18",
+        icon: Lightbulb,
         badge: "bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-200"
     }
 ];

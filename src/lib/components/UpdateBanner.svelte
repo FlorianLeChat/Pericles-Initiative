@@ -14,11 +14,12 @@
      *
      * @author Claude
      */
+    import RefreshCw from "@lucide/svelte/icons/refresh-cw";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Toast from "flowbite-svelte/Toast.svelte";
     import { browser } from "$app/environment";
-    import Icon from "$lib/components/Icon.svelte";
+    import { motionDuration } from "$lib/config/motion";
     import { ACTIVATE_NOW } from "$lib/config/service-worker";
-
-    const REFRESH = "M4.5 12a7.5 7.5 0 0 1 12.8-5.3M19.5 12a7.5 7.5 0 0 1-12.8 5.3M17.3 3.5v3.2h-3.2M6.7 20.5v-3.2h3.2";
 
     let waiting = $state<ServiceWorker | null>( null );
     let reloading = $state( false );
@@ -106,21 +107,26 @@
 </script>
 
 {#if waiting}
-    <aside
-        class="surface fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md flex-col gap-3 p-4 shadow-lg sm:flex-row
-               sm:items-center sm:justify-between"
+    <Toast
+        dismissable={false}
+        color="gray"
+        params={{ duration: motionDuration() }}
+        class="surface text-ink-800 dark:text-paper-200 pointer-events-auto w-full max-w-md rounded-2xl p-4 shadow-lg"
         aria-label="Mise à jour disponible"
     >
-        <p class="flex items-center gap-2 text-sm">
-            <Icon path={REFRESH} class="h-4 w-4 shrink-0" />
-            Une nouvelle version du site est prête.
-        </p>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="flex items-center gap-2.5 text-sm">
+                <RefreshCw class="text-accent-600 dark:text-accent-400 h-4 w-4 shrink-0" />
+                Une nouvelle version du site est prête.
+            </p>
 
-        <div class="flex shrink-0 gap-2">
-            <button type="button" class="btn btn-ghost" onclick={() => ( waiting = null )}>Plus tard</button>
-            <button type="button" class="btn btn-primary" onclick={accept} disabled={reloading}>
-                {reloading ? "Chargement..." : "Recharger"}
-            </button>
+            <div class="flex shrink-0 gap-2">
+                <Button color="alternative" size="sm" onclick={() => ( waiting = null )}>Plus tard</Button>
+
+                <Button color="primary" size="sm" onclick={accept} disabled={reloading} loading={reloading}>
+                    {reloading ? "Chargement..." : "Recharger"}
+                </Button>
+            </div>
         </div>
-    </aside>
+    </Toast>
 {/if}

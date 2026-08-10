@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import Badge from "flowbite-svelte/Badge.svelte";
     import { severityConfig } from "$lib/config/severities";
 
     interface Props {
@@ -15,6 +16,4 @@
     const config = $derived( severityConfig( severity ) );
 </script>
 
-<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium {config.badge}">
-    {config.label}
-</span>
+<Badge class="rounded-full px-2.5 py-1 text-xs {config.badge}">{config.label}</Badge>

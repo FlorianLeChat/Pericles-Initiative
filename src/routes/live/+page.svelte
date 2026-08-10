@@ -7,12 +7,16 @@
      *
      * @author Claude
      */
+    import Button from "flowbite-svelte/Button.svelte";
+    import Radio from "flowbite-svelte/Radio.svelte";
+    import Select from "flowbite-svelte/Select.svelte";
     import { cubicOut } from "svelte/easing";
     import { fly } from "svelte/transition";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import LiveComposer from "$lib/components/live/LiveComposer.svelte";
     import LiveFeedGroup from "$lib/components/live/LiveFeedGroup.svelte";
+    import { RADIO_OVERLAY } from "$lib/config/forms";
     import { SEVERITIES } from "$lib/config/severities";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LiveEntry, LiveSeverity } from "$lib/types";
@@ -60,6 +64,20 @@
     const latest = $derived( wiki.live[ 0 ] );
 
     /**
+     * Appearance of one severity pill, which only depends on whether it is the chosen one.
+     *
+     * @param chosen True when the pill is the selected severity.
+     * @returns Classes for the label wrapping the radio.
+     * @author Claude
+     */
+    const severityClass = ( chosen: boolean ): string =>
+        `relative flex min-h-9 cursor-pointer items-center rounded-full px-3 text-xs font-medium transition
+         has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-500 ${
+            chosen
+                ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
+                : "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300" }`;
+
+    /**
      * Loads an item into the composer.
      *
      * @param item Item to edit.
@@ -97,9 +115,9 @@
         </div>
 
         <div class="flex flex-col items-end gap-2">
-            <button
-                type="button"
-                class="btn btn-primary"
+            <Button
+                color="primary"
+                aria-expanded={composerOpen}
                 onclick={() =>
                 {
                     editing = null;
@@ -107,46 +125,53 @@
                 }}
             >
                 {composerOpen && !editing ? "Fermer le composeur" : "Publier une entrée"}
-            </button>
+            </Button>
         </div>
     </header>
 
     <div class="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrer le fil">
-                <button
-                    type="button"
-                    class="rounded-full px-3 py-1.5 text-xs font-medium transition {severity === "toutes"
-                        ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-                        : "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
-                    onclick={() => ( severity = "toutes" )}
-                    aria-pressed={severity === "toutes"}
-                >
-                    Toutes gravités
-                </button>
+            <div class="flex flex-wrap items-center gap-2">
+                <fieldset class="contents">
+                    <legend class="sr-only">Filtrer par gravité</legend>
 
-                {#each SEVERITIES as config ( config.id )}
-                    <button
-                        type="button"
-                        class="rounded-full px-3 py-1.5 text-xs font-medium transition {severity === config.id
-                            ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-                            : "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
-                        onclick={() => ( severity = config.id )}
-                        aria-label="N'afficher que la gravité {config.label}"
-                        aria-pressed={severity === config.id}
+                    <Radio
+                        name="filtre-gravite"
+                        value="toutes"
+                        bind:group={severity}
+                        class={RADIO_OVERLAY}
+                        classes={{ label: severityClass( severity === "toutes" ) }}
                     >
-                        {config.label}
-                    </button>
-                {/each}
+                        Toutes gravités
+                    </Radio>
+
+                    {#each SEVERITIES as config ( config.id )}
+                        <Radio
+                            name="filtre-gravite"
+                            value={config.id}
+                            bind:group={severity}
+                            class={RADIO_OVERLAY}
+                            classes={{ label: severityClass( severity === config.id ) }}
+                        >
+                            {config.label}
+                        </Radio>
+                    {/each}
+                </fieldset>
 
                 {#if wiki.liveTags.length > 0}
-                    <select bind:value={tag} class="field w-auto py-1.5 text-xs" aria-label="Filtrer par étiquette">
+                    <Select
+                        bind:value={tag}
+                        size="sm"
+                        placeholder=""
+                        class="w-auto"
+                        aria-label="Filtrer par étiquette"
+                    >
                         <option value="toutes">Toutes étiquettes</option>
 
                         {#each wiki.liveTags as item ( item )}
                             <option value={item}>{item}</option>
                         {/each}
-                    </select>
+                    </Select>
                 {/if}
             </div>
 
@@ -156,9 +181,8 @@
                         title="Rien à cette gravité"
                         description="Aucune entrée du fil ne correspond à ce filtre."
                     >
-                        <button
-                            type="button"
-                            class="btn btn-outline"
+                        <Button
+                            color="alternative"
                             onclick={() =>
                             {
                                 severity = "toutes";
@@ -166,7 +190,7 @@
                             }}
                         >
                             Tout afficher
-                        </button>
+                        </Button>
                     </EmptyState>
                 </div>
             {:else}

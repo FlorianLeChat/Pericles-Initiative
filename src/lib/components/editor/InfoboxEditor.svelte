@@ -2,8 +2,20 @@
     /**
      * Editor for the label and value rows of the infobox.
      *
+     * The three controls of a row used to be twenty eight pixel squares holding
+     * an arrow character, which is both under the size a finger can reliably hit
+     * and a glyph rather than an icon. They are now full sized targets carrying a
+     * real icon and a name that says which row they act on, since «Monter» repeated
+     * five times down a column tells a screen reader user nothing.
+     *
      * @author Claude
      */
+    import ArrowDown from "@lucide/svelte/icons/arrow-down";
+    import ArrowUp from "@lucide/svelte/icons/arrow-up";
+    import X from "@lucide/svelte/icons/x";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Input from "flowbite-svelte/Input.svelte";
+    import { SMALL_FIELD } from "$lib/config/forms";
     import type { InfoboxField } from "$lib/types";
 
     interface Props {
@@ -43,6 +55,7 @@
     const move = ( index: number, offset: number ): void =>
     {
         const target = index + offset;
+
         if ( target < 0 || target >= fields.length )
         {
             return;
@@ -52,42 +65,74 @@
         [ reordered[ index ], reordered[ target ] ] = [ reordered[ target ], reordered[ index ] ];
         fields = reordered;
     };
+
+    /**
+     * Names a row for assistive technology, by its label when it has one.
+     *
+     * @param field Row being described.
+     * @param index Position of the row.
+     * @returns A phrase identifying the row.
+     * @author Claude
+     */
+    const rowName = ( field: InfoboxField, index: number ): string =>
+        field.label.trim() || `ligne ${ index + 1 }`;
 </script>
 
 <div class="space-y-2">
     {#each fields as field, index ( index )}
         <div class="flex items-start gap-1.5">
             <div class="grid flex-1 gap-1.5">
-                <input bind:value={field.label} type="text" class="field py-2" placeholder="Intitulé" />
-                <input bind:value={field.value} type="text" class="field py-2" placeholder="Valeur" />
+                <Input
+                    bind:value={field.label}
+                    type="text"
+                    size="sm"
+                    class={SMALL_FIELD}
+                    placeholder="Intitulé"
+                    aria-label="Intitulé de la ligne {index + 1}"
+                />
+
+                <Input
+                    bind:value={field.value}
+                    type="text"
+                    size="sm"
+                    class={SMALL_FIELD}
+                    placeholder="Valeur"
+                    aria-label="Valeur de la ligne {index + 1}"
+                />
             </div>
 
             <div class="flex flex-col gap-1">
-                <button
-                    type="button"
-                    class="btn btn-ghost h-7 w-7 px-0 text-xs"
+                <Button
+                    color="alternative"
+                    class="h-9 w-9 border-0 p-0"
                     onclick={() => move( index, -1 )}
                     disabled={index === 0}
-                    aria-label="Monter cette ligne">&uarr;</button
+                    aria-label="Monter {rowName( field, index )}"
                 >
+                    <ArrowUp class="h-4 w-4" />
+                </Button>
 
-                <button
-                    type="button"
-                    class="btn btn-ghost h-7 w-7 px-0 text-xs"
+                <Button
+                    color="alternative"
+                    class="h-9 w-9 border-0 p-0"
                     onclick={() => move( index, 1 )}
                     disabled={index === fields.length - 1}
-                    aria-label="Descendre cette ligne">&darr;</button
+                    aria-label="Descendre {rowName( field, index )}"
                 >
+                    <ArrowDown class="h-4 w-4" />
+                </Button>
 
-                <button
-                    type="button"
-                    class="btn btn-ghost hover:text-alert-500 h-7 w-7 px-0 text-xs"
+                <Button
+                    color="alternative"
+                    class="hover:text-alert-500 h-9 w-9 border-0 p-0"
                     onclick={() => remove( index )}
-                    aria-label="Supprimer cette ligne">&times;</button
+                    aria-label="Supprimer {rowName( field, index )}"
                 >
+                    <X class="h-4 w-4" />
+                </Button>
             </div>
         </div>
     {/each}
 
-    <button type="button" class="btn btn-outline w-full py-1.5 text-xs" onclick={add}> Ajouter une ligne </button>
+    <Button color="alternative" size="sm" class="w-full" onclick={add}>Ajouter une ligne</Button>
 </div>

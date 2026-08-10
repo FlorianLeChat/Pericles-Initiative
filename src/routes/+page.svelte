@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import CategoryChip from "$lib/components/CategoryChip.svelte";
     import EmptyState from "$lib/components/EmptyState.svelte";
@@ -69,8 +70,8 @@
         </p>
 
         <div class="rise-in mt-9 flex flex-wrap gap-3" style="--rank: 4">
-            <a href={resolve( "/wiki" )} class="btn btn-primary px-5 py-2.5">Parcourir les fiches</a>
-            <a href={resolve( "/categories" )} class="btn btn-outline px-5 py-2.5">Explorer les catégories</a>
+            <Button href={resolve( "/wiki" )} color="primary" size="lg">Parcourir les fiches</Button>
+            <Button href={resolve( "/categories" )} color="alternative" size="lg">Explorer les catégories</Button>
         </div>
 
         <dl
@@ -201,7 +202,7 @@
                 title="Aucune fiche pour le moment"
                 description="Ce wiki est vide : commencez par créer la première fiche."
             >
-                <a href={resolve( "/new" )} class="btn btn-outline">Créer une fiche</a>
+                <Button href={resolve( "/new" )} color="alternative">Créer une fiche</Button>
             </EmptyState>
         </div>
     {:else}

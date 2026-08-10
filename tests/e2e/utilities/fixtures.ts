@@ -47,6 +47,8 @@ export interface WikiHelper {
     openWith: ( dataset: Dataset, path?: string ) => Promise<void>;
     /** Follows a link of the main navigation, through the burger menu on a narrow screen. */
     navigate: ( label: string ) => Promise<void>;
+    /** Answers a confirmation dialog, and waits for it to be gone. */
+    confirm: ( title: string, label: string ) => Promise<void>;
     /** Reads back what this browser stored, or null when it stored nothing. */
     storedOverlay: () => Promise<Overlay | null>;
     /** Reads back a single stored page, by slug. */
@@ -65,6 +67,23 @@ export interface WikiHelper {
  * @author Claude
  */
 export const isNarrow = ( page: Page ): boolean => ( page.viewportSize()?.width ?? 0 ) < NARROW_VIEWPORT;
+
+/**
+ * Waits for the mobile navigation drawer to have left the page.
+ *
+ * The drawer is a `<dialog>` opened with `showModal`, and it slides away rather
+ * than vanishing. Until that is over it is still modal, so the page underneath
+ * is inert and anything aimed at it, a tap or a filled field, is dropped without
+ * a word. Every path that closes the drawer therefore has to wait for it.
+ *
+ * @param page Page under test.
+ * @returns Resolves once the drawer is gone.
+ * @author Claude
+ */
+export const waitForDrawer = async ( page: Page ): Promise<void> =>
+{
+    await expect( page.getByRole( "dialog", { name: "Navigation du site" } ) ).toBeHidden();
+};
 
 /**
  * Locates one figure of the home page hero, by its label.
@@ -138,6 +157,33 @@ const createHelper = ( page: Page ): WikiHelper =>
         const menu = page.getByRole( "navigation", { name: mobile ? "Navigation mobile" : "Navigation principale" } );
 
         await menu.getByRole( "link", { name: label, exact: true } ).click();
+
+        if ( mobile )
+        {
+            await waitForDrawer( page );
+        }
+    };
+
+    /**
+     * Presses a button of a confirmation dialog, then waits for the dialog to go.
+     *
+     * The wait is the point of this helper. These dialogs are real `<dialog>`
+     * elements opened with `showModal`, and they fade out rather than vanish, so
+     * for the length of that fade the page behind them is still inert: a click or
+     * a fill aimed at it in that window lands on nothing, silently, and the spec
+     * carries on against a page that never received it.
+     *
+     * @param title Accessible name of the dialog.
+     * @param label Name of the button to press.
+     * @returns Resolves once the dialog has left the page.
+     * @author Claude
+     */
+    const confirm = async ( title: string, label: string ): Promise<void> =>
+    {
+        const dialog = page.getByRole( "dialog", { name: title } );
+
+        await dialog.getByRole( "button", { name: label, exact: true } ).click();
+        await expect( dialog ).toBeHidden();
     };
 
     const storedOverlay = async (): Promise<Overlay | null> =>
@@ -154,7 +200,7 @@ const createHelper = ( page: Page ): WikiHelper =>
         return Object.values( overlay?.entries ?? {} ).find( ( entry ) => entry.slug === slug );
     };
 
-    return { open, openEmpty, openWith, navigate, storedOverlay, storedEntry };
+    return { open, openEmpty, openWith, navigate, confirm, storedOverlay, storedEntry };
 };
 
 export const test = base.extend<{ wiki: WikiHelper }>( {

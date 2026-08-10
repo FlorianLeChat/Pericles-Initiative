@@ -21,8 +21,9 @@ backend, a build step that writes into `static/`, or an authentication shim.
 
 ## Stack
 
-SvelteKit 2 with Svelte 5 runes, TypeScript, `adapter-static`, Tailwind CSS 4, `marked` for
-rendering Markdown, `@milkdown/crepe` for authoring it.
+SvelteKit 2 with Svelte 5 runes, TypeScript, `adapter-static`, Tailwind CSS 4, `flowbite-svelte` for
+the interface components, `@lucide/svelte` for the icons, `apexcharts` for the dashboard charts,
+`marked` for rendering Markdown, `@milkdown/crepe` for authoring it.
 
 Tooling is ESLint with a flat config (`typescript-eslint` strict and stylistic, `@stylistic`,
 `eslint-plugin-svelte`), Prettier with `prettier-plugin-svelte`, and commitlint on the conventional
@@ -224,6 +225,64 @@ when a section gains its own logic or when it grows past roughly two hundred lin
 details that appear in more than one component, such as the colour of a category or the icon of a
 page type, belong in `src/lib/config/`, not duplicated in markup.
 
+## Flowbite
+
+Buttons, fields, radios, badges, alerts, toasts, keycaps, breadcrumbs, the tools dropdown, the mobile
+drawer and the three dialogs come from `flowbite-svelte`. Reach for it before writing a control by
+hand, and import by subpath, `flowbite-svelte/Button.svelte`, never from the package root: the root
+is a barrel over every component in the library.
+
+Every single choice on this site reads as a row of pills, so its radios are Flowbite's with the
+appearance passed as `classes.label` and `RADIO_OVERLAY` from `src/lib/config/forms.ts` passed as
+`class`. That constant, rather than the library's own `custom` variant, because `custom` hides the
+input with `sr-only`, and a clipped element takes no pointer event: the pill would answer a click
+only through its label, and `getByRole( "radio" ).check()` would stop reaching it.
+
+Two controls stayed hand written on purpose. `CloseButton` was tried for the three dismissing crosses
+and dropped: it carries `focus:outline-hidden`, so the focus ring has to be rebuilt, `m-0.5 p-1.5`
+has to be undone, and it fires the dismiss context of whatever container it sits in, which for the
+toast of `ConnectionStatus` and the drawer of `SiteHeader` is a second, invisible path to the same
+state. `Tags` was tried for `ChipsInput` and dropped: it pulls `@floating-ui/dom`, its placeholder and
+helper text are English, and its chips are smaller than a finger.
+
+Four things it does not do on its own, and every one of them has bitten this codebase:
+
+- **Its accessible names are in English.** «Close», «Breadcrumb», «Choose option ...». Anything it
+  renders with a built in label needs a French one passed explicitly, and where the component gives
+  no way to pass one, as with the close button of a `Modal`, use `dismissable={false}` and render
+  your own control.
+- **Tailwind does not see it.** `app.css` lists the folders of `dist` that are scanned. Adding a
+  component means adding its folder, or it renders unstyled.
+- **Half of it is a stylesheet, not a component.** A checkbox, a radio and a file input are drawn by
+  the operating system, and `text-primary-600` on one of them colours nothing. `@plugin
+  'flowbite/plugin'` in `app.css` is what strips them to `appearance: none` and repaints the tick, the
+  dot and the file button, so the classes `Checkbox`, `Radio` and `Fileupload` carry have a surface to
+  land on. Only its `forms` group is enabled; the four others are for widgets this site does not have.
+- **`size="sm"` does not mean one height.** Flowbite gives an `Input` `py-1` and a `Select` `py-2.5`,
+  so the two on the same row stand twelve pixels apart. `SMALL_FIELD` in `src/lib/config/forms.ts`
+  brings the input up to the menu; pass it to every small input.
+- **A `<dialog>` does not inherit the text colour.** The user agent gives one `color: CanvasText`,
+  which resets the light cream coming down from the body to plain black, and in the dark theme that is
+  black on near black. `Modal` and `Drawer` therefore spell out `text-ink-800 dark:text-paper-200`
+  themselves, and anything placed inside one that relies on inheritance has to be checked in the dark
+  theme, which the Playwright suite does not currently visit.
+- **`primary-*` and `gray-*` are aliases of the editorial palette**, declared in `@theme`. Nothing in
+  `src/` writes those two scales by hand; they exist so the classes compiled into the library resolve
+  to our colours.
+- **Its dialogs must not carry a Svelte transition.** `Modal` and `Drawer` are real `<dialog>`
+  elements opened with `showModal`, and a transition keeps one mounted for the length of its outro. A
+  dialog closed while its intro was still running never finishes leaving: it stays on screen, modal,
+  with the page behind it inert. Pass `transitionParams={{ duration: 0 }}` and let the CSS in
+  `app.css` do the entrance.
+
+The dashboard charts are **not** Flowbite's, and no charting library is installed. `BarChart.svelte`
+and `ActivityChart.svelte` lay their bars out with the grid and a couple of keyframes, which for two
+graphs is both smaller and better behaved: they prerender, they follow the theme through the same
+`dark:` variants as everything else, `prefers-reduced-motion` reaches them from `app.css`, and their
+labels and figures are real text rather than an SVG that has to be described twice. ApexCharts was
+tried and removed: it weighed four hundred and sixty seven kilobytes, more than the rest of the
+application put together, and needed all four of those things wired by hand.
+
 ## Planning before implementation
 
 For any change spanning several files, agree on a plan before writing code. Trivial fixes, a typo,
@@ -256,12 +315,21 @@ in the same commit**:
   initialises, which on a cold load happens before the overlay has been read.
 - `tests/e2e/navigation.spec.ts` — header, tools menu, search palette, theme, on both viewports.
 - `tests/e2e/remote-backup.spec.ts` — the optional snapshot service, entirely mocked.
+- `tests/e2e/accessibility.spec.ts` — axe over every page, both viewports. It asks for reduced motion
+  before measuring, since axe samples the colour an element happens to have and would otherwise read
+  a listing halfway through its entrance and call every card a contrast failure.
 
 Conventions to follow:
 
 - Reach a starting point through the `wiki` fixture of `tests/e2e/utilities/fixtures.ts`
-  (`open`, `openEmpty`, `openWith`, `navigate`, `storedOverlay`, `storedEntry`) rather than
-  duplicating navigation or storage logic.
+  (`open`, `openEmpty`, `openWith`, `navigate`, `confirm`, `storedOverlay`, `storedEntry`) rather
+  than duplicating navigation or storage logic.
+- **Answer a confirmation through `confirm`, and close the drawer through `navigate` or
+  `waitForDrawer`.** Both wait for the dialog to have left the page, and that wait is not optional: a
+  modal `<dialog>` holds the page inert until it is gone, so a click or a fill aimed at what is
+  behind it lands on nothing, silently, and the spec carries on against a page that never received
+  it. This is the failure that looks like a mystery, so reach for the helpers rather than for a
+  locator.
 - Nothing in `src/` knows the suite exists, and it must stay that way: no seed file, no test mode, no
   build flag. `open`, `openEmpty` and `openWith` write the `pericles:overlay` key before the first
   paint, in the shape `WikiStore` writes it, so a spec exercises the real loading path. Serving a
@@ -326,7 +394,7 @@ src/
             data/               file backup, remote backup, local content
             editor/             Milkdown editor, page form, link picker
             live/               live feed, composer, alert banner
-        config/                 page types, palette, severities, navigation, motion
+        config/                 page types, palette, severities, navigation, motion, forms
         state/wiki.svelte.ts    seed plus overlay, link graph, mutations, export and import
         state/remote.svelte.ts  connection to the optional snapshot service
         types.ts                every data contract

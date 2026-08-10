@@ -9,7 +9,7 @@
  */
 
 import { PAGES } from "./utilities/dataset";
-import { expect, isNarrow, test, THEME_KEY } from "./utilities/fixtures";
+import { expect, isNarrow, test, THEME_KEY, waitForDrawer } from "./utilities/fixtures";
 
 test.describe( "site frame", () =>
 {
@@ -39,11 +39,12 @@ test.describe( "site frame", () =>
             await page.getByRole( "button", { name: "Ouvrir la navigation" } ).click();
             await page.getByRole( "navigation", { name: "Navigation mobile" } )
                 .getByRole( "link", { name: "Tableau de bord" } ).click();
+            await waitForDrawer( page );
         }
         else
         {
             await page.getByRole( "button", { name: "Outils" } ).click();
-            await page.getByRole( "banner" ).getByRole( "link", { name: "Tableau de bord" } ).click();
+            await page.getByRole( "menuitem", { name: "Tableau de bord" } ).click();
         }
 
         await expect( page ).toHaveURL( /\/dashboard$/ );
@@ -63,9 +64,6 @@ test.describe( "site frame", () =>
 
         await expect( palette ).toContainText( "Aucune fiche ne correspond" );
 
-        // The field is a `search` input, and Chromium gives it the first Escape to
-        // empty itself. The palette closes on the next one.
-        await page.keyboard.press( "Escape" );
         await page.keyboard.press( "Escape" );
 
         await expect( palette ).toBeHidden();
@@ -73,8 +71,8 @@ test.describe( "site frame", () =>
         await page.getByRole( "button", { name: "Rechercher" } ).click();
         await page.keyboard.type( "la vance" );
 
-        // The best match leads, and it is the one Entrée validates.
-        await expect( palette.getByRole( "button" ).first() ).toContainText( PAGES.athena.title );
+        await expect( palette.getByRole( "option" ).first() ).toContainText( PAGES.athena.title );
+        await expect( palette.getByRole( "option" ).first() ).toHaveAttribute( "aria-selected", "true" );
 
         await page.keyboard.press( "Enter" );
 

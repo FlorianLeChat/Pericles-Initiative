@@ -23,6 +23,6 @@ export const NAV_LINKS: readonly NavLink[] = [
 
 export const TOOL_LINKS: readonly NavLink[] = [
     { href: "/dashboard", label: "Tableau de bord" },
-    { href: "/data", label: "Données" },
+    { href: "/data", label: "Sauvegardes" },
     { href: "/settings", label: "Paramètres" }
 ];

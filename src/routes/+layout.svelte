@@ -5,6 +5,7 @@
      * @author Claude
      */
     import "../app.css";
+    import Alert from "flowbite-svelte/Alert.svelte";
     import { asset } from "$app/paths";
     import { untrack, type Snippet } from "svelte";
     import { onNavigate } from "$app/navigation";
@@ -108,22 +109,43 @@
 
 <svelte:window onkeydown={onKeydown} />
 
+<a
+    href="#contenu"
+    class="bg-accent-600 focus:ring-accent-500 sr-only rounded-full px-4 py-2 text-sm font-medium text-white
+           focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:ring-2 focus:ring-offset-2"
+>
+    Aller au contenu
+</a>
+
 <BreakingBanner />
 
 <SiteHeader onsearch={() => ( searchOpen = true )} />
 
-<main class="flex-1">
+<!--
+    `tabindex` is what makes the skip link actually move the focus: without it
+    the browser scrolls to the landmark and leaves the focus where it was, so the
+    next tab goes back to the header the reader just skipped.
+-->
+<main id="contenu" tabindex="-1" class="flex-1 focus:outline-none">
     {@render children()}
 </main>
 
 <SearchDialog bind:open={searchOpen} />
 
-<ConnectionStatus />
+<!--
+    The three floating messages share one column in the bottom corner rather than
+    each owning the corner: stacked in a flex container they push each other up
+    instead of covering one another, which is what happened when a failed
+    publication, a pending update and a storage error met.
+-->
+<div class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col items-start gap-2 sm:inset-x-6">
+    {#if wiki.storageError}
+        <Alert color="red" class="pointer-events-auto w-full max-w-md" role="alert">
+            {wiki.storageError}
+        </Alert>
+    {/if}
 
-<UpdateBanner />
+    <ConnectionStatus />
 
-{#if wiki.storageError}
-    <p class="bg-alert-500 fixed inset-x-0 bottom-0 z-50 px-4 py-3 text-center text-sm text-white" role="alert">
-        {wiki.storageError}
-    </p>
-{/if}
+    <UpdateBanner />
+</div>

@@ -15,11 +15,18 @@
      *
      * @author Claude
      */
+    import Alert from "flowbite-svelte/Alert.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Checkbox from "flowbite-svelte/Checkbox.svelte";
+    import Helper from "flowbite-svelte/Helper.svelte";
+    import Input from "flowbite-svelte/Input.svelte";
+    import Label from "flowbite-svelte/Label.svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { remote } from "$lib/state/remote.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { RemoteFailure } from "$lib/types";
     import { formatDateTime } from "$lib/utilities/date";
+    import { counted } from "$lib/utilities/plural";
     import { isUsableBaseUrl } from "$lib/utilities/remote";
 
     /**
@@ -28,17 +35,19 @@
      * The transport only reports a machine readable cause, so the sentences live
      * here, in the component that displays them, as the project has no message
      * catalogue for its single language.
+     *
+     * Each one says what happened and what to try, and none of them names a
+     * protocol. Whoever set this server up can read the cause off the sentence,
+     * and whoever did not is not helped by the word CORS.
      */
     const FAILURE_MESSAGE: Readonly<Record<RemoteFailure, string>> = {
-        network: "Serveur injoignable. Vérifiez l'adresse, et que le serveur autorise bien ce site (CORS).",
-        refused: "Secret refusé par le serveur.",
-        missing: "Aucune sauvegarde sur ce serveur pour le moment.",
-        unsupported:
-            "Le serveur ne propose rien à cette adresse. Vérifiez qu'il accepte bien un PUT sur /dataset, et que "
-            + "l'adresse saisie ne contient pas déjà « /dataset ».",
-        conflict: "La sauvegarde distante a changé depuis votre dernière lecture.",
-        unreadable: "Le serveur n'a pas renvoyé de JSON exploitable.",
-        server: "Le serveur a répondu par une erreur."
+        network: "Le serveur ne répond pas. Vérifiez l'adresse, et qu'il est bien en ligne.",
+        refused: "Le mot de passe a été refusé.",
+        missing: "Ce serveur ne contient encore aucune sauvegarde.",
+        unsupported: "Cette adresse ne mène pas à un serveur de sauvegarde. Vérifiez la auprès de qui l'a installé.",
+        conflict: "La sauvegarde en ligne a changé depuis votre dernière lecture, sans doute depuis un autre appareil.",
+        unreadable: "La réponse du serveur est incompréhensible. Il ne s'agit peut être pas d'un serveur de sauvegarde.",
+        server: "Le serveur a rencontré une erreur de son côté. Réessayez plus tard."
     };
 
     let baseUrl = $state( "" );
@@ -127,8 +136,7 @@
             feedback = {
                 kind: "success",
                 text:
-                    `Serveur joignable. La sauvegarde distante contient ${ count } `
-                    + `${ count === 1 ? "fiche" : "fiches" }.`
+                    `Connexion réussie. La sauvegarde en ligne contient ${ counted( count, "fiche" ) }.`
             };
 
             return;
@@ -138,7 +146,7 @@
         // that the secret was accepted, so for a connection test it is a success.
         feedback
             = remote.failure === "missing"
-                ? { kind: "success", text: "Serveur joignable, aucune sauvegarde enregistrée pour le moment." }
+                ? { kind: "success", text: "Connexion réussie. Ce serveur ne contient encore aucune sauvegarde." }
                 : { kind: "error", text: failureText };
     };
 
@@ -196,9 +204,8 @@
         feedback = {
             kind: "success",
             text:
-                `Restauration réussie : ${ counts.entries } ${ counts.entries === 1 ? "fiche" : "fiches" }, `
-                + `${ counts.categories } ${ counts.categories === 1 ? "catégorie" : "catégories" }, `
-                + `${ counts.live } ${ counts.live === 1 ? "entrée" : "entrées" } de direct.`
+                `Wiki restauré : ${ counted( counts.entries, "fiche" ) }, ${ counted( counts.categories, "catégorie" ) } `
+                + `et ${ counted( counts.live, "entrée" ) } du fil.`
         };
     };
 </script>
@@ -207,21 +214,20 @@
     <h2 class="font-serif text-xl font-semibold tracking-tight">Sauvegarde en ligne</h2>
 
     <p class="text-muted mt-2 text-sm leading-relaxed">
-        Facultatif, et indépendant de la sauvegarde en local. Le wiki fonctionne très bien sans : tant qu'aucune adresse
-        n'est renseignée, aucune requête n'est envoyée et tout reste dans ce navigateur. En renseigner une permet
-        d'envoyer le contenu vers un service JSON que vous hébergez, et de le récupérer depuis un autre appareil. La
-        mise en place d'un tel service est décrite dans <code class="font-mono text-xs">REMOTE-API.md</code>.
+        Facultatif, et pour la plupart des usages inutile : le wiki fonctionne très bien avec le seul fichier de
+        sauvegarde ci dessus. Renseigner un serveur vous permet de retrouver vos pages sur un autre appareil sans passer
+        de fichier à la main. Tant que ce champ reste vide, rien ne quitte cet appareil. Il vous faut un serveur à vous,
+        que quelqu'un doit avoir installé pour l'occasion.
     </p>
 
     {#if feedback}
-        <p
-            class="mt-5 rounded-xl px-4 py-3 text-sm {feedback.kind === "success"
-                ? "bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100"
-                : "bg-alert-500/15 text-alert-600 dark:text-red-300"}"
+        <Alert
+            color={feedback.kind === "success" ? "primary" : "red"}
+            class="mt-5 rounded-xl text-sm"
             role="status"
         >
             {feedback.text}
-        </p>
+        </Alert>
     {/if}
 
     <form
@@ -233,47 +239,49 @@
         }}
     >
         <div>
-            <label class="field-label" for="remote-base-url">Adresse du service</label>
+            <Label for="remote-base-url" class="field-label">Adresse du serveur</Label>
 
-            <input
+            <Input
                 id="remote-base-url"
                 bind:value={baseUrl}
                 type="url"
-                class="field font-mono text-xs"
-                placeholder="https://node-red.exemple.fr/pericles"
+                class="font-mono text-xs"
+                aria-describedby="remote-base-url-hint"
+                placeholder="https://exemple.fr/mon-wiki"
                 autocomplete="off"
             />
 
-            <p class="text-muted mt-1.5 text-xs leading-relaxed">
-                Sans le segment final : le client appelle <code class="font-mono">/dataset</code> sous cette adresse.
-            </p>
+            <Helper id="remote-base-url-hint" class="mt-1.5 text-xs leading-relaxed">
+                L'adresse que vous a donnée la personne qui a installé le serveur, telle quelle.
+            </Helper>
         </div>
 
         <div>
-            <label class="field-label" for="remote-secret">Secret, facultatif</label>
+            <Label for="remote-secret" class="field-label">Mot de passe, facultatif</Label>
 
-            <input
+            <Input
                 id="remote-secret"
                 bind:value={secret}
                 type="password"
-                class="field font-mono text-xs"
-                placeholder="Laissez vide si le service n'en demande pas"
+                class="font-mono text-xs"
+                aria-describedby="remote-secret-hint"
+                placeholder="Laissez vide si le serveur n'en demande pas"
                 autocomplete="off"
             />
 
-            <p class="text-muted mt-1.5 text-xs leading-relaxed">
-                Envoyé dans l'entête <code class="font-mono">X-Pericles-Secret</code>. Conservé en clair dans ce
-                navigateur : ce n'est pas une protection, seulement un garde fou pour un service déjà privé.
-            </p>
+            <Helper id="remote-secret-hint" class="mt-1.5 text-xs leading-relaxed">
+                Il est conservé tel quel sur cet appareil, et ne chiffre rien : il empêche seulement un inconnu
+                d'écrire sur votre serveur. N'y mettez pas un mot de passe qui vous sert ailleurs.
+            </Helper>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-            <button type="submit" class="btn btn-primary" disabled={!canConnect || remote.busy}>
+            <Button type="submit" color="primary" disabled={!canConnect || remote.busy} loading={remote.busy}>
                 {remote.busy ? "Connexion..." : "Tester la connexion"}
-            </button>
+            </Button>
 
             {#if dirty && canConnect}
-                <span class="text-signal-500 text-xs">Adresse non enregistrée, tester l'enregistre</span>
+                <span class="text-signal-500 text-xs">Adresse non enregistrée, le test l'enregistrera</span>
             {/if}
         </div>
     </form>
@@ -281,57 +289,39 @@
     {#if remote.configured}
         <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
             {#if syncState === "synced"}
-                <p
-                    class="bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100 rounded-xl px-4
-                           py-3 text-sm"
-                >
-                    Sauvegarde en ligne à jour : elle contient exactement ce que contient ce navigateur.
-                </p>
+                <Alert color="primary" class="rounded-xl text-sm">
+                    Sauvegarde en ligne à jour : elle contient exactement vos pages actuelles.
+                </Alert>
             {:else if syncState === "stale"}
-                <p class="bg-signal-500/15 text-signal-500 rounded-xl px-4 py-3 text-sm">
-                    Ce navigateur a changé depuis la dernière synchronisation. Envoyez la sauvegarde pour la remettre à
-                    jour, ou restaurez pour abandonner ces modifications.
-                </p>
+                <Alert color="yellow" class="rounded-xl text-sm">
+                    Vous avez écrit depuis la dernière synchronisation. Envoyez pour mettre la sauvegarde à jour, ou
+                    restaurez pour abandonner ce que vous avez écrit depuis.
+                </Alert>
             {:else}
                 <p class="text-muted text-sm">
-                    Ce navigateur n'a encore jamais été synchronisé avec ce serveur.
+                    Vous n'avez encore jamais synchronisé cet appareil avec ce serveur.
                 </p>
             {/if}
 
             <div class="mt-5 flex flex-wrap gap-2">
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    disabled={remote.busy}
-                    onclick={() => ( sendOpen = true )}
-                >
-                    Envoyer la sauvegarde
-                </button>
+                <Button color="primary" disabled={remote.busy} onclick={() => ( sendOpen = true )}>
+                    Envoyer mes pages
+                </Button>
 
-                <button
-                    type="button"
-                    class="btn btn-outline"
-                    disabled={remote.busy}
-                    onclick={() => ( restoreOpen = true )}
-                >
+                <Button color="alternative" disabled={remote.busy} onclick={() => ( restoreOpen = true )}>
                     Restaurer depuis le serveur
-                </button>
+                </Button>
 
                 {#if conflicted}
-                    <button
-                        type="button"
-                        class="btn btn-danger"
-                        disabled={remote.busy}
-                        onclick={() => ( overwriteOpen = true )}
-                    >
+                    <Button color="red" disabled={remote.busy} onclick={() => ( overwriteOpen = true )}>
                         Écraser quand même
-                    </button>
+                    </Button>
                 {/if}
             </div>
 
             <p class="text-muted mt-4 text-sm leading-relaxed">
-                Les deux sens sont complets : envoyer remplace la sauvegarde du serveur par le contenu de ce navigateur,
-                restaurer remplace le contenu de ce navigateur par la sauvegarde.
+                Les deux sens remplacent tout : envoyer écrase la sauvegarde du serveur avec vos pages, restaurer
+                écrase vos pages avec la sauvegarde.
                 {remote.conditional
                     ? "Ce serveur suivant ses révisions, un envoi est refusé si la sauvegarde a changé depuis votre "
                     + "dernière lecture."
@@ -339,31 +329,31 @@
             </p>
 
             <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
-                <label class="flex items-start gap-3 text-sm">
-                    <input
-                        type="checkbox"
-                        class="accent-accent-600 mt-0.5 h-4 w-4 shrink-0"
-                        checked={remote.config.autoPush}
-                        disabled={neverSynced}
-                        onchange={( event ) => remote.save( { autoPush: event.currentTarget.checked } )}
-                    />
+                <Checkbox
+                    classes={{ div: "flex items-start text-sm" }}
+                    class="mt-0.5 shrink-0"
+                    checked={remote.config.autoPush}
+                    disabled={neverSynced}
+                    aria-describedby="remote-auto-push-hint"
+                    onchange={( event: Event ) =>
+                        remote.save( { autoPush: ( event.currentTarget as HTMLInputElement ).checked } )}
+                >
+                    <span class="block">
+                        Envoyer automatiquement quand la connexion revient
 
-                    <span>
-                        Publier automatiquement au retour du réseau
-
-                        <span class="text-muted mt-1 block text-xs leading-relaxed">
+                        <span id="remote-auto-push-hint" class="text-muted mt-1 block text-xs leading-relaxed">
                             {#if neverSynced}
-                                Disponible après une première synchronisation faite à la main : tant que ce navigateur
-                                n'a jamais lu ce serveur, un envoi automatique écraserait une sauvegarde que personne
-                                n'a vue.
+                                À activer après une première synchronisation faite à la main : sans cela, le premier
+                                envoi automatique écraserait une sauvegarde que vous n'avez jamais vue.
                             {:else}
                                 Vos modifications partent seules quelques secondes après la dernière frappe, et sont
-                                mises en attente tant que vous êtes hors ligne. Un envoi refusé parce que la sauvegarde
-                                distante a changé ne sera jamais forcé : il vous est signalé et vous tranchez ici.
+                                mises en attente tant que vous êtes hors ligne. Un envoi refusé parce que la
+                                sauvegarde en ligne a changé ne sera jamais forcé : il vous est signalé et vous
+                                tranchez ici.
                             {/if}
                         </span>
                     </span>
-                </label>
+                </Checkbox>
             </div>
 
             <dl class="text-muted mt-6 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-[auto_1fr]">
@@ -386,24 +376,23 @@
                 </dd>
             </dl>
 
-            <button
-                type="button"
-                class="btn btn-ghost hover:text-alert-500 mt-5"
+            <Button
+                color="alternative"
+                class="hover:text-alert-500 mt-5 border-0"
                 onclick={() => ( forgetOpen = true )}
             >
                 Oublier ce serveur
-            </button>
+            </Button>
         </div>
     {/if}
 </section>
 
 <ConfirmDialog
     bind:open={sendOpen}
-    title="Envoyer la sauvegarde ?"
+    title="Envoyer mes pages ?"
     message={wiki.hasStoredContent
-        ? "Le contenu de ce navigateur va remplacer entièrement la sauvegarde du serveur."
-        : "Ce navigateur ne contient aucun contenu. L'envoi va donc remplacer la sauvegarde du serveur "
-          + "par un wiki vide."}
+        ? "Vos pages vont remplacer entièrement la sauvegarde du serveur."
+        : "Votre wiki est vide. L'envoi va donc remplacer la sauvegarde du serveur par un wiki vide."}
     confirmLabel="Envoyer"
     danger={!wiki.hasStoredContent}
     onconfirm={() => void send( true )}
@@ -421,8 +410,8 @@
 <ConfirmDialog
     bind:open={restoreOpen}
     title="Restaurer depuis le serveur ?"
-    message={"Le contenu de ce navigateur va être remplacé par la sauvegarde du serveur. "
-      + "Ce qui n'a pas été envoyé sera perdu."}
+    message={"Vos pages vont être remplacées par celles de la sauvegarde. "
+      + "Ce que vous n'avez pas envoyé sera perdu."}
     confirmLabel="Restaurer"
     onconfirm={() => void restore()}
 />
@@ -430,13 +419,13 @@
 <ConfirmDialog
     bind:open={forgetOpen}
     title="Oublier ce serveur ?"
-    message="L'adresse et le secret seront effacés de ce navigateur. Le contenu local, lui, ne bouge pas."
+    message="L'adresse et le mot de passe seront oubliés. Vos pages, elles, ne bougent pas."
     confirmLabel="Oublier"
     onconfirm={() =>
     {
         remote.forget();
         baseUrl = "";
         secret = "";
-        feedback = { kind: "success", text: "Serveur oublié. Le wiki continue de fonctionner dans ce navigateur." };
+        feedback = { kind: "success", text: "Serveur oublié. Votre wiki continue de fonctionner sur cet appareil." };
     }}
 />

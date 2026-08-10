@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
 </script>
@@ -24,7 +25,7 @@
     </p>
 
     <div class="mt-8 flex justify-center gap-3">
-        <a href={resolve( "/" )} class="btn btn-primary">Retour à l'accueil</a>
-        <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
+        <Button href={resolve( "/" )} color="primary">Retour à l'accueil</Button>
+        <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
     </div>
 </section>

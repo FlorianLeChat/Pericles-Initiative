@@ -7,17 +7,20 @@
      *
      * @author Claude
      */
+    import Button from "flowbite-svelte/Button.svelte";
+    import Label from "flowbite-svelte/Label.svelte";
+    import Radio from "flowbite-svelte/Radio.svelte";
+    import Search from "flowbite-svelte/Search.svelte";
+    import Select from "flowbite-svelte/Select.svelte";
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
-    import Icon from "$lib/components/Icon.svelte";
     import { ENTRY_TYPES } from "$lib/config/entry-types";
+    import { RADIO_OVERLAY } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { EntryStatus, EntryType } from "$lib/types";
     import { timelineSortKey } from "$lib/utilities/date";
     import { deburr } from "$lib/utilities/slug";
-
-    const SEARCH = "m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z";
 
     type TypeFilter = EntryType | "tous";
     type StatusFilter = EntryStatus | "tous";
@@ -71,6 +74,20 @@
     );
 
     /**
+     * Appearance of one nature pill, which only depends on whether it is the chosen one.
+     *
+     * @param chosen True when the pill is the selected nature.
+     * @returns Classes for the label wrapping the radio.
+     * @author Claude
+     */
+    const natureClass = ( chosen: boolean ): string =>
+        `relative flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-medium transition
+         has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-500 ${
+            chosen
+                ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
+                : "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300" }`;
+
+    /**
      * Clears every filter.
      *
      * @author Claude
@@ -101,83 +118,82 @@
             </p>
         </div>
 
-        <a href={resolve( "/new" )} class="btn btn-primary">Nouvelle fiche</a>
+        <Button href={resolve( "/new" )} color="primary">Nouvelle fiche</Button>
     </header>
 
     <div class="surface mt-8 space-y-4 p-5">
-        <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
-            <div class="relative">
-                <Icon path={SEARCH} class="text-muted absolute top-3 left-3.5 h-4 w-4" />
+        <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-4">
+            <Search
+                bind:value={query}
+                placeholder="Filtrer par titre ou par résumé"
+                aria-label="Filtrer les fiches"
+            />
 
-                <input
-                    bind:value={query}
-                    type="search"
-                    class="field pl-10"
-                    placeholder="Filtrer par titre ou par résumé"
-                    aria-label="Filtrer les fiches"
-                />
-            </div>
+            <div class="flex items-center gap-2.5">
+                <Label for="filtre-categorie" class="text-muted sr-only shrink-0 text-sm sm:not-sr-only">
+                    Catégorie
+                </Label>
 
-            <label class="flex items-center gap-2">
-                <span class="text-muted sr-only text-sm sm:not-sr-only">Catégorie</span>
-
-                <select bind:value={category} class="field sm:w-52">
+                <Select id="filtre-categorie" bind:value={category} placeholder="" class="sm:w-52">
                     <option value="toutes">Toutes</option>
 
                     {#each wiki.categories as item ( item.slug )}
                         <option value={item.slug}>{item.name}</option>
                     {/each}
-                </select>
-            </label>
+                </Select>
+            </div>
 
-            <label class="flex items-center gap-2">
-                <span class="text-muted sr-only text-sm sm:not-sr-only">Tri</span>
+            <div class="flex items-center gap-2.5">
+                <Label for="filtre-tri" class="text-muted sr-only shrink-0 text-sm sm:not-sr-only">Tri</Label>
 
-                <select bind:value={sort} class="field sm:w-44">
+                <Select id="filtre-tri" bind:value={sort} placeholder="" class="sm:w-44">
                     <option value="alphabetique">Alphabétique</option>
                     <option value="recent">Modifiées récemment</option>
                     <option value="chronologique">Chronologique</option>
-                </select>
-            </label>
+                </Select>
+            </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrer par nature">
-            <button
-                type="button"
-                class="rounded-full px-3 py-1.5 text-xs font-medium transition {type === "tous"
-                    ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-                    : "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
-                onclick={() => ( type = "tous" )}
-                aria-pressed={type === "tous"}
-            >
-                Toutes natures
-            </button>
+        <div class="flex flex-wrap items-center gap-2">
+            <fieldset class="contents">
+                <legend class="sr-only">Filtrer par nature</legend>
 
-            {#each ENTRY_TYPES as config ( config.id )}
-                <button
-                    type="button"
-                    class="rounded-full px-3 py-1.5 text-xs font-medium transition {type === config.id
-                        ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-                        : "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300"}"
-                    onclick={() => ( type = config.id )}
-                    aria-pressed={type === config.id}
+                <Radio
+                    name="filtre-nature"
+                    value="tous"
+                    bind:group={type}
+                    class={RADIO_OVERLAY}
+                    classes={{ label: natureClass( type === "tous" ) }}
                 >
-                    {config.plural}
-                    <span class="opacity-60">{countByType.get( config.id ) ?? 0}</span>
-                </button>
-            {/each}
+                    Toutes natures
+                </Radio>
 
-            <span class="bg-paper-300 dark:bg-ink-700 mx-1 hidden h-4 w-px sm:block"></span>
+                {#each ENTRY_TYPES as config ( config.id )}
+                    <Radio
+                        name="filtre-nature"
+                        value={config.id}
+                        bind:group={type}
+                        class={RADIO_OVERLAY}
+                        classes={{ label: natureClass( type === config.id ) }}
+                    >
+                        {config.plural}
 
-            <label class="text-muted flex items-center gap-2 text-xs">
-                <span class="sr-only sm:not-sr-only">Statut</span>
+                        <span class="font-mono">{countByType.get( config.id ) ?? 0}</span>
+                    </Radio>
+                {/each}
+            </fieldset>
 
-                <select bind:value={status} class="field w-auto py-1.5 text-xs">
+            <span class="bg-paper-300 dark:bg-ink-700 mx-2 hidden h-4 w-px sm:block"></span>
+
+            <div class="text-muted flex items-center gap-2.5 text-xs">
+                <Label for="filtre-statut" class="shrink-0 sr-only sm:not-sr-only">Statut</Label>
+
+                <Select id="filtre-statut" bind:value={status} size="sm" placeholder="" class="w-auto">
                     <option value="tous">Tous</option>
                     <option value="publie">Publiées</option>
                     <option value="brouillon">Brouillons</option>
-                </select>
-            </label>
+                </Select>
+            </div>
         </div>
     </div>
 
@@ -192,7 +208,7 @@
                 title="Aucune fiche pour le moment"
                 description="Ce wiki est vide : commencez par créer la première fiche."
             >
-                <a href={resolve( "/new" )} class="btn btn-outline">Créer une fiche</a>
+                <Button href={resolve( "/new" )} color="alternative">Créer une fiche</Button>
             </EmptyState>
         </div>
     {:else if filtered.length === 0}
@@ -201,7 +217,7 @@
                 title="Aucune fiche ne correspond"
                 description="Aucune fiche du corpus ne satisfait cette combinaison de filtres."
             >
-                <button type="button" class="btn btn-outline" onclick={reset}>Réinitialiser les filtres</button>
+                <Button color="alternative" onclick={reset}>Réinitialiser les filtres</Button>
             </EmptyState>
         </div>
     {:else}

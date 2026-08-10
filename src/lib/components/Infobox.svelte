@@ -50,9 +50,9 @@
         {#if entry.infobox.length > 0}
             <dl class="divide-paper-200 dark:divide-ink-800 divide-y text-sm">
                 {#each entry.infobox as field, index ( index )}
-                    <div class="grid grid-cols-5 gap-3 py-2">
-                        <dt class="text-muted col-span-2 leading-snug">{field.label}</dt>
-                        <dd class="col-span-3 leading-snug font-medium">{field.value}</dd>
+                    <div class="gap-x-3 py-2 sm:grid sm:grid-cols-5">
+                        <dt class="text-muted leading-snug sm:col-span-2">{field.label}</dt>
+                        <dd class="leading-snug font-medium sm:col-span-3">{field.value}</dd>
                     </div>
                 {/each}
             </dl>

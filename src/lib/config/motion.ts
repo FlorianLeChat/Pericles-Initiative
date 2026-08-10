@@ -8,6 +8,28 @@
  * @author Claude
  */
 
+import { prefersReducedMotion } from "svelte/motion";
+
+/** Length of a short swap, mirrored by `--duration-swap` in `app.css`. */
+const SWAP_DURATION = 200;
+
+/**
+ * How long a Svelte transition should actually run for.
+ *
+ * The media query in `app.css` flattens every CSS animation and transition on
+ * the site, but a Svelte transition is JavaScript writing inline styles frame by
+ * frame, and no stylesheet can reach it. Overlays, dropdowns and the drawer are
+ * all animated that way, Flowbite's included, so this is the switch that covers
+ * them. Returning zero rather than skipping the transition keeps the call sites
+ * uniform: they always pass params, and only the number changes.
+ *
+ * @param duration Length wanted when motion is welcome, in milliseconds.
+ * @returns The duration to hand to a transition.
+ * @author Claude
+ */
+export const motionDuration = ( duration: number = SWAP_DURATION ): number =>
+    prefersReducedMotion.current ? 0 : duration;
+
 /**
  * Past this rank the delay stops growing. A hundred entry grid would otherwise
  * finish arriving several seconds after the page did.

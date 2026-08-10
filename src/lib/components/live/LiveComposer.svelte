@@ -8,9 +8,17 @@
      *
      * @author Claude
      */
+    import Button from "flowbite-svelte/Button.svelte";
+    import Checkbox from "flowbite-svelte/Checkbox.svelte";
+    import Input from "flowbite-svelte/Input.svelte";
+    import Label from "flowbite-svelte/Label.svelte";
+    import Radio from "flowbite-svelte/Radio.svelte";
+    import Select from "flowbite-svelte/Select.svelte";
+    import Textarea from "flowbite-svelte/Textarea.svelte";
     import { untrack } from "svelte";
     import EntryPicker from "$lib/components/editor/EntryPicker.svelte";
     import ChipsInput from "$lib/components/editor/ChipsInput.svelte";
+    import { RADIO_OVERLAY, SMALL_FIELD } from "$lib/config/forms";
     import { SEVERITIES } from "$lib/config/severities";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LiveEntry, LiveSeverity } from "$lib/types";
@@ -48,7 +56,9 @@
     let pinned = $state( initial.pinned );
     let publishedAt = $state( initial.publishedAt );
 
-    let bodyInput: HTMLTextAreaElement | null = $state( null );
+    // Undefined rather than null: this is bound to the `elementRef` of a Flowbite
+    // textarea, whose own binding starts out undefined.
+    let bodyInput: HTMLTextAreaElement | undefined = $state( undefined );
     let pickerOpen = $state( false );
 
     const canPublish = $derived( title.trim().length > 0 );
@@ -136,7 +146,11 @@
         </p>
 
         {#if editing}
-            <button type="button" class="text-muted hover:text-accent-600 text-xs underline" onclick={oncancel}>
+            <button
+                type="button"
+                class="text-muted hover:text-accent-600 cursor-pointer text-xs underline"
+                onclick={oncancel}
+            >
                 Abandonner la modification
             </button>
         {/if}
@@ -144,13 +158,12 @@
 
     <div class="mt-4 space-y-3">
         <div>
-            <label class="field-label" for="live-title">Titre</label>
+            <Label for="live-title" class="field-label">Titre</Label>
 
-            <input
+            <Input
                 id="live-title"
                 bind:value={title}
                 type="text"
-                class="field"
                 placeholder="Ce qui vient de se produire"
                 required
             />
@@ -158,94 +171,105 @@
 
         <div>
             <div class="flex items-baseline justify-between gap-2">
-                <label class="field-label" for="live-body">Corps</label>
+                <Label for="live-body" class="field-label">Corps</Label>
 
                 <button
                     type="button"
-                    class="text-accent-600 dark:text-accent-400 mb-1.5 text-xs underline"
+                    class="text-accent-600 dark:text-accent-400 mb-1.5 cursor-pointer text-xs underline"
                     onclick={() => ( pickerOpen = true )}
                 >
                     Lier une fiche
                 </button>
             </div>
 
-            <textarea
+            <Textarea
                 id="live-body"
-                bind:this={bodyInput}
+                bind:elementRef={bodyInput}
                 bind:value={body}
-                rows="3"
-                class="field resize-y"
+                rows={3}
+                class="w-full resize-y"
                 placeholder="Une ou deux phrases. Markdown accepté."
-            ></textarea>
+            />
         </div>
 
         <div class="grid gap-3 sm:grid-cols-2">
-            <div>
-                <p class="field-label" id="live-severity-label">Gravité</p>
+            <fieldset>
+                <legend class="field-label">Gravité</legend>
 
-                <div class="flex flex-wrap gap-1.5" role="group" aria-labelledby="live-severity-label">
+                <div class="flex flex-wrap gap-1.5">
                     {#each SEVERITIES as config ( config.id )}
-                        <button
-                            type="button"
-                            class="rounded-full px-2.5 py-1 text-xs font-medium transition {severity === config.id
-                                ? config.badge + " ring-2 ring-accent-500 ring-offset-1"
-                                : "bg-paper-100 text-ink-500 dark:bg-ink-800 dark:text-paper-300"}"
-                            onclick={() => ( severity = config.id )}
-                            aria-label="Gravité {config.label}"
-                            aria-pressed={severity === config.id}
+                        <Radio
+                            name="live-severity"
+                            value={config.id}
+                            bind:group={severity}
+                            class={RADIO_OVERLAY}
+                            classes={{
+                                label: `relative flex min-h-9 cursor-pointer items-center rounded-full px-2.5 text-xs
+                                        font-medium transition has-[:focus-visible]:outline-2
+                                        has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-500 ${
+                                    severity === config.id
+                                        ? `${ config.badge } ring-accent-500 ring-2 ring-offset-1`
+                                        : "bg-paper-100 text-ink-500 dark:bg-ink-800 dark:text-paper-300" }`
+                            }}
                         >
                             {config.label}
-                        </button>
+                        </Radio>
                     {/each}
                 </div>
+            </fieldset>
+
+            <div>
+                <Label for="live-date" class="field-label">Horodatage</Label>
+
+                <Input
+                    id="live-date"
+                    bind:value={publishedAt}
+                    type="datetime-local"
+                    size="sm"
+                    class={SMALL_FIELD}
+                />
             </div>
 
             <div>
-                <label class="field-label" for="live-date">Horodatage</label>
+                <Label for="live-entry" class="field-label">Fiche détaillée</Label>
 
-                <input id="live-date" bind:value={publishedAt} type="datetime-local" class="field py-2" />
-            </div>
-
-            <div>
-                <label class="field-label" for="live-entry">Fiche détaillée</label>
-
-                <select id="live-entry" bind:value={entrySlug} class="field py-2">
+                <Select id="live-entry" bind:value={entrySlug} size="sm" placeholder="">
                     <option value="">Aucune</option>
 
                     {#each wiki.entries as entry ( entry.id )}
                         <option value={entry.slug}>{entry.title}</option>
                     {/each}
-                </select>
+                </Select>
             </div>
 
             <div>
-                <label class="field-label" for="live-source">Source</label>
+                <Label for="live-source" class="field-label">Source</Label>
 
-                <input
+                <Input
                     id="live-source"
                     bind:value={source}
                     type="text"
-                    class="field py-2"
+                    size="sm"
+                    class={SMALL_FIELD}
                     placeholder="Conseil des parties"
                 />
             </div>
         </div>
 
         <div>
-            <label class="field-label" for="live-tags">Étiquettes</label>
+            <Label for="live-tags" class="field-label">Étiquettes</Label>
 
             <ChipsInput bind:values={tags} id="live-tags" placeholder="Étiquette, puis Entrée" />
         </div>
 
-        <label class="flex cursor-pointer items-center gap-2 text-sm">
-            <input type="checkbox" class="accent-accent-600 h-4 w-4" bind:checked={pinned} />
+        <Checkbox bind:checked={pinned} classes={{ div: "flex min-h-9 items-center text-sm" }}>
             Épingler en tête du fil
-        </label>
+        </Checkbox>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-4 w-full" disabled={!canPublish}>
+    <Button type="submit" color="primary" class="mt-4 w-full" disabled={!canPublish}>
         {editing ? "Enregistrer" : "Publier"}
-    </button>
+    </Button>
 </form>
 
 <EntryPicker bind:open={pickerOpen} onselect={insertLink} />

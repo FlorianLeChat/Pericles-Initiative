@@ -35,7 +35,7 @@ const CORS = {
  */
 const connect = async ( page: Page ): Promise<void> =>
 {
-    await page.getByLabel( "Adresse du service" ).fill( BASE_URL );
+    await page.getByLabel( "Adresse du serveur" ).fill( BASE_URL );
     await page.getByRole( "button", { name: "Tester la connexion" } ).click();
 };
 
@@ -55,7 +55,7 @@ test.describe( "remote backup", () =>
         await wiki.open( "/data" );
 
         await expect( page.getByRole( "heading", { name: "Sauvegarde en ligne" } ) ).toBeVisible();
-        await expect( page.getByRole( "button", { name: "Envoyer la sauvegarde" } ) ).toBeHidden();
+        await expect( page.getByRole( "button", { name: "Envoyer mes pages" } ) ).toBeHidden();
         expect( calls ).toHaveLength( 0 );
     } );
 
@@ -70,17 +70,17 @@ test.describe( "remote backup", () =>
         await wiki.open( "/data" );
         await connect( page );
 
-        await expect( page.getByText( `La sauvegarde distante contient ${ COUNTS.entries } fiches.` ) ).toBeVisible();
+        await expect( page.getByText( `La sauvegarde en ligne contient ${ COUNTS.entries } fiches.` ) ).toBeVisible();
         expect( await page.evaluate( ( key ) => window.localStorage.getItem( key ), REMOTE_KEY ) )
             .toContain( BASE_URL );
 
         await page.unroute( DATASET_ROUTE );
         await page.route( DATASET_ROUTE, ( route: Route ) => route.fulfill( { status: 401, headers: CORS } ) );
 
-        await page.getByLabel( "Secret, facultatif" ).fill( "un secret périmé" );
+        await page.getByLabel( "Mot de passe, facultatif" ).fill( "un secret périmé" );
         await connect( page );
 
-        await expect( page.getByText( "Secret refusé par le serveur." ) ).toBeVisible();
+        await expect( page.getByText( "Le mot de passe a été refusé." ) ).toBeVisible();
     } );
 
     test( "sends the content of the browser, and stops on a concurrent change", async ( { page, wiki } ) =>
@@ -108,20 +108,18 @@ test.describe( "remote backup", () =>
         await wiki.open( "/data" );
         await connect( page );
 
-        await page.getByRole( "button", { name: "Envoyer la sauvegarde" } ).click();
-        await page.getByRole( "dialog", { name: "Envoyer la sauvegarde ?" } )
-            .getByRole( "button", { name: "Envoyer" } ).click();
+        await page.getByRole( "button", { name: "Envoyer mes pages" } ).click();
+        await wiki.confirm( "Envoyer mes pages ?", "Envoyer" );
 
         await expect( page.getByText( "Sauvegarde en ligne mise à jour." ) ).toBeVisible();
         expect( sent[ 0 ]?.entries.map( ( entry ) => entry.slug ) ).toContain( PAGES.athena.slug );
 
         conflict = true;
 
-        await page.getByRole( "button", { name: "Envoyer la sauvegarde" } ).click();
-        await page.getByRole( "dialog", { name: "Envoyer la sauvegarde ?" } )
-            .getByRole( "button", { name: "Envoyer" } ).click();
+        await page.getByRole( "button", { name: "Envoyer mes pages" } ).click();
+        await wiki.confirm( "Envoyer mes pages ?", "Envoyer" );
 
-        await expect( page.getByText( "La sauvegarde distante a changé depuis votre dernière lecture." ) )
+        await expect( page.getByText( "La sauvegarde en ligne a changé depuis votre dernière lecture" ) )
             .toBeVisible();
         await expect( page.getByRole( "button", { name: "Écraser quand même" } ) ).toBeVisible();
     } );
@@ -143,10 +141,9 @@ test.describe( "remote backup", () =>
         await connect( page );
 
         await page.getByRole( "button", { name: "Restaurer depuis le serveur" } ).click();
-        await page.getByRole( "dialog", { name: "Restaurer depuis le serveur ?" } )
-            .getByRole( "button", { name: "Restaurer" } ).click();
+        await wiki.confirm( "Restaurer depuis le serveur ?", "Restaurer" );
 
-        await expect( page.getByText( "Restauration réussie : 1 fiche" ) ).toBeVisible();
+        await expect( page.getByText( "Wiki restauré : 1 fiche" ) ).toBeVisible();
         await expect( page.getByRole( "banner" ) ).toContainText( "Périclès, sauvegardé" );
     } );
 } );

@@ -7,6 +7,10 @@
      *
      * @author Claude
      */
+    import ChevronRight from "@lucide/svelte/icons/chevron-right";
+    import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
+    import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import ArticleBody from "$lib/components/ArticleBody.svelte";
@@ -54,15 +58,25 @@
 {#if entry && rendered}
     <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <nav class="text-muted flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
-                <a href={resolve( "/wiki" )} class="hover:text-accent-600 dark:hover:text-accent-400">Encyclopédie</a>
+            <Breadcrumb ariaLabel="Fil d'Ariane" class="text-muted text-sm">
+                <BreadcrumbItem href={resolve( "/wiki" )}>
+                    {#snippet icon()}{/snippet}
 
-                <span aria-hidden="true">/</span>
+                    Encyclopédie
+                </BreadcrumbItem>
 
-                <span>{entryTypeConfig( entry.type ).plural}</span>
-            </nav>
+                <BreadcrumbItem aria-current="page">
+                    {#snippet icon()}
+                        <ChevronRight class="text-muted mx-1 h-4 w-4" />
+                    {/snippet}
 
-            <a href={resolve( `/edit/${ entry.slug }` )} class="btn btn-outline px-3.5 py-1.5 text-xs">Modifier</a>
+                    {entryTypeConfig( entry.type ).plural}
+                </BreadcrumbItem>
+            </Breadcrumb>
+
+            <Button href={resolve( `/edit/${ entry.slug }` )} color="alternative" size="xs" class="rounded-full">
+                Modifier
+            </Button>
         </div>
 
         <header class="border-paper-200 dark:border-ink-800 rise-in mt-4 border-b pb-8">
@@ -101,7 +115,7 @@
         </header>
 
         <div class="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            <div class="rise-in order-2 min-w-0 lg:order-1" style="--rank: 1">
+            <div class="rise-in min-w-0" style="--rank: 1">
                 <ArticleBody html={rendered.html} />
 
                 {#if related.length > 0}
@@ -137,7 +151,7 @@
                 {/if}
             </div>
 
-            <aside class="rise-in order-1 space-y-5 lg:sticky lg:top-20 lg:order-2" style="--rank: 2">
+            <aside class="rise-in space-y-5 lg:sticky lg:top-20" style="--rank: 2">
                 <Infobox {entry} />
                 <TableOfContents headings={rendered.headings} />
                 <Backlinks entries={backlinks} />
@@ -152,11 +166,14 @@
             title="Cette fiche n'existe pas encore"
             description="Le lien qui mène ici attend une page. C'est le principe du lien rouge : il signale un manque à combler."
         >
-            <a href={resolve( `/new?slug=${ slug }&titre=${ encodeURIComponent( plannedTitle ) }` )} class="btn btn-primary">
+            <Button
+                href={resolve( `/new?slug=${ slug }&titre=${ encodeURIComponent( plannedTitle ) }` )}
+                color="primary"
+            >
                 Créer cette fiche
-            </a>
+            </Button>
 
-            <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
+            <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
         </EmptyState>
 
         {#if backlinks.length > 0}

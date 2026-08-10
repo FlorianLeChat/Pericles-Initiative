@@ -75,23 +75,33 @@
         {/if}
 
         {#each item.tags as tag ( tag )}
-            <span class="bg-paper-200 dark:bg-ink-800 rounded-full px-2 py-0.5">{tag}</span>
+            <span class="bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-200 rounded-full px-2 py-0.5">
+                {tag}
+            </span>
         {/each}
 
         {#if onedit || ondelete}
-            <span class="ml-auto flex gap-2">
+            <span class="ml-auto flex gap-1">
                 {#if onedit}
                     <button
                         type="button"
-                        class="hover:text-accent-600 dark:hover:text-accent-400 underline"
+                        class="hover:text-accent-600 dark:hover:text-accent-400 inline-flex min-h-9 cursor-pointer
+                               items-center rounded-full px-2 underline"
                         onclick={() => onedit( item )}
+                        aria-label="Modifier l'entrée « {item.title} »"
                     >
                         Modifier
                     </button>
                 {/if}
 
                 {#if ondelete}
-                    <button type="button" class="hover:text-alert-500 underline" onclick={() => ondelete( item )}>
+                    <button
+                        type="button"
+                        class="hover:text-alert-500 inline-flex min-h-9 cursor-pointer items-center rounded-full px-2
+                               underline"
+                        onclick={() => ondelete( item )}
+                        aria-label="Supprimer l'entrée « {item.title} »"
+                    >
                         Supprimer
                     </button>
                 {/if}

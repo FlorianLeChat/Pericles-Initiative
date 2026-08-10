@@ -4,6 +4,10 @@
      *
      * @author Claude
      */
+    import ChevronRight from "@lucide/svelte/icons/chevron-right";
+    import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
+    import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import EmptyState from "$lib/components/EmptyState.svelte";
@@ -11,6 +15,7 @@
     import { ENTRY_TYPES } from "$lib/config/entry-types";
     import { paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
+    import { plural } from "$lib/utilities/plural";
 
     const slug = $derived( page.params.slug ?? "" );
     const category = $derived( wiki.categoriesBySlug.get( slug ) );
@@ -32,13 +37,22 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <nav class="text-muted flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
-        <a href={resolve( "/categories" )} class="hover:text-accent-600 dark:hover:text-accent-400">Catégories</a>
+    <Breadcrumb ariaLabel="Fil d'Ariane" class="text-muted text-sm">
+        <!-- The empty icon removes the separator Flowbite draws before the first item too. -->
+        <BreadcrumbItem href={resolve( "/categories" )}>
+            {#snippet icon()}{/snippet}
 
-        <span aria-hidden="true">/</span>
+            Catégories
+        </BreadcrumbItem>
 
-        <span>{category?.name ?? slug}</span>
-    </nav>
+        <BreadcrumbItem aria-current="page">
+            {#snippet icon()}
+                <ChevronRight class="text-muted mx-1 h-4 w-4" />
+            {/snippet}
+
+            {category?.name ?? slug}
+        </BreadcrumbItem>
+    </Breadcrumb>
 
     {#if category}
         <header class="border-paper-200 dark:border-ink-800 mt-4 border-b pb-8">
@@ -47,7 +61,7 @@
 
                 <span class="text-muted text-xs tracking-wide uppercase">
                     {entries.length}
-                    {entries.length === 1 ? "fiche" : "fiches"}
+                    {plural( entries.length, "fiche" )}
                 </span>
             </span>
 
@@ -65,7 +79,7 @@
         {#if groups.length === 0}
             <div class="mt-10">
                 <EmptyState title="Catégorie vide" description="Aucune fiche ne se rattache encore à cette catégorie.">
-                    <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
+                    <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
                 </EmptyState>
             </div>
         {:else}
@@ -87,7 +101,7 @@
                 title="Catégorie inconnue"
                 description="Aucune catégorie ne porte ce nom."
             >
-                <a href={resolve( "/categories" )} class="btn btn-outline">Voir les catégories</a>
+                <Button href={resolve( "/categories" )} color="alternative">Voir les catégories</Button>
             </EmptyState>
         </div>
     {/if}

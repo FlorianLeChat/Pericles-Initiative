@@ -4,11 +4,22 @@
      *
      * @author Claude
      */
+    import ChevronRight from "@lucide/svelte/icons/chevron-right";
+    import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
+    import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Helper from "flowbite-svelte/Helper.svelte";
+    import Input from "flowbite-svelte/Input.svelte";
+    import Label from "flowbite-svelte/Label.svelte";
+    import Radio from "flowbite-svelte/Radio.svelte";
+    import Textarea from "flowbite-svelte/Textarea.svelte";
     import { resolve } from "$app/paths";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+    import { RADIO_OVERLAY } from "$lib/config/forms";
     import { PALETTE, paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Category } from "$lib/types";
+    import { plural } from "$lib/utilities/plural";
     import { slugify } from "$lib/utilities/slug";
 
     let editing = $state<Category | null>( null );
@@ -128,13 +139,22 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <nav class="text-muted flex flex-wrap items-center gap-2 text-sm" aria-label="Fil d'Ariane">
-        <a href={resolve( "/categories" )} class="hover:text-accent-600 dark:hover:text-accent-400">Catégories</a>
+    <Breadcrumb ariaLabel="Fil d'Ariane" class="text-muted text-sm">
+        <!-- The empty icon removes the separator Flowbite draws before the first item too. -->
+        <BreadcrumbItem href={resolve( "/categories" )}>
+            {#snippet icon()}{/snippet}
 
-        <span aria-hidden="true">/</span>
+            Catégories
+        </BreadcrumbItem>
 
-        <span>Gestion</span>
-    </nav>
+        <BreadcrumbItem aria-current="page">
+            {#snippet icon()}
+                <ChevronRight class="text-muted mx-1 h-4 w-4" />
+            {/snippet}
+
+            Gestion
+        </BreadcrumbItem>
+    </Breadcrumb>
 
     <header class="mt-4 max-w-2xl">
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Gérer les catégories</h1>
@@ -150,46 +170,54 @@
             {#each wiki.categories as category ( category.slug )}
                 {@const count = wiki.entriesInCategory( category.slug, true ).length}
 
-                <article class="surface flex flex-wrap items-center gap-4 p-4">
-                    <span class="h-2.5 w-2.5 shrink-0 rounded-full {paletteColor( category.color ).dot}"></span>
+                <article class="surface flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+                    <div class="flex min-w-0 flex-1 items-start gap-3">
+                        <span
+                            class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full {paletteColor( category.color ).dot}"
+                        ></span>
 
-                    <div class="min-w-0 flex-1">
-                        <p class="text-sm font-medium">{category.name}</p>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium">{category.name}</p>
 
-                        <p class="text-muted truncate font-mono text-xs">/categories/{category.slug}</p>
+                            <p class="text-muted truncate font-mono text-xs">/categories/{category.slug}</p>
 
-                        {#if category.description}
-                            <p class="text-muted mt-1 line-clamp-2 text-xs leading-relaxed">
-                                {category.description}
-                            </p>
-                        {/if}
+                            {#if category.description}
+                                <p class="text-muted mt-1 line-clamp-2 text-xs leading-relaxed">
+                                    {category.description}
+                                </p>
+                            {/if}
+                        </div>
                     </div>
 
-                    <span class="text-muted text-xs">
-                        {count}
-                        {count === 1 ? "fiche" : "fiches"}
-                    </span>
+                    <div class="flex shrink-0 items-center gap-2">
+                        <span class="text-muted mr-auto text-xs sm:mr-0">
+                            {count}
+                            {plural( count, "fiche" )}
+                        </span>
 
-                    <div class="flex gap-1">
-                        <button
-                            type="button"
-                            class="btn btn-outline px-3 py-1.5 text-xs"
+                        <Button
+                            color="alternative"
+                            size="xs"
+                            class="rounded-full"
                             onclick={() => startEdit( category )}
+                            aria-label="Modifier la catégorie {category.name}"
                         >
                             Modifier
-                        </button>
+                        </Button>
 
-                        <button
-                            type="button"
-                            class="btn btn-ghost hover:text-alert-500 px-3 py-1.5 text-xs"
+                        <Button
+                            color="alternative"
+                            size="xs"
+                            class="hover:text-alert-500 rounded-full border-0"
                             onclick={() =>
                             {
                                 pendingDeletion = category;
                                 deleteOpen = true;
                             }}
+                            aria-label="Supprimer la catégorie {category.name}"
                         >
                             Supprimer
-                        </button>
+                        </Button>
                     </div>
                 </article>
             {/each}
@@ -216,74 +244,82 @@
             </p>
 
             <div>
-                <label class="field-label" for="category-name">Nom</label>
+                <Label for="category-name" class="field-label">Nom</Label>
 
-                <input
+                <Input
                     id="category-name"
                     bind:value={name}
                     type="text"
-                    class="field"
                     placeholder="Sites et installations"
                     required
                 />
             </div>
 
             <div>
-                <label class="field-label" for="category-slug">Adresse</label>
+                <Label for="category-slug" class="field-label">Adresse</Label>
 
-                <input
+                <Input
                     id="category-slug"
                     bind:value={slug}
                     oninput={() => ( slugLocked = true )}
                     type="text"
-                    class="field font-mono text-xs"
+                    class="font-mono text-xs"
+                    color={slugTaken ? "red" : "default"}
+                    aria-invalid={slugTaken}
+                    aria-describedby={slugTaken ? "category-slug-taken" : undefined}
                     placeholder="sites-et-installations"
                 />
 
                 {#if slugTaken}
-                    <p class="text-alert-500 mt-1.5 text-xs">Cette adresse est déjà utilisée.</p>
+                    <Helper id="category-slug-taken" color="red" class="mt-1.5 text-xs">
+                        Cette adresse est déjà utilisée.
+                    </Helper>
                 {/if}
             </div>
 
             <div>
-                <label class="field-label" for="category-description">Description</label>
+                <Label for="category-description" class="field-label">Description</Label>
 
-                <textarea
+                <Textarea
                     id="category-description"
                     bind:value={description}
-                    rows="3"
-                    class="field resize-y"
+                    rows={3}
+                    class="w-full resize-y"
                     placeholder="Ce que cette catégorie regroupe."
-                ></textarea>
+                />
             </div>
 
-            <div>
-                <p class="field-label">Couleur</p>
+            <fieldset>
+                <legend class="field-label">Couleur</legend>
 
                 <div class="flex flex-wrap gap-1.5">
                     {#each PALETTE as option ( option.key )}
-                        <button
-                            type="button"
-                            class="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition {option.chip} {color
-                              === option.key
-                                ? "ring-accent-500 ring-2 ring-offset-1"
-                                : "opacity-70 hover:opacity-100"}"
-                            onclick={() => ( color = option.key )}
+                        <Radio
+                            name="category-color"
+                            value={option.key}
+                            bind:group={color}
+                            class={RADIO_OVERLAY}
+                            classes={{
+                                label: `relative flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full px-2.5
+                                        text-xs ring-offset-1 transition has-[:focus-visible]:outline-2
+                                        has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-500
+                                        ${ option.chip } ${ color === option.key ? "ring-accent-500 ring-2" : "ring-0" }`
+                            }}
                         >
                             <span class="h-1.5 w-1.5 rounded-full {option.dot}"></span>
                             {option.label}
-                        </button>
+                        </Radio>
                     {/each}
                 </div>
-            </div>
+            </fieldset>
 
             <div class="flex gap-2 pt-1">
-                <button type="submit" class="btn btn-primary flex-1" disabled={!canSave || slugTaken}>
+                <Button type="submit" color="primary" class="flex-1" disabled={!canSave || slugTaken}>
                     {isEditing ? "Enregistrer" : "Créer"}
-                </button>
+                </Button>
 
                 {#if isEditing}
-                    <button type="button" class="btn btn-ghost" onclick={reset}>Annuler</button>
+                    <Button color="alternative" class="border-0" onclick={reset}>Annuler</Button>
                 {/if}
             </div>
         </form>

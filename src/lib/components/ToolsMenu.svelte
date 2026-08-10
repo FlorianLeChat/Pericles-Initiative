@@ -2,16 +2,36 @@
     /**
      * Dropdown of secondary tool links, shown in the desktop header.
      *
-     * Owns its own open state and the click outside handling that closes it,
-     * which is what keeps `SiteHeader.svelte` from having to know about either.
+     * Flowbite positions the panel with floating-ui and paints it through the
+     * native popover api, so it lives in the top layer: the click outside, the
+     * `Échap` key and the repositioning that used to be written here are all its
+     * job now. What is still ours is `aria-expanded` on the trigger, which the
+     * library does not set, and which is the only thing telling a screen reader
+     * that the button opens something.
+     *
+     * The panel is declared as a menu of links. Flowbite only accepts a role
+     * from a fixed list, whose default is `tooltip`, and a tooltip holding
+     * navigation is the one thing this must not claim to be. `menu` is the
+     * honest member of that list, which is why the links are rendered directly
+     * rather than through `DropdownItem`: that component wraps each one in a
+     * list item, and a menu whose children are list items rather than menu items
+     * is an invalid tree.
+     *
+     * Three of Flowbite's own choices are overridden on the panel, and the first
+     * is not cosmetic. The panel is painted through the popover api, and the
+     * browser's own stylesheet resets `color` on anything in the top layer, so an
+     * inherited text colour never arrives: without a colour set here the entries
+     * come out pure black, unreadable once the dark theme is on. The radius and
+     * the dividers are taste, matching the surfaces and the menus the site had
+     * before.
      *
      * @author Claude
      */
-    import { cubicOut } from "svelte/easing";
-    import { fly } from "svelte/transition";
+    import Settings2 from "@lucide/svelte/icons/settings-2";
+    import Dropdown from "flowbite-svelte/Dropdown.svelte";
     import { resolve } from "$app/paths";
+    import { motionDuration } from "$lib/config/motion";
     import type { NavLink } from "$lib/config/navigation";
-    import Icon from "./Icon.svelte";
 
     interface Props {
         /** Links shown in the dropdown. */
@@ -22,82 +42,38 @@
 
     let { links, isActive }: Props = $props();
 
-    const TOOLS
-        = "M4.5 12a7.5 7.5 0 0 0 15 0m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077 1.41-.513m14.095-5.13 1.41-.513M5.106 17.785l1.15-.964m11.49-9.642 1.149-.964M7.501 19.795l.75-1.3m7.5-12.99.75-1.3m-6.063 16.658.26-1.477m2.605-14.772.26-1.477m0 17.726-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205 12 12m6.894 5.785-1.149-.964M20.55 8.51l-1.41-.513";
-
     let open = $state( false );
-    let container: HTMLDivElement | null = $state( null );
-    let trigger: HTMLButtonElement | null = $state( null );
-
-    /**
-     * Closes the menu when the click landed outside of it.
-     *
-     * @param event Click event on the window.
-     * @author Claude
-     */
-    const onWindowClick = ( event: MouseEvent ): void =>
-    {
-        if ( open && container && !container.contains( event.target as Node ) )
-        {
-            open = false;
-        }
-    };
-
-    /**
-     * Closes the menu on `Échap` and returns focus to the trigger, so a
-     * keyboard user is never left with an open popup and no way out.
-     *
-     * @param event Keydown event on the window.
-     * @author Claude
-     */
-    const onWindowKeydown = ( event: KeyboardEvent ): void =>
-    {
-        if ( open && event.key === "Escape" )
-        {
-            open = false;
-            trigger?.focus();
-        }
-    };
 </script>
 
-<svelte:window onclick={onWindowClick} onkeydown={onWindowKeydown} />
-
-<div class="relative hidden lg:block" bind:this={container}>
+<div class="hidden lg:block">
     <button
-        bind:this={trigger}
         type="button"
-        class="btn btn-ghost h-9 w-9 px-0"
-        onclick={() => ( open = !open )}
+        class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-9 w-9
+               cursor-pointer items-center justify-center rounded-full transition"
         aria-expanded={open}
-        aria-haspopup="true"
         aria-label="Outils"
-        title="Outils"
     >
-        <Icon path={TOOLS} class="h-[18px] w-[18px]" />
+        <Settings2 class="h-4.5 w-4.5" />
     </button>
 
-    {#if open}
-        <div
-            class="surface absolute right-0 z-50 mt-2 w-52 origin-top-right p-1.5"
-            transition:fly={{ y: -6, duration: 180, easing: cubicOut }}
-        >
-            <ul>
-                {#each links as link ( link.href )}
-                    <li>
-                        <a
-                            href={resolve( link.href )}
-                            class="hover:bg-paper-100 dark:hover:bg-ink-800 block rounded-lg px-3 py-2 text-sm {isActive(
-                                link.href
-                            )
-                                ? "text-accent-600 dark:text-accent-400 font-medium"
-                                : ""}"
-                            onclick={() => ( open = false )}
-                        >
-                            {link.label}
-                        </a>
-                    </li>
-                {/each}
-            </ul>
-        </div>
-    {/if}
+    <Dropdown
+        bind:isOpen={open}
+        role="menu"
+        placement="bottom-end"
+        transitionParams={{ duration: motionDuration( 180 ) }}
+        class="surface text-ink-800 dark:text-paper-200 z-50 w-52 divide-y-0 rounded-2xl p-1.5"
+    >
+        {#each links as link ( link.href )}
+            <a
+                href={resolve( link.href )}
+                role="menuitem"
+                class="hover:bg-paper-100 dark:hover:bg-ink-800 flex min-h-10 items-center rounded-lg px-3 text-sm
+                       {isActive( link.href ) ? "text-accent-600 dark:text-accent-400 font-medium" : ""}"
+                aria-current={isActive( link.href ) ? "page" : undefined}
+                onclick={() => ( open = false )}
+            >
+                {link.label}
+            </a>
+        {/each}
+    </Dropdown>
 </div>

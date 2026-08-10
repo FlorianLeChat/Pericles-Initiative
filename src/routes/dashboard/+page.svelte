@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import ActivityChart from "$lib/components/dashboard/ActivityChart.svelte";
     import BarChart from "$lib/components/dashboard/BarChart.svelte";
@@ -11,6 +12,7 @@
     import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import { formatShortDate } from "$lib/utilities/date";
+    import { plural } from "$lib/utilities/plural";
     import { computeStats } from "$lib/utilities/stats";
 
     const stats = $derived(
@@ -107,7 +109,7 @@
 
                             <span class="text-muted font-mono text-xs">
                                 {item.incoming}
-                                {item.incoming === 1 ? "lien" : "liens"}
+                                {plural( item.incoming, "lien" )}
                             </span>
                         </li>
                     {/each}
@@ -136,12 +138,15 @@
                                 {item.count === 1 ? "fois" : "fois"}
                             </span>
 
-                            <a
+                            <Button
                                 href={resolve( `/new?slug=${ item.slug }` )}
-                                class="btn btn-outline shrink-0 px-2.5 py-1 text-xs"
+                                color="alternative"
+                                size="xs"
+                                class="shrink-0 rounded-full"
+                                aria-label="Créer la fiche {item.slug}"
                             >
                                 Créer
-                            </a>
+                            </Button>
                         </li>
                     {/each}
                 </ul>

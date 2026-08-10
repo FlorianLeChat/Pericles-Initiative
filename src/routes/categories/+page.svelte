@@ -4,11 +4,13 @@
      *
      * @author Claude
      */
+    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import { staggerRank } from "$lib/config/motion";
     import { paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
+    import { plural } from "$lib/utilities/plural";
 
     const groups = $derived(
         wiki.categories.map( ( category ) => ( {
@@ -38,13 +40,13 @@
             </p>
         </div>
 
-        <a href={resolve( "/categories/manage" )} class="btn btn-outline">Gérer les catégories</a>
+        <Button href={resolve( "/categories/manage" )} color="alternative">Gérer les catégories</Button>
     </header>
 
     {#if groups.length === 0}
         <div class="mt-10">
             <EmptyState title="Aucune catégorie" description="Aucune catégorie n'a encore été créée.">
-                <a href={resolve( "/categories/manage" )} class="btn btn-outline">Créer une catégorie</a>
+                <Button href={resolve( "/categories/manage" )} color="alternative">Créer une catégorie</Button>
             </EmptyState>
         </div>
     {:else}
@@ -60,7 +62,7 @@
 
                         <span class="text-muted text-xs tracking-wide uppercase">
                             {group.entries.length}
-                            {group.entries.length === 1 ? "fiche" : "fiches"}
+                            {plural( group.entries.length, "fiche" )}
                         </span>
                     </span>
 

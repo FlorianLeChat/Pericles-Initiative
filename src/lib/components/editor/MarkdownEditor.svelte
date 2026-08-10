@@ -13,9 +13,11 @@
      * @author Claude
      */
     import "@milkdown/crepe/theme/common/style.css";
+    import Link from "@lucide/svelte/icons/link";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Kbd from "flowbite-svelte/Kbd.svelte";
     import type { Crepe as CrepeEditor } from "@milkdown/crepe";
     import { onMount } from "svelte";
-    import Icon from "$lib/components/Icon.svelte";
     import EntryPicker from "./EntryPicker.svelte";
 
     interface Props {
@@ -24,12 +26,16 @@
         /** Called with the full Markdown on every change. */
         onchange: ( markdown: string ) => void;
         placeholder?: string;
+        /** Accessible name of the editing area. */
+        label?: string;
     }
 
-    let { value, onchange, placeholder = "Rédigez la fiche. Tapez / pour insérer un bloc." }: Props = $props();
-
-    const LINK
-        = "M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244";
+    let {
+        value,
+        onchange,
+        placeholder = "Rédigez la fiche. Tapez / pour insérer un bloc.",
+        label = "Corps de la fiche, en Markdown"
+    }: Props = $props();
 
     let host: HTMLDivElement;
     let crepe: CrepeEditor | null = null;
@@ -72,6 +78,12 @@
                 await instance.destroy();
                 return;
             }
+
+            // Crepe builds its own `role="textbox"` and gives it no name, so a
+            // screen reader announces the body of a page as an unlabelled edit
+            // area. The element only exists once the editor is created, which is
+            // why the label is put on afterwards rather than declared in markup.
+            host.querySelector( ".ProseMirror" )?.setAttribute( "aria-label", label );
 
             crepe = instance;
             ready = true;
@@ -151,19 +163,21 @@
     <div
         class="border-paper-200 dark:border-ink-800 dark:bg-ink-900/40 flex flex-wrap items-center gap-2 border-b bg-paper-100/60 px-3 py-2"
     >
-        <button
-            type="button"
-            class="btn btn-outline px-3 py-1.5 text-xs"
+        <Button
+            color="alternative"
+            size="xs"
+            class="gap-2 rounded-full"
             onclick={() => ( pickerOpen = true )}
             disabled={!ready}
         >
-            <Icon path={LINK} class="h-3.5 w-3.5" />
+            <Link class="h-3.5 w-3.5" />
             Lier une fiche
-            <kbd class="border-paper-300 dark:border-ink-700 ml-1 rounded border px-1 py-0.5 text-[10px]"> Ctrl L </kbd>
-        </button>
+            <Kbd class="ml-1 px-1 py-0.5 text-[10px] font-normal">Ctrl L</Kbd>
+        </Button>
 
-        <p class="text-muted ml-auto text-xs">
-            Markdown. Tapez <kbd class="font-mono">/</kbd> pour un bloc, sélectionnez du texte pour la barre de mise en forme.
+        <p class="text-muted ml-auto hidden text-xs sm:block">
+            Tapez <Kbd class="px-1.5 py-0.5 font-mono text-[10px] font-normal">/</Kbd> pour insérer un titre, une liste ou
+            une image. Sélectionnez du texte pour le mettre en forme.
         </p>
     </div>
 

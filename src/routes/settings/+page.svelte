@@ -7,6 +7,12 @@
      *
      * @author Claude
      */
+    import Alert from "flowbite-svelte/Alert.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Helper from "flowbite-svelte/Helper.svelte";
+    import Input from "flowbite-svelte/Input.svelte";
+    import Label from "flowbite-svelte/Label.svelte";
+    import Textarea from "flowbite-svelte/Textarea.svelte";
     import { resolve } from "$app/paths";
     import { env } from "$env/dynamic/public";
     import { untrack } from "svelte";
@@ -96,19 +102,16 @@
         <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Paramètres</h1>
 
         <p class="text-muted mt-3 leading-relaxed">
-            L'identité du wiki. Ces champs alimentent l'entête, la page d'accueil et les métadonnées des pages. Ils
-            s'exportent avec le reste du contenu.
+            Le nom de votre univers et la façon dont il se présente. Ces champs apparaissent dans l'entête, sur la page
+            d'accueil, et quand quelqu'un partage un lien vers votre wiki.
         </p>
     </header>
 
     {#if saved && !dirty}
-        <p
-            class="bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100 mt-6 rounded-xl px-4 py-3 text-sm"
-            role="status"
-        >
-            Identité enregistrée. Elle reste locale jusqu'à l'export du JSON depuis
-            <a href={resolve( "/data" )} class="underline">la page Données</a>.
-        </p>
+        <Alert color="primary" class="mt-6 rounded-xl text-sm" role="status">
+            Enregistré. Pensez à faire une copie depuis
+            <a href={resolve( "/data" )} class="underline">les sauvegardes</a> pour ne rien perdre.
+        </Alert>
     {/if}
 
     <form
@@ -121,60 +124,59 @@
     >
         <section class="surface space-y-4 p-6">
             <div>
-                <label class="field-label" for="meta-universe">Nom de l'univers</label>
+                <Label for="meta-universe" class="field-label">Nom de l'univers</Label>
 
-                <input
+                <Input
                     id="meta-universe"
                     bind:value={universe}
                     oninput={() => ( saved = false )}
                     type="text"
-                    class="field font-serif text-lg"
+                    class="font-serif text-lg"
                     required
                 />
             </div>
 
             <div>
-                <label class="field-label" for="meta-tagline">Signature</label>
+                <Label for="meta-tagline" class="field-label">Signature</Label>
 
-                <input
+                <Input
                     id="meta-tagline"
                     bind:value={tagline}
                     oninput={() => ( saved = false )}
                     type="text"
-                    class="field"
                     placeholder="Une phrase, affichée sous le titre de l'accueil"
                 />
             </div>
 
             <div>
-                <label class="field-label" for="meta-description">Description</label>
+                <Label for="meta-description" class="field-label">Description</Label>
 
-                <textarea
+                <Textarea
                     id="meta-description"
                     bind:value={description}
                     oninput={() => ( saved = false )}
-                    rows="3"
-                    class="field resize-y"
-                    placeholder="Reprise dans les métadonnées des pages, pour le partage et le référencement."
-                ></textarea>
+                    rows={3}
+                    class="w-full resize-y"
+                    placeholder="Quelques mots sur votre univers, affichés quand un lien est partagé."
+                />
             </div>
 
             <div>
-                <label class="field-label" for="meta-logo">Logo</label>
+                <Label for="meta-logo" class="field-label">Logo</Label>
 
-                <input
+                <Input
                     id="meta-logo"
                     bind:value={logo}
                     oninput={() => ( saved = false )}
                     type="text"
-                    class="field font-mono text-xs"
-                    placeholder="/media/logo.svg"
+                    class="font-mono text-xs"
+                    aria-describedby="meta-logo-hint"
+                    placeholder="https://exemple.fr/logo.png"
                 />
 
-                <p class="text-muted mt-1.5 text-xs leading-relaxed">
-                    Chemin sous <code class="font-mono">static/media/</code> ou URL absolue. Laissez vide pour garder le
-                    monogramme.
-                </p>
+                <Helper id="meta-logo-hint" class="mt-1.5 text-xs leading-relaxed">
+                    L'adresse d'une image, en ligne ou dans les fichiers du site. Laissez vide pour garder l'initiale.
+                </Helper>
             </div>
 
             <div>
@@ -226,20 +228,21 @@
         </section>
 
         <div class="flex flex-wrap items-center gap-3">
-            <button type="submit" class="btn btn-primary" disabled={!canSave || !dirty}>Enregistrer</button>
+            <Button type="submit" color="primary" disabled={!canSave || !dirty}>Enregistrer</Button>
 
             {#if dirty}
                 <span class="text-signal-500 text-xs">Modifications non enregistrées</span>
             {/if}
 
             {#if hasLocalMeta}
-                <button
-                    type="button"
-                    class="btn btn-ghost hover:text-alert-500 ml-auto"
-                    onclick={() => ( resetOpen = true )}
-                >
-                    Revenir à l'identité par défaut
-                </button>
+                <!--
+                    Red like the erasure of `/data`, and for the same reason: this
+                    drops the identity of the wiki and the pages put forward, which
+                    nothing brings back.
+                -->
+                <Button color="red" class="ml-auto" onclick={() => ( resetOpen = true )}>
+                    Tout remettre par défaut
+                </Button>
             {/if}
         </div>
     </form>
@@ -247,9 +250,9 @@
 
 <ConfirmDialog
     bind:open={resetOpen}
-    title="Revenir à l'identité par défaut ?"
-    message="Les modifications locales du nom, de la signature, de la description, du logo et des fiches à la une seront perdues."
-    confirmLabel="Revenir"
+    title="Tout remettre par défaut ?"
+    message="Le nom, la signature, la description, le logo et les fiches à la une reviendront à leur état d'origine."
+    confirmLabel="Remettre"
     danger
     onconfirm={reset}
 />

@@ -2,12 +2,29 @@
     /**
      * Search palette, opened from the header or with Ctrl+K.
      *
+     * The arrow keys move a selection that used to be visual only: the input is
+     * declared as a combobox owning the list of hits, and points at the active
+     * one through `aria-activedescendant`, so a screen reader announces what the
+     * arrows land on. Focus never leaves the input, which is what that pattern
+     * asks for, and is why the hits are options rather than buttons.
+     *
+     * The field is a plain text input rather than a `search` one on purpose. A
+     * search field spends the first Escape emptying itself, so closing the
+     * palette took two presses, and answering the key here instead raced with
+     * Flowbite's own handling of the dialog. Dropping the type lets the browser
+     * close the dialog on the first press, which is both the simplest path and
+     * the only one with no race in it. The only thing lost is the small clear
+     * cross Chromium draws, which the palette has no use for.
+     *
      * @author Claude
      */
+    import Input from "flowbite-svelte/Input.svelte";
+    import Modal from "flowbite-svelte/Modal.svelte";
     import { goto } from "$app/navigation";
     import { resolve } from "$app/paths";
     import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
+    import { counted } from "$lib/utilities/plural";
     import { searchEntries } from "$lib/utilities/search";
     import TypeBadge from "./TypeBadge.svelte";
 
@@ -17,29 +34,43 @@
 
     let { open = $bindable( false ) }: Props = $props();
 
-    let dialog: HTMLDialogElement | null = $state( null );
-    let input: HTMLInputElement | null = $state( null );
+    const LIST_ID = "recherche-resultats";
+
+    let input: HTMLInputElement | undefined = $state();
     let query = $state( "" );
     let selected = $state( 0 );
 
     // Drafts are searchable too: there is no audience to hide them from.
     const hits = $derived( query.trim().length > 0 ? searchEntries( wiki.entries, query, 8 ) : [] );
 
-    $effect( () =>
+    /** Identifier of the option the arrows are currently on, empty when there is none. */
+    const activeId = $derived( hits[ selected ] ? `recherche-resultat-${ selected }` : undefined );
+
+    /** Sentence announced to assistive technology whenever the hits change. */
+    const announcement = $derived.by( () =>
     {
-        if ( !dialog )
+        if ( query.trim().length === 0 )
         {
-            return;
+            return "";
         }
 
-        if ( open && !dialog.open )
+        if ( hits.length === 0 )
         {
-            dialog.showModal();
-            input?.focus();
+            return "Aucun résultat.";
         }
-        else if ( !open && dialog.open )
+
+        return `${ counted( hits.length, "résultat" ) }.`;
+    } );
+
+    // The palette is mounted by the layout and never unmounted, so the field has
+    // to be focused when it opens rather than on mount. Flowbite focuses the first
+    // control of the dialog on its own, but only once, and reopening has to work
+    // just as well as the first time.
+    $effect( () =>
+    {
+        if ( open )
         {
-            dialog.close();
+            input?.focus();
         }
     } );
 
@@ -48,6 +79,16 @@
     {
         void query;
         selected = 0;
+    } );
+
+    // Emptied on the way out, so the palette reopens on a blank field rather
+    // than on the query of the last visit, which typing would append to.
+    $effect( () =>
+    {
+        if ( !open )
+        {
+            query = "";
+        }
     } );
 
     /**
@@ -60,7 +101,7 @@
     {
         open = false;
         query = "";
-        goto( resolve( `/wiki/${ slug }` ) );
+        void goto( resolve( `/wiki/${ slug }` ) );
     };
 
     /**
@@ -84,6 +125,7 @@
         else if ( event.key === "Enter" )
         {
             const hit = hits[ selected ];
+
             if ( hit )
             {
                 event.preventDefault();
@@ -93,66 +135,78 @@
     };
 </script>
 
-<dialog
-    bind:this={dialog}
-    onclose={() => ( open = false )}
-    onclick={( event ) =>
-    {
-        if ( event.target === dialog )
-        {
-            open = false;
-        }
+<Modal
+    bind:open
+    size="md"
+    placement="top-center"
+    dismissable={false}
+    transitionParams={{ duration: 0 }}
+    class="border-paper-200 text-ink-800 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-200 mt-[8dvh]
+           max-h-[80dvh] rounded-2xl border"
+    classes={{
+        header: "border-paper-200 dark:border-ink-800 p-3",
+        body: "p-2"
     }}
-    class="backdrop:bg-ink-950/60 dark:bg-ink-900 border-paper-200 dark:border-ink-800 mx-auto mt-[12vh] w-[min(38rem,92vw)] rounded-2xl border bg-white p-0 shadow-2xl backdrop:backdrop-blur-sm"
     aria-label="Rechercher une fiche"
 >
-    <div class="border-paper-200 dark:border-ink-800 border-b p-3">
-        <input
-            bind:this={input}
-            bind:value={query}
-            onkeydown={onKeydown}
-            type="search"
-            class="field border-0 bg-transparent text-base focus:ring-0 dark:bg-transparent"
-            placeholder="Rechercher un personnage, un lieu, un événement..."
-            autocomplete="off"
-        />
-    </div>
+    {#snippet header()}
+        <div class="w-full">
+            <Input
+                bind:elementRef={input}
+                bind:value={query}
+                onkeydown={onKeydown}
+                type="text"
+                role="combobox"
+                aria-expanded={hits.length > 0}
+                aria-controls={LIST_ID}
+                aria-activedescendant={activeId}
+                aria-autocomplete="list"
+                aria-label="Rechercher une fiche"
+                class="w-full border-0 bg-transparent px-2 py-1.5 text-base focus:border-transparent focus:ring-0
+                       dark:bg-transparent"
+                placeholder="Rechercher un personnage, un lieu, un événement..."
+                autocomplete="off"
+            />
+        </div>
+    {/snippet}
 
-    <div class="max-h-[55vh] overflow-y-auto p-2">
-        {#if query.trim().length === 0}
-            <p class="text-muted px-3 py-6 text-center text-sm">
-                {wiki.entries.length} fiches consultables. Tapez pour chercher.
-            </p>
-        {:else if hits.length === 0}
-            <p class="text-muted px-3 py-6 text-center text-sm">
-                Aucune fiche ne correspond à « {query} ».
-            </p>
-        {:else}
-            <ul>
-                {#each hits as hit, index ( hit.entry.id )}
-                    <li class="rise-in" style="--rank: {staggerRank( index )}">
-                        <button
-                            type="button"
-                            class="hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition {index
-                              === selected
-                                ? "bg-paper-100 dark:bg-ink-800"
-                                : ""}"
-                            onclick={() => openEntry( hit.entry.slug )}
-                            onmouseenter={() => ( selected = index )}
-                        >
-                            <TypeBadge type={hit.entry.type} iconOnly />
+    <p class="sr-only" role="status" aria-live="polite">{announcement}</p>
 
-                            <span class="min-w-0 flex-1">
-                                <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
+    {#if query.trim().length === 0}
+        <p class="text-muted px-3 py-6 text-center text-sm">
+            {wiki.entries.length} fiches consultables. Tapez pour chercher.
+        </p>
+    {:else if hits.length === 0}
+        <p class="text-muted px-3 py-6 text-center text-sm">
+            Aucune fiche ne correspond à « {query} ».
+        </p>
+    {/if}
 
-                                {#if hit.entry.summary}
-                                    <span class="text-muted block truncate text-xs">{hit.entry.summary}</span>
-                                {/if}
-                            </span>
-                        </button>
-                    </li>
-                {/each}
-            </ul>
-        {/if}
-    </div>
-</dialog>
+    <ul id={LIST_ID} role="listbox" aria-label="Fiches trouvées">
+        {#each hits as hit, index ( hit.entry.id )}
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <li
+                id="recherche-resultat-{index}"
+                role="option"
+                aria-selected={index === selected}
+                class="rise-in hover:bg-paper-100 dark:hover:bg-ink-800 flex cursor-pointer items-center gap-3
+                       rounded-xl px-3 py-2.5 text-left transition {index === selected
+                           ? "bg-paper-100 dark:bg-ink-800"
+                           : ""}"
+                style="--rank: {staggerRank( index )}"
+                onclick={() => openEntry( hit.entry.slug )}
+                onmouseenter={() => ( selected = index )}
+            >
+                <TypeBadge type={hit.entry.type} iconOnly />
+
+                <span class="min-w-0 flex-1">
+                    <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
+
+                    {#if hit.entry.summary}
+                        <span class="text-muted block truncate text-xs">{hit.entry.summary}</span>
+                    {/if}
+                </span>
+            </li>
+        {/each}
+    </ul>
+</Modal>

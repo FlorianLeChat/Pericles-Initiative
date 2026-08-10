@@ -30,6 +30,7 @@
         "@lucide/svelte": "~1.29",
         "@milkdown/crepe": "~7.22",
         "@commitlint/cli": "~20.5",
+        "flowbite-svelte": "~1.33",
         "@tsconfig/svelte": "~5.0",
         "@playwright/test": "~1.62",
         "@tailwindcss/vite": "~4.3",

@@ -1,6 +1,46 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
+/*
+ * The half of Flowbite that is not a Svelte component.
+ *
+ * A checkbox, a radio and a file input are drawn by the operating system, and no
+ * class reaches inside them: `text-primary-600` on a native checkbox colours
+ * nothing, which is why the boxes stayed grey with a system blue tick while every
+ * field around them followed the palette. This is the stylesheet that strips them
+ * down to `appearance: none` and repaints the tick, the dot and the «Choisir un
+ * fichier» button from `currentColor`, so the classes Flowbite's components carry
+ * finally have a surface to land on.
+ *
+ * Only its form styles are wanted. The other four groups are for widgets this site
+ * does not have, and `tooltips` would ship a floating panel the dropdown already
+ * draws itself. The package arrives with `flowbite-svelte`, which depends on it.
+ */
+@plugin 'flowbite/plugin' {
+    charts: false;
+    datatables: false;
+    tooltips: false;
+    wysiwyg: false;
+}
+
+/*
+ * Flowbite ships its components as compiled JavaScript, and Tailwind does not
+ * scan `node_modules` on its own, so without this the library's classes are
+ * simply never generated and every component renders unstyled.
+ *
+ * Only the folders holding a component this site imports are scanned. Pointed at
+ * the whole `dist`, Tailwind generates the classes of the sixty odd components
+ * nothing here uses, which was two hundred and twenty kilobytes of stylesheet for
+ * a datepicker, a kanban board and a carousel the site does not have.
+ *
+ * **Adding a Flowbite component means adding its folder here.** Forgetting shows
+ * up immediately and unmistakably, as a component rendered with no styling at
+ * all, and `dist/<name>` is where each one lives. `dialog` backs `Modal`, `utils`
+ * holds the close button they share, and `theme` the tokens they all read.
+ */
+@source '../node_modules/flowbite-svelte/dist/{alert,badge,breadcrumb,buttons,dialog,drawer,dropdown,kbd,modal,spinner,theme,toast,utils}';
+@source '../node_modules/flowbite-svelte/dist/forms/{checkbox,fileupload,helper,input-field,label,radio,search,select,textarea}';
+
 /* Class based dark mode: the theme toggle writes `.dark` on <html>. */
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -111,11 +151,66 @@
     --color-accent-500: #2f7ae0;
     --color-accent-600: #1f5fbd;
     --color-accent-700: #1b4c96;
+    /* Added for Flowbite, whose components ask for a 800 stop the site never did. */
+    --color-accent-800: #193f7a;
     --color-accent-900: #16325e;
 
     --color-signal-500: #d97706;
     --color-alert-500: #dc2626;
     --color-alert-600: #b91c1c;
+
+    /*
+     * The two scales Flowbite paints its components with, aliased onto the
+     * editorial palette above. This is what makes an imported component look
+     * like the rest of the site instead of like the library's demo: nothing in
+     * `src/` writes `primary-*` or `gray-*` by hand, they exist solely so the
+     * classes baked into Flowbite's compiled output resolve to our colours.
+     *
+     * They are declared as references rather than as copied hex values, so the
+     * warmed retouch the `.dark` block applies to the ink and paper stops
+     * reaches Flowbite too. A custom property is resolved where it is used, not
+     * where it is declared, which is what makes that indirection work.
+     *
+     * Flowbite only ever asks for the stops 50 to 900, so 950 is not aliased.
+     */
+    --color-primary-50: var(--color-accent-50);
+    --color-primary-100: var(--color-accent-100);
+    --color-primary-200: var(--color-accent-200);
+    --color-primary-300: var(--color-accent-300);
+    --color-primary-400: var(--color-accent-400);
+    --color-primary-500: var(--color-accent-500);
+    --color-primary-600: var(--color-accent-600);
+    --color-primary-700: var(--color-accent-700);
+    --color-primary-800: var(--color-accent-800);
+    --color-primary-900: var(--color-accent-900);
+
+    /*
+     * Paper runs light to mid, ink runs mid to dark, so the two joined end to
+     * end give the light to dark ramp Flowbite expects of a neutral scale.
+     */
+    --color-gray-50: var(--color-paper-50);
+    --color-gray-100: var(--color-paper-100);
+    --color-gray-200: var(--color-paper-200);
+    --color-gray-300: var(--color-paper-300);
+    --color-gray-400: var(--color-paper-400);
+    --color-gray-500: var(--color-ink-400);
+
+    /*
+     * These two stops are the field borders and the field backgrounds of the dark
+     * theme, and they are pulled a long way down the ink scale on purpose.
+     *
+     * Flowbite paints a field lighter than the card holding it. On the warm dark
+     * palette of this site that read as a pale blue box floating on the paper, and
+     * the borders came out louder than any other line on the page. Landing them on
+     * `ink-800` and `ink-900` is what the site's own fields used before the
+     * migration, so a Flowbite field now sits in its card the way the hand written
+     * ones did.
+     */
+    --color-gray-600: var(--color-ink-800);
+    --color-gray-700: var(--color-ink-900);
+
+    --color-gray-800: var(--color-ink-800);
+    --color-gray-900: var(--color-ink-900);
 }
 
 @layer base {
@@ -182,12 +277,14 @@
         @apply border-paper-200 dark:border-ink-800 dark:bg-ink-900/60 rounded-2xl border bg-white/80 shadow-sm;
     }
 
+    /*
+     * Caption above a field. Kept although Flowbite now draws the fields
+     * themselves, because it is also worn by the captions that label something
+     * which is not a form control, a Milkdown frame or a group of pills, where a
+     * real `<label>` would point at nothing.
+     */
     .field-label {
         @apply text-ink-600 dark:text-paper-300 mb-1.5 block text-sm font-medium;
-    }
-
-    .field {
-        @apply border-paper-300 text-ink-900 placeholder:text-ink-400 focus:border-accent-500 focus:ring-accent-500/25 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-100 dark:placeholder:text-paper-400/70 w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm transition focus:ring-4 focus:outline-none;
     }
 
     /*
@@ -198,26 +295,6 @@
      */
     .text-muted {
         @apply text-ink-400 dark:text-paper-400/80;
-    }
-
-    .btn {
-        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2 text-sm leading-none font-medium transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
-    }
-
-    .btn-primary {
-        @apply bg-accent-600 hover:bg-accent-700 text-white shadow-sm;
-    }
-
-    .btn-ghost {
-        @apply text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800;
-    }
-
-    .btn-outline {
-        @apply border-paper-300 text-ink-700 hover:border-accent-400 hover:text-accent-700 dark:border-ink-800 dark:text-paper-200 dark:hover:text-accent-400 border;
-    }
-
-    .btn-danger {
-        @apply bg-alert-500 hover:bg-alert-600 text-white;
     }
 
     /* Internal wiki links, applied to rendered article HTML. */
@@ -332,36 +409,20 @@
 /*
  * Native dialogs.
  *
- * `showModal` and `close` are what open and shut these, so the entrance and the
- * exit are described with `@starting-style` and `allow-discrete` rather than
- * with a Svelte transition: nothing else can animate around those two calls.
+ * Every dialog on the site is a Flowbite `Modal`, which is a real `<dialog>`
+ * opened with `showModal`. Their entrance is described here, in CSS, and their
+ * Svelte transition is switched off at every call site, which is not a matter of
+ * taste: a Svelte transition keeps the element mounted for the length of its
+ * outro, and a dialog closed while its intro was still running never finished
+ * leaving. It stayed on screen, modal, with the page behind it inert and no way
+ * back. Pressing Échap straight after Ctrl+K was enough to reach it.
+ *
+ * A CSS entrance cannot do that. It decorates an element that is already there
+ * and delays nothing, so closing stays instant whenever it happens. There is no
+ * exit animation for the same reason: the element is gone by then.
  */
-dialog {
-    opacity: 0;
-    transform: translateY(0.75rem) scale(0.98);
-    transition:
-        opacity var(--duration-swap) var(--ease-rise),
-        transform var(--duration-swap) var(--ease-rise),
-        overlay var(--duration-swap) allow-discrete,
-        display var(--duration-swap) allow-discrete;
-}
-
 dialog[open] {
-    opacity: 1;
-    transform: none;
-
-    @starting-style {
-        opacity: 0;
-        transform: translateY(0.75rem) scale(0.98);
-    }
-}
-
-dialog::backdrop {
-    opacity: 0;
-    transition:
-        opacity var(--duration-swap) var(--ease-rise),
-        overlay var(--duration-swap) allow-discrete,
-        display var(--duration-swap) allow-discrete;
+    animation: dialog-enter var(--duration-swap) var(--ease-rise);
 }
 
 dialog[open]::backdrop {
@@ -369,6 +430,37 @@ dialog[open]::backdrop {
 
     @starting-style {
         opacity: 0;
+    }
+
+    transition: opacity var(--duration-swap) var(--ease-rise);
+}
+
+@keyframes dialog-enter {
+    from {
+        opacity: 0;
+        transform: translateY(0.75rem) scale(0.98);
+    }
+}
+
+/*
+ * Form controls on a phone.
+ *
+ * Safari on iOS zooms the whole viewport as soon as a focused control renders
+ * under sixteen pixels, and every field here is `text-sm`, so the page jumped on
+ * each tap into a field and never zoomed back out. Raising them to a full rem
+ * below the `sm` breakpoint is what stops that, and it costs nothing on the
+ * larger screens where the smaller size is the deliberate one.
+ *
+ * Unlayered on purpose: this has to beat the `text-sm` utility Flowbite bakes
+ * into its inputs, and a rule inside `@layer base` loses to every utility.
+ * Checkboxes and radios are excluded, being sized by their box and not by their
+ * text, and never triggering the zoom in the first place.
+ */
+@media (width < 40rem) {
+    input:not([type='checkbox'], [type='radio']),
+    select,
+    textarea {
+        font-size: 1rem;
     }
 }
 
@@ -383,6 +475,19 @@ dialog[open]::backdrop {
 
 .article-body table {
     @apply w-full text-sm;
+}
+
+/*
+ * Scrolling frame `wrapTables` puts around every table of an article. The prose
+ * plugin gives the table its own top and bottom margin, which the wrapper has to
+ * take over, or the spacing collapses onto the container instead.
+ */
+.article-body .article-table {
+    @apply my-8 overflow-x-auto;
+}
+
+.article-body .article-table table {
+    @apply my-0;
 }
 
 /*

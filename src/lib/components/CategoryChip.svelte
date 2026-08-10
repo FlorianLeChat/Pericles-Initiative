@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import Badge from "flowbite-svelte/Badge.svelte";
     import { resolve } from "$app/paths";
     import { paletteColor } from "$lib/config/palette";
     import type { Category } from "$lib/types";
@@ -19,15 +20,16 @@
     const color = $derived( paletteColor( category.color ) );
 </script>
 
-<a
+<Badge
     href={resolve( `/categories/${ category.slug }` )}
-    class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition hover:brightness-105 {color.chip}"
+    class="gap-1.5 rounded-full px-2.5 py-1 text-xs transition hover:brightness-105 {color.chip}"
+    classes={{ linkClass: "flex items-center gap-1.5" }}
 >
     <span class="h-1.5 w-1.5 rounded-full {color.dot}"></span>
 
     {category.name}
 
     {#if count !== undefined}
-        <span class="opacity-70">{count}</span>
+        <span class="font-mono">{count}</span>
     {/if}
-</a>
+</Badge>

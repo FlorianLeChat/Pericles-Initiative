@@ -90,8 +90,7 @@ test.describe( "categories", () =>
         await page.locator( "article" ).filter( { hasText: CATEGORIES.doctrines.name } )
             .getByRole( "button", { name: "Supprimer" } ).click();
 
-        await page.getByRole( "dialog", { name: "Supprimer cette catégorie ?" } )
-            .getByRole( "button", { name: "Supprimer" } ).click();
+        await wiki.confirm( "Supprimer cette catégorie ?", "Supprimer" );
 
         await expect( page.getByText( `/categories/${ CATEGORIES.doctrines.slug }` ) ).toBeHidden();
 

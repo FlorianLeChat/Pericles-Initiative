@@ -8,6 +8,8 @@
      *
      * @author Claude
      */
+    import Alert from "flowbite-svelte/Alert.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import FileBackup from "$lib/components/data/FileBackup.svelte";
     import LocalContent from "$lib/components/data/LocalContent.svelte";
@@ -19,29 +21,22 @@
 </script>
 
 <svelte:head>
-    <title>Données · {wiki.meta.universe}</title>
+    <title>Sauvegardes · {wiki.meta.universe}</title>
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <header class="max-w-2xl">
-        <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Données</h1>
+        <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Sauvegardes</h1>
 
         <p class="text-muted mt-3 leading-relaxed">
-            Le site lit son contenu dans le stockage local de ce navigateur : c'est aujourd'hui la seule source de
-            données, et vider ce stockage suffit à tout perdre. Deux sauvegardes existent pour éviter ça, et elles sont
-            indépendantes : en local, dans un fichier conservé sur cet appareil, ou en ligne, sur un service que vous
-            hébergez.
+            Ce que vous écrivez reste sur cet appareil, et nulle part ailleurs. Personne d'autre ne le voit, mais rien ne
+            le protège non plus : effacer les données du navigateur, ou changer d'ordinateur, et tout est perdu. Faites
+            une copie, dans un fichier que vous gardez, ou en ligne pour retrouver votre wiki depuis un autre appareil.
         </p>
     </header>
 
     {#if feedback}
-        <p
-            class="bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100 mt-6 rounded-xl px-4 py-3
-                   text-sm"
-            role="status"
-        >
-            {feedback}
-        </p>
+        <Alert color="primary" class="mt-6 rounded-xl text-sm" role="status">{feedback}</Alert>
     {/if}
 
     <div class="mt-8">
@@ -53,33 +48,28 @@
     <RemoteBackup />
 
     <section class="border-alert-500/30 mt-6 rounded-2xl border p-6">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">Réinitialiser</h2>
+        <h2 class="font-serif text-xl font-semibold tracking-tight">Tout effacer</h2>
 
         <p class="text-muted mt-2 text-sm leading-relaxed">
-            Efface tout le contenu enregistré dans ce navigateur. Irréversible : sauvegardez avant, dans un fichier ou
-            en ligne.
+            Supprime toutes vos pages de cet appareil, d'un coup et sans retour possible. Faites une copie avant, sauf
+            si vous voulez vraiment repartir de zéro.
         </p>
 
-        <button
-            type="button"
-            class="btn btn-danger mt-5"
-            disabled={!wiki.hasStoredContent}
-            onclick={() => ( resetOpen = true )}
-        >
-            Effacer le contenu de ce navigateur
-        </button>
+        <Button color="red" class="mt-5" disabled={!wiki.hasStoredContent} onclick={() => ( resetOpen = true )}>
+            Effacer tout mon wiki
+        </Button>
     </section>
 </div>
 
 <ConfirmDialog
     bind:open={resetOpen}
-    title="Effacer le contenu de ce navigateur ?"
-    message="Tout ce qui n'a pas été sauvegardé, dans un fichier ou en ligne, sera perdu."
+    title="Effacer tout votre wiki ?"
+    message="Toutes vos pages seront supprimées de cet appareil. Ce qui n'a pas été copié ailleurs sera perdu."
     confirmLabel="Effacer"
     danger
     onconfirm={() =>
     {
         wiki.resetLocal();
-        feedback = "Contenu de ce navigateur effacé.";
+        feedback = "Votre wiki a été effacé de cet appareil.";
     }}
 />

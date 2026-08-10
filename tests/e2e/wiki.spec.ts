@@ -69,12 +69,12 @@ test.describe( "encyclopedia index", () =>
         await expect( page.getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
 
         await page.getByLabel( "Filtrer les fiches" ).fill( "" );
-        await page.getByRole( "button", { name: "Lieux" } ).click();
+        await page.getByRole( "radio", { name: /^Lieux/ } ).check();
 
         await expect( cards( page ) ).toHaveCount( 1 );
         await expect( page.getByRole( "link", { name: PAGES.port.title } ) ).toBeVisible();
 
-        await page.getByRole( "button", { name: "Toutes natures" } ).click();
+        await page.getByRole( "radio", { name: "Toutes natures" } ).check();
         await dropdown( page, CATEGORIES.institutions.slug ).selectOption( CATEGORIES.institutions.slug );
 
         await expect( cards( page ) ).toHaveCount( COUNTS.institutions );

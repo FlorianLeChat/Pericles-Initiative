@@ -12,6 +12,7 @@
     import { resolve } from "$app/paths";
     import { wiki } from "$lib/state/wiki.svelte";
     import { formatDateTime } from "$lib/utilities/date";
+    import { plural } from "$lib/utilities/plural";
 
     /** Above this size the browser is close to refusing to store the overlay. */
     const STORAGE_WARNING = 3_500_000;
@@ -48,23 +49,23 @@
 
 <section class="surface p-6">
     <div class="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">Contenu de ce navigateur</h2>
+        <h2 class="font-serif text-xl font-semibold tracking-tight">Ce qui est enregistré ici</h2>
 
         <p class="text-muted text-xs">
-            {formatSize( overlaySize )} utilisés dans le stockage du navigateur
+            {formatSize( overlaySize )} utilisés sur cet appareil
         </p>
     </div>
 
     {#if !wiki.hasStoredContent}
         <p class="text-muted mt-4 text-sm leading-relaxed">
-            Ce navigateur ne contient aucun contenu pour le moment.
+            Rien n'est encore enregistré sur cet appareil.
             <a href={resolve( "/new" )} class="wiki-link">Créez une fiche</a>
             pour commencer, ou restaurez une sauvegarde plus bas.
         </p>
     {:else}
         <p class="mt-4 text-sm">
             <strong>{wiki.storedItemCount}</strong>
-            {wiki.storedItemCount === 1 ? "élément enregistré" : "éléments enregistrés"} dans ce navigateur.
+            {plural( wiki.storedItemCount, "élément enregistré", "éléments enregistrés" )} sur cet appareil.
         </p>
 
         {#if wiki.changedAt}
@@ -75,8 +76,8 @@
 
         {#if overlaySize > STORAGE_WARNING}
             <p class="bg-signal-500/15 text-signal-500 mt-4 rounded-xl px-4 py-3 text-sm">
-                Le stockage local approche de sa limite. Sauvegardez, puis réinitialisez pour repartir d'une base
-                propre.
+                La place disponible sur cet appareil est presque épuisée. Faites une copie de votre wiki, puis effacez
+                le pour repartir léger.
             </p>
         {/if}
 
@@ -139,7 +140,7 @@
 
                     <p class="text-ink-500 dark:text-paper-300/80">
                         {storedLive.length}
-                        {storedLive.length === 1 ? "entrée enregistrée" : "entrées enregistrées"}.
+                        {plural( storedLive.length, "entrée enregistrée", "entrées enregistrées" )}.
                     </p>
                 </div>
             {/if}

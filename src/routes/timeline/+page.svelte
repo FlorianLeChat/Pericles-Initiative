@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
@@ -62,7 +63,7 @@
                 title="Aucune fiche datée"
                 description="Renseignez le champ « Date dans l'univers » d'une fiche pour la voir apparaître ici."
             >
-                <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
+                <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
             </EmptyState>
         </div>
     {:else}

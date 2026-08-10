@@ -25,14 +25,14 @@ test.describe( "entry editor", () =>
 
         await page.getByLabel( "Titre", { exact: true } ).fill( PAGES.port.title );
 
-        await expect( page.getByText( "Cette adresse est déjà prise" ) ).toBeVisible();
+        await expect( page.getByText( "Une autre fiche utilise déjà cette adresse." ) ).toBeVisible();
 
         await page.getByLabel( "Titre", { exact: true } ).fill( "Digue de Sainte Roque" );
 
         await expect( page.getByLabel( "Adresse de la page" ) ).toHaveValue( "digue-de-sainte-roque" );
 
         await page.getByLabel( "Résumé" ).fill( "La digue qui protège le seuil des vents du nord." );
-        await page.getByRole( "button", { name: "Lieu", exact: true } ).click();
+        await page.getByRole( "radio", { name: "Lieu", exact: true } ).check();
         await page.getByRole( "checkbox", { name: CATEGORIES.sites.name } ).check();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
@@ -100,7 +100,7 @@ test.describe( "entry editor", () =>
 
         await page.getByLabel( "Adresse de la page" ).fill( "bureau-des-marees" );
         await page.getByLabel( "Résumé" ).fill( "Le bureau, après sa réorganisation." );
-        await page.getByRole( "button", { name: "Brouillon", exact: true } ).click();
+        await page.getByRole( "radio", { name: "Brouillon", exact: true } ).check();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
         await expect( page ).toHaveURL( /\/wiki\/bureau-des-marees$/ );
@@ -117,11 +117,8 @@ test.describe( "entry editor", () =>
     {
         await wiki.open( `/edit/${ PAGES.sceau.slug }` );
 
-        await page.getByRole( "button", { name: "Supprimer" } ).click();
-
-        const confirmation = page.getByRole( "dialog", { name: "Supprimer cette fiche ?" } );
-
-        await confirmation.getByRole( "button", { name: "Supprimer" } ).click();
+        await page.getByRole( "button", { name: "Supprimer la fiche" } ).click();
+        await wiki.confirm( "Supprimer cette fiche ?", "Supprimer" );
 
         await expect( page ).toHaveURL( /\/wiki$/ );
         await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeHidden();

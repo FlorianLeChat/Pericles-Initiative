@@ -7,6 +7,10 @@
      *
      * @author Claude
      */
+    import ArrowDown from "@lucide/svelte/icons/arrow-down";
+    import ArrowUp from "@lucide/svelte/icons/arrow-up";
+    import X from "@lucide/svelte/icons/x";
+    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { wiki } from "$lib/state/wiki.svelte";
     import EntryPicker from "./editor/EntryPicker.svelte";
@@ -27,7 +31,7 @@
 
         <button
             type="button"
-            class="text-accent-600 dark:text-accent-400 text-xs underline"
+            class="text-accent-600 dark:text-accent-400 cursor-pointer text-xs underline"
             onclick={() => ( pickerOpen = true )}
         >
             Ajouter une fiche
@@ -56,9 +60,9 @@
                         {/if}
                     </span>
 
-                    <button
-                        type="button"
-                        class="btn btn-ghost h-7 w-7 px-0 text-xs"
+                    <Button
+                        color="alternative"
+                        class="h-9 w-9 shrink-0 border-0 p-0"
                         disabled={index === 0}
                         onclick={() =>
                         {
@@ -66,12 +70,14 @@
                             [ next[ index - 1 ], next[ index ] ] = [ next[ index ], next[ index - 1 ] ];
                             slugs = next;
                         }}
-                        aria-label="Monter">&uarr;</button
+                        aria-label="Monter {entry?.title ?? slug}"
                     >
+                        <ArrowUp class="h-4 w-4" />
+                    </Button>
 
-                    <button
-                        type="button"
-                        class="btn btn-ghost h-7 w-7 px-0 text-xs"
+                    <Button
+                        color="alternative"
+                        class="h-9 w-9 shrink-0 border-0 p-0"
                         disabled={index === slugs.length - 1}
                         onclick={() =>
                         {
@@ -79,15 +85,19 @@
                             [ next[ index ], next[ index + 1 ] ] = [ next[ index + 1 ], next[ index ] ];
                             slugs = next;
                         }}
-                        aria-label="Descendre">&darr;</button
+                        aria-label="Descendre {entry?.title ?? slug}"
                     >
+                        <ArrowDown class="h-4 w-4" />
+                    </Button>
 
-                    <button
-                        type="button"
-                        class="btn btn-ghost hover:text-alert-500 h-7 w-7 px-0 text-xs"
+                    <Button
+                        color="alternative"
+                        class="hover:text-alert-500 h-9 w-9 shrink-0 border-0 p-0"
                         onclick={() => ( slugs = slugs.filter( ( item ) => item !== slug ) )}
-                        aria-label="Retirer">&times;</button
+                        aria-label="Retirer {entry?.title ?? slug}"
                     >
+                        <X class="h-4 w-4" />
+                    </Button>
                 </li>
             {/each}
         </ol>

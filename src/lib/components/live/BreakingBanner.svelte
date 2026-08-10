@@ -4,9 +4,11 @@
      *
      * @author Claude
      */
+    import X from "@lucide/svelte/icons/x";
     import { cubicOut } from "svelte/easing";
     import { slide } from "svelte/transition";
     import { resolve } from "$app/paths";
+    import { motionDuration } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
     import { relativeTime } from "$lib/utilities/date";
 
@@ -19,7 +21,7 @@
     <aside
         class="bg-alert-500 text-white"
         aria-label="Alerte en cours"
-        transition:slide={{ duration: 260, easing: cubicOut }}
+        transition:slide={{ duration: motionDuration( 260 ), easing: cubicOut }}
     >
         <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2 text-sm sm:px-6">
             <span class="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold tracking-wide uppercase">
@@ -34,11 +36,12 @@
 
             <button
                 type="button"
-                class="shrink-0 cursor-pointer rounded-full px-2 py-0.5 text-white/80 transition hover:bg-white/20 hover:text-white"
+                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full
+                       text-white/80 transition hover:bg-white/20 hover:text-white"
                 onclick={() => ( dismissed = true )}
                 aria-label="Masquer l'alerte"
             >
-                &times;
+                <X class="h-4 w-4" />
             </button>
         </div>
     </aside>

@@ -2,15 +2,25 @@
     /**
      * Sticky header: identity, main navigation, tools, search and theme.
      *
+     * Below `lg` the navigation moves into a drawer rather than into a panel
+     * unfolding under the bar. The panel pushed the page down as it opened, so
+     * the article the reader was on jumped away from under their thumb, and it
+     * left the rest of the page reachable behind it. The drawer is an overlay
+     * with its own backdrop, and the page does not move.
+     *
      * @author Claude
      */
-    import { cubicOut } from "svelte/easing";
-    import { slide } from "svelte/transition";
+    import Menu from "@lucide/svelte/icons/menu";
+    import Plus from "@lucide/svelte/icons/plus";
+    import Search from "@lucide/svelte/icons/search";
+    import X from "@lucide/svelte/icons/x";
+    import Drawer from "flowbite-svelte/Drawer.svelte";
+    import Kbd from "flowbite-svelte/Kbd.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
+    import { motionDuration } from "$lib/config/motion";
     import { NAV_LINKS, TOOL_LINKS } from "$lib/config/navigation";
     import { wiki } from "$lib/state/wiki.svelte";
-    import Icon from "./Icon.svelte";
     import ThemeToggle from "./ThemeToggle.svelte";
     import ToolsMenu from "./ToolsMenu.svelte";
 
@@ -20,11 +30,6 @@
     }
 
     let { onsearch }: Props = $props();
-
-    const SEARCH = "m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z";
-    const MENU = "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5";
-    const CLOSE = "M6 18 18 6M6 6l12 12";
-    const PLUS = "M12 4.5v15m7.5-7.5h-15";
 
     let menuOpen = $state( false );
 
@@ -78,6 +83,7 @@
                     class="rounded-full px-3 py-1.5 text-sm font-medium transition {isActive( link.href )
                         ? "bg-paper-200 text-ink-900 dark:bg-ink-800 dark:text-paper-100"
                         : "text-ink-500 hover:bg-paper-100 dark:text-paper-300 dark:hover:bg-ink-800/60"}"
+                    aria-current={isActive( link.href ) ? "page" : undefined}
                 >
                     {link.label}
                 </a>
@@ -85,33 +91,42 @@
         </nav>
 
         <div class="ml-auto flex items-center gap-1.5">
+            <!--
+                The labelled search button and the «Nouvelle fiche» call only
+                appear once the navigation itself has, at `lg`. Between `sm` and
+                `lg` they used to sit beside the title, the theme switch and the
+                burger, and the row ran out of room well before a phone did.
+            -->
             <button
                 type="button"
-                class="border-paper-300 text-muted hover:border-accent-400 hover:text-accent-600 dark:border-ink-800 dark:hover:text-accent-400 hidden h-9 items-center gap-2 rounded-full border px-3 text-sm leading-none transition sm:flex"
+                class="border-paper-300 text-muted hover:border-accent-400 hover:text-accent-600 dark:border-ink-800
+                       dark:hover:text-accent-400 hidden h-9 cursor-pointer items-center gap-2 rounded-full border px-3
+                       text-sm leading-none transition lg:flex"
                 onclick={onsearch}
             >
-                <Icon path={SEARCH} class="h-4 w-4" />
+                <Search class="h-4 w-4" />
 
                 <span>Rechercher</span>
 
-                <kbd
-                    class="border-paper-300 dark:border-ink-700 ml-2 rounded border px-1.5 py-0.5 font-sans text-[10px] leading-none"
-                >
-                    Ctrl K
-                </kbd>
+                <Kbd class="ml-2 px-1.5 py-0.5 font-sans text-[10px] leading-none font-normal">Ctrl K</Kbd>
             </button>
 
             <button
                 type="button"
-                class="btn btn-ghost h-9 w-9 px-0 sm:hidden"
+                class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
+                       cursor-pointer items-center justify-center rounded-full transition lg:hidden"
                 onclick={onsearch}
                 aria-label="Rechercher"
             >
-                <Icon path={SEARCH} class="h-[18px] w-[18px]" />
+                <Search class="h-[18px] w-[18px]" />
             </button>
 
-            <a href={resolve( "/new" )} class="btn btn-primary hidden h-9 px-3.5 sm:inline-flex">
-                <Icon path={PLUS} class="h-4 w-4" />
+            <a
+                href={resolve( "/new" )}
+                class="bg-accent-600 hover:bg-accent-700 hidden h-9 items-center gap-2 rounded-full px-3.5 text-sm
+                       leading-none font-medium text-white shadow-sm transition lg:inline-flex"
+            >
+                <Plus class="h-4 w-4" />
                 Nouvelle fiche
             </a>
 
@@ -123,60 +138,87 @@
 
             <button
                 type="button"
-                class="btn btn-ghost h-9 w-9 px-0 lg:hidden"
-                onclick={() => ( menuOpen = !menuOpen )}
+                class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
+                       cursor-pointer items-center justify-center rounded-full transition lg:hidden"
+                onclick={() => ( menuOpen = true )}
                 aria-expanded={menuOpen}
-                aria-controls="mobile-nav"
+                aria-controls="navigation-mobile"
                 aria-label="Ouvrir la navigation"
             >
-                <Icon path={menuOpen ? CLOSE : MENU} class="h-[18px] w-[18px]" />
+                <Menu class="h-[18px] w-[18px]" />
             </button>
         </div>
     </div>
+</header>
 
-    {#if menuOpen}
-        <nav
-            id="mobile-nav"
-            class="border-paper-200 dark:border-ink-800 border-t px-4 py-3 lg:hidden"
-            aria-label="Navigation mobile"
-            transition:slide={{ duration: 220, easing: cubicOut }}
+<Drawer
+    bind:open={menuOpen}
+    id="navigation-mobile"
+    placement="right"
+    dismissable={false}
+    transitionParams={{ x: 288, duration: motionDuration( 260 ) }}
+    class="text-ink-800 dark:bg-ink-950 dark:text-paper-200 z-50 w-72 bg-white p-0 lg:hidden"
+    aria-label="Navigation du site"
+>
+    <div class="border-paper-200 dark:border-ink-800 flex items-center justify-between border-b px-4 py-3">
+        <p class="text-muted text-xs tracking-wide uppercase">Navigation</p>
+
+        <button
+            type="button"
+            class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
+                   cursor-pointer items-center justify-center rounded-full transition"
+            onclick={() => ( menuOpen = false )}
+            aria-label="Fermer la navigation"
         >
-            <ul class="space-y-1">
-                {#each NAV_LINKS as link ( link.href )}
-                    <li>
-                        <a
-                            href={resolve( link.href )}
-                            class="hover:bg-paper-100 dark:hover:bg-ink-800 block rounded-xl px-3 py-2 text-sm font-medium"
-                            onclick={() => ( menuOpen = false )}
-                        >
-                            {link.label}
-                        </a>
-                    </li>
-                {/each}
-            </ul>
+            <X class="h-4.5 w-4.5" />
+        </button>
+    </div>
 
-            <p class="text-muted mt-3 px-3 text-xs tracking-wide uppercase">Outils</p>
-
-            <ul class="mt-1 space-y-1">
-                {#each TOOL_LINKS as link ( link.href )}
-                    <li>
-                        <a
-                            href={resolve( link.href )}
-                            class="hover:bg-paper-100 dark:hover:bg-ink-800 text-ink-500 dark:text-paper-300 block rounded-xl px-3 py-2 text-sm"
-                            onclick={() => ( menuOpen = false )}
-                        >
-                            {link.label}
-                        </a>
-                    </li>
-                {/each}
-
-                <li class="pt-2">
-                    <a href={resolve( "/new" )} class="btn btn-primary w-full" onclick={() => ( menuOpen = false )}>
-                        <Icon path={PLUS} class="h-4 w-4" />
-                        Nouvelle fiche
+    <nav class="px-4 py-3" aria-label="Navigation mobile">
+        <ul class="space-y-1">
+            {#each NAV_LINKS as link ( link.href )}
+                <li>
+                    <a
+                        href={resolve( link.href )}
+                        class="hover:bg-paper-100 dark:hover:bg-ink-800 flex min-h-11 items-center rounded-xl px-3
+                               text-sm font-medium"
+                        aria-current={isActive( link.href ) ? "page" : undefined}
+                        onclick={() => ( menuOpen = false )}
+                    >
+                        {link.label}
                     </a>
                 </li>
-            </ul>
-        </nav>
-    {/if}
-</header>
+            {/each}
+        </ul>
+
+        <p class="text-muted mt-3 px-3 text-xs tracking-wide uppercase">Outils</p>
+
+        <ul class="mt-1 space-y-1">
+            {#each TOOL_LINKS as link ( link.href )}
+                <li>
+                    <a
+                        href={resolve( link.href )}
+                        class="hover:bg-paper-100 dark:hover:bg-ink-800 text-ink-500 dark:text-paper-300 flex min-h-11
+                               items-center rounded-xl px-3 text-sm"
+                        aria-current={isActive( link.href ) ? "page" : undefined}
+                        onclick={() => ( menuOpen = false )}
+                    >
+                        {link.label}
+                    </a>
+                </li>
+            {/each}
+
+            <li class="pt-2">
+                <a
+                    href={resolve( "/new" )}
+                    class="bg-accent-600 hover:bg-accent-700 flex min-h-11 w-full items-center justify-center gap-2
+                           rounded-full px-4 text-sm font-medium text-white shadow-sm transition"
+                    onclick={() => ( menuOpen = false )}
+                >
+                    <Plus class="h-4 w-4" />
+                    Nouvelle fiche
+                </a>
+            </li>
+        </ul>
+    </nav>
+</Drawer>

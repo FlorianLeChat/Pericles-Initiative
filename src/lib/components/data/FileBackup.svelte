@@ -8,8 +8,14 @@
      *
      * @author Claude
      */
+    import Alert from "flowbite-svelte/Alert.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Fileupload from "flowbite-svelte/Fileupload.svelte";
+    import Label from "flowbite-svelte/Label.svelte";
+    import Textarea from "flowbite-svelte/Textarea.svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
+    import { counted } from "$lib/utilities/plural";
 
     let importText = $state( "" );
     let feedback = $state<{ kind: "success" | "error"; text: string } | null>( null );
@@ -31,7 +37,7 @@
         link.click();
         URL.revokeObjectURL( url );
 
-        feedback = { kind: "success", text: "Fichier téléchargé. Le contenu de ce navigateur, lui, ne bouge pas." };
+        feedback = { kind: "success", text: "Sauvegarde téléchargée. Votre wiki n'a pas changé." };
     };
 
     /**
@@ -44,11 +50,14 @@
         try
         {
             await navigator.clipboard.writeText( wiki.exportJson() );
-            feedback = { kind: "success", text: "JSON copié dans le presse papier." };
+            feedback = { kind: "success", text: "Sauvegarde copiée. Collez la où vous voulez la garder." };
         }
-        catch ( error )
+        catch
         {
-            feedback = { kind: "error", text: `Copie refusée par le navigateur : ${ String( error ) }` };
+            feedback = {
+                kind: "error",
+                text: "Votre navigateur a refusé la copie. Utilisez le téléchargement, il donne le même fichier."
+            };
         }
     };
 
@@ -71,7 +80,7 @@
         importText = await file.text();
         feedback = {
             kind: "success",
-            text: `${ file.name } chargé. Lancez l'import pour remplacer le contenu de ce navigateur.`
+            text: `${ file.name } est prêt. Lancez la restauration pour remplacer vos pages par celles du fichier.`
         };
     };
 
@@ -89,106 +98,101 @@
             feedback = {
                 kind: "success",
                 text:
-                    `Import réussi : ${ counts.entries } ${ counts.entries === 1 ? "fiche" : "fiches" }, `
-                    + `${ counts.categories } ${ counts.categories === 1 ? "catégorie" : "catégories" }, `
-                    + `${ counts.live } ${ counts.live === 1 ? "entrée" : "entrées" } de direct.`
+                    `Sauvegarde restaurée : ${ counted( counts.entries, "fiche" ) }, `
+                    + `${ counted( counts.categories, "catégorie" ) } et ${ counted( counts.live, "entrée" ) } du fil.`
             };
         }
-        catch ( error )
+        catch
         {
-            feedback = { kind: "error", text: `JSON illisible : ${ String( error ) }` };
+            feedback = {
+                kind: "error",
+                text: "Ce contenu n'est pas une sauvegarde valide. Votre wiki n'a pas été modifié."
+            };
         }
     };
 </script>
 
 <section class="surface mt-6 p-6">
-    <h2 class="font-serif text-xl font-semibold tracking-tight">Sauvegarde en local</h2>
+    <h2 class="font-serif text-xl font-semibold tracking-tight">Sauvegarder dans un fichier</h2>
 
     <p class="text-muted mt-2 text-sm leading-relaxed">
-        Tout le contenu du wiki, écrit dans un fichier <code class="font-mono text-xs">wiki.json</code> sur cet
-        appareil. Aucun serveur n'intervient, rien n'est envoyé nulle part. Conservez ce fichier comme sauvegarde, ou
-        rechargez le ici, ou dans un autre navigateur, pour y retrouver le contenu.
+        Votre wiki entier dans un seul fichier, téléchargé sur cet appareil. Rien ne part sur internet. Gardez ce
+        fichier de côté : il vous rendra vos pages, ici comme sur un autre ordinateur.
     </p>
 
     {#if feedback}
-        <p
-            class="mt-5 rounded-xl px-4 py-3 text-sm {feedback.kind === "success"
-                ? "bg-accent-100 text-accent-900 dark:bg-accent-900/50 dark:text-accent-100"
-                : "bg-alert-500/15 text-alert-600 dark:text-red-300"}"
+        <Alert
+            color={feedback.kind === "success" ? "primary" : "red"}
+            class="mt-5 rounded-xl text-sm"
             role="status"
         >
             {feedback.text}
-        </p>
+        </Alert>
     {/if}
 
     <div class="mt-6">
-        <h3 class="font-semibold">Enregistrer dans un fichier</h3>
+        <h3 class="font-semibold">Télécharger une copie</h3>
 
         <p class="text-muted mt-1.5 text-sm leading-relaxed">
-            Le fichier contient tout ce que le site affiche actuellement, brouillons compris. L'enregistrer ne vide pas
-            ce navigateur : le contenu reste ici, et une sauvegarde n'est qu'une copie.
+            Le fichier reprend tout ce que vous voyez sur le site, brouillons compris. Le télécharger ne change rien à
+            votre wiki : c'est une copie, pas un déplacement.
         </p>
 
         <div class="mt-4 flex flex-wrap gap-2">
-            <button type="button" class="btn btn-primary" onclick={download}>Télécharger wiki.json</button>
+            <Button color="primary" onclick={download}>Télécharger ma sauvegarde</Button>
 
-            <button type="button" class="btn btn-outline" onclick={() => void copy()}>
-                Copier dans le presse papier
-            </button>
+            <Button color="alternative" onclick={() => void copy()}>Copier dans le presse papier</Button>
         </div>
     </div>
 
     <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
-        <h3 class="font-semibold">Charger un fichier</h3>
+        <h3 class="font-semibold">Restaurer une copie</h3>
 
         <p class="text-muted mt-1.5 text-sm leading-relaxed">
-            Reprendre une sauvegarde, ou récupérer le travail fait sur un autre appareil. Le chargement est complet : le
-            site affichera exactement le contenu du fichier, et ce que contient ce navigateur sera remplacé.
-            Enregistrez avant, si vous avez du travail en cours ici.
+            Pour reprendre une sauvegarde, ou récupérer le travail fait sur un autre appareil. Attention, le remplacement
+            est total : le site affichera exactement ce que contient le fichier, et vos pages actuelles disparaîtront.
+            Téléchargez une copie avant si vous avez du travail en cours.
         </p>
 
         <div class="mt-4 space-y-4">
             <div>
-                <label class="field-label" for="import-file">Fichier JSON</label>
+                <Label for="import-file" class="field-label">Votre fichier de sauvegarde</Label>
 
-                <input
+                <Fileupload
                     id="import-file"
-                    type="file"
                     accept="application/json,.json"
-                    class="field"
-                    onchange={( event ) => void onFile( event )}
+                    onchange={( event: Event ) => void onFile( event )}
                 />
             </div>
 
             <div>
-                <label class="field-label" for="import-text">Ou coller le JSON</label>
+                <Label for="import-text" class="field-label">Ou coller le contenu d'une sauvegarde</Label>
 
-                <textarea
+                <Textarea
                     id="import-text"
                     bind:value={importText}
-                    rows="5"
-                    class="field resize-y font-mono text-xs"
-                    placeholder="&#123; &quot;meta&quot;: ..., &quot;entries&quot;: [...] &#125;"
-                ></textarea>
+                    rows={5}
+                    class="w-full resize-y font-mono text-xs"
+                    placeholder="Collez ici le contenu d'un fichier de sauvegarde."
+                />
             </div>
 
-            <button
-                type="button"
-                class="btn btn-primary"
+            <Button
+                color="primary"
                 disabled={importText.trim().length === 0}
                 onclick={() => ( importOpen = true )}
             >
-                Charger ce contenu
-            </button>
+                Restaurer cette sauvegarde
+            </Button>
         </div>
     </div>
 </section>
 
 <ConfirmDialog
     bind:open={importOpen}
-    title="Charger ce JSON ?"
-    message={"Le contenu de ce navigateur va être remplacé par celui du fichier. "
-      + "Tout ce qui n'a pas été sauvegardé sera perdu."}
-    confirmLabel="Charger"
+    title="Remplacer votre wiki ?"
+    message={"Vos pages actuelles vont être remplacées par celles de la sauvegarde. "
+      + "Ce qui n'a pas été copié ailleurs sera perdu."}
+    confirmLabel="Restaurer"
     onconfirm={runImport}
 />

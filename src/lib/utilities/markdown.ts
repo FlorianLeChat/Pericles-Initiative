@@ -39,6 +39,15 @@ const URL_ATTRIBUTES = /\s(href|src|formaction|xlink:href)\s*=\s*("[^"]*"|'[^']*
 const HEADING_TAGS = /<(h[2-4])>/g;
 
 /**
+ * A whole rendered table, from its opening tag to its closing one.
+ *
+ * Lazy, so two tables in a row are matched separately rather than as one run.
+ * A table nested inside another would defeat that, which Markdown has no syntax
+ * for and `sanitizeHtml` gives no way to author by hand.
+ */
+const TABLE_BLOCKS = /<table\b[\s\S]*?<\/table>/gi;
+
+/**
  * Opening tags of links, captured with their attributes.
  *
  * A single `\s` rather than `\s+`: the following `[^>]*` also matches spaces, so
@@ -361,6 +370,32 @@ const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string 
     } );
 
 /**
+ * Wraps every table in a container that can scroll sideways.
+ *
+ * A table holding something unbreakable, a long url or a run of code, pushes
+ * past the width of a phone and takes the whole page with it, since nothing else
+ * on the page can shrink to compensate. The container is what scrolls instead.
+ *
+ * `display: block` on the table itself would do the same with no extra element,
+ * and is why it is not done: it drops the table out of the accessibility tree,
+ * costing the reader the rows and columns to save them a horizontal scrollbar.
+ *
+ * The container is focusable and named, because a region that scrolls and cannot
+ * be reached by the keyboard is unreadable without a mouse.
+ *
+ * @param html Rendered HTML.
+ * @returns The HTML with each table wrapped.
+ * @author Claude
+ */
+const wrapTables = ( html: string ): string =>
+    html.replaceAll(
+        TABLE_BLOCKS,
+        ( table ) =>
+            "<div class=\"article-table\" role=\"region\" aria-label=\"Tableau\" tabindex=\"0\">"
+            + `${ table }</div>`
+    );
+
+/**
  * Parses and sanitizes a body, without the decoration that depends on the dataset.
  *
  * Split out so the expensive half can be memoised: link decoration varies with
@@ -389,7 +424,7 @@ export const renderArticle = (
     const rendered = renderSanitized( markdown );
 
     return {
-        html: decorateLinks( applyHeadingIds( rendered, headings ), knownSlugs ),
+        html: wrapTables( decorateLinks( applyHeadingIds( rendered, headings ), knownSlugs ) ),
         headings,
         links
     };

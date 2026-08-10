@@ -9,7 +9,7 @@
 
 import type { Page } from "@playwright/test";
 import { PAGES, UNIVERSE } from "./utilities/dataset";
-import { expect, isNarrow, test, type WikiHelper } from "./utilities/fixtures";
+import { expect, isNarrow, test, waitForDrawer, type WikiHelper } from "./utilities/fixtures";
 
 /**
  * Reaches the settings the way a reader does, from a page already open.
@@ -33,11 +33,12 @@ const openSettings = async ( page: Page, wiki: WikiHelper ): Promise<void> =>
         await page.getByRole( "button", { name: "Ouvrir la navigation" } ).click();
         await page.getByRole( "navigation", { name: "Navigation mobile" } )
             .getByRole( "link", { name: "Paramètres" } ).click();
+        await waitForDrawer( page );
     }
     else
     {
         await page.getByRole( "button", { name: "Outils" } ).click();
-        await page.getByRole( "banner" ).getByRole( "link", { name: "Paramètres" } ).click();
+        await page.getByRole( "menuitem", { name: "Paramètres" } ).click();
     }
 
     await expect( page ).toHaveURL( /\/settings$/ );
@@ -61,7 +62,7 @@ test.describe( "settings", () =>
 
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
-        await expect( page.getByText( "Identité enregistrée." ) ).toBeVisible();
+        await expect( page.getByText( "Enregistré." ) ).toBeVisible();
         await expect( page.getByRole( "banner" ) ).toContainText( "Périclès, second cycle" );
 
         await page.reload();
@@ -103,9 +104,8 @@ test.describe( "settings", () =>
         await page.getByLabel( "Signature" ).fill( "Une signature de passage." );
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
-        await page.getByRole( "button", { name: "Revenir à l'identité par défaut" } ).click();
-        await page.getByRole( "dialog", { name: "Revenir à l'identité par défaut ?" } )
-            .getByRole( "button", { name: "Revenir" } ).click();
+        await page.getByRole( "button", { name: "Tout remettre par défaut" } ).click();
+        await wiki.confirm( "Tout remettre par défaut ?", "Remettre" );
 
         // The seed is empty for every reader, so the default identity is the nameless one.
         await expect( page.getByLabel( "Nom de l'univers" ) ).toHaveValue( "Univers sans nom" );

@@ -17,17 +17,16 @@
      *
      * @author Claude
      */
+    import CloudOff from "@lucide/svelte/icons/cloud-off";
+    import CloudUpload from "@lucide/svelte/icons/cloud-upload";
+    import TriangleAlert from "@lucide/svelte/icons/triangle-alert";
+    import X from "@lucide/svelte/icons/x";
+    import Toast from "flowbite-svelte/Toast.svelte";
     import { resolve } from "$app/paths";
-    import Icon from "$lib/components/Icon.svelte";
+    import { motionDuration } from "$lib/config/motion";
     import { remote } from "$lib/state/remote.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { RemoteFailure } from "$lib/types";
-
-    const CLOUD_OFF = "M3 3l18 18M6.3 8.1A5.25 5.25 0 0 0 6.75 18.5h9.4M8.5 5.4a6 6 0 0 1 9.4 4.4 4.5 4.5 0 0 1 2 8.2";
-    const CLOUD_UP = "M7 18.5a4.75 4.75 0 0 1-.7-9.45 6 6 0 0 1 11.6 1.55 4.25 4.25 0 0 1-.4 8.4M12 20v-8m0 0-2.5 2.5"
-      + "M12 12l2.5 2.5";
-    const WARNING = "M12 9v4.5m0 3.25v.1M10.3 4.2 2.9 17.5A1.9 1.9 0 0 0 4.6 20.4h14.8a1.9 1.9 0 0 0 1.7-2.9L13.7 4.2"
-      + "a1.9 1.9 0 0 0-3.4 0Z";
 
     /**
      * How long the content has to stop changing before it is sent.
@@ -54,13 +53,13 @@
 
     /** What the reader is told when automatic publishing gave up. */
     const FAILURE_MESSAGE: Readonly<Record<RemoteFailure, string>> = {
-        network: "Publication automatique impossible : serveur injoignable.",
-        refused: "Publication automatique refusée : secret rejeté par le serveur.",
-        missing: "Publication automatique impossible : aucune sauvegarde sur le serveur.",
-        unsupported: "Publication automatique impossible : le serveur n'accepte rien à cette adresse.",
-        conflict: "La sauvegarde en ligne a changé ailleurs. À vous de choisir quoi garder.",
-        unreadable: "Publication automatique impossible : réponse du serveur inexploitable.",
-        server: "Publication automatique impossible : le serveur a répondu par une erreur."
+        network: "Envoi automatique impossible : le serveur ne répond pas.",
+        refused: "Envoi automatique refusé : le mot de passe du serveur a changé.",
+        missing: "Envoi automatique impossible : aucune sauvegarde sur ce serveur.",
+        unsupported: "Envoi automatique impossible : cette adresse ne mène plus à un serveur de sauvegarde.",
+        conflict: "La sauvegarde en ligne a changé sur un autre appareil. À vous de choisir quoi garder.",
+        unreadable: "Envoi automatique impossible : la réponse du serveur est incompréhensible.",
+        server: "Envoi automatique impossible : le serveur a rencontré une erreur."
     };
 
     let online = $state( true );
@@ -198,37 +197,47 @@
 <svelte:window bind:online />
 
 {#if pill}
-    <div
-        class="surface fixed bottom-4 left-4 z-40 flex max-w-xs items-center gap-2 px-3 py-2 text-xs shadow-lg"
+    <Toast
+        dismissable={false}
+        color={pill === "failed" ? "red" : "gray"}
+        params={{ duration: motionDuration() }}
+        class="surface text-ink-800 dark:text-paper-200 pointer-events-auto max-w-xs rounded-2xl p-3 text-xs shadow-lg"
         role="status"
         aria-live="polite"
     >
-        {#if pill === "offline"}
-            <Icon path={CLOUD_OFF} class="text-muted h-4 w-4 shrink-0" />
+        <div class="flex items-start gap-2.5">
+            {#if pill === "offline"}
+                <CloudOff class="text-muted mt-px h-4 w-4 shrink-0" />
+            {:else if pill === "failed"}
+                <TriangleAlert class="text-alert-500 mt-px h-4 w-4 shrink-0" />
+            {:else}
+                <CloudUpload class="text-accent-600 dark:text-accent-400 mt-px h-4 w-4 shrink-0" />
+            {/if}
 
-            <span>
-                Hors ligne. {pending ? "Vos modifications partiront au retour du réseau." : "Le wiki reste modifiable."}
-            </span>
-        {:else if pill === "failed"}
-            <Icon path={WARNING} class="text-alert-500 h-4 w-4 shrink-0" />
+            {#if pill === "offline"}
+                <span>
+                    Hors ligne. {pending
+                        ? "Vos modifications partiront dès que la connexion revient."
+                        : "Vous pouvez continuer à écrire."}
+                </span>
+            {:else if pill === "failed"}
+                <span>
+                    {failure ? FAILURE_MESSAGE[ failure ] : ""}
+                    <a class="underline" href={resolve( "/data" )}>Ouvrir les sauvegardes</a>
+                </span>
 
-            <span>
-                {failure ? FAILURE_MESSAGE[ failure ] : ""}
-                <a class="underline" href={resolve( "/data" )}>Ouvrir les sauvegardes</a>
-            </span>
-
-            <button
-                type="button"
-                class="text-muted hover:text-ink-800 dark:hover:text-paper-200 ml-1 shrink-0"
-                aria-label="Masquer l'avertissement"
-                onclick={() => ( dismissedChange = wiki.changedAt )}
-            >
-                ✕
-            </button>
-        {:else}
-            <Icon path={CLOUD_UP} class="text-accent-600 dark:text-accent-300 h-4 w-4 shrink-0" />
-
-            <span>{pill === "sending" ? "Publication en cours..." : "Publication automatique imminente"}</span>
-        {/if}
-    </div>
+                <button
+                    type="button"
+                    class="text-muted hover:text-ink-800 dark:hover:text-paper-200 -mt-1 -mr-1 ml-auto inline-flex
+                           h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full"
+                    aria-label="Masquer l'avertissement"
+                    onclick={() => ( dismissedChange = wiki.changedAt )}
+                >
+                    <X class="h-4 w-4" />
+                </button>
+            {:else}
+                <span>{pill === "sending" ? "Envoi en cours..." : "Envoi automatique imminent"}</span>
+            {/if}
+        </div>
+    </Toast>
 {/if}

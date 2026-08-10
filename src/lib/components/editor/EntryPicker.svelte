@@ -5,8 +5,15 @@
      * A title that matches nothing is not a dead end: it produces a red link,
      * which is how a page gets planned before it gets written.
      *
+     * The hits stay buttons rather than becoming listbox options, unlike the
+     * search palette: nothing here moves a selection with the arrows, so they are
+     * reached with the tab key like any other control, and a combobox would only
+     * take that away.
+     *
      * @author Claude
      */
+    import Input from "flowbite-svelte/Input.svelte";
+    import Modal from "flowbite-svelte/Modal.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import { searchEntries } from "$lib/utilities/search";
@@ -20,8 +27,7 @@
 
     let { open = $bindable( false ), onselect }: Props = $props();
 
-    let dialog: HTMLDialogElement | null = $state( null );
-    let input: HTMLInputElement | null = $state( null );
+    let input: HTMLInputElement | undefined = $state();
     let query = $state( "" );
 
     const trimmed = $derived( query.trim() );
@@ -29,21 +35,18 @@
     const plannedSlug = $derived( trimmed.length > 0 ? slugify( trimmed ) : "" );
     const isNew = $derived( plannedSlug.length > 0 && !wiki.slugs.has( plannedSlug ) );
 
+    // Reopened as often as a page is written, so the field is focused on every
+    // opening rather than only on the first one, and emptied on the way out so
+    // the next opening starts blank rather than on the last search.
     $effect( () =>
     {
-        if ( !dialog )
+        if ( open )
         {
-            return;
-        }
-
-        if ( open && !dialog.open )
-        {
-            dialog.showModal();
             input?.focus();
         }
-        else if ( !open && dialog.open )
+        else
         {
-            dialog.close();
+            query = "";
         }
     } );
 
@@ -62,31 +65,38 @@
     };
 </script>
 
-<dialog
-    bind:this={dialog}
-    onclose={() => ( open = false )}
-    onclick={( event ) =>
-    {
-        if ( event.target === dialog )
-        {
-            open = false;
-        }
+<Modal
+    bind:open
+    size="sm"
+    placement="top-center"
+    dismissable={false}
+    transitionParams={{ duration: 0 }}
+    class="border-paper-200 text-ink-800 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-200 mt-[8dvh]
+           max-h-[80dvh] rounded-2xl border"
+    classes={{
+        header: "border-paper-200 dark:border-ink-800 p-4",
+        body: "p-2"
     }}
-    class="backdrop:bg-ink-950/60 dark:bg-ink-900 border-paper-200 dark:border-ink-800 mx-auto mt-[12vh] w-[min(34rem,92vw)] rounded-2xl border bg-white p-0 shadow-2xl"
     aria-label="Lier une fiche"
 >
-    <div class="border-paper-200 dark:border-ink-800 border-b p-4">
-        <p class="mb-2 text-sm font-medium">Lier une fiche</p>
+    {#snippet header()}
+        <div class="w-full">
+            <p class="mb-2 text-sm font-medium">Lier une fiche</p>
 
-        <input
-            bind:this={input}
-            bind:value={query}
-            onkeydown={( event ) =>
-            {
-                if ( event.key === "Enter" )
+            <Input
+                bind:elementRef={input}
+                bind:value={query}
+                onkeydown={( event: KeyboardEvent ) =>
                 {
+                    if ( event.key !== "Enter" )
+                    {
+                        return;
+                    }
+
                     event.preventDefault();
+
                     const first = hits[ 0 ];
+
                     if ( first )
                     {
                         choose( first.entry.slug, first.entry.title );
@@ -95,69 +105,71 @@
                     {
                         choose( plannedSlug, trimmed );
                     }
-                }
-            }}
-            type="search"
-            class="field"
-            placeholder="Titre de la fiche à lier"
-            autocomplete="off"
-        />
-    </div>
+                }}
+                type="text"
+                class="focus:ring-accent-500/25 rounded-xl bg-white px-3.5 py-2.5 transition focus:ring-4"
+                placeholder="Titre de la fiche à lier"
+                aria-label="Titre de la fiche à lier"
+                autocomplete="off"
+            />
+        </div>
+    {/snippet}
 
-    <div class="max-h-[50vh] overflow-y-auto p-2">
-        {#if trimmed.length === 0}
-            <p class="text-muted px-3 py-6 text-center text-sm">
-                Cherchez une fiche existante, ou tapez un titre inédit pour poser un lien rouge.
-            </p>
-        {:else}
-            <ul>
-                {#each hits as hit ( hit.entry.id )}
-                    <li>
-                        <button
-                            type="button"
-                            class="hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition"
-                            onclick={() => choose( hit.entry.slug, hit.entry.title )}
+    {#if trimmed.length === 0}
+        <p class="text-muted px-3 py-6 text-center text-sm">
+            Cherchez une fiche existante, ou tapez un titre inédit pour poser un lien rouge.
+        </p>
+    {:else}
+        <ul>
+            {#each hits as hit ( hit.entry.id )}
+                <li>
+                    <button
+                        type="button"
+                        class="hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full items-center gap-3 rounded-xl
+                               px-3 py-2.5 text-left transition"
+                        onclick={() => choose( hit.entry.slug, hit.entry.title )}
+                    >
+                        <TypeBadge type={hit.entry.type} iconOnly />
+
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
+
+                            <span class="text-muted block truncate font-mono text-xs">
+                                /wiki/{hit.entry.slug}
+                            </span>
+                        </span>
+                    </button>
+                </li>
+            {/each}
+
+            {#if isNew}
+                <li>
+                    <button
+                        type="button"
+                        class="hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full items-center gap-3 rounded-xl
+                               px-3 py-2.5 text-left transition"
+                        onclick={() => choose( plannedSlug, trimmed )}
+                    >
+                        <span
+                            class="border-alert-500/40 text-alert-500 grid h-6 w-6 shrink-0 place-items-center
+                                   rounded-full border border-dashed text-xs"
+                            aria-hidden="true"
                         >
-                            <TypeBadge type={hit.entry.type} iconOnly />
+                            +
+                        </span>
 
-                            <span class="min-w-0 flex-1">
-                                <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
-
-                                <span class="text-muted block truncate font-mono text-xs">
-                                    /wiki/{hit.entry.slug}
-                                </span>
-                            </span>
-                        </button>
-                    </li>
-                {/each}
-
-                {#if isNew}
-                    <li>
-                        <button
-                            type="button"
-                            class="hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition"
-                            onclick={() => choose( plannedSlug, trimmed )}
-                        >
-                            <span
-                                class="border-alert-500/40 text-alert-500 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-dashed text-xs"
-                                aria-hidden="true"
-                            >
-                                +
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate text-sm font-medium">
+                                Lien rouge vers « {trimmed} »
                             </span>
 
-                            <span class="min-w-0 flex-1">
-                                <span class="block truncate text-sm font-medium">
-                                    Lien rouge vers « {trimmed} »
-                                </span>
-
-                                <span class="text-muted block truncate font-mono text-xs">
-                                    /wiki/{plannedSlug}
-                                </span>
+                            <span class="text-muted block truncate font-mono text-xs">
+                                /wiki/{plannedSlug}
                             </span>
-                        </button>
-                    </li>
-                {/if}
-            </ul>
-        {/if}
-    </div>
-</dialog>
+                        </span>
+                    </button>
+                </li>
+            {/if}
+        </ul>
+    {/if}
+</Modal>

@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import EmptyState from "$lib/components/EmptyState.svelte";
@@ -30,9 +31,9 @@
             title="Aucune fiche à cette adresse"
             description="Elle a peut être été supprimée, ou son adresse a changé."
         >
-            <a href={resolve( `/new?slug=${ slug }` )} class="btn btn-primary">Créer cette fiche</a>
+            <Button href={resolve( `/new?slug=${ slug }` )} color="primary">Créer cette fiche</Button>
 
-            <a href={resolve( "/wiki" )} class="btn btn-outline">Parcourir l'encyclopédie</a>
+            <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
         </EmptyState>
     </div>
 {:else}

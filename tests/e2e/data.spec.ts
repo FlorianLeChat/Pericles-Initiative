@@ -50,12 +50,12 @@ test.describe( "data page", () =>
     {
         await wiki.openEmpty( "/data" );
 
-        await expect( page.getByText( "Ce navigateur ne contient aucun contenu pour le moment." ) ).toBeVisible();
-        await expect( page.getByRole( "button", { name: "Effacer le contenu de ce navigateur" } ) ).toBeDisabled();
+        await expect( page.getByText( "Rien n'est encore enregistré sur cet appareil." ) ).toBeVisible();
+        await expect( page.getByRole( "button", { name: "Effacer tout mon wiki" } ) ).toBeDisabled();
 
         await wiki.open( "/data" );
 
-        await expect( page.getByText( "éléments enregistrés dans ce navigateur." ) ).toBeVisible();
+        await expect( page.getByText( "éléments enregistrés sur cet appareil." ) ).toBeVisible();
         await expect( page.getByRole( "link", { name: PAGES.port.title } ) ).toBeVisible();
     } );
 
@@ -65,7 +65,7 @@ test.describe( "data page", () =>
 
         const download = page.waitForEvent( "download" );
 
-        await page.getByRole( "button", { name: "Télécharger wiki.json" } ).click();
+        await page.getByRole( "button", { name: "Télécharger ma sauvegarde" } ).click();
 
         const file = await download;
 
@@ -75,26 +75,24 @@ test.describe( "data page", () =>
 
         expect( exported.entries ).toHaveLength( COUNTS.entries );
         expect( exported.entries.map( ( entry ) => entry.slug ) ).toContain( PAGES.athena.slug );
-        await expect( page.getByText( "Fichier téléchargé." ) ).toBeVisible();
+        await expect( page.getByText( "Sauvegarde téléchargée." ) ).toBeVisible();
     } );
 
     test( "replaces everything with a pasted file, and refuses an unreadable one", async ( { page, wiki } ) =>
     {
         await wiki.open( "/data" );
 
-        await page.getByLabel( "Ou coller le JSON" ).fill( "{ ceci n’est pas du JSON" );
-        await page.getByRole( "button", { name: "Charger ce contenu" } ).click();
-        await page.getByRole( "dialog", { name: "Charger ce JSON ?" } ).getByRole( "button", { name: "Charger" } )
-            .click();
+        await page.getByLabel( "Ou coller le contenu d'une sauvegarde" ).fill( "{ ceci n’est pas du JSON" );
+        await page.getByRole( "button", { name: "Restaurer cette sauvegarde" } ).click();
+        await wiki.confirm( "Remplacer votre wiki ?", "Restaurer" );
 
-        await expect( page.getByText( "JSON illisible" ) ).toBeVisible();
+        await expect( page.getByText( "Ce contenu n'est pas une sauvegarde valide." ) ).toBeVisible();
 
-        await page.getByLabel( "Ou coller le JSON" ).fill( JSON.stringify( IMPORTED ) );
-        await page.getByRole( "button", { name: "Charger ce contenu" } ).click();
-        await page.getByRole( "dialog", { name: "Charger ce JSON ?" } ).getByRole( "button", { name: "Charger" } )
-            .click();
+        await page.getByLabel( "Ou coller le contenu d'une sauvegarde" ).fill( JSON.stringify( IMPORTED ) );
+        await page.getByRole( "button", { name: "Restaurer cette sauvegarde" } ).click();
+        await wiki.confirm( "Remplacer votre wiki ?", "Restaurer" );
 
-        await expect( page.getByText( "Import réussi : 1 fiche, 0 catégories, 0 entrées de direct." ) ).toBeVisible();
+        await expect( page.getByText( "Sauvegarde restaurée : 1 fiche, 0 catégorie et 0 entrée du fil." ) ).toBeVisible();
 
         await page.goto( "/wiki" );
 
@@ -106,11 +104,10 @@ test.describe( "data page", () =>
     {
         await wiki.open( "/data" );
 
-        await page.getByRole( "button", { name: "Effacer le contenu de ce navigateur" } ).click();
-        await page.getByRole( "dialog", { name: "Effacer le contenu de ce navigateur ?" } )
-            .getByRole( "button", { name: "Effacer" } ).click();
+        await page.getByRole( "button", { name: "Effacer tout mon wiki" } ).click();
+        await wiki.confirm( "Effacer tout votre wiki ?", "Effacer" );
 
-        await expect( page.getByText( "Contenu de ce navigateur effacé." ) ).toBeVisible();
+        await expect( page.getByText( "Votre wiki a été effacé de cet appareil." ) ).toBeVisible();
         expect( await wiki.storedOverlay() ).toBeNull();
     } );
 } );

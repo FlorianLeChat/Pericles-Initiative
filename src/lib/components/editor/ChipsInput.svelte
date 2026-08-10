@@ -4,6 +4,9 @@
      *
      * @author Claude
      */
+    import X from "@lucide/svelte/icons/x";
+    import Input from "flowbite-svelte/Input.svelte";
+
     interface Props {
         values: string[];
         placeholder?: string;
@@ -23,19 +26,21 @@
     const commit = (): void =>
     {
         const value = draft.trim();
+
         if ( value && !values.includes( value ) )
         {
             values = [ ...values, value ];
         }
+
         draft = "";
     };
 </script>
 
 <div class="space-y-2">
-    <input
+    <Input
         {id}
         bind:value={draft}
-        onkeydown={( event ) =>
+        onkeydown={( event: KeyboardEvent ) =>
         {
             if ( event.key === "Enter" || event.key === "," )
             {
@@ -49,7 +54,6 @@
         }}
         onblur={commit}
         type="text"
-        class="field"
         {placeholder}
     />
 
@@ -59,12 +63,15 @@
                 <li>
                     <button
                         type="button"
-                        class="bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300 hover:text-alert-500 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition"
+                        class="bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300 hover:text-alert-500
+                               inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs
+                               transition"
                         onclick={() => ( values = values.filter( ( item ) => item !== value ) )}
-                        title="Retirer"
+                        aria-label="Retirer {value}"
                     >
                         {value}
-                        <span aria-hidden="true">&times;</span>
+
+                        <X class="h-3.5 w-3.5" />
                     </button>
                 </li>
             {/each}
