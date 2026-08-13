@@ -237,12 +237,6 @@
             {/if}
 
             {#if hasLocalMeta}
-                <!--
-                    Red like the erasure of `/data`, and for the same reason: this
-                    drops the identity of the wiki and the pages put forward, which
-                    nothing brings back. Full width on mobile like "Enregistrer",
-                    so the two buttons stack instead of overlapping.
-                -->
                 <Button color="red" class="w-full sm:ml-auto sm:w-auto" onclick={() => ( resetOpen = true )}>
                     Tout remettre par défaut
                 </Button>

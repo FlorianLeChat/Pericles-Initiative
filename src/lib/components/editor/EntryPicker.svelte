@@ -15,6 +15,7 @@
     import Input from "flowbite-svelte/Input.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
+    import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
     import { wiki } from "$lib/state/wiki.svelte";
     import { searchEntries } from "$lib/utilities/search";
     import { slugify } from "$lib/utilities/slug";
@@ -72,7 +73,7 @@
     dismissable={false}
     transitionParams={{ duration: 0 }}
     class="border-paper-200 text-ink-800 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-200 mt-[8dvh]
-           max-h-[80dvh] rounded-2xl border"
+           max-h-[80dvh] rounded-2xl border {MODAL_MOBILE_FULLSCREEN}"
     classes={{
         header: "border-paper-200 dark:border-ink-800 p-4",
         body: "p-2"

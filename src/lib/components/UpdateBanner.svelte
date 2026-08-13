@@ -111,7 +111,8 @@
         dismissable={false}
         color="gray"
         params={{ duration: motionDuration() }}
-        class="surface text-ink-800 dark:text-paper-200 pointer-events-auto w-full max-w-md rounded-2xl p-4 shadow-lg"
+        class="surface text-ink-800 dark:text-paper-200 pointer-events-auto w-full max-w-md rounded-2xl p-4 shadow-lg
+               max-sm:max-w-none"
         aria-label="Mise à jour disponible"
     >
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

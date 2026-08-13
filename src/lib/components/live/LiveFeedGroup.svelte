@@ -32,11 +32,6 @@
     <h2 class="text-muted mb-4 text-xs tracking-[0.15em] uppercase">{heading}</h2>
 
     <div class="border-paper-200 dark:border-ink-800 space-y-8 border-l">
-        <!--
-            The wrapper carries the motion so the feed can be reordered:
-            `animate:flip` only works on an element that is an immediate child of
-            a keyed each.
-        -->
         {#each items as item, index ( item.id )}
             <div
                 animate:flip={{ duration: 260, easing: cubicOut }}

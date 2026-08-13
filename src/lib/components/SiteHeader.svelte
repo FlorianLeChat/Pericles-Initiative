@@ -90,12 +90,6 @@
         </nav>
 
         <div class="ml-auto flex items-center gap-1.5">
-            <!--
-                The labelled search button and the «Nouvelle fiche» call only
-                appear once the navigation itself has, at `lg`. Between `sm` and
-                `lg` they used to sit beside the title, the theme switch and the
-                burger, and the row ran out of room well before a phone did.
-            -->
             <button
                 type="button"
                 class="border-paper-300 text-muted hover:border-accent-400 hover:text-accent-600 dark:border-ink-800

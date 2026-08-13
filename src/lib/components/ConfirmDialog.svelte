@@ -15,6 +15,7 @@
      */
     import Button from "flowbite-svelte/Button.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
+    import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
 
     interface Props {
         open: boolean;
@@ -55,7 +56,7 @@
     size="xs"
     dismissable={false}
     transitionParams={{ duration: 0 }}
-    class="border-paper-200 dark:border-ink-800 dark:bg-ink-900 rounded-2xl border"
+    class="border-paper-200 dark:border-ink-800 dark:bg-ink-900 rounded-2xl border {MODAL_MOBILE_FULLSCREEN}"
     classes={{
         header: "border-paper-200 dark:border-ink-800 text-ink-900 dark:text-paper-100 font-serif",
         body: "text-ink-500 dark:text-paper-300/80 text-sm leading-relaxed",

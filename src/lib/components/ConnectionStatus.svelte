@@ -180,9 +180,12 @@
             return "offline";
         }
 
-        if ( ( blocked || exhausted ) && !dismissed )
+        if ( blocked || exhausted )
         {
-            return "failed";
+            // A dismissed failure still means nothing will be retried until the
+            // next edit, which is what resets both flags: showing "envoi imminent"
+            // here would promise a send that is not coming.
+            return dismissed ? null : "failed";
         }
 
         if ( !pending )
@@ -201,7 +204,8 @@
         dismissable={false}
         color={pill === "failed" ? "red" : "gray"}
         params={{ duration: motionDuration() }}
-        class="surface text-ink-800 dark:text-paper-200 pointer-events-auto max-w-xs rounded-2xl p-3 text-xs shadow-lg"
+        class="surface text-ink-800 dark:text-paper-200 pointer-events-auto max-w-xs rounded-2xl p-3 text-xs
+               shadow-lg max-sm:w-full max-sm:max-w-none"
         role="status"
         aria-live="polite"
     >

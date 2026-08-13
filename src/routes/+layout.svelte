@@ -131,15 +131,9 @@
 
 <SearchDialog bind:open={searchOpen} />
 
-<!--
-    The three floating messages share one column in the bottom corner rather than
-    each owning the corner: stacked in a flex container they push each other up
-    instead of covering one another, which is what happened when a failed
-    publication, a pending update and a storage error met.
--->
 <div class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col items-start gap-2 sm:inset-x-6">
     {#if wiki.storageError}
-        <Alert color="red" class="pointer-events-auto w-full max-w-md" role="alert">
+        <Alert color="red" class="pointer-events-auto w-full max-w-md max-sm:max-w-none" role="alert">
             {wiki.storageError}
         </Alert>
     {/if}

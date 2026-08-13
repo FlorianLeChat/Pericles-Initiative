@@ -38,7 +38,6 @@
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <Breadcrumb ariaLabel="Fil d'Ariane" class="text-muted text-sm">
-        <!-- The empty icon removes the separator Flowbite draws before the first item too. -->
         <BreadcrumbItem href={resolve( "/categories" )}>
             {#snippet icon()}{/snippet}
 

@@ -130,7 +130,6 @@
                         {headline.summary || excerpt( headline.body, 240 )}
                     </p>
 
-                    <!-- Positioned so it paints above the overlay of the title and keeps its own hover. -->
                     <a
                         href={resolve( `/wiki/${ headline.slug }` )}
                         class="wiki-link relative inline-block text-sm font-medium"
