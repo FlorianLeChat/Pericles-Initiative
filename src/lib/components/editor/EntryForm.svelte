@@ -107,6 +107,11 @@
     /** Another page already uses this slug, so a suffix will be added on save. */
     const slugTaken = $derived.by( () =>
     {
+        if ( leaving )
+        {
+            return false;
+        }
+
         const candidate = slug.trim();
         if ( !candidate )
         {
