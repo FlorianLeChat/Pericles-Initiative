@@ -22,6 +22,7 @@
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+    import { ACTION_BUTTON, ACTION_ROW } from "$lib/config/forms";
     import { remote } from "$lib/state/remote.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { RemoteFailure } from "$lib/types";
@@ -281,7 +282,7 @@
             </Helper>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
+        <div class={ACTION_ROW}>
             <Button type="submit" color="primary" disabled={!canConnect || remote.busy} loading={remote.busy}>
                 {remote.busy ? "Connexion..." : "Tester la connexion"}
             </Button>
@@ -309,7 +310,7 @@
                 </p>
             {/if}
 
-            <div class="mt-5 flex flex-wrap gap-2">
+            <div class="mt-5 {ACTION_ROW}">
                 <Button color="primary" disabled={remote.busy} onclick={() => ( sendOpen = true )}>
                     Envoyer mes pages
                 </Button>
@@ -384,7 +385,7 @@
 
             <Button
                 color="alternative"
-                class="hover:text-alert-500 mt-5 border-0"
+                class="hover:text-alert-500 mt-5 border-0 {ACTION_BUTTON}"
                 onclick={() => ( forgetOpen = true )}
             >
                 Oublier ce serveur

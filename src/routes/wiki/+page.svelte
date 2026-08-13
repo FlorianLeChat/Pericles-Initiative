@@ -15,6 +15,7 @@
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
     import { ENTRY_TYPES } from "$lib/config/entry-types";
     import { RADIO_OVERLAY } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -109,18 +110,16 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <header class="flex flex-wrap items-end justify-between gap-4">
-        <div class="max-w-2xl">
-            <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Encyclopédie</h1>
+    <PageHeader title="Encyclopédie">
+        {#snippet description()}
+            {wiki.entries.length} fiches, dont {wiki.drafts.length} en brouillon. Filtrez par nature, par catégorie ou par
+            mot clé.
+        {/snippet}
 
-            <p class="text-muted mt-3 leading-relaxed">
-                {wiki.entries.length} fiches, dont {wiki.drafts.length} en brouillon. Filtrez par nature, par catégorie ou
-                par mot clé.
-            </p>
-        </div>
-
-        <Button href={resolve( "/new" )} color="primary">Nouvelle fiche</Button>
-    </header>
+        {#snippet action()}
+            <Button href={resolve( "/new" )} color="primary">Nouvelle fiche</Button>
+        {/snippet}
+    </PageHeader>
 
     <div class="surface mt-8 space-y-4 p-5">
         <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-4">

@@ -16,6 +16,7 @@
     import Button from "flowbite-svelte/Button.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
     import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
+    import { PAIRED_ACTION } from "$lib/config/forms";
 
     interface Props {
         open: boolean;
@@ -67,8 +68,8 @@
     <p>{message}</p>
 
     {#snippet footer()}
-        <Button color="alternative" onclick={() => ( open = false )}>{cancelLabel}</Button>
+        <Button color="alternative" class={PAIRED_ACTION} onclick={() => ( open = false )}>{cancelLabel}</Button>
 
-        <Button color={danger ? "red" : "primary"} onclick={confirm}>{confirmLabel}</Button>
+        <Button color={danger ? "red" : "primary"} class={PAIRED_ACTION} onclick={confirm}>{confirmLabel}</Button>
     {/snippet}
 </Modal>

@@ -7,6 +7,7 @@
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -48,14 +49,12 @@
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-    <header class="max-w-2xl">
-        <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Chronologie</h1>
-
-        <p class="text-muted mt-3 leading-relaxed">
+    <PageHeader title="Chronologie">
+        {#snippet description()}
             {wiki.chronology.length} fiches portent une date dans l'univers. Les autres, personnages et concepts sans ancrage
             précis, n'apparaissent pas ici.
-        </p>
-    </header>
+        {/snippet}
+    </PageHeader>
 
     {#if years.length === 0}
         <div class="mt-10">

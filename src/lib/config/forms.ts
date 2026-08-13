@@ -20,6 +20,39 @@
 export const RADIO_OVERLAY = "absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0";
 
 /**
+ * Class laying out the actions of a page or of a panel.
+ *
+ * A phone gets one action per line, each spanning the full width, and a screen
+ * from `sm` up gets the natural row. Left as a plain wrapping row, two buttons
+ * on a phone stand side by side at whatever width their French labels happen to
+ * need, so the pair reads as one long control and one short one, and the shorter
+ * of the two is the smaller target although it is often the primary action.
+ *
+ * The column direction is what stretches them: `align-items` defaults to
+ * `stretch`, so nothing has to be said on the buttons themselves.
+ */
+export const ACTION_ROW = "flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3";
+
+/**
+ * Class giving a lone action the width it would have inside an `ACTION_ROW`.
+ *
+ * For the single button of a panel, which would otherwise be the one control on
+ * the site that stops short of the edge on a phone.
+ */
+export const ACTION_BUTTON = "w-full sm:w-auto";
+
+/**
+ * Class splitting two actions evenly over one line on a phone.
+ *
+ * The exception to `ACTION_ROW`, for the two pairs whose labels are short and
+ * whose meaning is the choice between them rather than either one on its own:
+ * the «Annuler» and «Enregistrer» of the editor, and the two answers of a
+ * confirmation dialog. Stacking those two reads as two unrelated actions, and
+ * costs the height of a button in a bar that follows the reader down the page.
+ */
+export const PAIRED_ACTION = "flex-1 sm:flex-none";
+
+/**
  * Class bringing a small Flowbite `Input` to the height of a small `Select`.
  *
  * The library does not agree with itself on what `size="sm"` means: an input gets

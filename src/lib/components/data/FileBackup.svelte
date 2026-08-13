@@ -14,6 +14,7 @@
     import Label from "flowbite-svelte/Label.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+    import { ACTION_BUTTON, ACTION_ROW } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
     import { counted } from "$lib/utilities/plural";
 
@@ -138,7 +139,7 @@
             votre wiki : c'est une copie, pas un déplacement.
         </p>
 
-        <div class="mt-4 flex flex-wrap gap-2">
+        <div class="mt-4 {ACTION_ROW}">
             <Button color="primary" onclick={download}>Télécharger ma sauvegarde</Button>
 
             <Button color="alternative" onclick={() => void copy()}>Copier dans le presse papier</Button>
@@ -179,6 +180,7 @@
 
             <Button
                 color="primary"
+                class={ACTION_BUTTON}
                 disabled={importText.trim().length === 0}
                 onclick={() => ( importOpen = true )}
             >

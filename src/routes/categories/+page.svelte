@@ -7,6 +7,7 @@
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
     import { staggerRank } from "$lib/config/motion";
     import { paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -30,18 +31,16 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <header class="flex flex-wrap items-end justify-between gap-4">
-        <div class="max-w-2xl">
-            <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Catégories</h1>
+    <PageHeader title="Catégories">
+        {#snippet description()}
+            Chaque fiche peut appartenir à plusieurs catégories. Elles regroupent par thème ce que la nature des fiches
+            sépare par forme.
+        {/snippet}
 
-            <p class="text-muted mt-3 leading-relaxed">
-                Chaque fiche peut appartenir à plusieurs catégories. Elles regroupent par thème ce que la nature des
-                fiches sépare par forme.
-            </p>
-        </div>
-
-        <Button href={resolve( "/categories/manage" )} color="alternative">Gérer les catégories</Button>
-    </header>
+        {#snippet action()}
+            <Button href={resolve( "/categories/manage" )} color="primary">Gérer les catégories</Button>
+        {/snippet}
+    </PageHeader>
 
     {#if groups.length === 0}
         <div class="mt-10">

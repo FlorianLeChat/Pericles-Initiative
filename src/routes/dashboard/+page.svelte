@@ -9,6 +9,7 @@
     import ActivityChart from "$lib/components/dashboard/ActivityChart.svelte";
     import BarChart from "$lib/components/dashboard/BarChart.svelte";
     import StatCard from "$lib/components/dashboard/StatCard.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import { formatShortDate } from "$lib/utilities/date";
@@ -34,13 +35,11 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <header class="max-w-2xl">
-        <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Tableau de bord</h1>
-
-        <p class="text-muted mt-3 leading-relaxed">
+    <PageHeader title="Tableau de bord">
+        {#snippet description()}
             L'état du corpus, calculé sur ce que le site affiche en ce moment, modifications locales comprises.
-        </p>
-    </header>
+        {/snippet}
+    </PageHeader>
 
     <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

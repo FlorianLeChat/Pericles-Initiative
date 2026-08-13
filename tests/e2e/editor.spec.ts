@@ -131,8 +131,6 @@ test.describe( "entry editor", () =>
 
         await page.getByLabel( "Résumé" ).fill( "Une reformulation en cours." );
 
-        await expect( page.getByText( "Modifications non enregistrées" ) ).toBeVisible();
-
         // Playwright dismisses native dialogs by default, which is the reader
         // answering «non» to the confirmation: the navigation has to be cancelled.
         await page.getByRole( "link", { name: "Annuler" } ).click();

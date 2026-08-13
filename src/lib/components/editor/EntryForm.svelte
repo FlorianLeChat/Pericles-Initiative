@@ -15,6 +15,7 @@
     import { resolve } from "$app/paths";
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+    import { PAIRED_ACTION } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry, EntryStatus, EntryType, InfoboxField } from "$lib/types";
     import { slugify } from "$lib/utilities/slug";
@@ -228,20 +229,12 @@
             <p class="truncate text-sm font-medium">{title.trim() || "Sans titre"}</p>
         </div>
 
-        {#if dirty}
-            <span class="bg-signal-500 h-2 w-2 shrink-0 rounded-full lg:hidden" aria-hidden="true"></span>
-
-            <span class="text-signal-500 sr-only shrink-0 text-xs lg:not-sr-only" role="status">
-                Modifications non enregistrées
-            </span>
-        {/if}
-
-        <div class="ml-auto flex shrink-0 items-center gap-2">
+        <div class="ml-auto flex w-full shrink-0 items-center gap-2 sm:w-auto">
             {#if entry}
                 <Button
-                    color="alternative"
+                    color="red"
                     size="sm"
-                    class="hover:text-alert-500 border-0 px-2 sm:px-3"
+                    class="h-9 shrink-0 px-2 sm:px-3"
                     onclick={() => ( deleteOpen = true )}
                     aria-label="Supprimer la fiche"
                 >
@@ -251,11 +244,18 @@
                 </Button>
             {/if}
 
-            <Button href={resolve( entry ? `/wiki/${ entry.slug }` : "/wiki" )} color="alternative" size="sm">
+            <Button
+                href={resolve( entry ? `/wiki/${ entry.slug }` : "/wiki" )}
+                color="alternative"
+                size="sm"
+                class="h-9 {PAIRED_ACTION}"
+            >
                 Annuler
             </Button>
 
-            <Button type="submit" color="primary" size="sm" disabled={!canSave}>Enregistrer</Button>
+            <Button type="submit" color="primary" size="sm" class="h-9 {PAIRED_ACTION}" disabled={!canSave}>
+                Enregistrer
+            </Button>
         </div>
     </div>
 

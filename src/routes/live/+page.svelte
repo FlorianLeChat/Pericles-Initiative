@@ -16,6 +16,7 @@
     import EmptyState from "$lib/components/EmptyState.svelte";
     import LiveComposer from "$lib/components/live/LiveComposer.svelte";
     import LiveFeedGroup from "$lib/components/live/LiveFeedGroup.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
     import { RADIO_OVERLAY } from "$lib/config/forms";
     import { SEVERITIES } from "$lib/config/severities";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -97,24 +98,22 @@
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <header class="flex flex-wrap items-end justify-between gap-4">
-        <div class="max-w-2xl">
+    <PageHeader title="Le fil">
+        {#snippet eyebrow()}
             <p class="text-alert-500 flex items-center gap-2 text-xs font-medium tracking-[0.2em] uppercase">
                 <span class="bg-alert-500 h-2 w-2 animate-pulse rounded-full" aria-hidden="true"></span>
                 En direct
             </p>
+        {/snippet}
 
-            <h1 class="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Le fil</h1>
+        {#snippet description()}
+            {wiki.live.length} entrées.
+            {#if latest}
+                La dernière remonte à <time datetime={latest.publishedAt}>{relativeTime( latest.publishedAt )}</time>.
+            {/if}
+        {/snippet}
 
-            <p class="text-muted mt-3 leading-relaxed">
-                {wiki.live.length} entrées.
-                {#if latest}
-                    La dernière remonte à <time datetime={latest.publishedAt}>{relativeTime( latest.publishedAt )}</time>.
-                {/if}
-            </p>
-        </div>
-
-        <div class="flex flex-col items-end gap-2">
+        {#snippet action()}
             <Button
                 color="primary"
                 aria-expanded={composerOpen}
@@ -126,8 +125,8 @@
             >
                 {composerOpen && !editing ? "Fermer le composeur" : "Publier une entrée"}
             </Button>
-        </div>
-    </header>
+        {/snippet}
+    </PageHeader>
 
     <div class="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div class="min-w-0">
@@ -222,7 +221,14 @@
             {/if}
         </div>
 
-        <aside class="space-y-5">
+        <!--
+            Below `lg` this column follows the feed, which for the composer means
+            the button that opens it is at the top of the page and what it opens
+            is under the whole feed, out of sight. Moving the column above the
+            feed while it is open puts the form where the tap happened; closed, it
+            holds explanations that belong after what they explain.
+        -->
+        <aside class="space-y-5 {composerOpen ? "max-lg:order-first" : ""}">
             {#if composerOpen}
                 {#key editing?.id ?? "nouvelle"}
                     <div in:fly={{ y: -8, duration: 220, easing: cubicOut }}>

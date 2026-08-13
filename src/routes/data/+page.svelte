@@ -14,6 +14,8 @@
     import FileBackup from "$lib/components/data/FileBackup.svelte";
     import LocalContent from "$lib/components/data/LocalContent.svelte";
     import RemoteBackup from "$lib/components/data/RemoteBackup.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
+    import { ACTION_BUTTON } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
 
     let resetOpen = $state( false );
@@ -25,15 +27,13 @@
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-    <header class="max-w-2xl">
-        <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Sauvegardes</h1>
-
-        <p class="text-muted mt-3 leading-relaxed">
+    <PageHeader title="Sauvegardes">
+        {#snippet description()}
             Ce que vous écrivez reste sur cet appareil, et nulle part ailleurs. Personne d'autre ne le voit, mais rien ne
             le protège non plus : effacer les données du navigateur, ou changer d'ordinateur, et tout est perdu. Faites
             une copie, dans un fichier que vous gardez, ou en ligne pour retrouver votre wiki depuis un autre appareil.
-        </p>
-    </header>
+        {/snippet}
+    </PageHeader>
 
     {#if feedback}
         <Alert color="primary" class="mt-6 rounded-xl text-sm" role="status">{feedback}</Alert>
@@ -55,7 +55,12 @@
             si vous voulez vraiment repartir de zéro.
         </p>
 
-        <Button color="red" class="mt-5" disabled={!wiki.hasStoredContent} onclick={() => ( resetOpen = true )}>
+        <Button
+            color="red"
+            class="mt-5 {ACTION_BUTTON}"
+            disabled={!wiki.hasStoredContent}
+            onclick={() => ( resetOpen = true )}
+        >
             Effacer tout mon wiki
         </Button>
     </section>

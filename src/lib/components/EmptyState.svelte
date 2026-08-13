@@ -9,6 +9,7 @@
      * @author Claude
      */
     import type { Snippet } from "svelte";
+    import { ACTION_ROW } from "$lib/config/forms";
 
     interface Props {
         title: string;
@@ -30,6 +31,6 @@
     {/if}
 
     {#if children}
-        <div class="mt-5 flex flex-wrap justify-center gap-3">{@render children()}</div>
+        <div class="mt-5 {ACTION_ROW} sm:justify-center">{@render children()}</div>
     {/if}
 </div>

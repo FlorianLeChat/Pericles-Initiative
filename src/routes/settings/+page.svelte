@@ -18,6 +18,8 @@
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import FeaturedPagesEditor from "$lib/components/FeaturedPagesEditor.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
+    import { ACTION_ROW } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
 
     /** Repository the application is built from, not part of the fiction. */
@@ -98,14 +100,12 @@
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-    <header class="max-w-2xl">
-        <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Paramètres</h1>
-
-        <p class="text-muted mt-3 leading-relaxed">
+    <PageHeader title="Paramètres">
+        {#snippet description()}
             Le nom de votre univers et la façon dont il se présente. Ces champs apparaissent dans l'entête, sur la page
             d'accueil, et quand quelqu'un partage un lien vers votre wiki.
-        </p>
-    </header>
+        {/snippet}
+    </PageHeader>
 
     {#if saved && !dirty}
         <Alert color="primary" class="mt-6 rounded-xl text-sm" role="status">
@@ -227,17 +227,15 @@
             </dl>
         </section>
 
-        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Button type="submit" color="primary" class="w-full sm:w-auto" disabled={!canSave || !dirty}>
-                Enregistrer
-            </Button>
+        <div class={ACTION_ROW}>
+            <Button type="submit" color="primary" disabled={!canSave || !dirty}>Enregistrer</Button>
 
             {#if dirty}
                 <span class="text-signal-500 text-xs">Modifications non enregistrées</span>
             {/if}
 
             {#if hasLocalMeta}
-                <Button color="red" class="w-full sm:ml-auto sm:w-auto" onclick={() => ( resetOpen = true )}>
+                <Button color="red" class="sm:ml-auto" onclick={() => ( resetOpen = true )}>
                     Tout remettre par défaut
                 </Button>
             {/if}

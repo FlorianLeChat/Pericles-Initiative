@@ -11,6 +11,7 @@
     import EntryCard from "$lib/components/EntryCard.svelte";
     import SeverityBadge from "$lib/components/live/SeverityBadge.svelte";
     import TypeBadge from "$lib/components/TypeBadge.svelte";
+    import { ACTION_ROW } from "$lib/config/forms";
     import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry } from "$lib/types";
@@ -68,7 +69,7 @@
             {wiki.meta.description}
         </p>
 
-        <div class="rise-in mt-9 flex flex-wrap gap-3" style="--rank: 4">
+        <div class="rise-in mt-9 {ACTION_ROW}" style="--rank: 4">
             <Button href={resolve( "/wiki" )} color="primary" size="lg">Parcourir les fiches</Button>
             <Button href={resolve( "/categories" )} color="alternative" size="lg">Explorer les catégories</Button>
         </div>

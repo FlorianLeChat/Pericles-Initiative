@@ -15,6 +15,7 @@
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import { resolve } from "$app/paths";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
     import { RADIO_OVERLAY } from "$lib/config/forms";
     import { PALETTE, paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -154,14 +155,14 @@
         </BreadcrumbItem>
     </Breadcrumb>
 
-    <header class="mt-4 max-w-2xl">
-        <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Gérer les catégories</h1>
-
-        <p class="text-muted mt-3 leading-relaxed">
-            Renommer une catégorie déplace les fiches concernées vers la nouvelle adresse. La supprimer les détache sans
-            les effacer.
-        </p>
-    </header>
+    <div class="mt-4">
+        <PageHeader title="Gérer les catégories">
+            {#snippet description()}
+                Renommer une catégorie déplace les fiches concernées vers la nouvelle adresse. La supprimer les détache
+                sans les effacer.
+            {/snippet}
+        </PageHeader>
+    </div>
 
     <div class="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div class="space-y-3">
@@ -229,8 +230,13 @@
             {/if}
         </div>
 
+        <!--
+            First on a phone, where this column would otherwise sit under the
+            whole list: creating a category is what this page is for, and pressing
+            «Modifier» on a card scrolled the form off screen rather than to it.
+        -->
         <form
-            class="surface space-y-4 p-5 lg:sticky lg:top-20"
+            class="surface order-first space-y-4 p-5 lg:order-none lg:sticky lg:top-20"
             onsubmit={( event ) =>
             {
                 event.preventDefault();
