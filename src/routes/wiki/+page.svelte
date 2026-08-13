@@ -8,47 +8,39 @@
      * @author Claude
      */
     import Button from "flowbite-svelte/Button.svelte";
-    import Label from "flowbite-svelte/Label.svelte";
-    import Radio from "flowbite-svelte/Radio.svelte";
-    import Search from "flowbite-svelte/Search.svelte";
-    import Select from "flowbite-svelte/Select.svelte";
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
+    import EntryFilters from "$lib/components/EntryFilters.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
-    import { ENTRY_TYPES } from "$lib/config/entry-types";
-    import { RADIO_OVERLAY } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
-    import type { EntryStatus, EntryType } from "$lib/types";
+    import type { EntryFilterState } from "$lib/types";
     import { timelineSortKey } from "$lib/utilities/date";
-    import { counted } from "$lib/utilities/plural";
     import { deburr } from "$lib/utilities/slug";
 
-    type TypeFilter = EntryType | "tous";
-    type StatusFilter = EntryStatus | "tous";
-    type SortMode = "alphabetique" | "recent" | "chronologique";
+    let filters = $state<EntryFilterState>( {
+        query: "",
+        type: "tous",
+        category: "toutes",
+        status: "tous",
+        sort: "alphabetique"
+    } );
 
-    let query = $state( "" );
-    let type = $state<TypeFilter>( "tous" );
-    let category = $state( "toutes" );
-    let status = $state<StatusFilter>( "tous" );
-    let sort = $state<SortMode>( "alphabetique" );
-
-    const normalizedQuery = $derived( deburr( query.trim() ) );
+    const normalizedQuery = $derived( deburr( filters.query.trim() ) );
 
     const filtered = $derived.by( () =>
     {
         const matching = wiki.entries.filter( ( entry ) =>
         {
-            if ( type !== "tous" && entry.type !== type )
+            if ( filters.type !== "tous" && entry.type !== filters.type )
             {
                 return false;
             }
-            if ( status !== "tous" && entry.status !== status )
+            if ( filters.status !== "tous" && entry.status !== filters.status )
             {
                 return false;
             }
-            if ( category !== "toutes" && !entry.categories.includes( category ) )
+            if ( filters.category !== "toutes" && !entry.categories.includes( filters.category ) )
             {
                 return false;
             }
@@ -60,46 +52,28 @@
             return true;
         } );
 
-        if ( sort === "recent" )
+        if ( filters.sort === "recent" )
         {
             return matching.sort( ( a, b ) => b.updatedAt.localeCompare( a.updatedAt ) );
         }
-        if ( sort === "chronologique" )
+        if ( filters.sort === "chronologique" )
         {
             return matching.sort( ( a, b ) => timelineSortKey( a.timelineDate ) - timelineSortKey( b.timelineDate ) );
         }
         return matching.sort( ( a, b ) => a.title.localeCompare( b.title, "fr" ) );
     } );
 
-    const countByType = $derived(
-        new Map( ENTRY_TYPES.map( ( config ) => [ config.id, wiki.entries.filter( ( e ) => e.type === config.id ).length ] ) )
-    );
-
     /**
-     * Appearance of one nature pill, which only depends on whether it is the chosen one.
-     *
-     * @param chosen True when the pill is the selected nature.
-     * @returns Classes for the label wrapping the radio.
-     * @author Claude
-     */
-    const natureClass = ( chosen: boolean ): string =>
-        `relative flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-medium transition
-         has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-500 ${
-            chosen
-                ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-                : "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300" }`;
-
-    /**
-     * Clears every filter.
+     * Clears every filter, leaving the ordering as the reader set it.
      *
      * @author Claude
      */
     const reset = (): void =>
     {
-        query = "";
-        type = "tous";
-        category = "toutes";
-        status = "tous";
+        filters.query = "";
+        filters.type = "tous";
+        filters.category = "toutes";
+        filters.status = "tous";
     };
 </script>
 
@@ -121,86 +95,14 @@
         {/snippet}
     </PageHeader>
 
-    <div class="surface mt-8 space-y-4 p-5">
-        <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-4">
-            <Search
-                bind:value={query}
-                placeholder="Filtrer par titre ou par résumé"
-                aria-label="Filtrer les fiches"
-            />
-
-            <div class="flex items-center gap-2.5">
-                <Label for="filtre-categorie" class="text-muted sr-only shrink-0 text-sm sm:not-sr-only">
-                    Catégorie
-                </Label>
-
-                <Select id="filtre-categorie" bind:value={category} placeholder="" class="sm:w-52">
-                    <option value="toutes">Toutes</option>
-
-                    {#each wiki.categories as item ( item.slug )}
-                        <option value={item.slug}>{item.name}</option>
-                    {/each}
-                </Select>
-            </div>
-
-            <div class="flex items-center gap-2.5">
-                <Label for="filtre-tri" class="text-muted sr-only shrink-0 text-sm sm:not-sr-only">Tri</Label>
-
-                <Select id="filtre-tri" bind:value={sort} placeholder="" class="sm:w-44">
-                    <option value="alphabetique">Alphabétique</option>
-                    <option value="recent">Modifiées récemment</option>
-                    <option value="chronologique">Chronologique</option>
-                </Select>
-            </div>
+    {#if wiki.entries.length > 0}
+        <div class="mt-8">
+            <EntryFilters bind:filters shown={filtered.length} onreset={reset} />
         </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-            <fieldset class="contents">
-                <legend class="sr-only">Filtrer par nature</legend>
-
-                <Radio
-                    name="filtre-nature"
-                    value="tous"
-                    bind:group={type}
-                    class={RADIO_OVERLAY}
-                    classes={{ label: natureClass( type === "tous" ) }}
-                >
-                    Toutes natures
-                </Radio>
-
-                {#each ENTRY_TYPES as config ( config.id )}
-                    <Radio
-                        name="filtre-nature"
-                        value={config.id}
-                        bind:group={type}
-                        class={RADIO_OVERLAY}
-                        classes={{ label: natureClass( type === config.id ) }}
-                    >
-                        {config.plural}
-
-                        <span class="font-mono">{countByType.get( config.id ) ?? 0}</span>
-                    </Radio>
-                {/each}
-            </fieldset>
-
-            <span class="bg-paper-300 dark:bg-ink-700 mx-2 hidden h-4 w-px sm:block"></span>
-
-            <div class="text-muted flex items-center gap-2.5 text-xs">
-                <Label for="filtre-statut" class="shrink-0 sr-only sm:not-sr-only">Statut</Label>
-
-                <Select id="filtre-statut" bind:value={status} size="sm" placeholder="" class="w-auto">
-                    <option value="tous">Tous</option>
-                    <option value="publie">Publiées</option>
-                    <option value="brouillon">Brouillons</option>
-                </Select>
-            </div>
-        </div>
-    </div>
-
-    <p class="text-muted mt-6 text-sm">{counted( filtered.length, "fiche" )}</p>
+    {/if}
 
     {#if wiki.entries.length === 0}
-        <div class="mt-6">
+        <div class="mt-8">
             <EmptyState
                 title="Aucune fiche pour le moment"
                 description="Ce wiki est vide : commencez par créer la première fiche."
@@ -212,10 +114,8 @@
         <div class="mt-6">
             <EmptyState
                 title="Aucune fiche ne correspond"
-                description="Aucune fiche du corpus ne satisfait cette combinaison de filtres."
-            >
-                <Button color="alternative" onclick={reset}>Réinitialiser les filtres</Button>
-            </EmptyState>
+                description="Élargissez ou réinitialisez les filtres pour retrouver le corpus."
+            />
         </div>
     {:else}
         <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

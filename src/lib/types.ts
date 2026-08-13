@@ -198,3 +198,22 @@ export interface RenderedArticle {
     /** Slugs of the internal pages this article links to. */
     links: string[];
 }
+
+/** How the encyclopedia index orders what its filters keep. */
+export type EntrySort = "alphabetique" | "recent" | "chronologique";
+
+/**
+ * What the filters of the encyclopedia index currently ask for.
+ *
+ * Nothing persists this: the panel drawing the controls and the listing reading
+ * them are two components, so the shape they agree on is declared here rather
+ * than in either one. `tous` and `toutes` stand for the absence of a filter, and
+ * are the values the controls themselves carry.
+ */
+export interface EntryFilterState {
+    query: string;
+    type: EntryType | "tous";
+    category: string;
+    status: EntryStatus | "tous";
+    sort: EntrySort;
+}

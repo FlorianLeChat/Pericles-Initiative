@@ -17,7 +17,7 @@
     import LiveComposer from "$lib/components/live/LiveComposer.svelte";
     import LiveFeedGroup from "$lib/components/live/LiveFeedGroup.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
-    import { RADIO_OVERLAY } from "$lib/config/forms";
+    import { filterPill, RADIO_OVERLAY } from "$lib/config/forms";
     import { SEVERITIES } from "$lib/config/severities";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LiveEntry, LiveSeverity } from "$lib/types";
@@ -63,20 +63,6 @@
     } );
 
     const latest = $derived( wiki.live[ 0 ] );
-
-    /**
-     * Appearance of one severity pill, which only depends on whether it is the chosen one.
-     *
-     * @param chosen True when the pill is the selected severity.
-     * @returns Classes for the label wrapping the radio.
-     * @author Claude
-     */
-    const severityClass = ( chosen: boolean ): string =>
-        `relative flex min-h-9 cursor-pointer items-center rounded-full px-3 text-xs font-medium transition
-         has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-500 ${
-            chosen
-                ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-                : "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300" }`;
 
     /**
      * Loads an item into the composer.
@@ -139,7 +125,7 @@
                         value="toutes"
                         bind:group={severity}
                         class={RADIO_OVERLAY}
-                        classes={{ label: severityClass( severity === "toutes" ) }}
+                        classes={{ label: filterPill( severity === "toutes" ) }}
                     >
                         Toutes gravités
                     </Radio>
@@ -150,7 +136,7 @@
                             value={config.id}
                             bind:group={severity}
                             class={RADIO_OVERLAY}
-                            classes={{ label: severityClass( severity === config.id ) }}
+                            classes={{ label: filterPill( severity === config.id ) }}
                         >
                             {config.label}
                         </Radio>

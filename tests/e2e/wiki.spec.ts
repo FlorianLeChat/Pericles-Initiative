@@ -21,18 +21,29 @@ import { expect, test } from "./utilities/fixtures";
 const cards = ( page: Page ): Locator => page.getByRole( "main" ).locator( "article" );
 
 /**
- * Locates one of the filter dropdowns, by an option only it offers.
+ * Unfolds the filter panel when the viewport keeps it folded.
  *
- * Their labels wrap the control, so the accessible name of each one carries the
- * text of all of its options and no two of them can be told apart by name.
+ * The pills and the three menus are `hidden` below `sm`, behind a «Filtres»
+ * button, so on the phone project every spec touching them has to open the panel
+ * first. The button's own visibility is what decides, rather than a width: it is
+ * the very condition being worked around, and it answers for whichever project
+ * is running.
  *
  * @param page Page under test.
- * @param option Value of an option unique to the wanted dropdown.
- * @returns The dropdown.
+ * @returns Resolves once the controls can be reached.
  * @author Claude
  */
-const dropdown = ( page: Page, option: string ): Locator =>
-    page.locator( "select" ).filter( { has: page.locator( `option[value="${ option }"]` ) } );
+const showFilters = async ( page: Page ): Promise<void> =>
+{
+    const toggle = page.getByRole( "button", { name: /^Filtres/ } );
+
+    if ( await toggle.isVisible() )
+    {
+        await toggle.click();
+    }
+
+    await expect( page.getByLabel( "Catégorie" ) ).toBeVisible();
+};
 
 test.describe( "encyclopedia index", () =>
 {
@@ -41,6 +52,7 @@ test.describe( "encyclopedia index", () =>
         await wiki.openEmpty( "/wiki" );
 
         await expect( page.getByText( "Aucune fiche pour le moment" ) ).toBeVisible();
+        await expect( page.getByRole( "region", { name: "Filtres" } ) ).toBeHidden();
 
         await page.getByRole( "link", { name: "Créer une fiche" } ).click();
 
@@ -61,26 +73,25 @@ test.describe( "encyclopedia index", () =>
     test( "filters by keyword, by nature, by category and by status", async ( { page, wiki } ) =>
     {
         await wiki.open( "/wiki" );
-
-        // Accents aside: the query is deburred before it is matched.
         await page.getByLabel( "Filtrer les fiches" ).fill( "athena" );
 
         await expect( cards( page ) ).toHaveCount( 1 );
         await expect( page.getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
 
         await page.getByLabel( "Filtrer les fiches" ).fill( "" );
+        await showFilters( page );
         await page.getByRole( "radio", { name: /^Lieux/ } ).check();
 
         await expect( cards( page ) ).toHaveCount( 1 );
         await expect( page.getByRole( "link", { name: PAGES.port.title } ) ).toBeVisible();
 
-        await page.getByRole( "radio", { name: "Toutes natures" } ).check();
-        await dropdown( page, CATEGORIES.institutions.slug ).selectOption( CATEGORIES.institutions.slug );
+        await page.getByRole( "radio", { name: /^Toutes natures/ } ).check();
+        await page.getByLabel( "Catégorie" ).selectOption( CATEGORIES.institutions.slug );
 
         await expect( cards( page ) ).toHaveCount( COUNTS.institutions );
 
-        await dropdown( page, CATEGORIES.institutions.slug ).selectOption( "toutes" );
-        await dropdown( page, "brouillon" ).selectOption( "brouillon" );
+        await page.getByLabel( "Catégorie" ).selectOption( "toutes" );
+        await page.getByLabel( "Statut" ).selectOption( "brouillon" );
 
         await expect( cards( page ) ).toHaveCount( COUNTS.drafts );
         await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeVisible();
@@ -102,13 +113,31 @@ test.describe( "encyclopedia index", () =>
     test( "sorts by in universe date", async ( { page, wiki } ) =>
     {
         await wiki.open( "/wiki" );
+        await showFilters( page );
 
-        await dropdown( page, "chronologique" ).selectOption( "chronologique" );
+        await page.getByLabel( "Tri" ).selectOption( "chronologique" );
 
         await expect( cards( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.port.title );
 
-        await dropdown( page, "chronologique" ).selectOption( "alphabetique" );
+        await page.getByLabel( "Tri" ).selectOption( "alphabetique" );
 
         await expect( cards( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.athena.title );
+    } );
+
+    test( "counts what the filters keep, and clears them from the panel", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/wiki" );
+
+        await expect( page.getByText( `${ COUNTS.entries } fiches`, { exact: true } ) ).toBeVisible();
+        await expect( page.getByRole( "button", { name: "Réinitialiser les filtres" } ) ).toBeHidden();
+
+        await page.getByLabel( "Filtrer les fiches" ).fill( PAGES.athena.title );
+
+        await expect( page.getByText( `1 fiche sur ${ COUNTS.entries }` ) ).toBeVisible();
+
+        await page.getByRole( "button", { name: "Réinitialiser les filtres" } ).click();
+
+        await expect( cards( page ) ).toHaveCount( COUNTS.entries );
+        await expect( page.getByLabel( "Filtrer les fiches" ) ).toHaveValue( "" );
     } );
 } );

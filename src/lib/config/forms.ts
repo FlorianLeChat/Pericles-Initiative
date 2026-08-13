@@ -20,6 +20,36 @@
 export const RADIO_OVERLAY = "absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0";
 
 /**
+ * Shape of a filter pill, whichever value it carries.
+ *
+ * It stands a notch taller below `sm`, where the row is what a thumb aims at
+ * rather than what a pointer clicks, and where the pills are the one filter that
+ * is not a full width menu.
+ */
+const PILL_BASE = `relative flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-medium
+                   transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2
+                   has-[:focus-visible]:outline-accent-500 sm:min-h-9`;
+
+/** Colours of the pill whose value the listing is currently narrowed to. */
+const PILL_CHOSEN = "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900";
+
+/** Colours of a pill the reader may still choose. */
+const PILL_OFFERED = "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300";
+
+/**
+ * Appearance of one pill of a filter row, chosen or not.
+ *
+ * The nature of a page and the gravity of a live entry are the same control on
+ * two sections, and were the same class written out twice, so a change to one row
+ * left the other behind. Only the label of the pill differs.
+ *
+ * @param chosen True when the pill carries the selected value.
+ * @returns Classes for the label wrapping the radio.
+ * @author Claude
+ */
+export const filterPill = ( chosen: boolean ): string => `${ PILL_BASE } ${ chosen ? PILL_CHOSEN : PILL_OFFERED }`;
+
+/**
  * Class laying out the actions of a page or of a panel.
  *
  * A phone gets one action per line, each spanning the full width, and a screen
