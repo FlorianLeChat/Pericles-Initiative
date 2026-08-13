@@ -18,7 +18,6 @@
     import Kbd from "flowbite-svelte/Kbd.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
-    import { motionDuration } from "$lib/config/motion";
     import { NAV_LINKS, TOOL_LINKS } from "$lib/config/navigation";
     import { wiki } from "$lib/state/wiki.svelte";
     import ThemeToggle from "./ThemeToggle.svelte";
@@ -156,7 +155,7 @@
     id="navigation-mobile"
     placement="right"
     dismissable={false}
-    transitionParams={{ x: 288, duration: motionDuration( 260 ) }}
+    transitionParams={{ duration: 0 }}
     class="text-ink-800 dark:bg-ink-950 dark:text-paper-200 z-50 w-72 bg-white p-0 lg:hidden"
     aria-label="Navigation du site"
 >

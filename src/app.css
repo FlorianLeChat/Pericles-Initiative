@@ -460,6 +460,28 @@ dialog[open]::backdrop {
 }
 
 /*
+ * The mobile navigation drawer is a `<dialog>` too, but it slides in from the
+ * edge rather than rising in place, so it needs its own keyframes. The id
+ * selector is what beats the element selector above: both apply to every
+ * dialog, and only one animation name can win.
+ *
+ * This used to be a Svelte `fly` transition driven by `motionDuration`, which
+ * on a phone wrote an inline `transform` every frame in JavaScript instead of
+ * leaving it to the compositor. A CSS animation is the same rule the other
+ * dialogs already follow, and it is what stopped the open feeling slow and
+ * stuttery on mobile.
+ */
+#navigation-mobile[open] {
+    animation: drawer-enter var(--duration-swap) var(--ease-rise);
+}
+
+@keyframes drawer-enter {
+    from {
+        transform: translateX(100%);
+    }
+}
+
+/*
  * Form controls on a phone.
  *
  * Safari on iOS zooms the whole viewport as soon as a focused control renders
