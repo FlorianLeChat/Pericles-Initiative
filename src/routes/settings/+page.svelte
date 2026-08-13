@@ -227,8 +227,10 @@
             </dl>
         </section>
 
-        <div class="flex flex-wrap items-center gap-3">
-            <Button type="submit" color="primary" disabled={!canSave || !dirty}>Enregistrer</Button>
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <Button type="submit" color="primary" class="w-full sm:w-auto" disabled={!canSave || !dirty}>
+                Enregistrer
+            </Button>
 
             {#if dirty}
                 <span class="text-signal-500 text-xs">Modifications non enregistrées</span>
@@ -238,9 +240,10 @@
                 <!--
                     Red like the erasure of `/data`, and for the same reason: this
                     drops the identity of the wiki and the pages put forward, which
-                    nothing brings back.
+                    nothing brings back. Full width on mobile like "Enregistrer",
+                    so the two buttons stack instead of overlapping.
                 -->
-                <Button color="red" class="ml-auto" onclick={() => ( resetOpen = true )}>
+                <Button color="red" class="w-full sm:ml-auto sm:w-auto" onclick={() => ( resetOpen = true )}>
                     Tout remettre par défaut
                 </Button>
             {/if}
