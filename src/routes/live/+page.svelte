@@ -264,7 +264,7 @@
 <ConfirmDialog
     bind:open={deleteOpen}
     title="Supprimer cette entrée ?"
-    message="Elle disparaît du fil et de ce navigateur."
+    message="L'entrée sera supprimée définitivement."
     confirmLabel="Supprimer"
     danger
     onconfirm={() =>

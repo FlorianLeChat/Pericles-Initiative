@@ -389,7 +389,7 @@
     <ConfirmDialog
         bind:open={deleteOpen}
         title="Supprimer cette fiche ?"
-        message="La fiche disparaît du site et de ce navigateur."
+        message="La fiche sera supprimée définitivement."
         confirmLabel="Supprimer"
         danger
         onconfirm={remove}
