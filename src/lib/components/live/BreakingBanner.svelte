@@ -36,7 +36,7 @@
 
             <button
                 type="button"
-                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full
+                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full
                        text-white/80 transition hover:bg-white/20 hover:text-white"
                 onclick={() => ( dismissed = true )}
                 aria-label="Masquer l'alerte"

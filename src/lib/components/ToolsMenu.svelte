@@ -49,7 +49,7 @@
     <button
         type="button"
         class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-9 w-9
-               cursor-pointer items-center justify-center rounded-full transition"
+               items-center justify-center rounded-full transition"
         aria-expanded={open}
         aria-label="Outils"
     >

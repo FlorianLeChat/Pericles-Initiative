@@ -45,7 +45,7 @@
 <button
     type="button"
     class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
-           cursor-pointer items-center justify-center rounded-full transition lg:h-9 lg:w-9"
+           items-center justify-center rounded-full transition lg:h-9 lg:w-9"
     onclick={toggle}
     aria-pressed={dark}
     aria-label={dark ? "Passer au thème clair" : "Passer au thème sombre"}

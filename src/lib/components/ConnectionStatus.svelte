@@ -233,7 +233,7 @@
                 <button
                     type="button"
                     class="text-muted hover:text-ink-800 dark:hover:text-paper-200 -mt-1 -mr-1 ml-auto inline-flex
-                           h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full"
+                           h-7 w-7 shrink-0 items-center justify-center rounded-full"
                     aria-label="Masquer l'avertissement"
                     onclick={() => ( dismissedChange = wiki.changedAt )}
                 >

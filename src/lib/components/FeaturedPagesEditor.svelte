@@ -31,7 +31,7 @@
 
         <button
             type="button"
-            class="text-accent-600 dark:text-accent-400 cursor-pointer text-xs underline"
+            class="text-accent-600 dark:text-accent-400 text-xs underline"
             onclick={() => ( pickerOpen = true )}
         >
             Ajouter une fiche

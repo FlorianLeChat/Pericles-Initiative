@@ -64,7 +64,7 @@
                     <button
                         type="button"
                         class="bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300 hover:text-alert-500
-                               inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs
+                               inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-xs
                                transition"
                         onclick={() => ( values = values.filter( ( item ) => item !== value ) )}
                         aria-label="Retirer {value}"

@@ -93,7 +93,7 @@
             <button
                 type="button"
                 class="border-paper-300 text-muted hover:border-accent-400 hover:text-accent-600 dark:border-ink-800
-                       dark:hover:text-accent-400 hidden h-9 cursor-pointer items-center gap-2 rounded-full border px-3
+                       dark:hover:text-accent-400 hidden h-9 items-center gap-2 rounded-full border px-3
                        text-sm leading-none transition lg:flex"
                 onclick={onsearch}
             >
@@ -107,7 +107,7 @@
             <button
                 type="button"
                 class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
-                       cursor-pointer items-center justify-center rounded-full transition lg:hidden"
+                       items-center justify-center rounded-full transition lg:hidden"
                 onclick={onsearch}
                 aria-label="Rechercher"
             >
@@ -132,7 +132,7 @@
             <button
                 type="button"
                 class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
-                       cursor-pointer items-center justify-center rounded-full transition lg:hidden"
+                       items-center justify-center rounded-full transition lg:hidden"
                 onclick={() => ( menuOpen = true )}
                 aria-expanded={menuOpen}
                 aria-controls="navigation-mobile"
@@ -159,7 +159,7 @@
         <button
             type="button"
             class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
-                   cursor-pointer items-center justify-center rounded-full transition"
+                   items-center justify-center rounded-full transition"
             onclick={() => ( menuOpen = false )}
             aria-label="Fermer la navigation"
         >

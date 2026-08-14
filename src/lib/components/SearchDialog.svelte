@@ -196,7 +196,7 @@
                     role="option"
                     tabindex="-1"
                     aria-selected={index === selected}
-                    class="rise-in hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full cursor-pointer items-center
+                    class="rise-in hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full items-center
                            gap-3 rounded-xl px-3 py-2.5 text-left transition {index === selected
                                ? "bg-paper-100 dark:bg-ink-800"
                                : ""}"

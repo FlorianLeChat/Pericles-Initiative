@@ -85,7 +85,7 @@
                 {#if onedit}
                     <button
                         type="button"
-                        class="hover:text-accent-600 dark:hover:text-accent-400 inline-flex min-h-9 cursor-pointer
+                        class="hover:text-accent-600 dark:hover:text-accent-400 inline-flex min-h-9
                                items-center rounded-full px-2 underline"
                         onclick={() => onedit( item )}
                         aria-label="Modifier l'entrée « {item.title} »"
@@ -97,7 +97,7 @@
                 {#if ondelete}
                     <button
                         type="button"
-                        class="hover:text-alert-500 inline-flex min-h-9 cursor-pointer items-center rounded-full px-2
+                        class="hover:text-alert-500 inline-flex min-h-9 items-center rounded-full px-2
                                underline"
                         onclick={() => ondelete( item )}
                         aria-label="Supprimer l'entrée « {item.title} »"

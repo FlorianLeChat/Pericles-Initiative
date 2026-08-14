@@ -419,6 +419,11 @@
         -webkit-text-size-adjust: 100%;
     }
 
+    /* https://tailwindcss.com/docs/upgrade-guide#buttons-use-the-default-cursor */
+    button:not(:disabled), [role="button"]:not(:disabled) {
+        @apply cursor-pointer;
+    }
+
     body {
         @apply bg-paper-50 text-ink-800 dark:bg-ink-950 dark:text-paper-200 font-sans antialiased;
     }

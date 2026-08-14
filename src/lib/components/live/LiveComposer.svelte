@@ -148,7 +148,7 @@
         {#if editing}
             <button
                 type="button"
-                class="text-muted hover:text-accent-600 cursor-pointer text-xs underline"
+                class="text-muted hover:text-accent-600 text-xs underline"
                 onclick={oncancel}
             >
                 Abandonner la modification
@@ -175,7 +175,7 @@
 
                 <button
                     type="button"
-                    class="text-accent-600 dark:text-accent-400 mb-1.5 cursor-pointer text-xs underline"
+                    class="text-accent-600 dark:text-accent-400 mb-1.5 text-xs underline"
                     onclick={() => ( pickerOpen = true )}
                 >
                     Lier une fiche
