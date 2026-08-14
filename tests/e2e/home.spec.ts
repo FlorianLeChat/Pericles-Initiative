@@ -4,7 +4,7 @@
  * @author Claude
  */
 
-import { CATEGORIES, COUNTS, DESCRIPTION, LIVE, PAGES, TAGLINE, UNIVERSE } from "./utilities/dataset";
+import { CATEGORIES, COUNTS, DESCRIPTION, LIVE, PAGES, UNIVERSE } from "./utilities/dataset";
 import { expect, heroFigure, test } from "./utilities/fixtures";
 
 test.describe( "home page", () =>
@@ -28,7 +28,6 @@ test.describe( "home page", () =>
 
         await expect( page ).toHaveTitle( UNIVERSE );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( UNIVERSE );
-        await expect( page.getByRole( "main" ).getByText( TAGLINE ) ).toBeVisible();
         await expect( page.getByRole( "main" ).getByText( DESCRIPTION ) ).toBeVisible();
 
         await expect( heroFigure( page, "Fiches" ) ).toHaveText( String( COUNTS.published ) );

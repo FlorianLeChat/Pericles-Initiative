@@ -85,7 +85,6 @@ export interface LiveEntry {
 /** Global information about the documented universe. */
 export interface WikiMeta {
     universe: string;
-    tagline: string;
     description: string;
     /** Path under `/media/` or absolute url. Empty falls back to a monogram. */
     logo: string;

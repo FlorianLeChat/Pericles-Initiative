@@ -244,7 +244,6 @@ export const normalizeMeta = ( value: unknown ): WikiMeta =>
 
     return {
         universe: asTrimmed( raw.universe ) || "Univers sans nom",
-        tagline: asTrimmed( raw.tagline ),
         description: asTrimmed( raw.description ),
         logo: normalizeImageSource( raw.logo ),
         accent: ACCENT_KEYS.includes( accent ) ? accent : DEFAULT_ACCENT,
@@ -274,11 +273,6 @@ export const normalizeMetaPatch = ( value: unknown ): Partial<WikiMeta> | null =
     if ( "universe" in raw )
     {
         patch.universe = asTrimmed( raw.universe ) || "Univers sans nom";
-    }
-
-    if ( "tagline" in raw )
-    {
-        patch.tagline = asTrimmed( raw.tagline );
     }
 
     if ( "description" in raw )

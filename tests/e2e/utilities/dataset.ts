@@ -18,8 +18,6 @@ import type { Category, Dataset, Entry, LiveEntry, Overlay } from "$lib/types";
 
 export const UNIVERSE = "Périclès";
 
-export const TAGLINE = "Une chronique des cités flottantes.";
-
 export const DESCRIPTION = "Les gens, les lieux et les décisions qui font tenir un archipel bâti sur l’eau.";
 
 /** A page every fixture body links to, and that nothing ever creates: the red link of the suite. */
@@ -315,7 +313,6 @@ export const COUNTS = {
 export const sampleDataset = (): Dataset => ( {
     meta: {
         universe: UNIVERSE,
-        tagline: TAGLINE,
         description: DESCRIPTION,
         logo: "",
         accent: DEFAULT_ACCENT,

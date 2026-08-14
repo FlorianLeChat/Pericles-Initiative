@@ -22,7 +22,6 @@ import { expect, test } from "./utilities/fixtures";
 const IMPORTED: Dataset = {
     meta: {
         universe: "Archipel importé",
-        tagline: "Venu d’un fichier.",
         description: "",
         logo: "",
         accent: "ambre",

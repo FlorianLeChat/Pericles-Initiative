@@ -15,11 +15,10 @@ import { expect, isNarrow, test, waitForDrawer, type WikiHelper } from "./utilit
 /**
  * Reaches the settings the way a reader does, from a page already open.
  *
- * Deliberately not a direct `goto`: the form snapshots the identity when the
- * component initialises, and on a cold load that happens before the overlay has
- * been read, so the fields come up empty. Unlike `/edit/[slug]`, which waits for
- * `wiki.overlayLoaded`, this page has no such guard. The link lives in the
- * authoring tools, hidden behind a burger below the `lg` breakpoint.
+ * Deliberately not a direct `goto`: the form only mounts once `wiki.overlayLoaded`
+ * is true, like `/edit/[slug]` does for the entry it edits, and by the time this
+ * link is clicked the overlay was already read on the app's first load. The link
+ * lives in the authoring tools, hidden behind a burger below the `lg` breakpoint.
  *
  * @param page Page under test.
  * @param wiki Fixture helper.
@@ -139,7 +138,7 @@ test.describe( "settings", () =>
     {
         await openSettings( page, wiki );
 
-        await page.getByLabel( "Signature" ).fill( "Une signature de passage." );
+        await page.getByLabel( "Description" ).fill( "Une description de passage." );
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
         await page.getByRole( "button", { name: "Tout remettre par défaut" } ).click();

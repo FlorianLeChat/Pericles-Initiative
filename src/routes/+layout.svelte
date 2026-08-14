@@ -27,6 +27,22 @@
     let { data, children }: Props = $props();
 
     /**
+     * Address of the tab icon: the wiki's own logo once one is set, the bundled
+     * default otherwise.
+     *
+     * Kept as a single `<link>` whose `href` changes, rather than toggling
+     * between two `<link>` elements through an `{#if}`. The latter is what made
+     * the default favicon stick in some browsers even after a logo was saved:
+     * removing and inserting a fresh node raced the browser's own favicon
+     * lookup, which some engines only redo when the existing `<link>` changes in
+     * place. A single reactive node cannot lose that race.
+     */
+    const favicon = $derived( wiki.meta.logo || asset( "/assets/favicon.svg" ) );
+
+    /** Only the bundled default is actually an svg; an author's logo can be anything. */
+    const faviconType = $derived( wiki.meta.logo ? undefined : "image/svg+xml" );
+
+    /**
      * Crossfades the two pages during a client side navigation.
      *
      * The callback given to the browser is what it snapshots around, so the
@@ -116,7 +132,7 @@
 </script>
 
 <svelte:head>
-    <link rel="icon" href={asset( "/assets/favicon.svg" )} type="image/svg+xml" sizes="any" />
+    <link rel="icon" href={favicon} type={faviconType} sizes="any" />
     <link rel="manifest" href={asset( "/manifest.webmanifest" )} crossorigin="use-credentials" />
 </svelte:head>
 

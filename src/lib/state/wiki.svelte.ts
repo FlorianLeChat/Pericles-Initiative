@@ -548,7 +548,7 @@ class WikiStore
     }
 
     /**
-     * Updates the identity of the wiki: name, tagline, description, logo.
+     * Updates the identity of the wiki: name, description, logo.
      *
      * @param patch Fields to change.
      * @author Claude

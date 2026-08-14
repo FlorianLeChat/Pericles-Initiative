@@ -62,21 +62,17 @@
             class="text-ink-600 dark:text-paper-300 rise-in mt-6 max-w-2xl text-lg leading-relaxed sm:text-xl"
             style="--rank: 2"
         >
-            {wiki.meta.tagline}
-        </p>
-
-        <p class="text-muted rise-in mt-4 max-w-2xl leading-relaxed" style="--rank: 3">
             {wiki.meta.description}
         </p>
 
-        <div class="rise-in mt-9 {ACTION_ROW}" style="--rank: 4">
+        <div class="rise-in mt-9 {ACTION_ROW}" style="--rank: 3">
             <Button href={resolve( "/wiki" )} color="primary" size="lg">Parcourir les fiches</Button>
             <Button href={resolve( "/categories" )} color="alternative" size="lg">Explorer les catégories</Button>
         </div>
 
         <dl
             class="border-paper-200 dark:border-ink-800 rise-in mt-14 grid grid-cols-2 gap-6 border-t pt-8 sm:grid-cols-4"
-            style="--rank: 5"
+            style="--rank: 4"
         >
             <div>
                 <dt class="text-muted text-xs tracking-wide uppercase">Fiches</dt>
