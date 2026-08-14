@@ -175,10 +175,7 @@
             <Kbd class="ml-1 px-1 py-0.5 text-[10px] font-normal">Ctrl L</Kbd>
         </Button>
 
-        <p class="text-muted ml-auto hidden text-xs sm:block">
-            Tapez <Kbd class="px-1.5 py-0.5 font-mono text-[10px] font-normal">/</Kbd> pour insérer un titre, une liste ou
-            une image. Sélectionnez du texte pour le mettre en forme.
-        </p>
+        <p class="text-muted ml-auto hidden text-xs sm:block">Sélectionnez du texte pour le mettre en forme.</p>
     </div>
 
     <div bind:this={host} class="min-h-96"></div>

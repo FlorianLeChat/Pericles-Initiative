@@ -108,7 +108,7 @@
                     }
                 }}
                 type="text"
-                class="focus:ring-accent-500/25 rounded-xl bg-white px-3.5 py-2.5 transition focus:ring-4"
+                class="rounded-xl bg-white px-3.5 py-2.5 transition"
                 placeholder="Titre de la fiche à lier"
                 aria-label="Titre de la fiche à lier"
                 autocomplete="off"

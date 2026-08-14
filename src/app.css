@@ -38,7 +38,7 @@
  * all, and `dist/<name>` is where each one lives. `dialog` backs `Modal`, `utils`
  * holds the close button they share, and `theme` the tokens they all read.
  */
-@source '../node_modules/flowbite-svelte/dist/{alert,badge,breadcrumb,buttons,dialog,drawer,dropdown,kbd,modal,spinner,theme,toast,utils}';
+@source '../node_modules/flowbite-svelte/dist/{accordion,alert,badge,breadcrumb,buttons,dialog,drawer,dropdown,kbd,modal,spinner,theme,toast,utils}';
 @source '../node_modules/flowbite-svelte/dist/forms/{checkbox,fileupload,helper,input-field,label,radio,search,select,textarea}';
 
 /* Class based dark mode: the theme toggle writes `.dark` on <html>. */
@@ -597,6 +597,18 @@ dialog[open]::backdrop {
 .milkdown .ProseMirror {
     padding: 1.25rem 1.5rem 3rem;
     min-height: 24rem;
+}
+
+/*
+ * Crepe paints a selection inside the editor with `--crepe-color-selected` and
+ * says nothing about the text sitting on it, so the ink of the site's own
+ * `::selection` stays in place. On the dark theme that background is a deep blue
+ * and that ink is near black, which left a selected run illegible at the very
+ * moment it was being formatted. The selector mirrors Crepe's own, with the theme
+ * in front of it so it wins.
+ */
+:is(.dark) .milkdown .ProseMirror *::selection {
+    color: var(--color-paper-100);
 }
 
 /*

@@ -5,6 +5,7 @@
      * @author Claude
      */
     import Trash2 from "@lucide/svelte/icons/trash-2";
+    import Accordion from "flowbite-svelte/Accordion.svelte";
     import Button from "flowbite-svelte/Button.svelte";
     import Checkbox from "flowbite-svelte/Checkbox.svelte";
     import Helper from "flowbite-svelte/Helper.svelte";
@@ -18,12 +19,14 @@
     import { PAIRED_ACTION } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry, EntryStatus, EntryType, InfoboxField } from "$lib/types";
+    import { counted } from "$lib/utilities/plural";
     import { slugify } from "$lib/utilities/slug";
     import ChipsInput from "./ChipsInput.svelte";
     import EntryImageFields from "./EntryImageFields.svelte";
     import EntryTypeAndStatus from "./EntryTypeAndStatus.svelte";
     import InfoboxEditor from "./InfoboxEditor.svelte";
     import MarkdownEditor from "./MarkdownEditor.svelte";
+    import OptionPanel from "./OptionPanel.svelte";
 
     interface Props {
         /** Page being edited, absent when creating one. */
@@ -105,6 +108,37 @@
     const dirty = $derived( snapshot() !== initialSnapshot );
     const canSave = $derived( title.trim().length > 0 );
 
+    /**
+     * Tells whether an infobox row carries anything at all.
+     *
+     * An empty row is a row the author started and left, so it is neither saved
+     * nor counted in the header of its panel.
+     *
+     * @param field Row of the infobox.
+     * @returns True when either the label or the value holds something.
+     * @author Claude
+     */
+    const isFilled = ( field: InfoboxField ): boolean => field.label.trim() !== "" || field.value.trim() !== "";
+
+    /*
+     * What each closed panel of the options says of itself. The panels arrive
+     * closed, so a value nobody can see is a value nobody checks before saving,
+     * and «Aucune» agrees with the noun of its own group rather than with a
+     * shared default.
+     */
+    const categoriesSummary = $derived(
+        categories.length === 0 ? "Aucune" : counted( categories.length, "catégorie" )
+    );
+    const infoboxSummary = $derived.by( () =>
+    {
+        const rows = infobox.filter( isFilled ).length;
+
+        return rows === 0 ? "Aucune" : counted( rows, "ligne" );
+    } );
+    const aliasesSummary = $derived(
+        aliases.length === 0 ? "Aucun" : counted( aliases.length, "alias", "alias" )
+    );
+
     /** Another page already uses this slug, so a suffix will be added on save. */
     const slugTaken = $derived.by( () =>
     {
@@ -165,7 +199,7 @@
             summary: summary.trim(),
             body,
             categories: [ ...categories ],
-            infobox: infobox.filter( ( field ) => field.label.trim() !== "" || field.value.trim() !== "" ),
+            infobox: infobox.filter( isFilled ),
             image: imageSrc.trim()
                 ? { src: imageSrc.trim(), alt: imageAlt.trim(), caption: imageCaption.trim() || undefined }
                 : null,
@@ -343,49 +377,47 @@
             <MarkdownEditor value={body} onchange={( markdown ) => ( body = markdown )} />
         </div>
 
-        <aside class="space-y-5">
-            <EntryTypeAndStatus bind:type bind:status />
+        <aside>
+            <Accordion multiple flush class="surface overflow-hidden">
+                <EntryTypeAndStatus bind:type bind:status />
 
-            <fieldset class="surface p-5">
-                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Catégories</legend>
+                <OptionPanel label="Catégories" value={categoriesSummary}>
+                    {#if wiki.categories.length === 0}
+                        <p class="text-muted text-sm">
+                            Aucune catégorie déclarée.
+                            <a href={resolve( "/categories/manage" )} class="wiki-link">En créer</a>.
+                        </p>
+                    {:else}
+                        <fieldset class="space-y-1.5">
+                            <legend class="sr-only">Catégories de la fiche</legend>
 
-                {#if wiki.categories.length === 0}
-                    <p class="text-muted text-sm">
-                        Aucune catégorie déclarée. <a href={resolve( "/categories/manage" )} class="wiki-link">En créer</a
-                        >.
+                            {#each wiki.categories as item ( item.slug )}
+                                <Checkbox
+                                    classes={{ div: "flex min-h-9 items-center text-sm" }}
+                                    checked={categories.includes( item.slug )}
+                                    onchange={() => toggleCategory( item.slug )}
+                                >
+                                    {item.name}
+                                </Checkbox>
+                            {/each}
+                        </fieldset>
+                    {/if}
+                </OptionPanel>
+
+                <OptionPanel label="Infobox" value={infoboxSummary}>
+                    <InfoboxEditor bind:fields={infobox} />
+                </OptionPanel>
+
+                <EntryImageFields bind:src={imageSrc} bind:alt={imageAlt} bind:caption={imageCaption} />
+
+                <OptionPanel label="Autres noms" value={aliasesSummary}>
+                    <ChipsInput bind:values={aliases} id="entry-aliases" placeholder="Alias, puis Entrée" />
+
+                    <p class="text-muted mt-2 text-xs leading-relaxed">
+                        Pris en compte par la recherche, sans créer de page.
                     </p>
-                {:else}
-                    <div class="space-y-1.5">
-                        {#each wiki.categories as item ( item.slug )}
-                            <Checkbox
-                                classes={{ div: "flex min-h-9 items-center text-sm" }}
-                                checked={categories.includes( item.slug )}
-                                onchange={() => toggleCategory( item.slug )}
-                            >
-                                {item.name}
-                            </Checkbox>
-                        {/each}
-                    </div>
-                {/if}
-            </fieldset>
-
-            <fieldset class="surface p-5">
-                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Infobox</legend>
-
-                <InfoboxEditor bind:fields={infobox} />
-            </fieldset>
-
-            <EntryImageFields bind:src={imageSrc} bind:alt={imageAlt} bind:caption={imageCaption} />
-
-            <fieldset class="surface p-5">
-                <legend class="text-muted mb-3 text-xs tracking-wide uppercase">Autres noms</legend>
-
-                <ChipsInput bind:values={aliases} id="entry-aliases" placeholder="Alias, puis Entrée" />
-
-                <p class="text-muted mt-2 text-xs leading-relaxed">
-                    Pris en compte par la recherche, sans créer de page.
-                </p>
-            </fieldset>
+                </OptionPanel>
+            </Accordion>
         </aside>
     </div>
 </form>

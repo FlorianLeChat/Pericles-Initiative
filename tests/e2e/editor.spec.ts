@@ -32,7 +32,15 @@ test.describe( "entry editor", () =>
         await expect( page.getByLabel( "Adresse de la page" ) ).toHaveValue( "digue-de-sainte-roque" );
 
         await page.getByLabel( "Résumé" ).fill( "La digue qui protège le seuil des vents du nord." );
+
+        // The options of the form arrive folded, and a folded group renders none
+        // of its controls, so each one is unfolded by its header before being
+        // reached. The header carries the value of the group after its name,
+        // «Nature Personnage», which is why this matches on the name alone.
+        await page.getByRole( "button", { name: "Nature" } ).click();
         await page.getByRole( "radio", { name: "Lieu", exact: true } ).check();
+
+        await page.getByRole( "button", { name: "Catégories" } ).click();
         await page.getByRole( "checkbox", { name: CATEGORIES.sites.name } ).check();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
@@ -100,6 +108,8 @@ test.describe( "entry editor", () =>
 
         await page.getByLabel( "Adresse de la page" ).fill( "bureau-des-marees" );
         await page.getByLabel( "Résumé" ).fill( "Le bureau, après sa réorganisation." );
+
+        await page.getByRole( "button", { name: "Statut" } ).click();
         await page.getByRole( "radio", { name: "Brouillon", exact: true } ).check();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
