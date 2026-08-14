@@ -128,20 +128,20 @@
     --font-serif: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
     --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
 
-    /* Editorial palette: warm paper, deep ink, one cold accent. */
-    --color-paper-50: #fdfcfa;
-    --color-paper-100: #f7f5f1;
-    --color-paper-200: #ece8e1;
-    --color-paper-300: #dbd5ca;
-    --color-paper-400: #b8b1a4;
+    /* Editorial palette: warm paper, warm ink, one cold accent. */
+    --color-paper-50: #f8f5ef;
+    --color-paper-100: #f3efe7;
+    --color-paper-200: #e7e2d7;
+    --color-paper-300: #d3ccbd;
+    --color-paper-400: #a89f8d;
 
-    --color-ink-400: #6b6b76;
-    --color-ink-500: #52525c;
-    --color-ink-600: #3a3a44;
-    --color-ink-700: #2a2a33;
-    --color-ink-800: #1f1f27;
-    --color-ink-900: #15151b;
-    --color-ink-950: #0d0d12;
+    --color-ink-400: #6f6860;
+    --color-ink-500: #5b544b;
+    --color-ink-600: #453e35;
+    --color-ink-700: #3b352d;
+    --color-ink-800: #34302a;
+    --color-ink-900: #262320;
+    --color-ink-950: #1a1714;
 
     --color-accent-50: #eff6ff;
     --color-accent-100: #dbeafe;
@@ -150,13 +150,27 @@
     --color-accent-400: #5a9bf0;
     --color-accent-500: #2f7ae0;
     --color-accent-600: #1f5fbd;
-    --color-accent-700: #1b4c96;
+    /*
+     * Flowbite paints a `primary` button `bg-primary-700`, so this stop, and not
+     * the 600 the header's «Nouvelle fiche» wears, is what the main action of
+     * every page is made of. The two stand side by side on the home page, which
+     * is why this one has to read as the same blue a notch down, not as a navy.
+     */
+    --color-accent-700: #1c56ad;
     /* Added for Flowbite, whose components ask for a 800 stop the site never did. */
     --color-accent-800: #193f7a;
     --color-accent-900: #16325e;
 
     --color-signal-500: #d97706;
-    --color-alert-500: #dc2626;
+
+    /*
+     * The red carries text as often as it carries a surface: a red link, the
+     * «En direct» eyebrow, the count of the pages an import would replace. It
+     * has to clear four and a half to one against the paper above, at the twelve
+     * pixels the eyebrow is set in, which is what keeps it off the usual
+     * `#dc2626`. The `.dark` block holds the brighter red a dark ground needs.
+     */
+    --color-alert-500: #cf2222;
     --color-alert-600: #b91c1c;
 
     /*
@@ -231,12 +245,14 @@
     }
 
     /*
-     * Dark theme neutrals: a slightly lighter, warmer retouch of the ink and
-     * paper scale ("encre réchauffée"), kept out of `@theme` and scoped to
-     * `.dark` so the light theme keeps its own values untouched. Every one of
-     * these stops is only ever read through a `dark:` variant elsewhere in
-     * this file and across components, which is what makes the scoped
-     * override safe: nothing reads the light value while `.dark` is active.
+     * Dark theme stops: a lighter retouch of the ink and paper scale ("encre
+     * réchauffée"), plus the two coloured ones a dark page reads differently,
+     * scoped to `.dark` so the light theme keeps its own values.
+     *
+     * A custom property is resolved where it is used and not where it is
+     * declared, which is what makes the scoped override work at all: the class
+     * a component writes, `bg-ink-800` or `text-alert-500`, is the same in both
+     * themes and simply picks up whichever stop is in force around it.
      */
     :is(.dark) {
         --color-ink-700: #343440;
@@ -251,6 +267,12 @@
 
         /* A touch brighter than the light theme's accent, for legibility on ink. */
         --color-accent-400: #6fa8f5;
+
+        /*
+         * As bright as it can go while «Alerte» and the banner keep white text
+         * on it, and the darker red the paper asks for would sink into the ink.
+         */
+        --color-alert-500: #dc2626;
     }
 
     html {
@@ -272,8 +294,13 @@
 }
 
 @layer components {
+    /*
+     * A card is solid white and the page under it is not: `paper-50` is a shade
+     * off white so that the gap between the two, rather than the border alone,
+     * is what draws the card.
+     */
     .surface {
-        @apply border-paper-200 dark:border-ink-800 dark:bg-ink-900/60 rounded-2xl border bg-white/80 shadow-sm;
+        @apply border-paper-200 dark:border-ink-800 dark:bg-ink-900/60 rounded-2xl border bg-white shadow-sm;
     }
 
     /*
@@ -296,7 +323,88 @@
         @apply text-ink-400 dark:text-paper-400/80;
     }
 
-    /* Internal wiki links, applied to rendered article HTML. */
+    /*
+     * Reading typography.
+     *
+     * The prose plugin resolves its colours from Tailwind's stock `gray` scale
+     * and never looks at `@theme`, so every token it reads is bound here or the
+     * article is drawn in a palette this site does not own. `prose-invert` is
+     * deliberately absent: it only swaps that foreign scale for another one, so
+     * the block below spells the inverted set out instead.
+     *
+     * The four tokens neither block declares, the lead, the captions and the two
+     * of the keycap, belong to elements Markdown does not produce.
+     */
+    .article-body {
+        @apply prose prose-lg max-w-none;
+        @apply prose-headings:font-semibold prose-headings:tracking-tight;
+        @apply prose-a:font-normal prose-img:rounded-2xl prose-blockquote:not-italic;
+
+        --tw-prose-body: var(--color-ink-700);
+        --tw-prose-headings: var(--color-ink-900);
+        --tw-prose-links: var(--color-accent-600);
+        --tw-prose-bold: var(--color-ink-900);
+        --tw-prose-counters: var(--color-ink-400);
+        --tw-prose-bullets: var(--color-paper-400);
+        --tw-prose-hr: var(--color-paper-200);
+        --tw-prose-quotes: var(--color-ink-600);
+        --tw-prose-quote-borders: var(--color-accent-400);
+        --tw-prose-code: var(--color-ink-800);
+        --tw-prose-pre-code: var(--color-ink-700);
+        --tw-prose-pre-bg: var(--color-paper-200);
+        --tw-prose-th-borders: var(--color-paper-300);
+        --tw-prose-td-borders: var(--color-paper-200);
+    }
+
+    /* The same set on ink. */
+    :is(.dark) .article-body {
+        --tw-prose-body: var(--color-paper-300);
+        --tw-prose-headings: var(--color-paper-100);
+        --tw-prose-links: var(--color-accent-400);
+        --tw-prose-bold: var(--color-paper-100);
+        --tw-prose-counters: var(--color-paper-400);
+        --tw-prose-bullets: var(--color-ink-700);
+        --tw-prose-hr: var(--color-ink-800);
+        --tw-prose-quotes: var(--color-paper-300);
+        --tw-prose-quote-borders: var(--color-accent-400);
+        --tw-prose-code: var(--color-paper-200);
+        --tw-prose-pre-code: var(--color-paper-300);
+        --tw-prose-pre-bg: var(--color-ink-900);
+        --tw-prose-th-borders: var(--color-ink-700);
+        --tw-prose-td-borders: var(--color-ink-800);
+    }
+
+    .article-body :is(h2, h3, h4) {
+        scroll-margin-top: 6rem;
+    }
+
+    .article-body table {
+        @apply w-full text-sm;
+    }
+
+    /*
+     * Scrolling frame `wrapTables` puts around every table of an article. The
+     * prose plugin gives the table its own top and bottom margin, which the
+     * wrapper has to take over, or the spacing collapses onto the container
+     * instead.
+     */
+    .article-body .article-table {
+        @apply my-8 overflow-x-auto;
+    }
+
+    .article-body .article-table table {
+        @apply my-0;
+    }
+
+    /*
+     * Internal wiki links, applied to rendered article HTML.
+     *
+     * **These two have to stay below `.article-body`.** The prose plugin paints
+     * every `a` of a body through a `:where()` selector, which contributes no
+     * specificity, so its rule ties with a lone class and the later declaration
+     * is the one that wins. Placed above it, or outside the layer, the article
+     * repaints a link, red one included, in the colour of its own body text.
+     */
     .wiki-link {
         @apply text-accent-600 decoration-accent-300 dark:text-accent-400 dark:decoration-accent-700 underline decoration-1 underline-offset-2 transition hover:decoration-2;
     }
@@ -501,31 +609,6 @@ dialog[open]::backdrop {
     textarea {
         font-size: 1rem;
     }
-}
-
-.article-body {
-    @apply prose prose-lg dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-a:font-normal prose-img:rounded-2xl prose-blockquote:border-accent-400 prose-blockquote:not-italic max-w-none;
-}
-
-.article-body :is(h2, h3, h4) {
-    scroll-margin-top: 6rem;
-}
-
-.article-body table {
-    @apply w-full text-sm;
-}
-
-/*
- * Scrolling frame `wrapTables` puts around every table of an article. The prose
- * plugin gives the table its own top and bottom margin, which the wrapper has to
- * take over, or the spacing collapses onto the container instead.
- */
-.article-body .article-table {
-    @apply my-8 overflow-x-auto;
-}
-
-.article-body .article-table table {
-    @apply my-0;
 }
 
 /*
