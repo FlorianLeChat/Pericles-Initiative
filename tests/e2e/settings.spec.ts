@@ -72,8 +72,6 @@ test.describe( "settings", () =>
 
         await page.getByLabel( "Nom de l'univers" ).fill( "Périclès, second cycle" );
 
-        await expect( page.getByText( "Modifications non enregistrées" ) ).toBeVisible();
-
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
         await expect( page.getByText( "Enregistré." ) ).toBeVisible();

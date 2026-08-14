@@ -274,10 +274,6 @@
         <div class={ACTION_ROW}>
             <Button type="submit" color="primary" disabled={!canSave || !dirty}>Enregistrer</Button>
 
-            {#if dirty}
-                <span class="text-signal-500 text-xs">Modifications non enregistrées</span>
-            {/if}
-
             {#if hasLocalMeta}
                 <Button color="red" class="sm:ml-auto" onclick={() => ( resetOpen = true )}>
                     Tout remettre par défaut
