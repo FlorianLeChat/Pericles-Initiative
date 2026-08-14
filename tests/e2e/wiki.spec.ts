@@ -63,8 +63,7 @@ test.describe( "encyclopedia index", () =>
     {
         await wiki.open( "/wiki" );
 
-        await expect( page.getByText( `${ COUNTS.entries } fiches, dont ${ COUNTS.drafts } en brouillon.` ) )
-            .toBeVisible();
+        await expect( page.getByText( `${ COUNTS.entries } fiches, dont ${ COUNTS.drafts } en brouillon.` ) ).toBeVisible();
         await expect( cards( page ) ).toHaveCount( COUNTS.entries );
         await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeVisible();
         await expect( page.getByText( "Brouillon", { exact: true } ) ).toBeVisible();

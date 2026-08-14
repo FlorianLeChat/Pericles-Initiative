@@ -37,8 +37,7 @@
      * @returns The length, ready for the `--length` custom property.
      * @author Claude
      */
-    const barLength = ( count: number ): string =>
-        `${ count === 0 ? EMPTY_LENGTH : ( count / largest ) * 100 }%`;
+    const barLength = ( count: number ): string => `${ count === 0 ? EMPTY_LENGTH : ( count / largest ) * 100 }%`;
 </script>
 
 <ul class="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-1.5">

@@ -163,9 +163,10 @@
 
             <ul class="mt-6 space-y-4">
                 {#each latestLive as item, index ( item.id )}
-                    <li class="rise-in flex flex-wrap items-baseline gap-x-3 gap-y-1" style="--rank: {staggerRank(
-                        index
-                    )}">
+                    <li
+                        class="rise-in flex flex-wrap items-baseline gap-x-3 gap-y-1"
+                        style="--rank: {staggerRank( index )}"
+                    >
                         <SeverityBadge severity={item.severity} />
 
                         <span class="min-w-0 flex-1">

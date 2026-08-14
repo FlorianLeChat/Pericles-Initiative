@@ -122,11 +122,7 @@
     </p>
 
     {#if feedback}
-        <Alert
-            color={feedback.kind === "success" ? "primary" : "red"}
-            class="mt-5 rounded-xl text-sm"
-            role="status"
-        >
+        <Alert color={feedback.kind === "success" ? "primary" : "red"} class="mt-5 rounded-xl text-sm" role="status">
             {feedback.text}
         </Alert>
     {/if}
@@ -150,9 +146,9 @@
         <h3 class="font-semibold">Restaurer une copie</h3>
 
         <p class="text-muted mt-1.5 text-sm leading-relaxed">
-            Pour reprendre une sauvegarde, ou récupérer le travail fait sur un autre appareil. Attention, le remplacement
-            est total : le site affichera exactement ce que contient le fichier, et vos pages actuelles disparaîtront.
-            Téléchargez une copie avant si vous avez du travail en cours.
+            Pour reprendre une sauvegarde, ou récupérer le travail fait sur un autre appareil. Attention, le
+            remplacement est total : le site affichera exactement ce que contient le fichier, et vos pages actuelles
+            disparaîtront. Téléchargez une copie avant si vous avez du travail en cours.
         </p>
 
         <div class="mt-4 space-y-4">

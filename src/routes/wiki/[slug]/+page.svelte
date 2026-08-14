@@ -166,10 +166,7 @@
             title="Cette fiche n'existe pas encore"
             description="Le lien qui mène ici attend une page. C'est le principe du lien rouge : il signale un manque à combler."
         >
-            <Button
-                href={resolve( `/new?slug=${ slug }&titre=${ encodeURIComponent( plannedTitle ) }` )}
-                color="primary"
-            >
+            <Button href={resolve( `/new?slug=${ slug }&titre=${ encodeURIComponent( plannedTitle ) }` )} color="primary">
                 Créer cette fiche
             </Button>
 

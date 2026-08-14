@@ -26,7 +26,13 @@
         <div>
             <Label for="entry-image" class="field-label">Adresse de l'image</Label>
 
-            <Input id="entry-image" bind:value={src} type="text" class="font-mono text-xs" placeholder="https://exemple.fr/image.jpg" />
+            <Input
+                id="entry-image"
+                bind:value={src}
+                type="text"
+                class="font-mono text-xs"
+                placeholder="https://exemple.fr/image.jpg"
+            />
         </div>
 
         {#if chosen}

@@ -144,13 +144,7 @@
                 </fieldset>
 
                 {#if wiki.liveTags.length > 0}
-                    <Select
-                        bind:value={tag}
-                        size="sm"
-                        placeholder=""
-                        class="w-auto"
-                        aria-label="Filtrer par étiquette"
-                    >
+                    <Select bind:value={tag} size="sm" placeholder="" class="w-auto" aria-label="Filtrer par étiquette">
                         <option value="toutes">Toutes étiquettes</option>
 
                         {#each wiki.liveTags as item ( item )}

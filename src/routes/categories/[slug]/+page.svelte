@@ -96,10 +96,7 @@
         {/if}
     {:else}
         <div class="mt-10">
-            <EmptyState
-                title="Catégorie inconnue"
-                description="Aucune catégorie ne porte ce nom."
-            >
+            <EmptyState title="Catégorie inconnue" description="Aucune catégorie ne porte ce nom.">
                 <Button href={resolve( "/categories" )} color="alternative">Voir les catégories</Button>
             </EmptyState>
         </div>

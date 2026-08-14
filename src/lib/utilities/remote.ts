@@ -305,10 +305,7 @@ export const readRemoteSnapshot = async ( config: RemoteConfig ): Promise<Remote
 
     if ( !response.ok )
     {
-        throw new RemoteError(
-            failureOf( response.status, "missing" ),
-            `GET ${ endpoint } answered ${ response.status }.`
-        );
+        throw new RemoteError( failureOf( response.status, "missing" ), `GET ${ endpoint } answered ${ response.status }.` );
     }
 
     const text = await response.text();

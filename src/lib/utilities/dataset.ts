@@ -84,8 +84,7 @@ const asStringArray = ( value: unknown ): string[] =>
  * @returns The boolean to store.
  * @author Claude
  */
-export const asBoolean = ( value: unknown, fallback = false ): boolean =>
-    ( typeof value === "boolean" ? value : fallback );
+export const asBoolean = ( value: unknown, fallback = false ): boolean => ( typeof value === "boolean" ? value : fallback );
 
 /**
  * Reads a value as a non empty trimmed string, or null.

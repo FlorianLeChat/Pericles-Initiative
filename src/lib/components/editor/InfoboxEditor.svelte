@@ -74,8 +74,7 @@
      * @returns A phrase identifying the row.
      * @author Claude
      */
-    const rowName = ( field: InfoboxField, index: number ): string =>
-        field.label.trim() || `ligne ${ index + 1 }`;
+    const rowName = ( field: InfoboxField, index: number ): string => field.label.trim() || `ligne ${ index + 1 }`;
 </script>
 
 <div class="space-y-2">

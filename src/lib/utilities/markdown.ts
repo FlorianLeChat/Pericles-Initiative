@@ -76,8 +76,8 @@ const INLINE_MARKERS = /[*_`~]/g;
  * past the offending bracket instead of rescanning the whole run, which is what
  * makes the naive `\[([^\]]*)\]\([^)]*\)` quadratic on a line of brackets.
  */
-const MARKDOWN_IMAGE = /!\[([^\][]*)\]\([^()]*\)/g;
-const MARKDOWN_LINK = /\[([^\][]*)\]\([^()]*\)/g;
+const MARKDOWN_IMAGE = /!\[([^\][]*)]\([^()]*\)/g;
+const MARKDOWN_LINK = /\[([^\][]*)]\([^()]*\)/g;
 
 /** Runs of whitespace, collapsed into a single space. */
 const WHITESPACE = /\s+/g;
@@ -393,9 +393,7 @@ const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string 
 const wrapTables = ( html: string ): string =>
     html.replaceAll(
         TABLE_BLOCKS,
-        ( table ) =>
-            "<div class=\"article-table\" role=\"region\" aria-label=\"Tableau\" tabindex=\"0\">"
-            + `${ table }</div>`
+        ( table ) => "<div class=\"article-table\" role=\"region\" aria-label=\"Tableau\" tabindex=\"0\">" + `${ table }</div>`
     );
 
 /**
@@ -461,7 +459,8 @@ export const markdownToPlainText = memoize( ( markdown: string ): string =>
         .replaceAll( "&quot;", "\"" )
         .replaceAll( "&#39;", "'" )
         .replaceAll( WHITESPACE, " " )
-        .trim() );
+        .trim()
+);
 
 /**
  * Truncates Markdown into a short excerpt, cutting on a word boundary.

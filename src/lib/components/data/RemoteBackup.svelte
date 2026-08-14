@@ -136,8 +136,7 @@
 
             feedback = {
                 kind: "success",
-                text:
-                    `Connexion réussie. La sauvegarde en ligne contient ${ counted( count, "fiche" ) }.`
+                text: `Connexion réussie. La sauvegarde en ligne contient ${ counted( count, "fiche" ) }.`
             };
 
             return;
@@ -222,11 +221,7 @@
     </p>
 
     {#if feedback}
-        <Alert
-            color={feedback.kind === "success" ? "primary" : "red"}
-            class="mt-5 rounded-xl text-sm"
-            role="status"
-        >
+        <Alert color={feedback.kind === "success" ? "primary" : "red"} class="mt-5 rounded-xl text-sm" role="status">
             {feedback.text}
         </Alert>
     {/if}
@@ -277,8 +272,8 @@
             />
 
             <Helper id="remote-secret-hint" class="mt-1.5 text-xs leading-relaxed">
-                Il est conservé tel quel sur cet appareil, et ne chiffre rien : il empêche seulement un inconnu
-                d'écrire sur votre serveur. N'y mettez pas un mot de passe qui vous sert ailleurs.
+                Il est conservé tel quel sur cet appareil, et ne chiffre rien : il empêche seulement un inconnu d'écrire
+                sur votre serveur. N'y mettez pas un mot de passe qui vous sert ailleurs.
             </Helper>
         </div>
 
@@ -305,9 +300,7 @@
                     restaurez pour abandonner ce que vous avez écrit depuis.
                 </Alert>
             {:else}
-                <p class="text-muted text-sm">
-                    Vous n'avez encore jamais synchronisé cet appareil avec ce serveur.
-                </p>
+                <p class="text-muted text-sm">Vous n'avez encore jamais synchronisé cet appareil avec ce serveur.</p>
             {/if}
 
             <div class="mt-5 {ACTION_ROW}">
@@ -327,8 +320,8 @@
             </div>
 
             <p class="text-muted mt-4 text-sm leading-relaxed">
-                Les deux sens remplacent tout : envoyer écrase la sauvegarde du serveur avec vos pages, restaurer
-                écrase vos pages avec la sauvegarde.
+                Les deux sens remplacent tout : envoyer écrase la sauvegarde du serveur avec vos pages, restaurer écrase
+                vos pages avec la sauvegarde.
                 {remote.conditional
                     ? "Ce serveur suivant ses révisions, un envoi est refusé si la sauvegarde a changé depuis votre "
                     + "dernière lecture."
@@ -354,9 +347,8 @@
                                 envoi automatique écraserait une sauvegarde que vous n'avez jamais vue.
                             {:else}
                                 Vos modifications partent seules quelques secondes après la dernière frappe, et sont
-                                mises en attente tant que vous êtes hors ligne. Un envoi refusé parce que la
-                                sauvegarde en ligne a changé ne sera jamais forcé : il vous est signalé et vous
-                                tranchez ici.
+                                mises en attente tant que vous êtes hors ligne. Un envoi refusé parce que la sauvegarde
+                                en ligne a changé ne sera jamais forcé : il vous est signalé et vous tranchez ici.
                             {/if}
                         </span>
                     </span>

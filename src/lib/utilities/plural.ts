@@ -23,7 +23,7 @@
  * @author Claude
  */
 export const plural = ( count: number, singular: string, many?: string ): string =>
-    Math.abs( count ) < 2 ? singular : many ?? `${ singular }s`;
+    Math.abs( count ) < 2 ? singular : ( many ?? `${ singular }s` );
 
 /**
  * Writes a number and its noun together, agreed.

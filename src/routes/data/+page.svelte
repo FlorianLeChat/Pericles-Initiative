@@ -29,9 +29,10 @@
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <PageHeader title="Sauvegardes">
         {#snippet description()}
-            Ce que vous écrivez reste sur cet appareil, et nulle part ailleurs. Personne d'autre ne le voit, mais rien ne
-            le protège non plus : effacer les données du navigateur, ou changer d'ordinateur, et tout est perdu. Faites
-            une copie, dans un fichier que vous gardez, ou en ligne pour retrouver votre wiki depuis un autre appareil.
+            Ce que vous écrivez reste sur cet appareil, et nulle part ailleurs. Personne d'autre ne le voit, mais rien
+            ne le protège non plus : effacer les données du navigateur, ou changer d'ordinateur, et tout est perdu.
+            Faites une copie, dans un fichier que vous gardez, ou en ligne pour retrouver votre wiki depuis un autre
+            appareil.
         {/snippet}
     </PageHeader>
 

@@ -59,9 +59,7 @@ const audit = async ( page: Page ): Promise<void> =>
 
     // Named one by one in the message: a bare count sends the reader to the
     // terminal scrollback to find out which rule broke and where.
-    expect(
-        violations.map( ( violation ) => `${ violation.id }: ${ violation.nodes.length } élément(s)` )
-    ).toEqual( [] );
+    expect( violations.map( ( violation ) => `${ violation.id }: ${ violation.nodes.length } élément(s)` ) ).toEqual( [] );
 };
 
 /** Every page reachable by url, with the fixture wiki behind it. */
@@ -120,8 +118,10 @@ test.describe( "accessibility", () =>
         if ( isNarrow( page ) )
         {
             await page.getByRole( "button", { name: "Ouvrir la navigation" } ).click();
-            await page.getByRole( "navigation", { name: "Navigation mobile" } )
-                .getByRole( "link", { name: "Paramètres" } ).click();
+            await page
+                .getByRole( "navigation", { name: "Navigation mobile" } )
+                .getByRole( "link", { name: "Paramètres" } )
+                .click();
             await waitForDrawer( page );
         }
         else

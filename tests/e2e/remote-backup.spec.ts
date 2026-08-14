@@ -71,8 +71,7 @@ test.describe( "remote backup", () =>
         await connect( page );
 
         await expect( page.getByText( `La sauvegarde en ligne contient ${ COUNTS.entries } fiches.` ) ).toBeVisible();
-        expect( await page.evaluate( ( key ) => window.localStorage.getItem( key ), REMOTE_KEY ) )
-            .toContain( BASE_URL );
+        expect( await page.evaluate( ( key ) => window.localStorage.getItem( key ), REMOTE_KEY ) ).toContain( BASE_URL );
 
         await page.unroute( DATASET_ROUTE );
         await page.route( DATASET_ROUTE, ( route: Route ) => route.fulfill( { status: 401, headers: CORS } ) );
@@ -119,8 +118,7 @@ test.describe( "remote backup", () =>
         await page.getByRole( "button", { name: "Envoyer mes pages" } ).click();
         await wiki.confirm( "Envoyer mes pages ?", "Envoyer" );
 
-        await expect( page.getByText( "La sauvegarde en ligne a changé depuis votre dernière lecture" ) )
-            .toBeVisible();
+        await expect( page.getByText( "La sauvegarde en ligne a changé depuis votre dernière lecture" ) ).toBeVisible();
         await expect( page.getByRole( "button", { name: "Écraser quand même" } ) ).toBeVisible();
     } );
 

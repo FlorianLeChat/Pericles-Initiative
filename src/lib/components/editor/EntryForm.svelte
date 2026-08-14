@@ -126,18 +126,14 @@
      * and «Aucune» agrees with the noun of its own group rather than with a
      * shared default.
      */
-    const categoriesSummary = $derived(
-        categories.length === 0 ? "Aucune" : counted( categories.length, "catégorie" )
-    );
+    const categoriesSummary = $derived( categories.length === 0 ? "Aucune" : counted( categories.length, "catégorie" ) );
     const infoboxSummary = $derived.by( () =>
     {
         const rows = infobox.filter( isFilled ).length;
 
         return rows === 0 ? "Aucune" : counted( rows, "ligne" );
     } );
-    const aliasesSummary = $derived(
-        aliases.length === 0 ? "Aucun" : counted( aliases.length, "alias", "alias" )
-    );
+    const aliasesSummary = $derived( aliases.length === 0 ? "Aucun" : counted( aliases.length, "alias", "alias" ) );
 
     /** Another page already uses this slug, so a suffix will be added on save. */
     const slugTaken = $derived.by( () =>
@@ -352,7 +348,8 @@
                 />
 
                 <Helper id="entry-date-hint" class="mt-1.5 text-xs">
-                    Facultatif. Une date comme 2043-06-12 place la fiche dans la chronologie ; « Juin 2043 » ou « Le troisième hiver » sont acceptés aussi.
+                    Facultatif. Une date comme 2043-06-12 place la fiche dans la chronologie ; « Juin 2043 » ou « Le
+                    troisième hiver » sont acceptés aussi.
                 </Helper>
             </div>
         </div>

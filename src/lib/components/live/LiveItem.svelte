@@ -34,11 +34,7 @@
     ></span>
 
     <div class="flex flex-wrap items-center gap-2">
-        <time
-            datetime={item.publishedAt}
-            class="text-muted font-mono text-xs"
-            title={formatDateTime( item.publishedAt )}
-        >
+        <time datetime={item.publishedAt} class="text-muted font-mono text-xs" title={formatDateTime( item.publishedAt )}>
             {formatTime( item.publishedAt )}
         </time>
 

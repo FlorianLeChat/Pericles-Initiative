@@ -171,8 +171,7 @@
 
                 <article class="surface flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
                     <div class="flex min-w-0 flex-1 items-start gap-3">
-                        <span
-                            class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full {paletteColor( category.color ).dot}"
+                        <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full {paletteColor( category.color ).dot}"
                         ></span>
 
                         <div class="min-w-0">
@@ -250,13 +249,7 @@
             <div>
                 <Label for="category-name" class="field-label">Nom</Label>
 
-                <Input
-                    id="category-name"
-                    bind:value={name}
-                    type="text"
-                    placeholder="Sites et installations"
-                    required
-                />
+                <Input id="category-name" bind:value={name} type="text" placeholder="Sites et installations" required />
             </div>
 
             <div>

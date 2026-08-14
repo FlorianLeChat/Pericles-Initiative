@@ -70,8 +70,7 @@ export const filterPill = ( chosen: boolean ): string => `${ PILL_BASE } ${ chos
  *          the colours of the pill itself.
  * @author Claude
  */
-export const colorPill = ( chosen: boolean ): string =>
-    chosen ? `${ PILL_BASE } ring-accent-500 ring-2` : PILL_BASE;
+export const colorPill = ( chosen: boolean ): string => ( chosen ? `${ PILL_BASE } ring-accent-500 ring-2` : PILL_BASE );
 
 /**
  * Class laying out the actions of a page or of a panel.

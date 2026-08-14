@@ -146,11 +146,7 @@
         </p>
 
         {#if editing}
-            <button
-                type="button"
-                class="text-muted hover:text-accent-600 text-xs underline"
-                onclick={oncancel}
-            >
+            <button type="button" class="text-muted hover:text-accent-600 text-xs underline" onclick={oncancel}>
                 Abandonner la modification
             </button>
         {/if}
@@ -160,13 +156,7 @@
         <div>
             <Label for="live-title" class="field-label">Titre</Label>
 
-            <Input
-                id="live-title"
-                bind:value={title}
-                type="text"
-                placeholder="Ce qui vient de se produire"
-                required
-            />
+            <Input id="live-title" bind:value={title} type="text" placeholder="Ce qui vient de se produire" required />
         </div>
 
         <div>
@@ -207,9 +197,10 @@
                                 label: `relative flex min-h-9 cursor-pointer items-center rounded-full px-2.5 text-xs
                                         font-medium transition has-[:focus-visible]:outline-2
                                         has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-500 ${
-                                    severity === config.id
-                                        ? `${ config.badge } ring-accent-500 ring-2 ring-offset-1`
-                                        : "bg-paper-100 text-ink-500 dark:bg-ink-800 dark:text-paper-300" }`
+                                            severity === config.id
+                                                ? `${ config.badge } ring-accent-500 ring-2 ring-offset-1`
+                                                : "bg-paper-100 text-ink-500 dark:bg-ink-800 dark:text-paper-300"
+                                        }`
                             }}
                         >
                             {config.label}
@@ -221,13 +212,7 @@
             <div>
                 <Label for="live-date" class="field-label">Horodatage</Label>
 
-                <Input
-                    id="live-date"
-                    bind:value={publishedAt}
-                    type="datetime-local"
-                    size="sm"
-                    class={SMALL_FIELD}
-                />
+                <Input id="live-date" bind:value={publishedAt} type="datetime-local" size="sm" class={SMALL_FIELD} />
             </div>
 
             <div>
