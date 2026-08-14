@@ -19,8 +19,6 @@
     import EmptyState from "$lib/components/EmptyState.svelte";
     import Infobox from "$lib/components/Infobox.svelte";
     import TableOfContents from "$lib/components/TableOfContents.svelte";
-    import TypeBadge from "$lib/components/TypeBadge.svelte";
-    import { entryTypeConfig } from "$lib/config/entry-types";
     import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Category } from "$lib/types";
@@ -70,7 +68,7 @@
                         <ChevronRight class="text-muted mx-1 h-4 w-4" />
                     {/snippet}
 
-                    {entryTypeConfig( entry.type ).plural}
+                    {entry.title}
                 </BreadcrumbItem>
             </Breadcrumb>
 
@@ -99,8 +97,6 @@
             {/if}
 
             <div class="mt-6 flex flex-wrap items-center gap-2">
-                <TypeBadge type={entry.type} />
-
                 {#each categories as category ( category.slug )}
                     <CategoryChip {category} />
                 {/each}
@@ -129,8 +125,6 @@
                                     style="--rank: {staggerRank( index )}"
                                 >
                                     <div class="flex items-center gap-2">
-                                        <TypeBadge type={item.type} iconOnly />
-
                                         <a
                                             href={resolve( `/wiki/${ item.slug }` )}
                                             class="stretched-link text-sm font-medium"

@@ -19,7 +19,7 @@ test.describe( "article page", () =>
         await expect( page ).toHaveTitle( `${ PAGES.athena.title } · ${ UNIVERSE }` );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( PAGES.athena.title );
         await expect( page.getByText( "Navigatrice en chef de l’archipel" ) ).toBeVisible();
-        await expect( page.getByRole( "navigation", { name: "Fil d'Ariane" } ) ).toContainText( "Personnages" );
+        await expect( page.getByRole( "navigation", { name: "Fil d'Ariane" } ) ).toContainText( PAGES.athena.title );
 
         const infobox = page.getByRole( "complementary", { name: "Fiche signalétique" } );
 

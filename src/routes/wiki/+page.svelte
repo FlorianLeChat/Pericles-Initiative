@@ -20,7 +20,6 @@
 
     let filters = $state<EntryFilterState>( {
         query: "",
-        type: "tous",
         category: "toutes",
         status: "tous",
         sort: "alphabetique"
@@ -32,10 +31,6 @@
     {
         const matching = wiki.entries.filter( ( entry ) =>
         {
-            if ( filters.type !== "tous" && entry.type !== filters.type )
-            {
-                return false;
-            }
             if ( filters.status !== "tous" && entry.status !== filters.status )
             {
                 return false;
@@ -71,7 +66,6 @@
     const reset = (): void =>
     {
         filters.query = "";
-        filters.type = "tous";
         filters.category = "toutes";
         filters.status = "tous";
     };
@@ -86,8 +80,8 @@
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <PageHeader title="Encyclopédie">
         {#snippet description()}
-            {wiki.entries.length} fiches, dont {wiki.drafts.length} en brouillon. Filtrez par nature, par catégorie ou par
-            mot clé.
+            {wiki.entries.length} fiches, dont {wiki.drafts.length} en brouillon. Filtrez par catégorie, par statut ou
+            par mot clé.
         {/snippet}
 
         {#snippet action()}

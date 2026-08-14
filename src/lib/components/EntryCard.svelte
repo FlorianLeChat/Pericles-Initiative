@@ -6,10 +6,11 @@
      */
     import { resolve } from "$app/paths";
     import { staggerRank } from "$lib/config/motion";
+    import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry } from "$lib/types";
     import { formatShortDate } from "$lib/utilities/date";
     import { excerpt } from "$lib/utilities/markdown";
-    import TypeBadge from "./TypeBadge.svelte";
+    import CategoryChip from "./CategoryChip.svelte";
 
     interface Props {
         entry: Entry;
@@ -22,6 +23,9 @@
     let { entry, dense = false, index = 0 }: Props = $props();
 
     const lead = $derived( entry.summary || excerpt( entry.body, 150 ) );
+    const categories = $derived(
+        entry.categories.map( ( slug ) => wiki.categoriesBySlug.get( slug ) ).filter( ( category ) => category !== undefined )
+    );
 </script>
 
 <article
@@ -29,7 +33,9 @@
     style="--rank: {staggerRank( index )}"
 >
     <div class="flex flex-wrap items-center gap-2">
-        <TypeBadge type={entry.type} />
+        {#each categories as category ( category.slug )}
+            <CategoryChip {category} />
+        {/each}
 
         {#if entry.status === "brouillon"}
             <span

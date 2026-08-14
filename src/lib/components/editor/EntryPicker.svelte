@@ -14,7 +14,6 @@
      */
     import Input from "flowbite-svelte/Input.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
-    import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
     import { wiki } from "$lib/state/wiki.svelte";
     import { searchEntries } from "$lib/utilities/search";
@@ -130,8 +129,6 @@
                                px-3 py-2.5 text-left transition"
                         onclick={() => choose( hit.entry.slug, hit.entry.title )}
                     >
-                        <TypeBadge type={hit.entry.type} iconOnly />
-
                         <span class="min-w-0 flex-1">
                             <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
 

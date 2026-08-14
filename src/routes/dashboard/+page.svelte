@@ -10,7 +10,6 @@
     import BarChart from "$lib/components/dashboard/BarChart.svelte";
     import StatCard from "$lib/components/dashboard/StatCard.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
-    import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import { formatShortDate } from "$lib/utilities/date";
     import { plural } from "$lib/utilities/plural";
@@ -58,27 +57,17 @@
         <StatCard label="Fil en direct" value={stats.liveItems} hint="entrées publiées" index={3} />
     </div>
 
-    <div class="mt-10 grid items-start gap-6 lg:grid-cols-2">
-        <section class="surface p-6">
-            <h2 class="font-serif text-xl font-semibold tracking-tight">Par nature</h2>
+    <section class="surface mt-10 p-6">
+        <h2 class="font-serif text-xl font-semibold tracking-tight">Par catégorie</h2>
 
-            <div class="mt-5">
-                <BarChart items={stats.byType} />
-            </div>
-        </section>
-
-        <section class="surface p-6">
-            <h2 class="font-serif text-xl font-semibold tracking-tight">Par catégorie</h2>
-
-            <div class="mt-5">
-                {#if stats.byCategory.length === 0}
-                    <p class="text-muted text-sm">Aucune catégorie déclarée.</p>
-                {:else}
-                    <BarChart items={stats.byCategory} href={( item ) => `/categories/${ item.key }`} />
-                {/if}
-            </div>
-        </section>
-    </div>
+        <div class="mt-5">
+            {#if stats.byCategory.length === 0}
+                <p class="text-muted text-sm">Aucune catégorie déclarée.</p>
+            {:else}
+                <BarChart items={stats.byCategory} href={( item ) => `/categories/${ item.key }`} />
+            {/if}
+        </div>
+    </section>
 
     <section class="surface mt-6 p-6">
         <h2 class="font-serif text-xl font-semibold tracking-tight">Activité d'édition</h2>
@@ -100,8 +89,6 @@
                 <ul class="mt-5 space-y-2.5 text-sm">
                     {#each stats.mostLinked as item ( item.entry.id )}
                         <li class="flex items-center gap-2">
-                            <TypeBadge type={item.entry.type} iconOnly />
-
                             <a href={resolve( `/wiki/${ item.entry.slug }` )} class="wiki-link min-w-0 flex-1 truncate">
                                 {item.entry.title}
                             </a>
@@ -195,8 +182,6 @@
             <ul class="mt-5 space-y-2.5 text-sm">
                 {#each recent as entry ( entry.id )}
                     <li class="flex items-center gap-2">
-                        <TypeBadge type={entry.type} iconOnly />
-
                         <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link min-w-0 flex-1 truncate"
                             >{entry.title}</a
                         >

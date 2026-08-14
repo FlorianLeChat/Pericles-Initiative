@@ -10,7 +10,6 @@
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
     import SeverityBadge from "$lib/components/live/SeverityBadge.svelte";
-    import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { ACTION_ROW } from "$lib/config/forms";
     import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -24,6 +23,12 @@
 
     const headline = $derived( featured[ 0 ] );
     const secondary = $derived( featured.slice( 1, 3 ) );
+
+    const headlineCategories = $derived(
+        ( headline?.categories ?? [] )
+            .map( ( slug ) => wiki.categoriesBySlug.get( slug ) )
+            .filter( ( category ) => category !== undefined )
+    );
 
     const latest = $derived( wiki.recentlyUpdated.filter( ( entry ) => entry.status === "publie" ).slice( 0, 6 ) );
 
@@ -112,7 +117,13 @@
                 {/if}
 
                 <div class="space-y-4 p-6 sm:p-8">
-                    <TypeBadge type={headline.type} />
+                    {#if headlineCategories.length > 0}
+                        <div class="flex flex-wrap items-center gap-2">
+                            {#each headlineCategories as category ( category.slug )}
+                                <CategoryChip {category} />
+                            {/each}
+                        </div>
+                    {/if}
 
                     <h3 class="font-serif text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
                         <a

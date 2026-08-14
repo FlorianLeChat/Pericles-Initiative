@@ -79,7 +79,6 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-athena",
         slug: "athena-vance",
         title: "Athéna Vance",
-        type: "personnage",
         summary: "Navigatrice en chef de l’archipel, première signataire du traité des marées.",
         body: [
             "## Origines",
@@ -113,7 +112,6 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-port",
         slug: "port-meridien",
         title: "Port Méridien",
-        type: "lieu",
         summary: "La plus ancienne des cités flottantes, amarrée sur le seuil du détroit.",
         body: [
             "## Le seuil",
@@ -135,7 +133,6 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-traite",
         slug: "traite-des-marees",
         title: "Traité des marées",
-        type: "evenement",
         summary: "L’accord qui répartit les routes navigables entre les cités.",
         body: [
             "## Signature",
@@ -155,7 +152,6 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-bureau",
         slug: "bureau-des-courants",
         title: "Bureau des courants",
-        type: "organisation",
         summary: "L’administration qui relève les courants et délivre les autorisations d’amarrage.",
         body: [
             "## Mandat",
@@ -175,7 +171,6 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-sceau",
         slug: "sceau-de-vitre",
         title: "Sceau de vitre",
-        type: "objet",
         summary: "",
         body: "Un disque de verre coulé, apposé sur les actes que le bureau reconnaît.\n",
         categories: [],
@@ -190,7 +185,6 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-doctrine",
         slug: "doctrine-du-reflux",
         title: "Doctrine du reflux",
-        type: "concept",
         summary: "L’idée qu’une cité doit pouvoir se défaire aussi vite qu’elle s’est nouée.",
         body: [
             "## Principe",

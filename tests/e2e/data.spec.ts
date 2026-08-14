@@ -33,7 +33,6 @@ const IMPORTED: Dataset = {
             id: "imported-vigie",
             slug: "vigie-du-nord",
             title: "Vigie du nord",
-            type: "lieu",
             summary: "La tour qui surveille le seuil.",
             body: "Une tour, un fanal, deux gardiens.\n",
             categories: [],

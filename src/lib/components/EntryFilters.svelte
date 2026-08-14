@@ -4,9 +4,9 @@
      *
      * The panel is laid out around what a phone can show. The field stays on
      * screen, since typing a title is what a reader reaches for first, while the
-     * pills and the three menus fold behind a «Filtres» button that carries the
-     * number of filters currently narrowing the listing. Everything was on screen
-     * at once before, which cost half the viewport before a single card appeared.
+     * three menus fold behind a «Filtres» button that carries the number of
+     * filters currently narrowing the listing. Everything was on screen at once
+     * before, which cost half the viewport before a single card appeared.
      *
      * That folding is CSS, not a viewport read: the region is `hidden sm:block`
      * and the button `sm:hidden`, so the markup is the same one the server
@@ -20,13 +20,10 @@
     import SlidersHorizontal from "@lucide/svelte/icons/sliders-horizontal";
     import Button from "flowbite-svelte/Button.svelte";
     import Label from "flowbite-svelte/Label.svelte";
-    import Radio from "flowbite-svelte/Radio.svelte";
     import Search from "flowbite-svelte/Search.svelte";
     import Select from "flowbite-svelte/Select.svelte";
-    import { ENTRY_TYPES } from "$lib/config/entry-types";
-    import { filterPill, RADIO_OVERLAY } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
-    import type { EntryFilterState, EntryType } from "$lib/types";
+    import type { EntryFilterState } from "$lib/types";
     import { counted } from "$lib/utilities/plural";
 
     interface Props {
@@ -43,19 +40,6 @@
 
     const total = $derived( wiki.entries.length );
 
-    /** Pages of each nature, counted in one pass rather than one per pill. */
-    const countByType = $derived.by( () =>
-    {
-        const counts: Partial<Record<EntryType, number>> = {};
-
-        for ( const entry of wiki.entries )
-        {
-            counts[ entry.type ] = ( counts[ entry.type ] ?? 0 ) + 1;
-        }
-
-        return counts;
-    } );
-
     /**
      * How many filters are narrowing the listing.
      *
@@ -66,7 +50,6 @@
     const active = $derived(
         [
             filters.query.trim().length > 0,
-            filters.type !== "tous",
             filters.category !== "toutes",
             filters.status !== "tous"
         ].filter( ( on ) => on ).length
@@ -103,38 +86,6 @@
     </Button>
 
     <div id="filtres-fiches" class="mt-4 space-y-4 {expanded ? "block" : "hidden"} sm:block">
-        <fieldset>
-            <legend class="field-label">Nature</legend>
-
-            <div class="flex flex-wrap gap-2">
-                <Radio
-                    name="filtre-nature"
-                    value="tous"
-                    bind:group={filters.type}
-                    class={RADIO_OVERLAY}
-                    classes={{ label: filterPill( filters.type === "tous" ) }}
-                >
-                    Toutes natures
-
-                    <span class="font-mono">{total}</span>
-                </Radio>
-
-                {#each ENTRY_TYPES as config ( config.id )}
-                    <Radio
-                        name="filtre-nature"
-                        value={config.id}
-                        bind:group={filters.type}
-                        class={RADIO_OVERLAY}
-                        classes={{ label: filterPill( filters.type === config.id ) }}
-                    >
-                        {config.plural}
-
-                        <span class="font-mono">{countByType[ config.id ] ?? 0}</span>
-                    </Radio>
-                {/each}
-            </div>
-        </fieldset>
-
         <div class="grid gap-3 sm:grid-cols-3 sm:gap-4">
             <div>
                 <Label for="filtre-categorie" class="field-label">Catégorie</Label>

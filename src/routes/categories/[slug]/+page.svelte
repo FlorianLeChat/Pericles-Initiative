@@ -1,6 +1,6 @@
 <script lang="ts">
     /**
-     * Every page of one category, grouped by nature.
+     * Every page of one category.
      *
      * @author Claude
      */
@@ -12,7 +12,6 @@
     import { page } from "$app/state";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
-    import { ENTRY_TYPES } from "$lib/config/entry-types";
     import { paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
     import { plural } from "$lib/utilities/plural";
@@ -21,13 +20,6 @@
     const category = $derived( wiki.categoriesBySlug.get( slug ) );
     const color = $derived( paletteColor( category?.color ) );
     const entries = $derived( wiki.entriesInCategory( slug, true ) );
-
-    const groups = $derived(
-        ENTRY_TYPES.map( ( config ) => ( {
-            config,
-            entries: entries.filter( ( entry ) => entry.type === config.id )
-        } ) ).filter( ( group ) => group.entries.length > 0 )
-    );
 </script>
 
 <svelte:head>
@@ -75,24 +67,18 @@
             {/if}
         </header>
 
-        {#if groups.length === 0}
+        {#if entries.length === 0}
             <div class="mt-10">
                 <EmptyState title="Catégorie vide" description="Aucune fiche ne se rattache encore à cette catégorie.">
                     <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
                 </EmptyState>
             </div>
         {:else}
-            {#each groups as group ( group.config.id )}
-                <section class="mt-10">
-                    <h2 class="text-muted text-xs tracking-[0.15em] uppercase">{group.config.plural}</h2>
-
-                    <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                        {#each group.entries as entry, index ( entry.id )}
-                            <EntryCard {entry} {index} />
-                        {/each}
-                    </div>
-                </section>
-            {/each}
+            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {#each entries as entry, index ( entry.id )}
+                    <EntryCard {entry} {index} />
+                {/each}
+            </div>
         {/if}
     {:else}
         <div class="mt-10">

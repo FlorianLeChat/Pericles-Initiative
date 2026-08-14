@@ -8,7 +8,6 @@
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
-    import TypeBadge from "$lib/components/TypeBadge.svelte";
     import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry } from "$lib/types";
@@ -94,8 +93,6 @@
                                             {entry.title}
                                         </a>
                                     </h3>
-
-                                    <TypeBadge type={entry.type} />
                                 </div>
 
                                 <p class="text-ink-500 dark:text-paper-300/80 mt-2 max-w-2xl text-sm leading-relaxed">

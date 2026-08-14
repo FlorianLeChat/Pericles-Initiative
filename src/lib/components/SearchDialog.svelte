@@ -32,7 +32,6 @@
     import { wiki } from "$lib/state/wiki.svelte";
     import { counted } from "$lib/utilities/plural";
     import { searchEntries } from "$lib/utilities/search";
-    import TypeBadge from "./TypeBadge.svelte";
 
     interface Props {
         open: boolean;
@@ -204,8 +203,6 @@
                     onclick={() => openEntry( hit.entry.slug )}
                     onmouseenter={() => ( selected = index )}
                 >
-                    <TypeBadge type={hit.entry.type} iconOnly />
-
                     <span class="min-w-0 flex-1">
                         <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
 

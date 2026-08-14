@@ -7,8 +7,7 @@
  * @author Claude
  */
 
-import { ENTRY_TYPES } from "$lib/config/entry-types";
-import type { Category, Entry, EntryType, LiveEntry } from "$lib/types";
+import type { Category, Entry, LiveEntry } from "$lib/types";
 import { countWords } from "./markdown";
 
 export interface CountByKey {
@@ -43,7 +42,6 @@ export interface WikiStats {
     liveItems: number;
     words: number;
     averageWords: number;
-    byType: CountByKey[];
     byCategory: CountByKey[];
     /** Pages no other page links to. */
     orphans: Entry[];
@@ -120,11 +118,10 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
 
     const published = entries.filter( ( entry ) => entry.status === "publie" );
 
-    // One pass over the corpus feeds the word total, the two breakdowns and the
-    // short page check, instead of rescanning it once per type, per category and
-    // twice per page for the word count.
+    // One pass over the corpus feeds the word total, the category breakdown and
+    // the short page check, instead of rescanning it once per category and twice
+    // per page for the word count.
     const wordsByEntry = new Map<Entry, number>();
-    const countsByType = new Map<string, number>();
     const countsByCategory = new Map<string, number>();
     let words = 0;
 
@@ -134,19 +131,11 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
         wordsByEntry.set( entry, entryWords );
         words += entryWords;
 
-        countsByType.set( entry.type, ( countsByType.get( entry.type ) ?? 0 ) + 1 );
-
         for ( const category of entry.categories )
         {
             countsByCategory.set( category, ( countsByCategory.get( category ) ?? 0 ) + 1 );
         }
     }
-
-    const byType: CountByKey[] = ENTRY_TYPES.map( ( config ) => ( {
-        key: config.id,
-        label: config.plural,
-        count: countsByType.get( config.id as EntryType ) ?? 0
-    } ) ).sort( ( a, b ) => b.count - a.count );
 
     const byCategory: CountByKey[] = categories
         .map( ( category ) => ( {
@@ -201,7 +190,6 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
         liveItems: live.length,
         words,
         averageWords: entries.length > 0 ? Math.round( words / entries.length ) : 0,
-        byType,
         byCategory,
         orphans,
         deadEnds,

@@ -8,9 +8,6 @@
  * @author Claude
  */
 
-/** The kind of subject a page documents. Drives badges, filters and icons. */
-export type EntryType = "personnage" | "lieu" | "evenement" | "organisation" | "objet" | "concept";
-
 /** Publication state of a page. Drafts stay out of public listings. */
 export type EntryStatus = "brouillon" | "publie";
 
@@ -37,7 +34,6 @@ export interface Entry {
     /** Unique url segment, used as `/wiki/{slug}`. */
     slug: string;
     title: string;
-    type: EntryType;
     /** Plain text lead paragraph, reused in listings and meta descriptions. */
     summary: string;
     /** Article body, stored as Markdown. */
@@ -213,7 +209,6 @@ export type EntrySort = "alphabetique" | "recent" | "chronologique";
  */
 export interface EntryFilterState {
     query: string;
-    type: EntryType | "tous";
     category: string;
     status: EntryStatus | "tous";
     sort: EntrySort;

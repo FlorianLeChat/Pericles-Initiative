@@ -18,15 +18,15 @@
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { PAIRED_ACTION } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
-    import type { Entry, EntryStatus, EntryType, InfoboxField } from "$lib/types";
+    import type { Entry, EntryStatus, InfoboxField } from "$lib/types";
     import { counted } from "$lib/utilities/plural";
     import { slugify } from "$lib/utilities/slug";
     import ChipsInput from "./ChipsInput.svelte";
     import EntryImageFields from "./EntryImageFields.svelte";
-    import EntryTypeAndStatus from "./EntryTypeAndStatus.svelte";
     import InfoboxEditor from "./InfoboxEditor.svelte";
     import MarkdownEditor from "./MarkdownEditor.svelte";
     import OptionPanel from "./OptionPanel.svelte";
+    import StatusPicker from "./StatusPicker.svelte";
 
     interface Props {
         /** Page being edited, absent when creating one. */
@@ -46,7 +46,6 @@
     const initial = untrack( () => ( {
         title: entry?.title ?? initialTitle,
         slug: entry?.slug ?? initialSlug,
-        type: entry?.type ?? ( "personnage" as EntryType ),
         summary: entry?.summary ?? "",
         body: entry?.body ?? "",
         categories: [ ...( entry?.categories ?? [] ) ],
@@ -63,7 +62,6 @@
 
     let title = $state( initial.title );
     let slug = $state( initial.slug );
-    let type = $state<EntryType>( initial.type );
     let summary = $state( initial.summary );
     let body = $state( initial.body );
     let categories = $state<string[]>( initial.categories );
@@ -89,7 +87,6 @@
         JSON.stringify( {
             title,
             slug,
-            type,
             summary,
             body,
             categories,
@@ -191,7 +188,6 @@
             createdAt: entry?.createdAt,
             title: title.trim(),
             slug: slug.trim() || slugify( title ),
-            type,
             summary: summary.trim(),
             body,
             categories: [ ...categories ],
@@ -376,7 +372,7 @@
 
         <aside>
             <Accordion multiple flush class="surface overflow-hidden">
-                <EntryTypeAndStatus bind:type bind:status />
+                <StatusPicker bind:status />
 
                 <OptionPanel label="Catégories" value={categoriesSummary}>
                     {#if wiki.categories.length === 0}

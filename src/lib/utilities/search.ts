@@ -27,7 +27,6 @@ const WEIGHTS = {
     alias: 35,
     summary: 18,
     category: 10,
-    type: 8,
     body: 5
 };
 
@@ -37,7 +36,6 @@ interface SearchableEntry {
     aliases: string[];
     summary: string;
     categories: string[];
-    type: string;
     body: string;
 }
 
@@ -73,7 +71,6 @@ const toSearchable = ( entry: Entry ): SearchableEntry =>
         aliases: entry.aliases.map( deburr ),
         summary: deburr( entry.summary ),
         categories: entry.categories.map( deburr ),
-        type: deburr( entry.type ),
         body: deburr( markdownToPlainText( entry.body ) )
     };
 
@@ -127,10 +124,6 @@ const scoreTerm = ( entry: SearchableEntry, term: string ): number =>
     if ( entry.categories.some( ( category ) => category.includes( term ) ) )
     {
         score += WEIGHTS.category;
-    }
-    if ( entry.type.includes( term ) )
-    {
-        score += WEIGHTS.type;
     }
     if ( entry.body.includes( term ) )
     {

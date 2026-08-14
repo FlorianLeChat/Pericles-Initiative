@@ -24,7 +24,7 @@ test.describe( "categories", () =>
         await expect( page ).toHaveURL( /\/categories\/manage$/ );
     } );
 
-    test( "counts the pages of a category, then groups them by nature", async ( { page, wiki } ) =>
+    test( "counts and lists the pages of a category", async ( { page, wiki } ) =>
     {
         await wiki.open( "/categories" );
 
@@ -37,8 +37,6 @@ test.describe( "categories", () =>
 
         await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }$` ) );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( CATEGORIES.institutions.name );
-        await expect( page.getByRole( "heading", { level: 2 } ) )
-            .toHaveText( [ "Personnages", "Événements", "Organisations" ] );
         await expect( page.getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
     } );
 

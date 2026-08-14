@@ -69,7 +69,7 @@ test.describe( "encyclopedia index", () =>
         await expect( page.getByText( "Brouillon", { exact: true } ) ).toBeVisible();
     } );
 
-    test( "filters by keyword, by nature, by category and by status", async ( { page, wiki } ) =>
+    test( "filters by keyword, by category and by status", async ( { page, wiki } ) =>
     {
         await wiki.open( "/wiki" );
         await page.getByLabel( "Filtrer les fiches" ).fill( "athena" );
@@ -79,12 +79,6 @@ test.describe( "encyclopedia index", () =>
 
         await page.getByLabel( "Filtrer les fiches" ).fill( "" );
         await showFilters( page );
-        await page.getByRole( "radio", { name: /^Lieux/ } ).check();
-
-        await expect( cards( page ) ).toHaveCount( 1 );
-        await expect( page.getByRole( "link", { name: PAGES.port.title } ) ).toBeVisible();
-
-        await page.getByRole( "radio", { name: /^Toutes natures/ } ).check();
         await page.getByLabel( "Catégorie" ).selectOption( CATEGORIES.institutions.slug );
 
         await expect( cards( page ) ).toHaveCount( COUNTS.institutions );

@@ -54,8 +54,6 @@ test.describe( "dashboard", () =>
         await expect( figure( page, "Catégories" ) ).toContainText( String( COUNTS.categories ) );
         await expect( figure( page, "Fil en direct" ) ).toContainText( String( COUNTS.live ) );
 
-        await expect( panel( page, "Par nature" ) ).toContainText( "Personnages" );
-
         await panel( page, "Par catégorie" ).getByRole( "link", { name: CATEGORIES.institutions.name } ).click();
 
         await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }$` ) );

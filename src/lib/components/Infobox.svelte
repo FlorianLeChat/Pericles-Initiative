@@ -8,7 +8,6 @@
     import type { Entry } from "$lib/types";
     import { formatUniverseDate } from "$lib/utilities/date";
     import CategoryChip from "./CategoryChip.svelte";
-    import TypeBadge from "./TypeBadge.svelte";
 
     interface Props {
         entry: Entry;
@@ -35,10 +34,6 @@
     {/if}
 
     <div class="space-y-4 p-5">
-        <div class="flex flex-wrap items-center gap-2">
-            <TypeBadge type={entry.type} />
-        </div>
-
         <p class="font-serif text-lg leading-snug font-semibold">{entry.title}</p>
 
         {#if entry.timelineDate}

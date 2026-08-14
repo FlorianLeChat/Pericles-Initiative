@@ -6,7 +6,6 @@
      */
     import { resolve } from "$app/paths";
     import type { Entry } from "$lib/types";
-    import TypeBadge from "./TypeBadge.svelte";
 
     interface Props {
         entries: Entry[];
@@ -30,8 +29,6 @@
         <ul class="space-y-2.5 text-sm">
             {#each entries as entry ( entry.id )}
                 <li class="flex items-center gap-2">
-                    <TypeBadge type={entry.type} iconOnly />
-
                     <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link">{entry.title}</a>
                 </li>
             {/each}

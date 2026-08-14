@@ -33,8 +33,7 @@
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <PageHeader title="Catégories">
         {#snippet description()}
-            Chaque fiche peut appartenir à plusieurs catégories. Elles regroupent par thème ce que la nature des fiches
-            sépare par forme.
+            Chaque fiche peut appartenir à plusieurs catégories, qui regroupent par thème ce que le corpus documente.
         {/snippet}
 
         {#snippet action()}

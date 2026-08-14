@@ -7,9 +7,9 @@
 /**
  * Class stretching a Flowbite `Radio` over the pill that labels it.
  *
- * Every single choice on this site, the nature of a page, its status, a severity,
- * a colour, reads as a row of pills rather than as a column of dots, so the radio
- * is invisible and the label carries the appearance. Left where Flowbite puts it,
+ * Every single choice on this site, a status, a severity, a colour, reads as a
+ * row of pills rather than as a column of dots, so the radio is invisible and
+ * the label carries the appearance. Left where Flowbite puts it,
  * the control would be a sixteen pixel square in the corner of the pill, and only
  * that square would answer a click; stretched, the whole pill does.
  *
@@ -39,9 +39,8 @@ const PILL_OFFERED = "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-
 /**
  * Appearance of one pill of a filter row, chosen or not.
  *
- * The nature of a page and the gravity of a live entry are the same control on
- * two sections, and were the same class written out twice, so a change to one row
- * left the other behind. Only the label of the pill differs.
+ * Kept apart from the class it wraps so a filter row gains a new pill, the
+ * gravity of a live entry today, without writing the same class out again.
  *
  * @param chosen True when the pill carries the selected value.
  * @returns Classes for the label wrapping the radio.

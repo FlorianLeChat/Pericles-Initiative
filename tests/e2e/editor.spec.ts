@@ -35,11 +35,7 @@ test.describe( "entry editor", () =>
 
         // The options of the form arrive folded, and a folded group renders none
         // of its controls, so each one is unfolded by its header before being
-        // reached. The header carries the value of the group after its name,
-        // «Nature Personnage», which is why this matches on the name alone.
-        await page.getByRole( "button", { name: "Nature" } ).click();
-        await page.getByRole( "radio", { name: "Lieu", exact: true } ).check();
-
+        // reached.
         await page.getByRole( "button", { name: "Catégories" } ).click();
         await page.getByRole( "checkbox", { name: CATEGORIES.sites.name } ).check();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
@@ -49,7 +45,6 @@ test.describe( "entry editor", () =>
 
         const stored = await wiki.storedEntry( "digue-de-sainte-roque" );
 
-        expect( stored?.type ).toBe( "lieu" );
         expect( stored?.categories ).toEqual( [ CATEGORIES.sites.slug ] );
 
         // A cold start reads the page back out of storage, which is the whole point.

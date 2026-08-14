@@ -9,7 +9,6 @@
  */
 
 import { ACCENT_KEYS, DEFAULT_ACCENT } from "$lib/config/accents";
-import { isEntryType } from "$lib/config/entry-types";
 import { PALETTE_KEYS } from "$lib/config/palette";
 import { SEVERITY_IDS } from "$lib/config/severities";
 import type { Category,
@@ -157,7 +156,6 @@ export const normalizeEntry = ( value: unknown ): Entry =>
         id: asTrimmed( raw.id ) || createId(),
         slug: slugify( asTrimmed( raw.slug ) || title ),
         title,
-        type: isEntryType( raw.type ) ? raw.type : "concept",
         summary: asTrimmed( raw.summary ),
         body: asString( raw.body ),
         categories: [ ...new Set( asStringArray( raw.categories ).map( slugify ) ) ],
