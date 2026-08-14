@@ -706,6 +706,26 @@
 }
 
 /*
+ * The header is sticky and shows the same content across a navigation, so it
+ * has no business fading or sliding along with the root snapshot above. Every
+ * element defaults to `view-transition-name: none`, which does not opt it out
+ * of anything: it just leaves it captured as part of the `root` group, so it
+ * inherits `page-leave` and `page-enter` like the rest of the page underneath
+ * it. Naming it pulls it into a group of its own, and the rule below empties
+ * that group's own animation, so it simply stays put while the page crossfades
+ * behind it.
+ */
+header {
+    view-transition-name: site-header;
+}
+
+::view-transition-group(site-header),
+::view-transition-old(site-header),
+::view-transition-new(site-header) {
+    animation: none;
+}
+
+/*
  * Native dialogs.
  *
  * Every dialog on the site is a Flowbite `Modal`, which is a real `<dialog>`

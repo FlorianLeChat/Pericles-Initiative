@@ -25,12 +25,17 @@
      * the dividers are taste, matching the surfaces and the menus the site had
      * before.
      *
+     * `triggerDelay` and `transitionParams` are both forced to zero. Flowbite's
+     * `Popper` debounces every open and close by `triggerDelay`, two hundred
+     * milliseconds by default, so a click felt like it needed a second one, and
+     * fades the panel in and out on top of that. A settings menu is not read
+     * while it moves, so both are switched off rather than shortened.
+     *
      * @author Claude
      */
     import Settings2 from "@lucide/svelte/icons/settings-2";
     import Dropdown from "flowbite-svelte/Dropdown.svelte";
     import { resolve } from "$app/paths";
-    import { motionDuration } from "$lib/config/motion";
     import type { NavLink } from "$lib/config/navigation";
 
     interface Props {
@@ -60,7 +65,8 @@
         bind:isOpen={open}
         role="menu"
         placement="bottom-end"
-        transitionParams={{ duration: motionDuration( 180 ) }}
+        triggerDelay={0}
+        transitionParams={{ duration: 0 }}
         class="surface text-ink-800 dark:text-paper-200 z-50 w-52 divide-y-0 rounded-2xl p-1.5"
     >
         {#each links as link ( link.href )}
