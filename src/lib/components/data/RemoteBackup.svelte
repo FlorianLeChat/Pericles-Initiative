@@ -376,8 +376,9 @@
             </dl>
 
             <Button
-                color="alternative"
-                class="hover:text-alert-500 mt-5 border-0 {ACTION_BUTTON}"
+                color="red"
+                outline
+                class="mt-5 {ACTION_BUTTON}"
                 onclick={() => ( forgetOpen = true )}
             >
                 Oublier ce serveur
@@ -418,7 +419,7 @@
 <ConfirmDialog
     bind:open={forgetOpen}
     title="Oublier ce serveur ?"
-    message="L'adresse et le mot de passe seront oubliés. Vos pages, elles, ne bougent pas."
+    message="Vous devrez ressaisir l'adresse et le mot de passe pour vous reconnecter à ce serveur. Vos pages ne sont pas affectées par cette opération."
     confirmLabel="Oublier"
     onconfirm={() =>
     {
