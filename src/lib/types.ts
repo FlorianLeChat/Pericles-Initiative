@@ -89,6 +89,8 @@ export interface WikiMeta {
     description: string;
     /** Path under `/media/` or absolute url. Empty falls back to a monogram. */
     logo: string;
+    /** Key of an accent, see `src/lib/config/accents.ts`. */
+    accent: string;
     /** Slugs highlighted on the home page. */
     featured: string[];
 }

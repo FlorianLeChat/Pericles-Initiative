@@ -85,6 +85,20 @@
         wiki.loadOverlay();
     } );
 
+    /*
+     * Paints the site in the accent chosen in the settings.
+     *
+     * The key is written on the root element rather than resolved into colours
+     * here: `app.css` holds the six ramps, so this stays out of the way of the
+     * dark theme, which retouches a stop of its own. Running in an effect is what
+     * keeps the prerendered HTML free of overlay data, at the cost of a first
+     * paint in the default accent, the same moment where the wiki is still empty.
+     */
+    $effect( () =>
+    {
+        document.documentElement.dataset.accent = wiki.meta.accent;
+    } );
+
     /**
      * Opens the search palette on Ctrl+K or Cmd+K.
      *

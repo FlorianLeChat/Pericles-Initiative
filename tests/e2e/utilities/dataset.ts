@@ -13,6 +13,7 @@
  * @author Claude
  */
 
+import { DEFAULT_ACCENT } from "$lib/config/accents";
 import type { Category, Dataset, Entry, LiveEntry, Overlay } from "$lib/types";
 
 export const UNIVERSE = "Périclès";
@@ -317,6 +318,7 @@ export const sampleDataset = (): Dataset => ( {
         tagline: TAGLINE,
         description: DESCRIPTION,
         logo: "",
+        accent: DEFAULT_ACCENT,
         featured: [ PAGES.athena.slug, PAGES.port.slug, PAGES.traite.slug ]
     },
     categories: structuredClone( CATEGORY_LIST ),

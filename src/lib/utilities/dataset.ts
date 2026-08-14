@@ -8,6 +8,7 @@
  * @author Claude
  */
 
+import { ACCENT_KEYS, DEFAULT_ACCENT } from "$lib/config/accents";
 import { isEntryType } from "$lib/config/entry-types";
 import { PALETTE_KEYS } from "$lib/config/palette";
 import { SEVERITY_IDS } from "$lib/config/severities";
@@ -240,12 +241,14 @@ export const normalizeLiveEntry = ( value: unknown ): LiveEntry =>
 export const normalizeMeta = ( value: unknown ): WikiMeta =>
 {
     const raw = asRecord( value );
+    const accent = asTrimmed( raw.accent );
 
     return {
         universe: asTrimmed( raw.universe ) || "Univers sans nom",
         tagline: asTrimmed( raw.tagline ),
         description: asTrimmed( raw.description ),
         logo: normalizeImageSource( raw.logo ),
+        accent: ACCENT_KEYS.includes( accent ) ? accent : DEFAULT_ACCENT,
         featured: [ ...new Set( asStringArray( raw.featured ).map( slugify ) ) ]
     };
 };
@@ -287,6 +290,13 @@ export const normalizeMetaPatch = ( value: unknown ): Partial<WikiMeta> | null =
     if ( "logo" in raw )
     {
         patch.logo = normalizeImageSource( raw.logo );
+    }
+
+    if ( "accent" in raw )
+    {
+        const accent = asTrimmed( raw.accent );
+
+        patch.accent = ACCENT_KEYS.includes( accent ) ? accent : DEFAULT_ACCENT;
     }
 
     if ( "featured" in raw )

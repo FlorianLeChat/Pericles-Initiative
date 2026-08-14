@@ -7,7 +7,8 @@
  * @author Claude
  */
 
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import { ACCENTS, DEFAULT_ACCENT, type Accent } from "$lib/config/accents";
 import { PAGES, UNIVERSE } from "./utilities/dataset";
 import { expect, isNarrow, test, waitForDrawer, type WikiHelper } from "./utilities/fixtures";
 
@@ -43,6 +44,19 @@ const openSettings = async ( page: Page, wiki: WikiHelper ): Promise<void> =>
 
     await expect( page ).toHaveURL( /\/settings$/ );
 };
+
+/**
+ * Reads the colour one pill of the accent picker is painted in.
+ *
+ * The radio is stretched over its pill and invisible, so the surface to measure is
+ * the label around it.
+ *
+ * @param radio Radio the pill wraps.
+ * @returns Computed background colour of the pill.
+ * @author Claude
+ */
+const tintOf = ( radio: Locator ): Promise<string> =>
+    radio.evaluate( ( input ) => getComputedStyle( input.closest( "label" ) as HTMLElement ).backgroundColor );
 
 test.describe( "settings", () =>
 {
@@ -95,6 +109,32 @@ test.describe( "settings", () =>
 
         await expect( highlight.getByRole( "heading", { name: PAGES.port.title } ) ).toBeVisible();
         await expect( highlight.getByRole( "heading", { name: PAGES.athena.title } ) ).toBeHidden();
+    } );
+
+    test( "repaints the whole site in the chosen colour, and remembers it", async ( { page, wiki } ) =>
+    {
+        await openSettings( page, wiki );
+
+        const chosen = ACCENTS.find( ( accent ) => accent.key !== DEFAULT_ACCENT ) as Accent;
+        const pill = ( accent: Accent ): Locator => page.getByRole( "radio", { name: accent.label } );
+
+        await expect( page.locator( "html" ) ).toHaveAttribute( "data-accent", DEFAULT_ACCENT );
+
+        const tints = await Promise.all( ACCENTS.map( ( accent ) => tintOf( pill( accent ) ) ) );
+
+        expect( new Set( tints ).size ).toBe( ACCENTS.length );
+
+        await pill( chosen ).check();
+        await expect( page.locator( "html" ) ).toHaveAttribute( "data-accent", DEFAULT_ACCENT );
+
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        await expect( page.locator( "html" ) ).toHaveAttribute( "data-accent", chosen.key );
+
+        await page.reload();
+
+        await expect( page.locator( "html" ) ).toHaveAttribute( "data-accent", chosen.key );
+        expect( ( await wiki.storedOverlay() )?.meta?.accent ).toBe( chosen.key );
     } );
 
     test( "goes back to the default identity once confirmed", async ( { page, wiki } ) =>

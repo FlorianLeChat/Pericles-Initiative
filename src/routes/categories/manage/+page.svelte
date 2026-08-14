@@ -16,7 +16,7 @@
     import { resolve } from "$app/paths";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
-    import { RADIO_OVERLAY } from "$lib/config/forms";
+    import { colorPill, RADIO_OVERLAY } from "$lib/config/forms";
     import { PALETTE, paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Category } from "$lib/types";
@@ -303,12 +303,7 @@
                             value={option.key}
                             bind:group={color}
                             class={RADIO_OVERLAY}
-                            classes={{
-                                label: `relative flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full px-2.5
-                                        text-xs ring-offset-1 transition has-[:focus-visible]:outline-2
-                                        has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-500
-                                        ${ option.chip } ${ color === option.key ? "ring-accent-500 ring-2" : "ring-0" }`
-                            }}
+                            classes={{ label: `${ colorPill( color === option.key ) } ${ option.chip }` }}
                         >
                             <span class="h-1.5 w-1.5 rounded-full {option.dot}"></span>
                             {option.label}

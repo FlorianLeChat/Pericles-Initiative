@@ -12,6 +12,7 @@
     import Helper from "flowbite-svelte/Helper.svelte";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
+    import Radio from "flowbite-svelte/Radio.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import { resolve } from "$app/paths";
     import { env } from "$env/dynamic/public";
@@ -19,11 +20,21 @@
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import FeaturedPagesEditor from "$lib/components/FeaturedPagesEditor.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
-    import { ACTION_ROW } from "$lib/config/forms";
+    import { ACCENTS } from "$lib/config/accents";
+    import { ACTION_ROW, colorPill, RADIO_OVERLAY } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
 
     /** Repository the application is built from, not part of the fiction. */
     const REPOSITORY_URL = "https://github.com/FlorianLeChat/Pericles-Initiative";
+
+    /**
+     * Tint of an accent pill.
+     *
+     * The stops are the accent's own, and every pill resolves them against the
+     * colour it offers rather than against the one the site currently wears, since
+     * each of them is nested in a `data-accent` of its own.
+     */
+    const ACCENT_TINT = "bg-accent-100 text-accent-700 dark:bg-accent-900/60 dark:text-accent-200";
 
     /** Seeded once: the form is a draft of the identity, applied on save. */
     const initial = untrack( () => ( {
@@ -31,6 +42,7 @@
         tagline: wiki.meta.tagline,
         description: wiki.meta.description,
         logo: wiki.meta.logo,
+        accent: wiki.meta.accent,
         featured: [ ...wiki.meta.featured ]
     } ) );
 
@@ -38,12 +50,13 @@
     let tagline = $state( initial.tagline );
     let description = $state( initial.description );
     let logo = $state( initial.logo );
+    let accent = $state( initial.accent );
     let featured = $state<string[]>( initial.featured );
 
     let resetOpen = $state( false );
     let saved = $state( false );
 
-    const snapshot = (): string => JSON.stringify( { universe, tagline, description, logo, featured } );
+    const snapshot = (): string => JSON.stringify( { universe, tagline, description, logo, accent, featured } );
 
     /** Last state written to the dataset, so saving clears the pending marker. */
     let baseline = $state( JSON.stringify( initial ) );
@@ -69,6 +82,7 @@
             tagline: tagline.trim(),
             description: description.trim(),
             logo: logo.trim(),
+            accent,
             featured: [ ...featured ]
         } );
 
@@ -89,6 +103,7 @@
         tagline = wiki.seed.meta.tagline;
         description = wiki.seed.meta.description;
         logo = wiki.seed.meta.logo;
+        accent = wiki.seed.meta.accent;
         featured = [ ...wiki.seed.meta.featured ];
         baseline = snapshot();
         saved = false;
@@ -179,10 +194,39 @@
                 </Helper>
             </div>
 
+            <fieldset aria-describedby="meta-accent-hint">
+                <legend class="field-label">Couleur d'accentuation</legend>
+
+                <div class="flex flex-wrap gap-1.5">
+                    {#each ACCENTS as option ( option.key )}
+                        <div data-accent={option.key} class="contents">
+                            <Radio
+                                name="meta-accent"
+                                value={option.key}
+                                bind:group={accent}
+                                onchange={() => ( saved = false )}
+                                class={RADIO_OVERLAY}
+                                classes={{ label: `${ colorPill( accent === option.key ) } ${ ACCENT_TINT }` }}
+                            >
+                                <span class="bg-accent-500 h-1.5 w-1.5 rounded-full"></span>
+                                {option.label}
+                            </Radio>
+                        </div>
+                    {/each}
+                </div>
+
+                <Helper id="meta-accent-hint" class="mt-1.5 text-xs leading-relaxed">
+                    Elle colore les liens des articles, les boutons et le logo de l'entête.
+                </Helper>
+            </fieldset>
+
             <div>
                 <p class="field-label">Aperçu de l'entête</p>
 
-                <div class="border-paper-200 dark:border-ink-800 flex items-center gap-2.5 rounded-xl border p-3">
+                <div
+                    data-accent={accent}
+                    class="border-paper-200 dark:border-ink-800 flex items-center gap-2.5 rounded-xl border p-3"
+                >
                     {#if logo.trim()}
                         <img src={logo} alt="" class="h-9 w-9 rounded-xl object-cover" />
                     {:else}

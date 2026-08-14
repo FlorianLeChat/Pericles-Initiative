@@ -143,23 +143,30 @@
     --color-ink-900: #262320;
     --color-ink-950: #1a1714;
 
-    --color-accent-50: #eff6ff;
-    --color-accent-100: #dbeafe;
-    --color-accent-200: #b8d8ff;
-    --color-accent-300: #8dbdf8;
-    --color-accent-400: #5a9bf0;
-    --color-accent-500: #2f7ae0;
-    --color-accent-600: #1f5fbd;
     /*
-     * Flowbite paints a `primary` button `bg-primary-700`, so this stop, and not
-     * the 600 the header's «Nouvelle fiche» wears, is what the main action of
-     * every page is made of. The two stand side by side on the home page, which
-     * is why this one has to read as the same blue a notch down, not as a navy.
+     * The accent is the one colour of the palette the author chooses, so its
+     * stops are read rather than declared: the ramps live in the `[data-accent]`
+     * blocks below, one per named accent, and this is what every utility of the
+     * site compiles against. `<html>` carries a `data-accent` from the very first
+     * line of `app.html`, so none of these ever resolves to nothing.
+     *
+     * The stops keep their roles across the six ramps. 500 is the focus ring and
+     * the dots, 600 draws a link and the header's «Nouvelle fiche», and 700 is
+     * the surface of a primary button, Flowbite painting one `bg-primary-700`.
+     * The two stand side by side on the home page, so 700 has to read as 600 a
+     * notch down rather than as another colour. 800 exists for Flowbite alone,
+     * whose components ask for a stop the site never did.
      */
-    --color-accent-700: #1c56ad;
-    /* Added for Flowbite, whose components ask for a 800 stop the site never did. */
-    --color-accent-800: #193f7a;
-    --color-accent-900: #16325e;
+    --color-accent-50: var(--accent-50);
+    --color-accent-100: var(--accent-100);
+    --color-accent-200: var(--accent-200);
+    --color-accent-300: var(--accent-300);
+    --color-accent-400: var(--accent-400);
+    --color-accent-500: var(--accent-500);
+    --color-accent-600: var(--accent-600);
+    --color-accent-700: var(--accent-700);
+    --color-accent-800: var(--accent-800);
+    --color-accent-900: var(--accent-900);
 
     --color-signal-500: #d97706;
 
@@ -227,6 +234,139 @@
     --color-gray-900: var(--color-ink-900);
 }
 
+/*
+ * The six accents, one block each, keyed by the value `meta.accent` holds.
+ *
+ * Nothing else in the stylesheet knows which one is in force: the accent stops of
+ * `@theme` read these, so the attribute on `<html>` is the whole mechanism, and
+ * `src/lib/config/accents.ts` only ever carries a key and a French label.
+ * Nesting the attribute is what lets an element preview a colour the site is not
+ * painted in, which is how the picker of the settings draws its pills.
+ *
+ * That preview is why the theme stops are declared a second time below, on
+ * `[data-accent]` itself. **A custom property holding a `var()` is substituted
+ * where it is declared, not where it is read**, so the stops of `@theme` alone
+ * resolve once against the root and never again: every nested pill came out in the
+ * colour of the site instead of its own. Re-declaring them wherever a ramp is
+ * chosen is what moves that substitution onto the element carrying the attribute.
+ *
+ * The `primary-*` aliases are deliberately left out of that second declaration:
+ * they resolve against the root like any other theme stop, which is all the site
+ * ever needs. Previewing another accent on a Flowbite component, rather than on
+ * the classes of this codebase, would mean listing them here too.
+ *
+ * Specificity is otherwise out of the picture: `--accent-*` is declared nowhere
+ * else, and two ramps never apply to the same element.
+ *
+ * The stops that carry text are what fixes each ramp, and the reason four of them
+ * are not the ones their family would give. 600 draws a link on paper and has to
+ * clear four and a half to one against it, 700 carries white text and has to
+ * clear the same the other way round, and 500 is the focus ring, which needs three
+ * to one against the page. Only the blue and the violet manage the first of those
+ * at the stop a stock palette calls 600: green, amber, rose and cyan are all too
+ * light there, so each of those ramps is shifted a notch down.
+ */
+
+[data-accent] {
+    --color-accent-50: var(--accent-50);
+    --color-accent-100: var(--accent-100);
+    --color-accent-200: var(--accent-200);
+    --color-accent-300: var(--accent-300);
+    --color-accent-400: var(--accent-400);
+    --color-accent-500: var(--accent-500);
+    --color-accent-600: var(--accent-600);
+    --color-accent-700: var(--accent-700);
+    --color-accent-800: var(--accent-800);
+    --color-accent-900: var(--accent-900);
+}
+
+[data-accent='bleu'] {
+    --accent-50: #eff6ff;
+    --accent-100: #dbeafe;
+    --accent-200: #b8d8ff;
+    --accent-300: #8dbdf8;
+    --accent-400: #5a9bf0;
+    --accent-500: #2f7ae0;
+    --accent-600: #1f5fbd;
+    --accent-700: #1c56ad;
+    --accent-800: #193f7a;
+    --accent-900: #16325e;
+}
+
+/*
+ * A touch brighter than the light theme's 400, for legibility on ink: that stop
+ * is what draws a link once the page is dark. The five ramps below need no such
+ * retouch, their 400 being bright to begin with.
+ */
+:is(.dark, .dark *)[data-accent='bleu'] {
+    --accent-400: #6fa8f5;
+}
+
+[data-accent='vert'] {
+    --accent-50: #ecfdf5;
+    --accent-100: #d1fae5;
+    --accent-200: #a7f3d0;
+    --accent-300: #6ee7b7;
+    --accent-400: #34d399;
+    --accent-500: #10b981;
+    --accent-600: #047857;
+    --accent-700: #065f46;
+    --accent-800: #064e3b;
+    --accent-900: #022c22;
+}
+
+[data-accent='ambre'] {
+    --accent-50: #fffbeb;
+    --accent-100: #fef3c7;
+    --accent-200: #fde68a;
+    --accent-300: #fcd34d;
+    --accent-400: #f59e0b;
+    --accent-500: #d97706;
+    --accent-600: #b45309;
+    --accent-700: #92400e;
+    --accent-800: #78350f;
+    --accent-900: #451a03;
+}
+
+[data-accent='violet'] {
+    --accent-50: #f5f3ff;
+    --accent-100: #ede9fe;
+    --accent-200: #ddd6fe;
+    --accent-300: #c4b5fd;
+    --accent-400: #a78bfa;
+    --accent-500: #8b5cf6;
+    --accent-600: #7c3aed;
+    --accent-700: #6d28d9;
+    --accent-800: #5b21b6;
+    --accent-900: #4c1d95;
+}
+
+[data-accent='rose'] {
+    --accent-50: #fff1f2;
+    --accent-100: #ffe4e6;
+    --accent-200: #fecdd3;
+    --accent-300: #fda4af;
+    --accent-400: #fb7185;
+    --accent-500: #e11d48;
+    --accent-600: #be123c;
+    --accent-700: #9f1239;
+    --accent-800: #881337;
+    --accent-900: #4c0519;
+}
+
+[data-accent='cyan'] {
+    --accent-50: #ecfeff;
+    --accent-100: #cffafe;
+    --accent-200: #a5f3fc;
+    --accent-300: #67e8f9;
+    --accent-400: #22d3ee;
+    --accent-500: #0891b2;
+    --accent-600: #0e7490;
+    --accent-700: #155e75;
+    --accent-800: #164e63;
+    --accent-900: #083344;
+}
+
 @layer base {
     /*
      * Motion tokens.
@@ -246,8 +386,10 @@
 
     /*
      * Dark theme stops: a lighter retouch of the ink and paper scale ("encre
-     * réchauffée"), plus the two coloured ones a dark page reads differently,
-     * scoped to `.dark` so the light theme keeps its own values.
+     * réchauffée"), plus the brighter red a dark page reads better, scoped to
+     * `.dark` so the light theme keeps its own values. The accent has no line
+     * here: it is chosen rather than fixed, so its own retouch belongs to the
+     * `[data-accent]` block of each ramp.
      *
      * A custom property is resolved where it is used and not where it is
      * declared, which is what makes the scoped override work at all: the class
@@ -264,9 +406,6 @@
         --color-paper-200: #f0ece4;
         --color-paper-300: #ddd7cb;
         --color-paper-400: #c9c2b3;
-
-        /* A touch brighter than the light theme's accent, for legibility on ink. */
-        --color-accent-400: #6fa8f5;
 
         /*
          * As bright as it can go while «Alerte» and the banner keep white text
@@ -311,6 +450,36 @@
      */
     .field-label {
         @apply text-ink-600 dark:text-paper-300 mb-1.5 block text-sm font-medium;
+    }
+
+    /*
+     * «Choisir un fichier», the one button of the site the browser draws itself.
+     *
+     * Flowbite's plugin paints it from the neutral scale, which on this palette is
+     * plain ink, so the only file input of the wiki, the one restoring a backup,
+     * offered a slab of brown where every other action of that page is the accent.
+     * These are the stops of a Flowbite `primary` button, so the two now match.
+     *
+     * The colours have to be spelled out rather than applied: `@apply` cannot
+     * reach a pseudo-element the browser owns. Being in this layer is what beats
+     * the plugin, which declares its own from `base`, and it is also why the dark
+     * theme needs its line here: its rule would otherwise be the only one left
+     * standing once the page is dark.
+     */
+    input[type='file']::file-selector-button {
+        background: var(--color-accent-700);
+    }
+
+    input[type='file']::file-selector-button:hover {
+        background: var(--color-accent-800);
+    }
+
+    :is(.dark) input[type='file']::file-selector-button {
+        background: var(--color-accent-600);
+    }
+
+    :is(.dark) input[type='file']::file-selector-button:hover {
+        background: var(--color-accent-700);
     }
 
     /*

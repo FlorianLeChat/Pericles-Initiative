@@ -50,6 +50,30 @@ const PILL_OFFERED = "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-
 export const filterPill = ( chosen: boolean ): string => `${ PILL_BASE } ${ chosen ? PILL_CHOSEN : PILL_OFFERED }`;
 
 /**
+ * Appearance of a pill offering a colour, chosen or not.
+ *
+ * The colour of a category and the accent of the wiki are the same control on two
+ * pages, and neither can mark its selection the way `filterPill` does: the pill
+ * wears the colour being offered, so painting the chosen one in ink would hide
+ * the very thing the reader is picking. A ring around it says as much without
+ * touching the surface.
+ *
+ * The pill left alone carries no ring class at all, and the chosen one no offset.
+ * Neither is a shortcut: `ring-0` is not the absence of a ring but a ring of
+ * `calc(0px + var(--tw-ring-offset-width))`, drawn in `currentcolor` for want of a
+ * ring colour, and `ring-offset-1` paints a second hairline behind it in the
+ * initial value of its own colour, plain white. Together they outlined every pill
+ * in its own text colour and left a white gap around the selected one.
+ *
+ * @param chosen True when the pill carries the selected colour.
+ * @returns Classes for the label wrapping the radio, completed by the caller with
+ *          the colours of the pill itself.
+ * @author Claude
+ */
+export const colorPill = ( chosen: boolean ): string =>
+    chosen ? `${ PILL_BASE } ring-accent-500 ring-2` : PILL_BASE;
+
+/**
  * Class laying out the actions of a page or of a panel.
  *
  * A phone gets one action per line, each spanning the full width, and a screen

@@ -13,13 +13,19 @@ import type { Dataset } from "$lib/types";
 import { COUNTS, PAGES } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
 
-/** A minimal wiki, pasted into the import area to replace everything. */
+/**
+ * A minimal wiki, pasted into the import area to replace everything.
+ *
+ * Its accent is not the default one, so restoring it also proves that the colour
+ * of a wiki travels in its backup like the rest of the identity.
+ */
 const IMPORTED: Dataset = {
     meta: {
         universe: "Archipel importé",
         tagline: "Venu d’un fichier.",
         description: "",
         logo: "",
+        accent: "ambre",
         featured: []
     },
     categories: [],
@@ -93,6 +99,7 @@ test.describe( "data page", () =>
         await wiki.confirm( "Remplacer votre wiki ?", "Restaurer" );
 
         await expect( page.getByText( "Sauvegarde restaurée : 1 fiche, 0 catégorie et 0 entrée du fil." ) ).toBeVisible();
+        await expect( page.locator( "html" ) ).toHaveAttribute( "data-accent", IMPORTED.meta.accent );
 
         await page.goto( "/wiki" );
 
