@@ -126,7 +126,9 @@ const respond = async ( event: FetchEvent ): Promise<Response> =>
 
         // `basic` excludes opaque and error responses, which are useless once
         // replayed: their body cannot be read and their status is always zero.
-        if ( response.ok && response.type === "basic" )
+        const storable = response.ok && response.type === "basic" && request.mode !== "navigate";
+
+        if ( storable )
         {
             event.waitUntil( cache.put( request, response.clone() ) );
         }
