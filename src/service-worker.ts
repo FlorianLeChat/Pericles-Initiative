@@ -10,7 +10,7 @@
  * Two rules govern what it may touch:
  *
  *  - **Cross origin requests are never intercepted.** The remote snapshot
- *    service specified in `REMOTE-API.md` lives on another origin, and serving it
+ *    service described in `README.md` lives on another origin, and serving it
  *    a cached answer would hand the reader an old backup, or make a failed send
  *    look like a success. Backups are a network concern and stay one.
  *  - **Content is never cached here.** Pages are built in the browser from the

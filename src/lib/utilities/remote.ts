@@ -1,8 +1,8 @@
 /**
  * Transport for the optional remote snapshot service.
  *
- * The contract implemented here is specified in `REMOTE-API.md`, at the root of
- * the repository: two endpoints, a whole dataset per transfer, and a server that
+ * The contract implemented here is described in `README.md`, at the root of the
+ * repository: two endpoints, a whole dataset per transfer, and a server that
  * stores bytes rather than understanding them. Node-RED is only one possible
  * implementation, so nothing in this module assumes anything about the server
  * beyond that document.

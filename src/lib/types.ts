@@ -146,7 +146,7 @@ export interface Overlay {
  *
  * Absent from `localStorage` until the user configures one, and an empty
  * `baseUrl` means the site works from the overlay alone, which stays a first
- * class mode. See `REMOTE-API.md` for the contract this describes.
+ * class mode. See `README.md` for the contract this describes.
  */
 export interface RemoteConfig {
     /** Absolute http or https origin and path prefix, empty when unconfigured. */

@@ -1,93 +1,107 @@
-# Périclès Initiative
+# 🌄 Périclès Initiative
 
+![HTML](.gitlab/badges/html.svg)
+![CSS](.gitlab/badges/css.svg)
+![TypeScript](.gitlab/badges/typescript.svg)
 
+![Svelte](.gitlab/badges/svelte.svg)
+![SvelteKit](.gitlab/badges/sveltekit.svg)
+![TailwindCSS](.gitlab/badges/tailwindcss.svg)
+![Inlang](.gitlab/badges/inlang.svg)
+![Vite](.gitlab/badges/vite.svg)
+![Prettier](.gitlab/badges/prettier.svg)
+![ESLint](.gitlab/badges/eslint.svg)
 
-## Getting started
+> [!CAUTION]
+> 🤫 Please consider this an internal project. Some features and content may seem useless to you, as they are primarily designed for my own personal use. Support is not guaranteed, unlike with my other projects.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## In French
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+> [!IMPORTANT]
+> Le code du projet est aussi hébergé sur mon instance GitLab personnalisée, accessible à [cette adresse](https://git.florian-dev.fr/floriantrayon/Pericles-Initiative). Le dépôt GitHub est un miroir du dépôt GitLab, **mis à jour automatiquement**.
+>
+> **Les contributions publiques restent sur GitHub et sont les bienvenues** ; les pull requests validées y seront ensuite transférées manuellement sur GitLab pour être intégrées. 🙂
 
-## Add your files
+### Introduction
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+Ceci est un projet personnel que je pensais faire depuis longtemps, mais pour lequel je ne trouvais pas assez de temps pour le réaliser. Avec une bonne dose de motivation et l'aide de l'intelligence artificielle, j'ai pu le concrétiser. Il s'agit d'un site Internet sous la forme d'une encyclopédie, à la manière du célèbre site Internet [Wikipédia](https://fr.wikipedia.org/), qui permet de manière simplifiée de créer et documenter un univers de fiction. Cette création d'univers se fait à partir de fiches de connaissances, qui peuvent être liées à d'autres, mais aussi à une chronologie et à des événements en direct, en fonction de vos besoins. Voici donc **Périclès Initiative** ! ☺️
 
-```
-cd existing_repo
-git remote add origin https://git.florian-dev.fr/floriantrayon/pericles-initiative.git
-git branch -M master
-git push -uf origin master
-```
+Sous ce nom (anglais !) plutôt déroutant, en référence à un ancien [Google Sites](https://sites.google.com/) personnel que j'avais créé pour les besoins de mes sessions de jeu de rôle sur le jeu vidéo [Garry's Mod](https://fr.wikipedia.org/wiki/Garry%27s_Mod), se trouve le résultat de ce que j'aurais voulu avoir il y a quelques années et que je vais m'amuser à utiliser pour mes nouveaux projets de fiction. En termes de fonctionnalités, on retrouve l'essentiel, comme un système de gestion de fiches, de chronologies et d'événements, de traductions, de gestion des médias, de synchronisation et de gestion des données issues de l'encyclopédie. 🎀
 
-## Integrate with your tools
+Oui, vous l'avez deviné, il n'y a pas de système d'authentification, ni de gestion des utilisateurs. Le site est conçu pour un usage personnel et n'est pas destiné à être utilisé par plusieurs personnes. D'ailleurs, le site GitLab Pages hébergé pour ce projet est disponible à toutes et à tous à des fins de visibilité, mais sauf réelle utilité, il ne vous servira à rien. Pourquoi ? Parce que ce site, fonctionnant que dans votre navigateur, se base sur des données importables via un fichier [JSON](https://fr.wikipedia.org/wiki/JavaScript_Object_Notation) ou via un serveur de sauvegarde externe que vous devez fournir. Vous pouvez travailler sans tout ça, mais vos données ne sortiront pas de votre navigateur et les autres ne pourront pas voir ce que vous avez fait : tout est côté client, aucun intermédiaire, aucune base de données, aucun serveur. La vie est belle, non ? 😉
 
-* [Set up project integrations](https://git.florian-dev.fr/floriantrayon/pericles-initiative/-/settings/integrations)
+Durant la création du site Internet, je me suis efforcé de respecter des valeurs de sobriété numérique, d'accessibilité et de respect de la vie privée. Le site est complètement statique, ne contient ni cookies, ni publicité, et n'utilise aucune technologie de suivi par défaut. Il est également accessible à tous, sans restriction. Entièrement basé sur [SvelteKit](https://svelte.dev/docs/kit) ❣️, [Vite](https://vite.dev/), [TailwindCSS](https://tailwindcss.com/) et [TypeScript](https://www.typescriptlang.org/), il utilise des technologies Web modernes et performantes, et est hébergé sur [GitLab Pages](https://docs.gitlab.com/user/project/pages/) pour limiter son empreinte carbone. 🌼
 
-## Collaborate with your team
+### Installation
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+> [!WARNING]
+> Le déploiement en environnement de production nécessite un serveur Web déjà configuré comme [Nginx](https://nginx.org/en/), [Apache](https://httpd.apache.org/) ou [Caddy](https://caddyserver.com/) pour servir les fichiers statiques générés par Vite. ⚠️
 
-## Test and Deploy
+#### Développement local
 
-Use the built-in continuous integration in GitLab.
+- Installer [Node.js LTS](https://nodejs.org/) (>22 ou plus) ;
+- Installer les dépendances du projet avec la commande `npm install` ;
+- Démarrer le serveur local Vite avec la commande `npm run dev`.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+#### Déploiement en production
 
-***
+- Installer [Node.js LTS](https://nodejs.org/) (>22 ou plus) ;
+- Installer les dépendances du projet avec la commande `npm install` ;
+- Compiler les fichiers statiques du site Internet avec la commande `npm run build` ;
+- Utiliser un serveur Web pour servir les fichiers statiques générés à l'étape précédente.
 
-# Editing this README
+#### Sauvegarde distante (facultative)
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Le site peut se synchroniser avec un serveur HTTP externe, optionnel et déconnecté par défaut : tant
+qu'aucune URL n'est renseignée sur la page `/data`, aucune requête réseau n'est envoyée. Le contrat est
+minimal : `GET` et `PUT` sur `{baseUrl}/dataset` échangent l'intégralité du jeu de données en JSON, sans
+fusion ni notion d'utilisateur. Un secret optionnel peut être envoyé en en-tête `X-Pericles-Secret`,
+mais ce n'est **pas** un mécanisme d'authentification : il ne protège rien à lui seul, à réserver à un
+serveur déjà privé (VPN, réseau interne, serveur mandataire authentifiant).
 
-## Suggestions for a good README
+## In English
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+> [!IMPORTANT]
+> The project's code is also hosted on my custom GitLab instance, available at [this address](https://git.florian-dev.fr/floriantrayon/Pericles-Initiative). The GitHub repository is a mirror of the GitLab repository, **automatically kept up to date**.
+>
+> **Public contributions remain on GitHub and are welcome**; validated pull requests will then be manually transferred to GitLab to be integrated. 🙂
 
-## Name
-Choose a self-explaining name for your project.
+### Introduction
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+This is a personal project I've been thinking about doing for a long time, but I couldn't find enough time to get it done. With a good amount of motivation and the help from artificial intelligence, I've finally been able to bring it to life. It's a website in the form of an encyclopaedia, similar to the famous [Wikipedia](https://fr.wikipedia.org/) website, which provides a simple way to create and document a fictional universe. This world-building is done using knowledge cards, which can be linked to one another, as well as to a timeline and real-time events, depending on your needs. So, here is **Périclès Initiative**! ☺️
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Behind this slightly confusing name, which is a reference to an old personal [Google Sites](https://sites.google.com/) page I created for my role-playing sessions on the video game [Garry's Mod](https://fr.wikipedia.org/wiki/ Garry%27s_Mod), lies the result of what I would have loved to have had a few years ago and which I'm going to have fun using for my new fiction projects. In terms of features, it includes all the essentials, such as a system for managing character sheets, timelines and events, translations, media management, synchronization and management of data from the encyclopaedia. 🎀
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Yes, you've guessed it: there's no authentication system or user management. The website is designed for personal use and isn't intended for use by multiple people. In fact, the GitLab Pages website hosted for this project is available to everyone for visibility purposes, but unless you have a specific use for it, it won't be of any use to you. Why? Because this website, which runs entirely within your browser, relies on data that can be imported via a [JSON](https://fr.wikipedia.org/wiki/JavaScript_Object_Notation) file or via an external backup server that you must provide. You can work without any of that, but your data won't leave your browser and others won't be able to see what you've done: everything is client-side, with no intermediaries, no database and no server. Life's good, isn't it? 😉
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+During the creation of this website, I tried to respect the values of digital sobriety, accessibility and privacy. The website is entirely static, contains no cookies or adverts, and does not use any tracking technology by default. It is also accessible to everyone, without restriction. Built entirely on [SvelteKit](https://svelte.dev/docs/kit) ❣️, [Vite](https://vite.dev/), [TailwindCSS](https://tailwindcss.com/) and [TypeScript](https://www.typescriptlang.org/), it utilizes modern, high-performance web technologies and is hosted on [GitLab Pages](https://docs.gitlab.com/user/project/pages/) to minimize its carbon footprint. 🌼
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Setup
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+> [!WARNING]
+> Deployment in a production environment requires a pre-configured web server such as [Nginx](https://nginx.org/en/), [Apache](https://httpd.apache.org/), or [Caddy](https://caddyserver.com/) to serve the static files generated by Vite. ⚠️
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+#### Local development
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+- Install [Node.js LTS](https://nodejs.org/) (>22 or higher) ;
+- Install project dependencies using `npm install` ;
+- Start Vite local server using `npm run dev`.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+#### Production deployment
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+- Install [Node.js LTS](https://nodejs.org/) (>22 or higher) ;
+- Install project dependencies using `npm install` ;
+- Build static website files using `npm run build` ;
+- Remove development dependencies using `npm prune --omit=dev` ;
+- Use a web server to serve the static files generated in the previous step.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+#### Remote backup (optional)
 
-## License
-For open source projects, say how it is licensed.
+The website can sync with an external HTTP server, optional and off by default: no network request is
+ever sent until a base url is set on the `/data` page. The contract is minimal: `GET` and `PUT` on
+`{baseUrl}/dataset` exchange the whole dataset as JSON, with no merging and no notion of a user. An
+optional secret can be sent as the `X-Pericles-Secret` header, but it is **not** an authentication
+mechanism: it protects nothing on its own, and belongs on a server that is already private (VPN,
+internal network, authenticating proxy).
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+![image](static/assets/images/opengraph.png)

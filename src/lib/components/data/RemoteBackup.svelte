@@ -11,7 +11,7 @@
      *
      * Everything here is optional. With no endpoint configured, the panel explains
      * that the wiki works from this browser alone and fires no request at all.
-     * The contract is specified in `REMOTE-API.md`.
+     * The contract is described in `README.md`.
      *
      * @author Claude
      */

@@ -3,7 +3,7 @@
  *
  * The service is answered by `page.route` and never by a real host: the wiki has
  * no server of its own, and a test that needed one would be testing the network
- * rather than the site. Every response here follows `REMOTE-API.md`.
+ * rather than the site. Every response here follows the contract in `README.md`.
  *
  * @author Claude
  */
