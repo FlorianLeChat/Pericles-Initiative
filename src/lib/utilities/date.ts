@@ -1,5 +1,5 @@
 /**
- * French date formatting helpers.
+ * Locale aware date formatting helpers.
  *
  * Real timestamps (`createdAt`, `publishedAt`) are always ISO strings. In
  * universe dates may be free text such as `Juin 2043`, so every helper falls
@@ -8,13 +8,34 @@
  * @author Claude
  */
 
+import * as m from "$lib/locales/messages.js";
+import { getLocale } from "$lib/locales/runtime";
 import type { EntryDate } from "$lib/types";
 
-const LONG_DATE = new Intl.DateTimeFormat( "fr-FR", { day: "numeric", month: "long", year: "numeric" } );
-const SHORT_DATE = new Intl.DateTimeFormat( "fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" } );
-const MONTH_AND_YEAR = new Intl.DateTimeFormat( "fr-FR", { month: "long", year: "numeric" } );
-const TIME = new Intl.DateTimeFormat( "fr-FR", { hour: "2-digit", minute: "2-digit" } );
-const RELATIVE = new Intl.RelativeTimeFormat( "fr-FR", { numeric: "auto" } );
+/**
+ * Builds the formatters that depend on the current locale.
+ *
+ * Built fresh on every call rather than cached at module scope: the locale can
+ * change at runtime through the settings page switcher, and a formatter cached
+ * at import time would stay frozen to whichever locale was active on the first
+ * load.
+ *
+ * @author Claude
+ */
+const longDateFormatter = (): Intl.DateTimeFormat =>
+    new Intl.DateTimeFormat( getLocale(), { day: "numeric", month: "long", year: "numeric" } );
+
+const shortDateFormatter = (): Intl.DateTimeFormat =>
+    new Intl.DateTimeFormat( getLocale(), { day: "2-digit", month: "2-digit", year: "numeric" } );
+
+const monthAndYearFormatter = (): Intl.DateTimeFormat =>
+    new Intl.DateTimeFormat( getLocale(), { month: "long", year: "numeric" } );
+
+const timeFormatter = (): Intl.DateTimeFormat =>
+    new Intl.DateTimeFormat( getLocale(), { hour: "2-digit", minute: "2-digit" } );
+
+const relativeFormatter = (): Intl.RelativeTimeFormat =>
+    new Intl.RelativeTimeFormat( getLocale(), { numeric: "auto" } );
 
 /** Sort key used for entries whose in universe date cannot be parsed. */
 const UNDATED_SORT_KEY = Number.MAX_SAFE_INTEGER;
@@ -59,7 +80,7 @@ const toDate = ( value: string | null | undefined ): Date | null =>
 export const formatLongDate = ( value: string | null | undefined ): string =>
 {
     const date = toDate( value );
-    return date ? LONG_DATE.format( date ) : ( value ?? "" );
+    return date ? longDateFormatter().format( date ) : ( value ?? "" );
 };
 
 /**
@@ -72,7 +93,7 @@ export const formatLongDate = ( value: string | null | undefined ): string =>
 export const formatShortDate = ( value: string | null | undefined ): string =>
 {
     const date = toDate( value );
-    return date ? SHORT_DATE.format( date ) : ( value ?? "" );
+    return date ? shortDateFormatter().format( date ) : ( value ?? "" );
 };
 
 /**
@@ -85,7 +106,7 @@ export const formatShortDate = ( value: string | null | undefined ): string =>
 export const formatTime = ( value: string | null | undefined ): string =>
 {
     const date = toDate( value );
-    return date ? TIME.format( date ) : "";
+    return date ? timeFormatter().format( date ) : "";
 };
 
 /**
@@ -98,7 +119,9 @@ export const formatTime = ( value: string | null | undefined ): string =>
 export const formatDateTime = ( value: string | null | undefined ): string =>
 {
     const date = toDate( value );
-    return date ? `${ LONG_DATE.format( date ) } à ${ TIME.format( date ) }` : ( value ?? "" );
+    return date
+        ? m.date_time_connector( { date: longDateFormatter().format( date ), time: timeFormatter().format( date ) } )
+        : ( value ?? "" );
 };
 
 /**
@@ -122,26 +145,29 @@ export const relativeTime = ( value: string | null | undefined, now: number = Da
 
     if ( absolute < 60 )
     {
-        return "à l'instant";
+        return m.date_relative_now();
     }
+
+    const relative = relativeFormatter();
+
     if ( absolute < 3600 )
     {
-        return RELATIVE.format( Math.round( seconds / 60 ), "minute" );
+        return relative.format( Math.round( seconds / 60 ), "minute" );
     }
     if ( absolute < 86400 )
     {
-        return RELATIVE.format( Math.round( seconds / 3600 ), "hour" );
+        return relative.format( Math.round( seconds / 3600 ), "hour" );
     }
     if ( absolute < 2592000 )
     {
-        return RELATIVE.format( Math.round( seconds / 86400 ), "day" );
+        return relative.format( Math.round( seconds / 86400 ), "day" );
     }
     if ( absolute < 31536000 )
     {
-        return RELATIVE.format( Math.round( seconds / 2592000 ), "month" );
+        return relative.format( Math.round( seconds / 2592000 ), "month" );
     }
 
-    return RELATIVE.format( Math.round( seconds / 31536000 ), "year" );
+    return relative.format( Math.round( seconds / 31536000 ), "year" );
 };
 
 /**
@@ -264,7 +290,7 @@ export const formatUniverseDate = ( value: string | null | undefined ): string =
     if ( YEAR_AND_MONTH.test( value ) )
     {
         const date = toDate( `${ value }-01` );
-        return date ? MONTH_AND_YEAR.format( date ) : value;
+        return date ? monthAndYearFormatter().format( date ) : value;
     }
 
     return formatLongDate( value );

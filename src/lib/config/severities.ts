@@ -5,6 +5,7 @@
  */
 
 import type { LiveSeverity } from "$lib/types";
+import * as m from "$lib/locales/messages.js";
 
 export interface SeverityConfig {
     id: LiveSeverity;
@@ -20,28 +21,28 @@ export interface SeverityConfig {
 export const SEVERITIES: readonly SeverityConfig[] = [
     {
         id: "info",
-        label: "Information",
+        label: m.severities_info(),
         badge: "bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-300",
         dot: "bg-ink-400",
         weight: 0
     },
     {
         id: "important",
-        label: "Important",
+        label: m.severities_important(),
         badge: "bg-accent-100 text-accent-700 dark:bg-accent-900/60 dark:text-accent-200",
         dot: "bg-accent-500",
         weight: 1
     },
     {
         id: "urgent",
-        label: "Urgent",
+        label: m.severities_urgent(),
         badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-200",
         dot: "bg-signal-500",
         weight: 2
     },
     {
         id: "breaking",
-        label: "Alerte",
+        label: m.severities_breaking(),
         badge: "bg-alert-500 text-white",
         dot: "bg-alert-500",
         weight: 3

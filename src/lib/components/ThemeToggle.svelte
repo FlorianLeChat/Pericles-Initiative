@@ -13,6 +13,7 @@
     import { cubicOut } from "svelte/easing";
     import { scale } from "svelte/transition";
     import { motionDuration } from "$lib/config/motion";
+    import * as m from "$lib/locales/messages.js";
 
     let dark = $state( false );
 
@@ -48,8 +49,8 @@
            items-center justify-center rounded-full transition lg:h-9 lg:w-9"
     onclick={toggle}
     aria-pressed={dark}
-    aria-label={dark ? "Passer au thème clair" : "Passer au thème sombre"}
-    title={dark ? "Thème clair" : "Thème sombre"}
+    aria-label={dark ? m.theme_toggle_to_light_aria() : m.theme_toggle_to_dark_aria()}
+    title={dark ? m.theme_toggle_light_title() : m.theme_toggle_dark_title()}
 >
     {#key dark}
         <span

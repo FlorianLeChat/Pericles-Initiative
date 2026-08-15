@@ -35,6 +35,7 @@
         "@playwright/test": "~1.62",
         "@tailwindcss/vite": "~4.3",
         "typescript-eslint": "~8.66",
+        "@inlang/paraglide-js": "~2.22",
         "eslint-plugin-svelte": "~3.22",
         "@axe-core/playwright": "~4.12",
         "prettier-plugin-svelte": "~3.5",

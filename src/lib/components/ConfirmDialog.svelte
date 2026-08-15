@@ -17,6 +17,7 @@
     import Modal from "flowbite-svelte/Modal.svelte";
     import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
     import { PAIRED_ACTION } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
 
     interface Props {
         open: boolean;
@@ -33,8 +34,8 @@
         open = $bindable( false ),
         title,
         message,
-        confirmLabel = "Confirmer",
-        cancelLabel = "Annuler",
+        confirmLabel = m.common_confirm(),
+        cancelLabel = m.common_cancel(),
         danger = false,
         onconfirm
     }: Props = $props();

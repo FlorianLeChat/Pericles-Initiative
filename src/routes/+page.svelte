@@ -12,6 +12,7 @@
     import SeverityBadge from "$lib/components/live/SeverityBadge.svelte";
     import { ACTION_ROW } from "$lib/config/forms";
     import { staggerRank } from "$lib/config/motion";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry } from "$lib/types";
     import { relativeTime } from "$lib/utilities/date";
@@ -53,7 +54,7 @@
             class="text-accent-600 dark:text-accent-400 rise-in text-xs font-medium tracking-[0.2em] uppercase"
             style="--rank: 0"
         >
-            Encyclopédie
+            {m.home_hero_eyebrow()}
         </p>
 
         <h1
@@ -71,8 +72,10 @@
         </p>
 
         <div class="rise-in mt-9 {ACTION_ROW}" style="--rank: 3">
-            <Button href={resolve( "/wiki" )} color="primary" size="lg">Parcourir les fiches</Button>
-            <Button href={resolve( "/categories" )} color="alternative" size="lg">Explorer les catégories</Button>
+            <Button href={resolve( "/wiki" )} color="primary" size="lg">{m.home_hero_browse_button()}</Button>
+            <Button href={resolve( "/categories" )} color="alternative" size="lg">
+                {m.home_hero_categories_button()}
+            </Button>
         </div>
 
         <dl
@@ -80,22 +83,22 @@
             style="--rank: 4"
         >
             <div>
-                <dt class="text-muted text-xs tracking-wide uppercase">Fiches</dt>
+                <dt class="text-muted text-xs tracking-wide uppercase">{m.common_entries_label()}</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.publishedEntries.length}</dd>
             </div>
 
             <div>
-                <dt class="text-muted text-xs tracking-wide uppercase">Catégories</dt>
+                <dt class="text-muted text-xs tracking-wide uppercase">{m.common_categories_label()}</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.categories.length}</dd>
             </div>
 
             <div>
-                <dt class="text-muted text-xs tracking-wide uppercase">Fiches datées</dt>
+                <dt class="text-muted text-xs tracking-wide uppercase">{m.home_stat_dated()}</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.datedEntries.length}</dd>
             </div>
 
             <div>
-                <dt class="text-muted text-xs tracking-wide uppercase">Brouillons</dt>
+                <dt class="text-muted text-xs tracking-wide uppercase">{m.home_stat_drafts()}</dt>
                 <dd class="font-serif text-3xl font-semibold">{wiki.drafts.length}</dd>
             </div>
         </dl>
@@ -104,7 +107,7 @@
 
 {#if headline}
     <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h2 class="font-serif text-2xl font-semibold tracking-tight">À la une</h2>
+        <h2 class="font-serif text-2xl font-semibold tracking-tight">{m.home_featured_heading()}</h2>
 
         <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
             <article class="surface surface-lift rise-in group relative overflow-hidden">
@@ -144,7 +147,7 @@
                         href={resolve( `/wiki/${ headline.slug }` )}
                         class="wiki-link relative inline-block text-sm font-medium"
                     >
-                        Lire la fiche
+                        {m.home_read_entry()}
                     </a>
                 </div>
             </article>
@@ -164,10 +167,10 @@
             <div class="flex items-baseline justify-between gap-4">
                 <h2 class="flex items-center gap-2 font-serif text-2xl font-semibold tracking-tight">
                     <span class="bg-alert-500 h-2 w-2 animate-pulse rounded-full" aria-hidden="true"></span>
-                    En direct
+                    {m.common_live_label()}
                 </h2>
 
-                <a href={resolve( "/live" )} class="wiki-link text-sm">Tout le fil</a>
+                <a href={resolve( "/live" )} class="wiki-link text-sm">{m.home_live_see_all()}</a>
             </div>
 
             <ul class="mt-6 space-y-4">
@@ -200,18 +203,15 @@
 
 <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
     <div class="flex items-baseline justify-between gap-4">
-        <h2 class="font-serif text-2xl font-semibold tracking-tight">Dernières modifications</h2>
+        <h2 class="font-serif text-2xl font-semibold tracking-tight">{m.common_recent_changes_heading()}</h2>
 
-        <a href={resolve( "/wiki" )} class="wiki-link text-sm">Tout voir</a>
+        <a href={resolve( "/wiki" )} class="wiki-link text-sm">{m.home_recent_see_all()}</a>
     </div>
 
     {#if latest.length === 0}
         <div class="mt-6">
-            <EmptyState
-                title="Aucune fiche pour le moment"
-                description="Ce wiki est vide : commencez par créer la première fiche."
-            >
-                <Button href={resolve( "/new" )} color="alternative">Créer une fiche</Button>
+            <EmptyState title={m.common_empty_wiki_title()} description={m.common_empty_wiki_description()}>
+                <Button href={resolve( "/new" )} color="alternative">{m.common_create_entry()}</Button>
             </EmptyState>
         </div>
     {:else}
@@ -225,7 +225,7 @@
 
 {#if categoryCounts.length > 0}
     <section class="mx-auto max-w-6xl px-4 pb-8 sm:px-6">
-        <h2 class="font-serif text-2xl font-semibold tracking-tight">Explorer par catégorie</h2>
+        <h2 class="font-serif text-2xl font-semibold tracking-tight">{m.home_explore_categories_heading()}</h2>
 
         <div class="mt-6 flex flex-wrap gap-2">
             {#each categoryCounts as item ( item.category.slug )}

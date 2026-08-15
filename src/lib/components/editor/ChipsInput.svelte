@@ -6,6 +6,7 @@
      */
     import X from "@lucide/svelte/icons/x";
     import Input from "flowbite-svelte/Input.svelte";
+    import * as m from "$lib/locales/messages.js";
 
     interface Props {
         values: string[];
@@ -14,7 +15,7 @@
         id: string;
     }
 
-    let { values = $bindable(), placeholder = "Ajouter, puis Entrée", id }: Props = $props();
+    let { values = $bindable(), placeholder = m.chips_input_placeholder(), id }: Props = $props();
 
     let draft = $state( "" );
 
@@ -67,7 +68,7 @@
                                inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-xs
                                transition"
                         onclick={() => ( values = values.filter( ( item ) => item !== value ) )}
-                        aria-label="Retirer {value}"
+                        aria-label={m.common_remove_item( { name: value } )}
                     >
                         {value}
 

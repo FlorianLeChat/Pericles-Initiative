@@ -13,8 +13,9 @@
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/EntryCard.svelte";
     import { paletteColor } from "$lib/config/palette";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
-    import { plural } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
 
     const slug = $derived( page.params.slug ?? "" );
     const category = $derived( wiki.categoriesBySlug.get( slug ) );
@@ -23,17 +24,22 @@
 </script>
 
 <svelte:head>
-    <title>{category?.name ?? "Catégorie inconnue"} · {wiki.meta.universe}</title>
+    <title>
+        {m.categories_slug_title( {
+            name: category?.name ?? m.categories_slug_unknown_label(),
+            universe: wiki.meta.universe
+        } )}
+    </title>
 
     <meta name="description" content={category?.description ?? ""} />
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <Breadcrumb ariaLabel="Fil d'Ariane" class="text-muted text-sm">
+    <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm">
         <BreadcrumbItem href={resolve( "/categories" )}>
             {#snippet icon()}{/snippet}
 
-            Catégories
+            {m.common_categories_label()}
         </BreadcrumbItem>
 
         <BreadcrumbItem aria-current="page">
@@ -51,8 +57,10 @@
                 <span class="h-2.5 w-2.5 rounded-full {color.dot}"></span>
 
                 <span class="text-muted text-xs tracking-wide uppercase">
-                    {entries.length}
-                    {plural( entries.length, "fiche" )}
+                    {pluralize( entries.length, {
+                        one: m.common_count_fiche_one,
+                        other: m.common_count_fiche_other
+                    } )}
                 </span>
             </span>
 
@@ -69,8 +77,11 @@
 
         {#if entries.length === 0}
             <div class="mt-10">
-                <EmptyState title="Catégorie vide" description="Aucune fiche ne se rattache encore à cette catégorie.">
-                    <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
+                <EmptyState
+                    title={m.categories_slug_empty_title()}
+                    description={m.categories_slug_empty_description()}
+                >
+                    <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
                 </EmptyState>
             </div>
         {:else}
@@ -82,8 +93,10 @@
         {/if}
     {:else}
         <div class="mt-10">
-            <EmptyState title="Catégorie inconnue" description="Aucune catégorie ne porte ce nom.">
-                <Button href={resolve( "/categories" )} color="alternative">Voir les catégories</Button>
+            <EmptyState title={m.categories_slug_unknown_label()} description={m.categories_slug_unknown_description()}>
+                <Button href={resolve( "/categories" )} color="alternative">
+                    {m.categories_slug_view_categories_button()}
+                </Button>
             </EmptyState>
         </div>
     {/if}

@@ -8,6 +8,7 @@
  */
 
 import type { Pathname } from "$app/types";
+import * as m from "$lib/locales/messages.js";
 
 export interface NavLink {
     href: Pathname;
@@ -15,14 +16,14 @@ export interface NavLink {
 }
 
 export const NAV_LINKS: readonly NavLink[] = [
-    { href: "/wiki", label: "Encyclopédie" },
-    { href: "/categories", label: "Catégories" },
-    { href: "/live", label: "En direct" },
-    { href: "/timeline", label: "Chronologie" }
+    { href: "/wiki", label: m.nav_wiki() },
+    { href: "/categories", label: m.nav_categories() },
+    { href: "/live", label: m.nav_live() },
+    { href: "/timeline", label: m.nav_timeline() }
 ];
 
 export const TOOL_LINKS: readonly NavLink[] = [
-    { href: "/dashboard", label: "Tableau de bord" },
-    { href: "/data", label: "Sauvegardes" },
-    { href: "/settings", label: "Paramètres" }
+    { href: "/dashboard", label: m.nav_dashboard() },
+    { href: "/data", label: m.nav_backups() },
+    { href: "/settings", label: m.nav_settings() }
 ];

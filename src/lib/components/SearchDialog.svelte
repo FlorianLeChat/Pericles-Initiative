@@ -29,8 +29,9 @@
     import { resolve } from "$app/paths";
     import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
     import { staggerRank } from "$lib/config/motion";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
-    import { counted } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
     import { searchEntries } from "$lib/utilities/search";
 
     interface Props {
@@ -61,10 +62,10 @@
 
         if ( hits.length === 0 )
         {
-            return "Aucun résultat.";
+            return m.search_dialog_no_results();
         }
 
-        return `${ counted( hits.length, "résultat" ) }.`;
+        return pluralize( hits.length, { one: m.search_dialog_result_one, other: m.search_dialog_result_other } );
     } );
 
     // The palette is mounted by the layout and never unmounted, so the field has
@@ -151,7 +152,7 @@
         header: "border-paper-200 dark:border-ink-800 p-3",
         body: "p-2"
     }}
-    aria-label="Rechercher une fiche"
+    aria-label={m.search_dialog_aria_label()}
 >
     {#snippet header()}
         <div class="w-full">
@@ -165,10 +166,10 @@
                 aria-controls={LIST_ID}
                 aria-activedescendant={activeId}
                 aria-autocomplete="list"
-                aria-label="Rechercher une fiche"
+                aria-label={m.search_dialog_aria_label()}
                 class="w-full border-0 bg-transparent px-2 py-1.5 text-base focus:border-transparent focus:ring-0
                        dark:bg-transparent"
-                placeholder="Rechercher un personnage, un lieu, un événement..."
+                placeholder={m.search_dialog_placeholder()}
                 autocomplete="off"
             />
         </div>
@@ -178,15 +179,15 @@
 
     {#if query.trim().length === 0}
         <p class="text-muted px-3 py-6 text-center text-sm">
-            {wiki.entries.length} fiches consultables. Tapez pour chercher.
+            {m.search_dialog_all_hint( { count: wiki.entries.length } )}
         </p>
     {:else if hits.length === 0}
         <p class="text-muted px-3 py-6 text-center text-sm">
-            Aucune fiche ne correspond à « {query} ».
+            {m.search_dialog_empty( { query } )}
         </p>
     {/if}
 
-    <ul id={LIST_ID} role="listbox" aria-label="Fiches trouvées">
+    <ul id={LIST_ID} role="listbox" aria-label={m.search_dialog_results_aria()}>
         {#each hits as hit, index ( hit.entry.id )}
             <li role="none">
                 <button

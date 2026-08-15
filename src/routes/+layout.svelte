@@ -15,6 +15,7 @@
     import SearchDialog from "$lib/components/SearchDialog.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
     import UpdateBanner from "$lib/components/UpdateBanner.svelte";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LayoutData } from "./$types";
 
@@ -156,7 +157,7 @@
     class="bg-accent-600 focus:ring-accent-500 sr-only rounded-full px-4 py-2 text-sm font-medium text-white
            focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:ring-2 focus:ring-offset-2"
 >
-    Aller au contenu
+    {m.layout_skip_link()}
 </a>
 
 <BreakingBanner />

@@ -9,13 +9,14 @@
     import EmptyState from "$lib/components/EmptyState.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
     import { staggerRank } from "$lib/config/motion";
+    import * as m from "$lib/locales/messages.js";
     import { wiki, type ChronologyPoint } from "$lib/state/wiki.svelte";
     import { extractYear, formatUniverseDate } from "$lib/utilities/date";
     import { excerpt } from "$lib/utilities/markdown";
-    import { counted } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
 
     /** Heading gathering the dates no year can be read out of, such as «Le troisième hiver». */
-    const UNDATED_GROUP = "Sans année";
+    const UNDATED_GROUP = $derived( m.timeline_undated_group() );
 
     /** Every date of the corpus, grouped by year, oldest first. */
     const years = $derived.by( () =>
@@ -45,26 +46,30 @@
 </script>
 
 <svelte:head>
-    <title>Chronologie · {wiki.meta.universe}</title>
+    <title>{m.timeline_title( { universe: wiki.meta.universe } )}</title>
 
-    <meta name="description" content="Les événements datés de {wiki.meta.universe}, dans l'ordre." />
+    <meta name="description" content={m.timeline_meta_description( { universe: wiki.meta.universe } )} />
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-    <PageHeader title="Chronologie">
+    <PageHeader title={m.timeline_heading()}>
         {#snippet description()}
-            {counted( wiki.chronology.length, "date" )} sur {counted( wiki.datedEntries.length, "fiche" )}. Une fiche
-            revient à chacune de ses dates, et celles qui n'en portent aucune n'apparaissent pas ici.
+            {pluralize( wiki.chronology.length, {
+                one: m.common_count_date_one,
+                other: m.common_count_date_other
+            } )}
+            {m.timeline_description_middle()}
+            {pluralize( wiki.datedEntries.length, {
+                one: m.common_count_fiche_one,
+                other: m.common_count_fiche_other
+            } )}{m.timeline_description_end()}
         {/snippet}
     </PageHeader>
 
     {#if years.length === 0}
         <div class="mt-10">
-            <EmptyState
-                title="Aucune fiche datée"
-                description="Ajoutez une date de référence à une fiche pour la voir apparaître ici."
-            >
-                <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
+            <EmptyState title={m.timeline_empty_title()} description={m.timeline_empty_description()}>
+                <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
             </EmptyState>
         </div>
     {:else}

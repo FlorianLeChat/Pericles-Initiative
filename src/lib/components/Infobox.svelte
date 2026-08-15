@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry } from "$lib/types";
     import { formatUniverseDate } from "$lib/utilities/date";
@@ -16,7 +17,7 @@
     let { entry }: Props = $props();
 
     /** Heading printed for a date whose author gave it no intitulé. */
-    const UNLABELLED_DATE = "Date";
+    const UNLABELLED_DATE = m.infobox_unlabelled_date();
 
     const categories = $derived(
         entry.categories.map( ( slug ) => wiki.categoriesBySlug.get( slug ) ).filter( ( category ) => category !== undefined )
@@ -33,7 +34,7 @@
     </div>
 {/snippet}
 
-<aside class="surface overflow-hidden" aria-label="Fiche signalétique">
+<aside class="surface overflow-hidden" aria-label={m.infobox_aria_label()}>
     {#if entry.image}
         <figure class="border-paper-200 dark:border-ink-800 border-b">
             <img
@@ -69,13 +70,13 @@
 
         {#if entry.aliases.length > 0}
             <p class="text-muted text-xs leading-relaxed">
-                Aussi appelé : {entry.aliases.join( ", " )}
+                {m.infobox_aliases_prefix()} {entry.aliases.join( ", " )}
             </p>
         {/if}
 
         {#if categories.length > 0}
             <div class="border-paper-200 dark:border-ink-800 space-y-2 border-t pt-4">
-                <p class="text-muted text-xs tracking-wide uppercase">Catégories</p>
+                <p class="text-muted text-xs tracking-wide uppercase">{m.common_categories_label()}</p>
 
                 <div class="flex flex-wrap gap-1.5">
                     {#each categories as category ( category.slug )}

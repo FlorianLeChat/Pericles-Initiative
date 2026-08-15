@@ -18,6 +18,7 @@
     import Kbd from "flowbite-svelte/Kbd.svelte";
     import type { Crepe as CrepeEditor } from "@milkdown/crepe";
     import { onMount } from "svelte";
+    import * as m from "$lib/locales/messages.js";
     import EntryPicker from "./EntryPicker.svelte";
 
     interface Props {
@@ -33,8 +34,8 @@
     let {
         value,
         onchange,
-        placeholder = "Rédigez la fiche. Tapez / pour insérer un bloc.",
-        label = "Corps de la fiche, en Markdown"
+        placeholder = m.markdown_editor_placeholder(),
+        label = m.markdown_editor_label()
     }: Props = $props();
 
     let host: HTMLDivElement;
@@ -171,17 +172,17 @@
             disabled={!ready}
         >
             <Link class="h-3.5 w-3.5" />
-            Lier une fiche
-            <Kbd class="ml-1 px-1 py-0.5 text-[10px] font-normal">Ctrl L</Kbd>
+            {m.markdown_editor_link_button()}
+            <Kbd class="ml-1 px-1 py-0.5 text-[10px] font-normal">{m.markdown_editor_link_shortcut()}</Kbd>
         </Button>
 
-        <p class="text-muted ml-auto hidden text-xs sm:block">Sélectionnez du texte pour le mettre en forme.</p>
+        <p class="text-muted ml-auto hidden text-xs sm:block">{m.markdown_editor_format_hint()}</p>
     </div>
 
     <div bind:this={host} class="min-h-96"></div>
 
     {#if !ready}
-        <p class="text-muted px-6 py-4 text-sm">Chargement de l'éditeur...</p>
+        <p class="text-muted px-6 py-4 text-sm">{m.markdown_editor_loading()}</p>
     {/if}
 </div>
 

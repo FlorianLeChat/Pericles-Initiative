@@ -10,7 +10,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { ACCENTS, DEFAULT_ACCENT, type Accent } from "$lib/config/accents";
 import { PAGES, UNIVERSE } from "./utilities/dataset";
-import { expect, isNarrow, test, waitForDrawer, type WikiHelper } from "./utilities/fixtures";
+import { expect, isNarrow, LOCALE_KEY, test, waitForDrawer, type WikiHelper } from "./utilities/fixtures";
 
 /**
  * Reaches the settings the way a reader does, from a page already open.
@@ -113,7 +113,7 @@ test.describe( "settings", () =>
         await openSettings( page, wiki );
 
         const chosen = ACCENTS.find( ( accent ) => accent.key !== DEFAULT_ACCENT ) as Accent;
-        const pill = ( accent: Accent ): Locator => page.getByRole( "radio", { name: accent.label } );
+        const pill = ( accent: Accent ): Locator => page.locator( `div[data-accent="${ accent.key }"]` ).getByRole( "radio" );
 
         await expect( page.locator( "html" ) ).toHaveAttribute( "data-accent", DEFAULT_ACCENT );
 
@@ -147,5 +147,22 @@ test.describe( "settings", () =>
         // The seed is empty for every reader, so the default identity is the nameless one.
         await expect( page.getByLabel( "Nom de l'univers" ) ).toHaveValue( "Univers sans nom" );
         expect( ( await wiki.storedOverlay() )?.meta ).toBeNull();
+    } );
+
+    test( "switches the language, remembers it, and reloads the page in it", async ( { page, wiki } ) =>
+    {
+        await openSettings( page, wiki );
+        await page.getByRole( "radio", { name: "Anglais" } ).click();
+
+        await expect( page ).toHaveURL( /\/settings$/ );
+        await expect( page.getByRole( "heading", { name: "Settings", level: 1 } ) ).toBeVisible();
+        await expect( page.getByLabel( "Universe name" ) ).toBeVisible();
+
+        const locale = await page.evaluate( ( key ) => window.localStorage.getItem( key ), LOCALE_KEY );
+
+        expect( locale ).toBe( "en" );
+
+        await page.getByRole( "radio", { name: "French" } ).click();
+        await expect( page.getByRole( "heading", { name: "Paramètres", level: 1 } ) ).toBeVisible();
     } );
 } );

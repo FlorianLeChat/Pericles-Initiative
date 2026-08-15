@@ -13,9 +13,11 @@
     import EntryCard from "$lib/components/EntryCard.svelte";
     import EntryFilters from "$lib/components/EntryFilters.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { EntryFilterState } from "$lib/types";
     import { earliestDateKey } from "$lib/utilities/date";
+    import { pluralize } from "$lib/utilities/plural";
     import { deburr } from "$lib/utilities/slug";
 
     let filters = $state<EntryFilterState>( {
@@ -72,20 +74,21 @@
 </script>
 
 <svelte:head>
-    <title>Encyclopédie · {wiki.meta.universe}</title>
+    <title>{m.wiki_title( { universe: wiki.meta.universe } )}</title>
 
-    <meta name="description" content="Index de toutes les fiches de {wiki.meta.universe}." />
+    <meta name="description" content={m.wiki_meta_description( { universe: wiki.meta.universe } )} />
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <PageHeader title="Encyclopédie">
+    <PageHeader title={m.common_encyclopedia_label()}>
         {#snippet description()}
-            {wiki.entries.length} fiches, dont {wiki.drafts.length} en brouillon. Filtrez par catégorie, par statut ou
-            par mot clé.
+            {pluralize( wiki.entries.length, { one: m.common_count_fiche_one, other: m.common_count_fiche_other } )},
+            {m.wiki_description_drafts( { count: wiki.drafts.length } )}
+            {m.wiki_description_filter_hint()}
         {/snippet}
 
         {#snippet action()}
-            <Button href={resolve( "/new" )} color="primary">Nouvelle fiche</Button>
+            <Button href={resolve( "/new" )} color="primary">{m.wiki_new_entry_button()}</Button>
         {/snippet}
     </PageHeader>
 
@@ -97,19 +100,13 @@
 
     {#if wiki.entries.length === 0}
         <div class="mt-8">
-            <EmptyState
-                title="Aucune fiche pour le moment"
-                description="Ce wiki est vide : commencez par créer la première fiche."
-            >
-                <Button href={resolve( "/new" )} color="alternative">Créer une fiche</Button>
+            <EmptyState title={m.common_empty_wiki_title()} description={m.common_empty_wiki_description()}>
+                <Button href={resolve( "/new" )} color="alternative">{m.common_create_entry()}</Button>
             </EmptyState>
         </div>
     {:else if filtered.length === 0}
         <div class="mt-6">
-            <EmptyState
-                title="Aucune fiche ne correspond"
-                description="Élargissez ou réinitialisez les filtres pour retrouver le corpus."
-            />
+            <EmptyState title={m.wiki_no_match_title()} description={m.wiki_no_match_description()} />
         </div>
     {:else}
         <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

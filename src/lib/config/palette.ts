@@ -7,6 +7,8 @@
  * @author Claude
  */
 
+import * as m from "$lib/locales/messages.js";
+
 export interface PaletteColor {
     key: string;
     label: string;
@@ -19,43 +21,43 @@ export interface PaletteColor {
 export const PALETTE: readonly PaletteColor[] = [
     {
         key: "bleu",
-        label: "Bleu",
+        label: m.palette_blue(),
         chip: "bg-accent-100 text-accent-700 dark:bg-accent-900/60 dark:text-accent-200",
         dot: "bg-accent-500"
     },
     {
         key: "vert",
-        label: "Vert",
+        label: m.palette_green(),
         chip: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200",
         dot: "bg-emerald-500"
     },
     {
         key: "ambre",
-        label: "Ambre",
+        label: m.palette_amber(),
         chip: "bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-200",
         dot: "bg-amber-500"
     },
     {
         key: "violet",
-        label: "Violet",
+        label: m.palette_violet(),
         chip: "bg-violet-100 text-violet-700 dark:bg-violet-900/60 dark:text-violet-200",
         dot: "bg-violet-500"
     },
     {
         key: "rose",
-        label: "Rose",
+        label: m.palette_pink(),
         chip: "bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-200",
         dot: "bg-rose-500"
     },
     {
         key: "cyan",
-        label: "Cyan",
+        label: m.palette_cyan(),
         chip: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/60 dark:text-cyan-200",
         dot: "bg-cyan-500"
     },
     {
         key: "pierre",
-        label: "Pierre",
+        label: m.palette_stone(),
         chip: "bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-200",
         dot: "bg-stone-500"
     }

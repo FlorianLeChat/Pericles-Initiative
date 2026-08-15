@@ -10,8 +10,9 @@
     import PageHeader from "$lib/components/PageHeader.svelte";
     import { staggerRank } from "$lib/config/motion";
     import { paletteColor } from "$lib/config/palette";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
-    import { plural } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
 
     const groups = $derived(
         wiki.categories.map( ( category ) => ( {
@@ -25,26 +26,28 @@
 </script>
 
 <svelte:head>
-    <title>Catégories · {wiki.meta.universe}</title>
+    <title>{m.categories_title( { universe: wiki.meta.universe } )}</title>
 
-    <meta name="description" content="Les catégories thématiques de {wiki.meta.universe}." />
+    <meta name="description" content={m.categories_meta_description( { universe: wiki.meta.universe } )} />
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <PageHeader title="Catégories">
+    <PageHeader title={m.common_categories_label()}>
         {#snippet description()}
-            Chaque fiche peut appartenir à plusieurs catégories, qui regroupent par thème ce que le corpus documente.
+            {m.categories_description()}
         {/snippet}
 
         {#snippet action()}
-            <Button href={resolve( "/categories/manage" )} color="primary">Gérer les catégories</Button>
+            <Button href={resolve( "/categories/manage" )} color="primary">{m.common_categories_manage_label()}</Button>
         {/snippet}
     </PageHeader>
 
     {#if groups.length === 0}
         <div class="mt-10">
-            <EmptyState title="Aucune catégorie" description="Aucune catégorie n'a encore été créée.">
-                <Button href={resolve( "/categories/manage" )} color="alternative">Créer une catégorie</Button>
+            <EmptyState title={m.categories_empty_title()} description={m.categories_empty_description()}>
+                <Button href={resolve( "/categories/manage" )} color="alternative">
+                    {m.categories_create_button()}
+                </Button>
             </EmptyState>
         </div>
     {:else}
@@ -59,8 +62,10 @@
                         <span class="h-2 w-2 rounded-full {group.color.dot}"></span>
 
                         <span class="text-muted text-xs tracking-wide uppercase">
-                            {group.entries.length}
-                            {plural( group.entries.length, "fiche" )}
+                            {pluralize( group.entries.length, {
+                                one: m.common_count_fiche_one,
+                                other: m.common_count_fiche_other
+                            } )}
                         </span>
                     </span>
 
@@ -82,7 +87,7 @@
 
     {#if uncategorized.length > 0}
         <section class="mt-12">
-            <h2 class="font-serif text-xl font-semibold tracking-tight">Fiches sans catégorie</h2>
+            <h2 class="font-serif text-xl font-semibold tracking-tight">{m.categories_uncategorized_heading()}</h2>
 
             <ul class="mt-4 flex flex-wrap gap-2">
                 {#each uncategorized as entry ( entry.id )}

@@ -22,9 +22,10 @@
     import Label from "flowbite-svelte/Label.svelte";
     import Search from "flowbite-svelte/Search.svelte";
     import Select from "flowbite-svelte/Select.svelte";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { EntryFilterState } from "$lib/types";
-    import { counted } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
 
     interface Props {
         filters: EntryFilterState;
@@ -55,16 +56,19 @@
         ].filter( ( on ) => on ).length
     );
 
-    const summary = $derived( active > 0 ? `${ counted( shown, "fiche" ) } sur ${ total }` : counted( shown, "fiche" ) );
+    const shownCount = $derived( pluralize( shown, { one: m.common_count_fiche_one, other: m.common_count_fiche_other } ) );
+    const summary = $derived(
+        active > 0 ? m.entry_filters_count_of_total( { count: shownCount, total } ) : shownCount
+    );
 </script>
 
-<section class="surface p-4 sm:p-5" aria-label="Filtres">
+<section class="surface p-4 sm:p-5" aria-label={m.entry_filters_section_aria()}>
     <Search
         bind:value={filters.query}
         size="md"
         classes={{ input: "pe-3" }}
-        placeholder="Filtrer par titre ou par résumé"
-        aria-label="Filtrer les fiches"
+        placeholder={m.entry_filters_search_placeholder()}
+        aria-label={m.entry_filters_search_aria()}
     />
 
     <Button
@@ -76,7 +80,7 @@
     >
         <SlidersHorizontal class="h-4 w-4" aria-hidden="true" />
 
-        Filtres
+        {m.entry_filters_toggle_label()}
 
         {#if active > 0}
             <span class="bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900 rounded-full px-1.5 text-xs">
@@ -88,10 +92,10 @@
     <div id="filtres-fiches" class="mt-4 space-y-4 {expanded ? "block" : "hidden"} sm:block">
         <div class="grid gap-3 sm:grid-cols-3 sm:gap-4">
             <div>
-                <Label for="filtre-categorie" class="field-label">Catégorie</Label>
+                <Label for="filtre-categorie" class="field-label">{m.entry_filters_category_label()}</Label>
 
                 <Select id="filtre-categorie" bind:value={filters.category} placeholder="">
-                    <option value="toutes">Toutes</option>
+                    <option value="toutes">{m.entry_filters_category_all()}</option>
 
                     {#each wiki.categories as item ( item.slug )}
                         <option value={item.slug}>{item.name}</option>
@@ -100,22 +104,22 @@
             </div>
 
             <div>
-                <Label for="filtre-statut" class="field-label">Statut</Label>
+                <Label for="filtre-statut" class="field-label">{m.entry_filters_status_label()}</Label>
 
                 <Select id="filtre-statut" bind:value={filters.status} placeholder="">
-                    <option value="tous">Tous</option>
-                    <option value="publie">Publiées</option>
-                    <option value="brouillon">Brouillons</option>
+                    <option value="tous">{m.entry_filters_status_all()}</option>
+                    <option value="publie">{m.entry_filters_status_published()}</option>
+                    <option value="brouillon">{m.entry_filters_status_draft()}</option>
                 </Select>
             </div>
 
             <div>
-                <Label for="filtre-tri" class="field-label">Tri</Label>
+                <Label for="filtre-tri" class="field-label">{m.entry_filters_sort_label()}</Label>
 
                 <Select id="filtre-tri" bind:value={filters.sort} placeholder="">
-                    <option value="alphabetique">Alphabétique</option>
-                    <option value="recent">Modifiées récemment</option>
-                    <option value="chronologique">Chronologique</option>
+                    <option value="alphabetique">{m.entry_filters_sort_alphabetical()}</option>
+                    <option value="recent">{m.entry_filters_sort_recent()}</option>
+                    <option value="chronologique">{m.entry_filters_sort_chronological()}</option>
                 </Select>
             </div>
         </div>
@@ -127,7 +131,7 @@
         <p class="text-muted text-sm" role="status" aria-live="polite">{summary}</p>
 
         {#if active > 0}
-            <Button color="alternative" size="sm" onclick={onreset}>Réinitialiser les filtres</Button>
+            <Button color="alternative" size="sm" onclick={onreset}>{m.entry_filters_reset()}</Button>
         {/if}
     </div>
 </section>

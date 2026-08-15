@@ -5,6 +5,7 @@
      * @author Claude
      */
     import { resolve } from "$app/paths";
+    import * as m from "$lib/locales/messages.js";
     import type { Entry } from "$lib/types";
 
     interface Props {
@@ -13,11 +14,7 @@
         emptyLabel?: string;
     }
 
-    let {
-        entries,
-        title = "Pages qui mènent ici",
-        emptyLabel = "Aucune page ne pointe encore vers celle ci."
-    }: Props = $props();
+    let { entries, title = m.backlinks_title(), emptyLabel = m.backlinks_empty() }: Props = $props();
 </script>
 
 <section class="surface p-5" aria-label={title}>

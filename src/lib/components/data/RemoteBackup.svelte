@@ -23,11 +23,12 @@
     import Label from "flowbite-svelte/Label.svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { ACTION_BUTTON, ACTION_ROW } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
     import { remote } from "$lib/state/remote.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { RemoteFailure } from "$lib/types";
     import { formatDateTime } from "$lib/utilities/date";
-    import { counted } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
     import { isUsableBaseUrl } from "$lib/utilities/remote";
 
     /**
@@ -42,13 +43,13 @@
      * and whoever did not is not helped by the word CORS.
      */
     const FAILURE_MESSAGE: Readonly<Record<RemoteFailure, string>> = {
-        network: "Le serveur ne répond pas. Vérifiez l'adresse, et qu'il est bien en ligne.",
-        refused: "Le mot de passe a été refusé.",
-        missing: "Ce serveur ne contient encore aucune sauvegarde.",
-        unsupported: "Cette adresse ne mène pas à un serveur de sauvegarde. Vérifiez la auprès de qui l'a installé.",
-        conflict: "La sauvegarde en ligne a changé depuis votre dernière lecture, sans doute depuis un autre appareil.",
-        unreadable: "La réponse du serveur est incompréhensible. Il ne s'agit peut être pas d'un serveur de sauvegarde.",
-        server: "Le serveur a rencontré une erreur de son côté. Réessayez plus tard."
+        network: m.remote_backup_failure_network(),
+        refused: m.remote_backup_failure_refused(),
+        missing: m.remote_backup_failure_missing(),
+        unsupported: m.remote_backup_failure_unsupported(),
+        conflict: m.remote_backup_failure_conflict(),
+        unreadable: m.remote_backup_failure_unreadable(),
+        server: m.remote_backup_failure_server()
     };
 
     let baseUrl = $state( "" );
@@ -132,11 +133,14 @@
 
         if ( snapshot )
         {
-            const count = snapshot.dataset.entries.length;
+            const count = pluralize(
+                snapshot.dataset.entries.length,
+                { one: m.common_count_fiche_one, other: m.common_count_fiche_other }
+            );
 
             feedback = {
                 kind: "success",
-                text: `Connexion réussie. La sauvegarde en ligne contient ${ counted( count, "fiche" ) }.`
+                text: m.remote_backup_test_success( { count } )
             };
 
             return;
@@ -146,7 +150,7 @@
         // that the secret was accepted, so for a connection test it is a success.
         feedback
             = remote.failure === "missing"
-                ? { kind: "success", text: "Connexion réussie. Ce serveur ne contient encore aucune sauvegarde." }
+                ? { kind: "success", text: m.remote_backup_test_empty() }
                 : { kind: "error", text: failureText };
     };
 
@@ -172,7 +176,7 @@
         }
 
         feedback = stored
-            ? { kind: "success", text: "Sauvegarde en ligne mise à jour." }
+            ? { kind: "success", text: m.remote_backup_send_success() }
             : { kind: "error", text: failureText };
     };
 
@@ -201,23 +205,25 @@
         // the marker to remember is the one that write just produced.
         remote.markSynced( wiki.changedAt );
 
+        const entries = pluralize( counts.entries, { one: m.common_count_fiche_one, other: m.common_count_fiche_other } );
+        const categories = pluralize(
+            counts.categories,
+            { one: m.common_count_categorie_one, other: m.common_count_categorie_other }
+        );
+        const live = pluralize( counts.live, { one: m.common_count_entree_one, other: m.common_count_entree_other } );
+
         feedback = {
             kind: "success",
-            text:
-                `Wiki restauré : ${ counted( counts.entries, "fiche" ) }, ${ counted( counts.categories, "catégorie" ) } `
-                + `et ${ counted( counts.live, "entrée" ) } du fil.`
+            text: m.remote_backup_restored_summary( { entries, categories, live } )
         };
     };
 </script>
 
 <section class="surface mt-6 p-6">
-    <h2 class="font-serif text-xl font-semibold tracking-tight">Sauvegarde en ligne</h2>
+    <h2 class="font-serif text-xl font-semibold tracking-tight">{m.remote_backup_heading()}</h2>
 
     <p class="text-muted mt-2 text-sm leading-relaxed">
-        Facultatif, et pour la plupart des usages inutile : le wiki fonctionne très bien avec le seul fichier de
-        sauvegarde ci dessus. Renseigner un serveur vous permet de retrouver vos pages sur un autre appareil sans passer
-        de fichier à la main. Tant que ce champ reste vide, rien ne quitte cet appareil. Il vous faut un serveur à vous,
-        que quelqu'un doit avoir installé pour l'occasion.
+        {m.remote_backup_intro()}
     </p>
 
     {#if feedback}
@@ -228,7 +234,7 @@
 
     {#if remote.storageError}
         <Alert color="red" class="mt-5 rounded-xl text-sm" role="alert">
-            {remote.storageError} Le serveur reste utilisable, mais il sera oublié en quittant cette page.
+            {remote.storageError} {m.remote_backup_storage_error_suffix()}
         </Alert>
     {/if}
 
@@ -241,7 +247,7 @@
         }}
     >
         <div>
-            <Label for="remote-base-url" class="field-label">Adresse du serveur</Label>
+            <Label for="remote-base-url" class="field-label">{m.remote_backup_url_label()}</Label>
 
             <Input
                 id="remote-base-url"
@@ -249,17 +255,17 @@
                 type="url"
                 class="font-mono text-xs"
                 aria-describedby="remote-base-url-hint"
-                placeholder="https://exemple.fr/mon-wiki"
+                placeholder={m.remote_backup_url_placeholder()}
                 autocomplete="off"
             />
 
             <Helper id="remote-base-url-hint" class="mt-1.5 text-xs leading-relaxed">
-                L'adresse que vous a donnée la personne qui a installé le serveur, telle quelle.
+                {m.remote_backup_url_hint()}
             </Helper>
         </div>
 
         <div>
-            <Label for="remote-secret" class="field-label">Mot de passe, facultatif</Label>
+            <Label for="remote-secret" class="field-label">{m.remote_backup_secret_label()}</Label>
 
             <Input
                 id="remote-secret"
@@ -267,23 +273,22 @@
                 type="password"
                 class="font-mono text-xs"
                 aria-describedby="remote-secret-hint"
-                placeholder="Laissez vide si le serveur n'en demande pas"
+                placeholder={m.remote_backup_secret_placeholder()}
                 autocomplete="off"
             />
 
             <Helper id="remote-secret-hint" class="mt-1.5 text-xs leading-relaxed">
-                Il est conservé tel quel sur cet appareil, et ne chiffre rien : il empêche seulement un inconnu d'écrire
-                sur votre serveur. N'y mettez pas un mot de passe qui vous sert ailleurs.
+                {m.remote_backup_secret_hint()}
             </Helper>
         </div>
 
         <div class={ACTION_ROW}>
             <Button type="submit" color="primary" disabled={!canConnect || remote.busy} loading={remote.busy}>
-                {remote.busy ? "Connexion..." : "Tester la connexion"}
+                {remote.busy ? m.remote_backup_connecting() : m.remote_backup_test_button()}
             </Button>
 
             {#if dirty && canConnect}
-                <span class="text-signal-500 text-xs">Adresse non enregistrée, le test l'enregistrera</span>
+                <span class="text-signal-500 text-xs">{m.remote_backup_unsaved_url()}</span>
             {/if}
         </div>
     </form>
@@ -292,40 +297,35 @@
         <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
             {#if syncState === "synced"}
                 <Alert color="primary" class="rounded-xl text-sm">
-                    Sauvegarde en ligne à jour : elle contient exactement vos pages actuelles.
+                    {m.remote_backup_sync_synced()}
                 </Alert>
             {:else if syncState === "stale"}
                 <Alert color="yellow" class="rounded-xl text-sm">
-                    Vous avez écrit depuis la dernière synchronisation. Envoyez pour mettre la sauvegarde à jour, ou
-                    restaurez pour abandonner ce que vous avez écrit depuis.
+                    {m.remote_backup_sync_stale()}
                 </Alert>
             {:else}
-                <p class="text-muted text-sm">Vous n'avez encore jamais synchronisé cet appareil avec ce serveur.</p>
+                <p class="text-muted text-sm">{m.remote_backup_sync_unknown()}</p>
             {/if}
 
             <div class="mt-5 {ACTION_ROW}">
                 <Button color="primary" disabled={remote.busy} onclick={() => ( sendOpen = true )}>
-                    Envoyer mes pages
+                    {m.remote_backup_send_button()}
                 </Button>
 
                 <Button color="alternative" disabled={remote.busy} onclick={() => ( restoreOpen = true )}>
-                    Restaurer depuis le serveur
+                    {m.remote_backup_restore_button()}
                 </Button>
 
                 {#if conflicted}
                     <Button color="red" disabled={remote.busy} onclick={() => ( overwriteOpen = true )}>
-                        Écraser quand même
+                        {m.remote_backup_overwrite_button()}
                     </Button>
                 {/if}
             </div>
 
             <p class="text-muted mt-4 text-sm leading-relaxed">
-                Les deux sens remplacent tout : envoyer écrase la sauvegarde du serveur avec vos pages, restaurer écrase
-                vos pages avec la sauvegarde.
-                {remote.conditional
-                    ? "Ce serveur suivant ses révisions, un envoi est refusé si la sauvegarde a changé depuis votre "
-                    + "dernière lecture."
-                    : "Ce serveur ne suivant pas ses révisions, le dernier envoi écrase le précédent sans avertir."}
+                {m.remote_backup_directions_note()}
+                {remote.conditional ? m.remote_backup_conditional_note() : m.remote_backup_unconditional_note()}
             </p>
 
             <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
@@ -339,16 +339,13 @@
                         remote.save( { autoPush: ( event.currentTarget as HTMLInputElement ).checked } )}
                 >
                     <span class="block">
-                        Envoyer automatiquement quand la connexion revient
+                        {m.remote_backup_autopush_label()}
 
                         <span id="remote-auto-push-hint" class="text-muted mt-1 block text-xs leading-relaxed">
                             {#if neverSynced}
-                                À activer après une première synchronisation faite à la main : sans cela, le premier
-                                envoi automatique écraserait une sauvegarde que vous n'avez jamais vue.
+                                {m.remote_backup_autopush_hint_never_synced()}
                             {:else}
-                                Vos modifications partent seules quelques secondes après la dernière frappe, et sont
-                                mises en attente tant que vous êtes hors ligne. Un envoi refusé parce que la sauvegarde
-                                en ligne a changé ne sera jamais forcé : il vous est signalé et vous tranchez ici.
+                                {m.remote_backup_autopush_hint_synced()}
                             {/if}
                         </span>
                     </span>
@@ -356,21 +353,21 @@
             </div>
 
             <dl class="text-muted mt-6 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-[auto_1fr]">
-                <dt class="tracking-wide uppercase">Dernier envoi</dt>
+                <dt class="tracking-wide uppercase">{m.remote_backup_last_push_label()}</dt>
                 <dd>
                     {#if remote.config.lastPushedAt}
                         <time datetime={remote.config.lastPushedAt}>{formatDateTime( remote.config.lastPushedAt )}</time>
                     {:else}
-                        jamais
+                        {m.remote_backup_never()}
                     {/if}
                 </dd>
 
-                <dt class="tracking-wide uppercase">Dernière lecture</dt>
+                <dt class="tracking-wide uppercase">{m.remote_backup_last_pull_label()}</dt>
                 <dd>
                     {#if remote.config.lastPulledAt}
                         <time datetime={remote.config.lastPulledAt}>{formatDateTime( remote.config.lastPulledAt )}</time>
                     {:else}
-                        jamais
+                        {m.remote_backup_never()}
                     {/if}
                 </dd>
             </dl>
@@ -381,7 +378,7 @@
                 class="mt-5 {ACTION_BUTTON}"
                 onclick={() => ( forgetOpen = true )}
             >
-                Oublier ce serveur
+                {m.remote_backup_forget_button()}
             </Button>
         </div>
     {/if}
@@ -389,43 +386,42 @@
 
 <ConfirmDialog
     bind:open={sendOpen}
-    title="Envoyer mes pages ?"
+    title={m.remote_backup_send_confirm_title()}
     message={wiki.hasStoredContent
-        ? "Vos pages vont remplacer entièrement la sauvegarde du serveur."
-        : "Votre wiki est vide. L'envoi va donc remplacer la sauvegarde du serveur par un wiki vide."}
-    confirmLabel="Envoyer"
+        ? m.remote_backup_send_confirm_message()
+        : m.remote_backup_send_confirm_message_empty()}
+    confirmLabel={m.remote_backup_send_confirm_label()}
     danger={!wiki.hasStoredContent}
     onconfirm={() => void send( true )}
 />
 
 <ConfirmDialog
     bind:open={overwriteOpen}
-    title="Écraser la sauvegarde distante ?"
-    message="Les modifications faites sur le serveur depuis votre dernière lecture seront perdues définitivement."
-    confirmLabel="Écraser"
+    title={m.remote_backup_overwrite_confirm_title()}
+    message={m.remote_backup_overwrite_confirm_message()}
+    confirmLabel={m.remote_backup_overwrite_confirm_label()}
     danger
     onconfirm={() => void send( false )}
 />
 
 <ConfirmDialog
     bind:open={restoreOpen}
-    title="Restaurer depuis le serveur ?"
-    message={"Vos pages vont être remplacées par celles de la sauvegarde. "
-      + "Ce que vous n'avez pas envoyé sera perdu."}
-    confirmLabel="Restaurer"
+    title={m.remote_backup_restore_confirm_title()}
+    message={m.remote_backup_restore_confirm_message()}
+    confirmLabel={m.common_restore()}
     onconfirm={() => void restore()}
 />
 
 <ConfirmDialog
     bind:open={forgetOpen}
-    title="Oublier ce serveur ?"
-    message="Vous devrez ressaisir l'adresse et le mot de passe pour vous reconnecter à ce serveur. Vos pages ne sont pas affectées par cette opération."
-    confirmLabel="Oublier"
+    title={m.remote_backup_forget_confirm_title()}
+    message={m.remote_backup_forget_confirm_message()}
+    confirmLabel={m.remote_backup_forget_confirm_label()}
     onconfirm={() =>
     {
         remote.forget();
         baseUrl = "";
         secret = "";
-        feedback = { kind: "success", text: "Serveur oublié. Votre wiki continue de fonctionner sur cet appareil." };
+        feedback = { kind: "success", text: m.remote_backup_forgotten() };
     }}
 />

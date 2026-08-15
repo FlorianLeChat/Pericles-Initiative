@@ -41,16 +41,42 @@ Husky enforces all of it, so a mistake here fails a commit rather than a review:
 ## Language
 
 - Code, comments, JSDoc, commit messages and this file are written in **English**.
-- Everything the reader sees is written in **French**: page copy, labels, button text, error
-  messages, `aria-label`, `alt` text.
-- There is no internationalisation layer and none is wanted. French user facing strings are written
-  inline in the component that displays them. Do not introduce a message catalogue for a single
-  language.
+- Everything the reader sees goes through the Paraglide message catalogue, in French and in English:
+  page copy, labels, button text, error messages, `aria-label`, `alt` text. The catalogue lives in
+  `locales/en.json` (the base locale) and `locales/fr.json`, compiled by `@inlang/paraglide-js` into
+  `src/lib/locales/` (generated, gitignored, never edited by hand). A component calls its strings
+  through `import * as m from "$lib/locales/messages.js"`, never an inline literal.
+- Message ids are `snake_case`, namespaced by the area that owns them (`nav_wiki`,
+  `dashboard_stat_words`, `common_cancel` for text repeated verbatim across several places). A string
+  built around interpolated data, `{ "categories_title": "Catégories · {universe}" }`, keeps only its
+  static fragments in the pattern; `wiki.meta.universe` itself is never translated, it is reader
+  authored content passed in as a parameter.
+- Two states of the same control (a toggle reading differently in each direction) are two separate
+  messages, not one message with a boolean parameter: keep the ternary in the component, call a
+  different message function in each branch.
+- Counted nouns do not use ICU plural syntax: the message-format plugin backing the catalogue only
+  parses `{paramName}` interpolation, not `{count, plural, ...}` blocks. Every counted noun is instead
+  written as a pair of messages, `..._one` and `..._other`, chosen by `pluralize()` in
+  `src/lib/utilities/plural.ts`, which asks `Intl.PluralRules` for the right CLDR category per locale.
+  French and English disagree on where the singular ends, «0 fiche» against "0 entries", which is
+  exactly what this sidesteps.
+- The locale is chosen by `strategy: [ "localStorage", "preferredLanguage", "baseLocale" ]` in
+  `vite.config.ts`, under the `pericles:locale` key, namespaced like every other key this application
+  writes to `localStorage`. A reader can also choose it explicitly from `/settings`, which calls
+  `setLocale()` from `$lib/locales/runtime` and reloads, Paraglide's own recommended pattern for a
+  manual switcher. Because the build has no runtime server, a prerendered page always bakes the base
+  locale (English); the client swaps to the stored or preferred locale on hydration, which is an
+  accepted flash for a statically generated, serverless site, not a defect to chase.
+- `Intl.DateTimeFormat`/`Intl.RelativeTimeFormat` read the current locale through `getLocale()` from
+  `$lib/locales/runtime` rather than a fixed tag, so date and relative-time formatting follow the
+  reader's language too.
 - Identifiers that end up in data are French and lowercase: `personnage`, `evenement`, `brouillon`,
-  `publie`. Keep that convention when adding one.
+  `publie`. Keep that convention when adding one; these are data values, not UI copy, and stay outside
+  the message catalogue.
 - Identifiers that never leave the code are English like the rest of it, even when the only thing they
-  ever produce is a French sentence. `RemoteFailure` and `RemoteStatus` in `src/lib/types.ts` are the
-  reference: nothing persists them, so `network` and `loading` are right and `reseau` was not.
+  ever produce is a French or English sentence. `RemoteFailure` and `RemoteStatus` in
+  `src/lib/types.ts` are the reference: nothing persists them, so `network` and `loading` are right and
+  `reseau` was not.
 
 ## Content typography
 
@@ -193,10 +219,10 @@ Two rules with no exception, because both hide the very thing these questions lo
   `mergeDataset`. Upserts are keyed so re-hydrating a seed never discards work in progress.
 - `id` is stable and survives a rename. `slug` is the url and may change, so never key anything
   persistent on it. Categories are the exception: they are keyed by slug.
-- `localStorage` keys are namespaced `pericles:`. Currently `pericles:overlay`, `pericles:theme` and
-  `pericles:remote`, the last one absent until a remote service is configured. The service worker's
-  caches are namespaced `pericles-` followed by the build version, and hold the application only:
-  clearing them loses nothing an author wrote.
+- `localStorage` keys are namespaced `pericles:`. Currently `pericles:overlay`, `pericles:theme`,
+  `pericles:locale` and `pericles:remote`, the last one absent until a remote service is configured.
+  The service worker's caches are namespaced `pericles-` followed by the build version, and hold the
+  application only: clearing them loses nothing an author wrote.
 - Images are a path under `/media/` or an absolute URL. Never store base64 in the dataset: the
   overlay shares the roughly five megabyte `localStorage` quota with all the text. Static images
   under `static/media/` are the one thing that still ships with the repository.
@@ -368,9 +394,9 @@ commit**:
 - `tests/e2e/dashboard.spec.ts` — figures, breakdowns, the activity chart, most cited pages, red
   links, points of attention.
 - `tests/e2e/data.spec.ts` — inventory of the browser, export to `wiki.json`, import, reset.
-- `tests/e2e/settings.spec.ts` — identity of the wiki and the pages put forward on the home page.
-  These reach `/settings` by clicking, never by `goto`: the form snapshots the identity when it
-  initialises, which on a cold load happens before the overlay has been read.
+- `tests/e2e/settings.spec.ts` — identity of the wiki, the pages put forward on the home page, and the
+  language switch. These reach `/settings` by clicking, never by `goto`: the form snapshots the
+  identity when it initialises, which on a cold load happens before the overlay has been read.
 - `tests/e2e/navigation.spec.ts` — header, tools menu, search palette, theme, on both viewports.
 - `tests/e2e/remote-backup.spec.ts` — the optional snapshot service, entirely mocked.
 - `tests/e2e/accessibility.spec.ts` — axe over every page, both viewports. It asks for reduced motion
@@ -394,7 +420,9 @@ Conventions to follow:
   fixture to the app instead would only reintroduce the branch in `+layout.ts` this replaced.
 - Assert on the French strings the components actually render, and reach for accessible queries
   (`getByRole`, `getByLabel`, `getByText`) over CSS selectors. Never assert on a relative date: those
-  move on their own.
+  move on their own. `open`, `openEmpty` and `openWith` pin `pericles:locale` to `"fr"` before first
+  paint, since the base locale the application falls back to is English: without that pin, every one
+  of these assertions would fail rather than the one spec that actually exercises the other language.
 - Never hardcode content the fixture already describes. Read it through the constants of
   `tests/e2e/utilities/dataset.ts` (`PAGES`, `CATEGORIES`, `LIVE`, `COUNTS`) so the suite follows the
   fixture rather than drifting from it.
@@ -443,9 +471,15 @@ pages and back out through the export. Update it in the same commit as any chang
 ## Structure
 
 ```
+locales/
+    .inlang/                    inlang project settings, message-format and m-function-matcher plugins
+    en.json                     message catalogue, base locale
+    fr.json                     message catalogue, French
 src/
     app.css                     theme, dark mode variant, shared component classes
     app.html                    shell, pre paint theme script, manifest and theme colour
+    hooks.server.ts             Paraglide request middleware, %paraglide.lang%/%paraglide.dir%
+    hooks.ts                    de-localizes the URL before SvelteKit's own routing sees it
     service-worker.ts           offline shell, checked by tsconfig.worker.json
     lib/
         components/             presentation components
@@ -454,10 +488,11 @@ src/
             editor/             Milkdown editor, page form, link picker
             live/               live feed, composer, alert banner
         config/                 page types, palette, severities, navigation, motion, forms
+        locales/                generated by the Paraglide vite plugin, gitignored, never hand edited
         state/wiki.svelte.ts    seed plus overlay, link graph, mutations, export and import
         state/remote.svelte.ts  connection to the optional snapshot service
         types.ts                every data contract
-        utilities/              markdown, dataset, remote, search, stats, date, slug, url
+        utilities/              markdown, dataset, remote, search, stats, date, slug, url, plural
     routes/
         +layout.ts              installs an always empty seed, sets prerender
         +layout.svelte          installs the dataset, frames the site
@@ -468,7 +503,7 @@ src/
         dashboard/              dashboard
         new/, edit/             editor, outside prerendering
         data/                   export, import, remote backup
-        settings/               identity of the wiki
+        settings/               identity of the wiki, language
 static/
     assets/fonts/               self hosted Newsreader and IBM Plex, latin subset, with their OFL notice
     media/                      illustrations referenced by pages, installable icons
@@ -476,6 +511,6 @@ static/
 tests/
     e2e/                        one spec per section of the site
         utilities/dataset.ts    the fixture wiki, and the constants specs assert against
-        utilities/fixtures.ts   the `wiki` fixture: seeding, navigation, stored overlay
+        utilities/fixtures.ts   the `wiki` fixture: seeding, navigation, stored overlay, pinned locale
         utilities/host.js       static host for `build/`, with the SPA fallback
 ```

@@ -13,6 +13,7 @@
  */
 
 import { marked, type Token, type Tokens } from "marked";
+import * as m from "$lib/locales/messages.js";
 import type { Heading, RenderedArticle } from "$lib/types";
 import { slugify } from "./slug";
 import { isSafeUrl } from "./url";
@@ -360,7 +361,7 @@ const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string 
         {
             const exists = knownSlugs.has( internal[ 1 ] );
             const classes = exists ? "wiki-link" : "wiki-link-missing";
-            const hint = exists ? "" : " title=\"Cette page n'existe pas encore\" data-missing=\"true\"";
+            const hint = exists ? "" : ` title="${ m.markdown_missing_page_title() }" data-missing="true"`;
             return `<a ${ attributes } class="${ classes }"${ hint }>`;
         }
 
@@ -393,7 +394,7 @@ const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string 
 const wrapTables = ( html: string ): string =>
     html.replaceAll(
         TABLE_BLOCKS,
-        ( table ) => "<div class=\"article-table\" role=\"region\" aria-label=\"Tableau\" tabindex=\"0\">" + `${ table }</div>`
+        ( table ) => `<div class="article-table" role="region" aria-label="${ m.markdown_table_aria() }" tabindex="0">${ table }</div>`
     );
 
 /**

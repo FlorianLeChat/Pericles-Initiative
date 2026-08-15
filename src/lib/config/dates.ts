@@ -14,18 +14,20 @@
  * @author Claude
  */
 
+import * as m from "$lib/locales/messages.js";
+
 export const DATE_LABELS: readonly string[] = [
-    "Naissance",
-    "Décès",
-    "Fondation",
-    "Dissolution",
-    "Survenue",
-    "Début",
-    "Fin",
-    "Signature",
-    "Entrée en vigueur",
-    "Abrogation",
-    "Découverte",
-    "Mise en service",
-    "Publication"
+    m.dates_birth(),
+    m.dates_death(),
+    m.dates_foundation(),
+    m.dates_dissolution(),
+    m.dates_occurrence(),
+    m.dates_start(),
+    m.dates_end(),
+    m.dates_signature(),
+    m.dates_entry_into_force(),
+    m.dates_repeal(),
+    m.dates_discovery(),
+    m.dates_commissioning(),
+    m.dates_publication()
 ];

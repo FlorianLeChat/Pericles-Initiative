@@ -10,9 +10,10 @@
     import BarChart from "$lib/components/dashboard/BarChart.svelte";
     import StatCard from "$lib/components/dashboard/StatCard.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import { formatShortDate } from "$lib/utilities/date";
-    import { plural } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
     import { computeStats } from "$lib/utilities/stats";
 
     const stats = $derived(
@@ -30,39 +31,47 @@
 </script>
 
 <svelte:head>
-    <title>Tableau de bord · {wiki.meta.universe}</title>
+    <title>{m.dashboard_title( { universe: wiki.meta.universe } )}</title>
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <PageHeader title="Tableau de bord">
+    <PageHeader title={m.dashboard_heading()}>
         {#snippet description()}
-            L'état du corpus, calculé sur ce que le site affiche en ce moment, modifications locales comprises.
+            {m.dashboard_description()}
         {/snippet}
     </PageHeader>
 
     <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-            label="Fiches"
+            label={m.common_entries_label()}
             value={stats.total}
-            hint="{stats.published} publiées, {stats.drafts} en brouillon"
+            hint={m.dashboard_stat_entries_hint( { published: stats.published, drafts: stats.drafts } )}
             index={0}
         />
+
         <StatCard
-            label="Mots"
+            label={m.dashboard_stat_words_label()}
             value={stats.words.toLocaleString( "fr-FR" )}
-            hint="{stats.averageWords} par fiche en moyenne"
+            hint={m.dashboard_stat_words_hint( { averageWords: stats.averageWords } )}
             index={1}
         />
-        <StatCard label="Catégories" value={stats.categories} index={2} />
-        <StatCard label="Fil en direct" value={stats.liveItems} hint="entrées publiées" index={3} />
+
+        <StatCard label={m.common_categories_label()} value={stats.categories} index={2} />
+
+        <StatCard
+            label={m.dashboard_stat_live_label()}
+            value={stats.liveItems}
+            hint={m.dashboard_stat_live_hint()}
+            index={3}
+        />
     </div>
 
     <section class="surface mt-10 p-6">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">Par catégorie</h2>
+        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.dashboard_by_category_heading()}</h2>
 
         <div class="mt-5">
             {#if stats.byCategory.length === 0}
-                <p class="text-muted text-sm">Aucune catégorie déclarée.</p>
+                <p class="text-muted text-sm">{m.dashboard_by_category_empty()}</p>
             {:else}
                 <BarChart items={stats.byCategory} href={( item ) => `/categories/${ item.key }`} />
             {/if}
@@ -70,9 +79,9 @@
     </section>
 
     <section class="surface mt-6 p-6">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">Activité d'édition</h2>
+        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.dashboard_activity_heading()}</h2>
 
-        <p class="text-muted mt-1 text-sm">Nombre de fiches modifiées par mois, sur un an.</p>
+        <p class="text-muted mt-1 text-sm">{m.dashboard_activity_description()}</p>
 
         <div class="mt-6">
             <ActivityChart points={stats.activity} />
@@ -81,10 +90,10 @@
 
     <div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
         <section class="surface p-6">
-            <h2 class="font-serif text-xl font-semibold tracking-tight">Fiches les plus citées</h2>
+            <h2 class="font-serif text-xl font-semibold tracking-tight">{m.dashboard_most_linked_heading()}</h2>
 
             {#if stats.mostLinked.length === 0}
-                <p class="text-muted mt-4 text-sm">Aucun lien entre fiches pour l'instant.</p>
+                <p class="text-muted mt-4 text-sm">{m.dashboard_most_linked_empty()}</p>
             {:else}
                 <ul class="mt-5 space-y-2.5 text-sm">
                     {#each stats.mostLinked as item ( item.entry.id )}
@@ -94,8 +103,10 @@
                             </a>
 
                             <span class="text-muted font-mono text-xs">
-                                {item.incoming}
-                                {plural( item.incoming, "lien" )}
+                                {pluralize( item.incoming, {
+                                    one: m.common_count_lien_one,
+                                    other: m.common_count_lien_other
+                                } )}
                             </span>
                         </li>
                     {/each}
@@ -104,10 +115,10 @@
         </section>
 
         <section class="surface p-6">
-            <h2 class="font-serif text-xl font-semibold tracking-tight">Pages à écrire</h2>
+            <h2 class="font-serif text-xl font-semibold tracking-tight">{m.dashboard_missing_heading()}</h2>
 
             {#if stats.missing.length === 0}
-                <p class="text-muted mt-4 text-sm">Aucun lien rouge, tout ce qui est cité existe.</p>
+                <p class="text-muted mt-4 text-sm">{m.dashboard_missing_empty()}</p>
             {:else}
                 <ul class="mt-5 space-y-2.5 text-sm">
                     {#each stats.missing as item ( item.slug )}
@@ -119,16 +130,18 @@
                                 {item.slug}
                             </a>
 
-                            <span class="text-muted shrink-0 text-xs">cité {item.count} fois</span>
+                            <span class="text-muted shrink-0 text-xs">
+                                {m.dashboard_missing_cited( { count: item.count } )}
+                            </span>
 
                             <Button
                                 href={resolve( `/new?slug=${ item.slug }` )}
                                 color="alternative"
                                 size="xs"
                                 class="shrink-0 rounded-full"
-                                aria-label="Créer la fiche {item.slug}"
+                                aria-label={m.dashboard_missing_create_aria( { slug: item.slug } )}
                             >
-                                Créer
+                                {m.common_create_action()}
                             </Button>
                         </li>
                     {/each}
@@ -139,10 +152,10 @@
 
     <div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
         <section class="surface p-6">
-            <h2 class="font-serif text-xl font-semibold tracking-tight">Points d'attention</h2>
+            <h2 class="font-serif text-xl font-semibold tracking-tight">{m.dashboard_issues_heading()}</h2>
 
             {#if stats.issues.length === 0}
-                <p class="text-muted mt-4 text-sm">Rien à signaler sur le corpus.</p>
+                <p class="text-muted mt-4 text-sm">{m.dashboard_issues_empty()}</p>
             {:else}
                 <div class="mt-5 space-y-4">
                     {#each stats.issues as issue ( issue.key )}
@@ -166,7 +179,7 @@
 
                                 {#if issue.entries.length > 8}
                                     <li class="text-muted self-center text-xs">
-                                        et {issue.entries.length - 8} autres
+                                        {m.dashboard_issues_more( { count: issue.entries.length - 8 } )}
                                     </li>
                                 {/if}
                             </ul>
@@ -177,7 +190,7 @@
         </section>
 
         <section class="surface p-6">
-            <h2 class="font-serif text-xl font-semibold tracking-tight">Dernières modifications</h2>
+            <h2 class="font-serif text-xl font-semibold tracking-tight">{m.common_recent_changes_heading()}</h2>
 
             <ul class="mt-5 space-y-2.5 text-sm">
                 {#each recent as entry ( entry.id )}
@@ -187,7 +200,7 @@
                         >
 
                         {#if entry.status === "brouillon"}
-                            <span class="text-muted text-xs">brouillon</span>
+                            <span class="text-muted text-xs">{m.dashboard_draft_label()}</span>
                         {/if}
 
                         <time datetime={entry.updatedAt} class="text-muted shrink-0 font-mono text-xs">

@@ -6,6 +6,7 @@
      */
     import { resolve } from "$app/paths";
     import { severityConfig } from "$lib/config/severities";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LiveEntry } from "$lib/types";
     import { formatDateTime, formatTime, relativeTime } from "$lib/utilities/date";
@@ -44,7 +45,7 @@
 
         {#if item.pinned}
             <span class="border-paper-300 text-muted dark:border-ink-700 rounded-full border px-2 py-0.5 text-xs">
-                Épinglée
+                {m.live_item_pinned_badge()}
             </span>
         {/if}
     </div>
@@ -59,15 +60,15 @@
 
     <div class="text-muted mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
         {#if target}
-            <a href={resolve( `/wiki/${ target.slug }` )} class="wiki-link font-medium">Lire la fiche complète</a>
+            <a href={resolve( `/wiki/${ target.slug }` )} class="wiki-link font-medium">{m.live_item_read_entry()}</a>
         {:else if item.entrySlug}
             <a href={resolve( `/wiki/${ item.entrySlug }` )} class="wiki-link-missing font-medium">
-                Fiche à écrire : {item.entrySlug}
+                {m.live_item_missing_entry( { slug: item.entrySlug } )}
             </a>
         {/if}
 
         {#if item.source}
-            <span>Source : {item.source}</span>
+            <span>{m.live_item_source( { source: item.source } )}</span>
         {/if}
 
         {#each item.tags as tag ( tag )}
@@ -84,9 +85,9 @@
                         class="hover:text-accent-600 dark:hover:text-accent-400 inline-flex min-h-9
                                items-center rounded-full px-2 underline"
                         onclick={() => onedit( item )}
-                        aria-label="Modifier l'entrée « {item.title} »"
+                        aria-label={m.live_item_edit_aria( { title: item.title } )}
                     >
-                        Modifier
+                        {m.common_edit()}
                     </button>
                 {/if}
 
@@ -96,9 +97,9 @@
                         class="hover:text-alert-500 inline-flex min-h-9 items-center rounded-full px-2
                                underline"
                         onclick={() => ondelete( item )}
-                        aria-label="Supprimer l'entrée « {item.title} »"
+                        aria-label={m.live_item_delete_aria( { title: item.title } )}
                     >
-                        Supprimer
+                        {m.common_delete()}
                     </button>
                 {/if}
             </span>

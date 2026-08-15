@@ -9,6 +9,7 @@
      */
     import { page } from "$app/state";
     import EntryForm from "$lib/components/editor/EntryForm.svelte";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
 
     const initialSlug = $derived( page.url.searchParams.get( "slug" ) ?? "" );
@@ -16,7 +17,7 @@
 </script>
 
 <svelte:head>
-    <title>Nouvelle fiche · {wiki.meta.universe}</title>
+    <title>{m.new_title( { universe: wiki.meta.universe } )}</title>
 </svelte:head>
 
 {#key `${ initialSlug }-${ initialTitle }`}
