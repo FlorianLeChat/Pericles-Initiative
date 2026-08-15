@@ -36,7 +36,13 @@
 <aside class="surface overflow-hidden" aria-label="Fiche signalétique">
     {#if entry.image}
         <figure class="border-paper-200 dark:border-ink-800 border-b">
-            <img src={entry.image.src} alt={entry.image.alt} class="aspect-video w-full object-cover" />
+            <img
+                src={entry.image.src}
+                alt={entry.image.alt}
+                class="aspect-video w-full object-cover"
+                loading="lazy"
+                decoding="async"
+            />
 
             {#if entry.image.caption}
                 <figcaption class="text-muted px-4 py-2 text-xs leading-relaxed">

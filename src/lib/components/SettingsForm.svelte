@@ -202,7 +202,7 @@
                 class="border-paper-200 dark:border-ink-800 flex items-center gap-2.5 rounded-xl border p-3"
             >
                 {#if logo.trim()}
-                    <img src={logo} alt="" class="h-9 w-9 rounded-xl object-cover" />
+                    <img src={logo} alt="" class="h-9 w-9 rounded-xl object-cover" loading="lazy" decoding="async" />
                 {:else}
                     <span
                         class="bg-accent-600 grid h-9 w-9 place-items-center rounded-xl font-serif text-lg font-semibold text-white"
