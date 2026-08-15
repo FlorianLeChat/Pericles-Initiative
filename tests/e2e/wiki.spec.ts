@@ -121,12 +121,14 @@ test.describe( "encyclopedia index", () =>
     {
         await wiki.open( "/wiki" );
 
-        await expect( page.getByText( `${ COUNTS.entries } fiches`, { exact: true } ) ).toBeVisible();
+        const count = page.getByRole( "status" ).filter( { hasText: "fiche" } );
+
+        await expect( count ).toHaveText( `${ COUNTS.entries } fiches` );
         await expect( page.getByRole( "button", { name: "Réinitialiser les filtres" } ) ).toBeHidden();
 
         await page.getByLabel( "Filtrer les fiches" ).fill( PAGES.athena.title );
 
-        await expect( page.getByText( `1 fiche sur ${ COUNTS.entries }` ) ).toBeVisible();
+        await expect( count ).toHaveText( `1 fiche sur ${ COUNTS.entries }` );
 
         await page.getByRole( "button", { name: "Réinitialiser les filtres" } ).click();
 

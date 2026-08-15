@@ -124,7 +124,7 @@
     <div
         class="border-paper-200 dark:border-ink-800 mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4"
     >
-        <p class="text-muted text-sm">{summary}</p>
+        <p class="text-muted text-sm" role="status" aria-live="polite">{summary}</p>
 
         {#if active > 0}
             <Button color="alternative" size="sm" onclick={onreset}>Réinitialiser les filtres</Button>

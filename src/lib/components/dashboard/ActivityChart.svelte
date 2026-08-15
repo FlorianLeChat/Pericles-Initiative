@@ -58,7 +58,11 @@
             </span>
 
             <span class="text-muted w-5 shrink-0 text-right font-mono text-[10px] sm:order-first sm:w-auto">
-                {point.count > 0 ? point.count : ""}
+                {#if point.count > 0}
+                    {point.count}
+                {:else}
+                    <span class="sr-only">0</span>
+                {/if}
             </span>
         </li>
     {/each}
