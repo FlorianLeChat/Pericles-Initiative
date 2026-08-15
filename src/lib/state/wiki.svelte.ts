@@ -132,6 +132,33 @@ class WikiStore
 
     categoriesBySlug = $derived( new Map( this.categories.map( ( category ) => [ category.slug, category ] ) ) );
 
+    /**
+     * For each category slug, the pages carrying it, drafts included.
+     *
+     * Grouped once, because three listings ask the same question once per
+     * category: the home page counts them, the overview lists them and the
+     * management screen counts them again. Each of those calls used to filter the
+     * whole corpus, so a wiki of a thousand pages and thirty categories walked
+     * thirty thousand pages to draw one screen. Built the same way as
+     * `incomingLinks`, and left in the order `entries` already sorted them.
+     */
+    entriesByCategory = $derived.by( () =>
+    {
+        const grouped: Record<string, Entry[]> = {};
+
+        for ( const entry of this.entries )
+        {
+            for ( const slug of entry.categories )
+            {
+                const members = grouped[ slug ] ?? [];
+                members.push( entry );
+                grouped[ slug ] = members;
+            }
+        }
+
+        return new Map( Object.entries( grouped ) );
+    } );
+
     /** For each page slug, the slugs it links to. */
     outgoingLinks = $derived( new Map( this.entries.map( ( entry ) => [ entry.slug, extractInternalLinks( entry.body ) ] ) ) );
 
@@ -348,6 +375,9 @@ class WikiStore
     /**
      * Lists the pages of a category.
      *
+     * Read from `entriesByCategory` rather than filtered out of the corpus, so
+     * the cost follows the size of the category rather than that of the wiki.
+     *
      * @param slug Category slug.
      * @param includeDrafts Whether drafts should be listed too.
      * @returns The matching pages, sorted by title.
@@ -355,8 +385,8 @@ class WikiStore
      */
     entriesInCategory( slug: string, includeDrafts = false ): Entry[]
     {
-        const source = includeDrafts ? this.entries : this.publishedEntries;
-        return source.filter( ( entry ) => entry.categories.includes( slug ) );
+        const members = this.entriesByCategory.get( slug ) ?? [];
+        return includeDrafts ? [ ...members ] : members.filter( ( entry ) => entry.status === "publie" );
     }
 
     /**
