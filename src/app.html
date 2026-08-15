@@ -29,21 +29,22 @@
 
         <script>
             const key = "pericles:theme";
-            const stored = localStorage.getItem(key);
             const element = document.documentElement;
+
+            let stored = null;
+
+            try {
+                stored = localStorage.getItem(key);
+            } catch {
+                /* storage unavailable, the system preference decides on every visit */
+            }
 
             element.classList.remove("light", "dark");
 
-            if (stored === "light" || stored === "dark") {
-                element.classList.add(stored);
-            } else {
-                const isDark = matchMedia("(prefers-color-scheme: dark)").matches;
-                const target = isDark ? "dark" : "light";
+            const chosen = stored === "light" || stored === "dark";
+            const system = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
-                element.classList.add(target);
-
-                localStorage.setItem(key, target);
-            }
+            element.classList.add(chosen ? stored : system);
         </script>
 
         %sveltekit.head%
