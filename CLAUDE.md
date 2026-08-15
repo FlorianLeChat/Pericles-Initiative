@@ -200,9 +200,13 @@ Two rules with no exception, because both hide the very thing these questions lo
 - Images are a path under `/media/` or an absolute URL. Never store base64 in the dataset: the
   overlay shares the roughly five megabyte `localStorage` quota with all the text. Static images
   under `static/media/` are the one thing that still ships with the repository.
-- Dates: `createdAt`, `updatedAt` and `publishedAt` are real ISO timestamps. `timelineDate` is an in
-  universe date and may be free text, which is why every date helper falls back to returning its
-  input untouched.
+- Dates: `createdAt`, `updatedAt` and `publishedAt` are real ISO timestamps. In universe dates live
+  in `Entry.dates`, a list of `{ id, label, value }` rows: a page is dated by its own references, a
+  birth and a death, a founding, an occurrence, and each row stands on its own point of the
+  chronology under its intitulé. The value may be free text, which is why every date helper falls
+  back to returning its input untouched. A page written before that field existed carries a single
+  `timelineDate`, adopted by `normalizeDates` on the first read of the overlay and never written
+  again.
 - Every listing (`/wiki`, `/categories`, `/timeline`, the home page) must handle having zero entries
   gracefully: a fresh browser starts from an empty wiki, so this is the default state, not an edge
   case. Show an inviting message with a link to create content, never a silent empty grid.

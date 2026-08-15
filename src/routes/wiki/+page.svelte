@@ -15,7 +15,7 @@
     import PageHeader from "$lib/components/PageHeader.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { EntryFilterState } from "$lib/types";
-    import { timelineSortKey } from "$lib/utilities/date";
+    import { earliestDateKey } from "$lib/utilities/date";
     import { deburr } from "$lib/utilities/slug";
 
     let filters = $state<EntryFilterState>( {
@@ -53,7 +53,7 @@
         }
         if ( filters.sort === "chronologique" )
         {
-            return matching.sort( ( a, b ) => timelineSortKey( a.timelineDate ) - timelineSortKey( b.timelineDate ) );
+            return matching.sort( ( a, b ) => earliestDateKey( a.dates ) - earliestDateKey( b.dates ) );
         }
         return matching.sort( ( a, b ) => a.title.localeCompare( b.title, "fr" ) );
     } );

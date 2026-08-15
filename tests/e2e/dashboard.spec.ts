@@ -102,7 +102,9 @@ test.describe( "dashboard", () =>
         const issues = panel( page, "Points d'attention" );
 
         await expect( issues ).toContainText( "Sans résumé" );
+        await expect( issues ).toContainText( "Sans date de référence" );
         await expect( issues.getByRole( "link", { name: PAGES.sceau.title } ).first() ).toBeVisible();
+        await expect( issues.getByRole( "link", { name: PAGES.bureau.title } ).first() ).toBeVisible();
 
         await expect( panel( page, "Dernières modifications" ).getByRole( "listitem" ).first() )
             .toContainText( PAGES.athena.title );

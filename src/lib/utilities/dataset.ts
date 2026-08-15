@@ -14,6 +14,7 @@ import { SEVERITY_IDS } from "$lib/config/severities";
 import type { Category,
     Dataset,
     Entry,
+    EntryDate,
     EntryImage,
     InfoboxField,
     LiveEntry,
@@ -105,6 +106,42 @@ const normalizeInfobox = ( value: unknown ): InfoboxField[] =>
         .filter( ( field ) => field.label !== "" || field.value !== "" );
 
 /**
+ * Normalises the dates of reference of a page, adopting the one field they replace.
+ *
+ * A row with no date is dropped, whatever its intitulé says: an intitulé alone
+ * places nothing on the chronology, where a date alone reads perfectly well.
+ *
+ * Pages written before a page could hold several dates carry a single
+ * `timelineDate` instead, and every one of them lives in a reader's browser
+ * rather than in a file anyone could migrate. It is read here, once, and comes
+ * back as an unnamed date: the row is then stored in the new shape, so the old
+ * field disappears the first time the overlay is read.
+ *
+ * @param value Raw list of dates.
+ * @param legacy Raw `timelineDate`, from a page stored before this field existed.
+ * @returns The dates to store, possibly empty.
+ * @author Claude
+ */
+const normalizeDates = ( value: unknown, legacy: unknown ): EntryDate[] =>
+{
+    if ( !Array.isArray( value ) )
+    {
+        const inherited = asTrimmed( legacy );
+
+        return inherited ? [ { id: createId(), label: "", value: inherited } ] : [];
+    }
+
+    return value
+        .map( asRecord )
+        .map( ( date ) => ( {
+            id: asTrimmed( date.id ) || createId(),
+            label: asTrimmed( date.label ),
+            value: asTrimmed( date.value )
+        } ) )
+        .filter( ( date ) => date.value !== "" );
+};
+
+/**
  * Keeps an image source only when it is a path or an allowed absolute url.
  *
  * Refusing the other schemes is what keeps `data:` base64 payloads out of the
@@ -161,7 +198,7 @@ export const normalizeEntry = ( value: unknown ): Entry =>
         categories: [ ...new Set( asStringArray( raw.categories ).map( slugify ) ) ],
         infobox: normalizeInfobox( raw.infobox ),
         image: normalizeImage( raw.image ),
-        timelineDate: asNullableString( raw.timelineDate ),
+        dates: normalizeDates( raw.dates, raw.timelineDate ),
         status: raw.status === "brouillon" ? "brouillon" : "publie",
         aliases: [
             ...new Set(

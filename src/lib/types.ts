@@ -20,6 +20,22 @@ export interface InfoboxField {
     value: string;
 }
 
+/**
+ * One dated reference point of a page: a birth, a founding, an occurrence.
+ *
+ * A page carries as many as the fiction gives it, and each one stands on its own
+ * in the chronology, which is why it needs a label of its own: a death read out
+ * of context is just a year.
+ */
+export interface EntryDate {
+    /** Stable identifier, kept when the label or the date is rewritten. */
+    id: string;
+    /** What the date marks, such as `Naissance`. Empty reads as `Date`. */
+    label: string;
+    /** In universe date, ISO or free text, as the chronology reads it. */
+    value: string;
+}
+
 /** Illustration of a page: a path under `/media/` or an absolute URL. */
 export interface EntryImage {
     src: string;
@@ -42,8 +58,8 @@ export interface Entry {
     categories: string[];
     infobox: InfoboxField[];
     image: EntryImage | null;
-    /** In universe date, ISO or free text, used by the chronology. */
-    timelineDate: string | null;
+    /** Dates of reference, shown in the infobox and spread over the chronology. */
+    dates: EntryDate[];
     status: EntryStatus;
     /** Alternative names, searched alongside the title. */
     aliases: string[];

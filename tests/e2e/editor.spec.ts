@@ -81,6 +81,40 @@ test.describe( "entry editor", () =>
             .toHaveAttribute( "href", `/wiki/${ PAGES.port.slug }` );
     } );
 
+    test( "dates a page, which puts it in the infobox and in the chronology", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/new" );
+
+        await page.getByLabel( "Titre", { exact: true } ).fill( "Fanal de Sainte Roque" );
+
+        await page.getByRole( "button", { name: "Dates" } ).click();
+        await page.getByRole( "button", { name: "Ajouter une date" } ).click();
+        await page.getByLabel( "Intitulé de la date 1" ).fill( "Mise à feu" );
+        await page.getByLabel( "Valeur de la date 1" ).fill( "2045-01-09" );
+
+        // A row left without a date is a row the author started and abandoned, so
+        // it is neither stored nor counted by the header of the panel.
+        await page.getByRole( "button", { name: "Ajouter une date" } ).click();
+        await page.getByLabel( "Intitulé de la date 2" ).fill( "Extinction" );
+
+        await expect( page.getByRole( "button", { name: "Dates 1 date" } ) ).toBeVisible();
+
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        await expect( page ).toHaveURL( /\/wiki\/fanal-de-sainte-roque$/ );
+        await expect( page.getByRole( "complementary", { name: "Fiche signalétique" } ) )
+            .toContainText( "9 janvier 2045" );
+
+        const stored = await wiki.storedEntry( "fanal-de-sainte-roque" );
+
+        expect( stored?.dates.map( ( date ) => [ date.label, date.value ] ) )
+            .toEqual( [ [ "Mise à feu", "2045-01-09" ] ] );
+
+        await wiki.navigate( "Chronologie" );
+
+        await expect( page.getByRole( "heading", { level: 2, name: "2045" } ) ).toBeVisible();
+    } );
+
     test( "prefills the form from a red link and closes the gap", async ( { page, wiki } ) =>
     {
         await wiki.open( `/new?slug=${ MISSING_SLUG }&titre=Conseil%20des%20parties` );

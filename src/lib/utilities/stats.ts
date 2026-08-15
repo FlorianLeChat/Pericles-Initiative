@@ -166,6 +166,11 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
             entries: entries.filter( ( entry ) => entry.categories.length === 0 )
         },
         {
+            key: "sans-date",
+            label: "Sans date de référence",
+            entries: entries.filter( ( entry ) => entry.dates.length === 0 )
+        },
+        {
             key: "sans-lien",
             label: "Sans lien sortant",
             entries: deadEnds

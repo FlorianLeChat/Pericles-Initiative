@@ -16,7 +16,7 @@
  */
 
 import { browser } from "$app/environment";
-import type { Category, Dataset, Entry, LiveEntry, Overlay, WikiMeta } from "$lib/types";
+import type { Category, Dataset, Entry, EntryDate, LiveEntry, Overlay, WikiMeta } from "$lib/types";
 import { timelineSortKey } from "$lib/utilities/date";
 import { buildImportOverlay,
     countOverlayItems,
@@ -43,6 +43,17 @@ const BREAKING_MAX_AGE = 24 * 60 * 60 * 1000;
 export interface MissingLink {
     slug: string;
     from: Entry[];
+}
+
+/**
+ * One point of the chronology: a single date of a single page.
+ *
+ * A page carrying a birth and a death stands twice on the frise, at two distant
+ * years, so what the chronology lists is dates rather than pages.
+ */
+export interface ChronologyPoint {
+    entry: Entry;
+    date: EntryDate;
 }
 
 class WikiStore
@@ -167,11 +178,14 @@ class WikiStore
         return missing.sort( ( a, b ) => b.from.length - a.from.length || a.slug.localeCompare( b.slug, "fr" ) );
     } );
 
-    /** Pages with an in universe date, in chronological order. */
+    /** Pages carrying at least one date of reference. */
+    datedEntries = $derived( this.publishedEntries.filter( ( entry ) => entry.dates.length > 0 ) );
+
+    /** Every date of every published page, in chronological order. */
     chronology = $derived(
         this.publishedEntries
-            .filter( ( entry ) => entry.timelineDate )
-            .sort( ( a, b ) => timelineSortKey( a.timelineDate ) - timelineSortKey( b.timelineDate ) )
+            .flatMap( ( entry ) => entry.dates.map( ( date ) => ( { entry, date } ) ) )
+            .sort( ( a, b ) => timelineSortKey( a.date.value ) - timelineSortKey( b.date.value ) )
     );
 
     /** Most recently edited pages first. */

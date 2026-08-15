@@ -7,7 +7,7 @@
  * @author Claude
  */
 
-import { CATEGORIES, MISSING_SLUG, PAGES, UNIVERSE } from "./utilities/dataset";
+import { CATEGORIES, DATES, MISSING_SLUG, PAGES, UNIVERSE } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
 
 test.describe( "article page", () =>
@@ -24,6 +24,13 @@ test.describe( "article page", () =>
         const infobox = page.getByRole( "complementary", { name: "Fiche signalétique" } );
 
         await expect( infobox.getByText( "Navigatrice en chef" ) ).toBeVisible();
+
+        // The dates of reference open the panel, each under its own intitulé.
+        await expect( infobox.getByText( DATES.naissance.label ) ).toBeVisible();
+        await expect( infobox.getByText( "14 mai 2020" ) ).toBeVisible();
+        await expect( infobox.getByText( DATES.deces.label ) ).toBeVisible();
+        await expect( infobox.getByText( "12 juin 2043" ) ).toBeVisible();
+
         await expect( infobox.getByRole( "link", { name: CATEGORIES.institutions.name } ) ).toBeVisible();
         await expect( infobox.getByText( "Aussi appelé : La Vance" ) ).toBeVisible();
 

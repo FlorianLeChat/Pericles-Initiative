@@ -9,30 +9,33 @@
     import EmptyState from "$lib/components/EmptyState.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
     import { staggerRank } from "$lib/config/motion";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { Entry } from "$lib/types";
+    import { wiki, type ChronologyPoint } from "$lib/state/wiki.svelte";
     import { extractYear, formatUniverseDate } from "$lib/utilities/date";
     import { excerpt } from "$lib/utilities/markdown";
+    import { counted } from "$lib/utilities/plural";
 
-    /** Pages with an in universe date, grouped by year, oldest first. */
+    /** Heading gathering the dates no year can be read out of, such as «Le troisième hiver». */
+    const UNDATED_GROUP = "Sans année";
+
+    /** Every date of the corpus, grouped by year, oldest first. */
     const years = $derived.by( () =>
     {
-        const groups: Record<string, Entry[]> = {};
+        const groups: Record<string, ChronologyPoint[]> = {};
 
-        for ( const entry of wiki.chronology )
+        for ( const point of wiki.chronology )
         {
-            const year = extractYear( entry.timelineDate );
-            const key = year === null ? "Sans année" : String( year );
-            groups[ key ] = [ ...( groups[ key ] ?? [] ), entry ];
+            const year = extractYear( point.date.value );
+            const key = year === null ? UNDATED_GROUP : String( year );
+            groups[ key ] = [ ...( groups[ key ] ?? [] ), point ];
         }
 
         return Object.entries( groups ).sort( ( [ a ], [ b ] ) =>
         {
-            if ( a === "Sans année" )
+            if ( a === UNDATED_GROUP )
             {
                 return 1;
             }
-            if ( b === "Sans année" )
+            if ( b === UNDATED_GROUP )
             {
                 return -1;
             }
@@ -50,8 +53,8 @@
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <PageHeader title="Chronologie">
         {#snippet description()}
-            {wiki.chronology.length} fiches portent une date dans l'univers. Les autres, personnages et concepts sans ancrage
-            précis, n'apparaissent pas ici.
+            {counted( wiki.chronology.length, "date" )} sur {counted( wiki.datedEntries.length, "fiche" )}. Une fiche
+            revient à chacune de ses dates, et celles qui n'en portent aucune n'apparaissent pas ici.
         {/snippet}
     </PageHeader>
 
@@ -59,21 +62,21 @@
         <div class="mt-10">
             <EmptyState
                 title="Aucune fiche datée"
-                description="Renseignez le champ « Date dans l'univers » d'une fiche pour la voir apparaître ici."
+                description="Ajoutez une date de référence à une fiche pour la voir apparaître ici."
             >
                 <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
             </EmptyState>
         </div>
     {:else}
         <div class="mt-12 space-y-12">
-            {#each years as [ year, entries ] ( year )}
+            {#each years as [ year, points ] ( year )}
                 <section>
                     <h2 class="border-paper-200 dark:border-ink-800 font-serif text-2xl font-semibold tracking-tight">
                         {year}
                     </h2>
 
                     <ol class="border-paper-200 dark:border-ink-800 mt-5 space-y-7 border-l">
-                        {#each entries as entry, index ( entry.id )}
+                        {#each points as point, index ( `${ point.entry.id }-${ point.date.id }` )}
                             <li class="rise-in relative pl-6" style="--rank: {staggerRank( index )}">
                                 <span
                                     class="bg-accent-500 border-paper-50 dark:border-ink-950 absolute top-2 left-[-5px] h-2.5 w-2.5 rounded-full border-2"
@@ -81,22 +84,30 @@
                                 ></span>
 
                                 <p class="text-muted font-mono text-xs">
-                                    {formatUniverseDate( entry.timelineDate )}
+                                    {formatUniverseDate( point.date.value )}
                                 </p>
 
-                                <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                                <div class="mt-1.5 flex flex-wrap items-baseline gap-2">
                                     <h3 class="text-lg leading-snug font-semibold tracking-tight">
                                         <a
-                                            href={resolve( `/wiki/${ entry.slug }` )}
+                                            href={resolve( `/wiki/${ point.entry.slug }` )}
                                             class="hover:text-accent-600 dark:hover:text-accent-400"
                                         >
-                                            {entry.title}
+                                            {point.entry.title}
                                         </a>
                                     </h3>
+
+                                    {#if point.date.label}
+                                        <span
+                                            class="border-paper-200 dark:border-ink-800 text-muted rounded-full border px-2 py-0.5 text-xs"
+                                        >
+                                            {point.date.label}
+                                        </span>
+                                    {/if}
                                 </div>
 
                                 <p class="text-ink-500 dark:text-paper-300/80 mt-2 max-w-2xl text-sm leading-relaxed">
-                                    {entry.summary || excerpt( entry.body, 160 )}
+                                    {point.entry.summary || excerpt( point.entry.body, 160 )}
                                 </p>
                             </li>
                         {/each}

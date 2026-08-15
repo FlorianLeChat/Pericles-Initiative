@@ -91,7 +91,7 @@
 
             <div>
                 <dt class="text-muted text-xs tracking-wide uppercase">Fiches datées</dt>
-                <dd class="font-serif text-3xl font-semibold">{wiki.chronology.length}</dd>
+                <dd class="font-serif text-3xl font-semibold">{wiki.datedEntries.length}</dd>
             </div>
 
             <div>

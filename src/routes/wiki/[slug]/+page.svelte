@@ -22,7 +22,7 @@
     import { staggerRank } from "$lib/config/motion";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Category } from "$lib/types";
-    import { formatDateTime, formatUniverseDate } from "$lib/utilities/date";
+    import { formatDateTime } from "$lib/utilities/date";
     import { excerpt, renderArticle } from "$lib/utilities/markdown";
 
     const slug = $derived( page.params.slug ?? "" );
@@ -103,9 +103,6 @@
             </div>
 
             <p class="text-muted mt-5 text-xs">
-                {#if entry.timelineDate}
-                    Date dans l'univers : {formatUniverseDate( entry.timelineDate )} ·
-                {/if}
                 Dernière modification le <time datetime={entry.updatedAt}>{formatDateTime( entry.updatedAt )}</time>
             </p>
         </header>

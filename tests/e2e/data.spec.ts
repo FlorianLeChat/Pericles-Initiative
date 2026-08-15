@@ -38,7 +38,7 @@ const IMPORTED: Dataset = {
             categories: [],
             infobox: [],
             image: null,
-            timelineDate: null,
+            dates: [],
             status: "publie",
             aliases: [],
             createdAt: "2026-01-01T00:00:00.000Z",

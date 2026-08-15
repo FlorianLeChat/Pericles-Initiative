@@ -15,10 +15,23 @@
 
     let { entry }: Props = $props();
 
+    /** Heading printed for a date whose author gave it no intitulé. */
+    const UNLABELLED_DATE = "Date";
+
     const categories = $derived(
         entry.categories.map( ( slug ) => wiki.categoriesBySlug.get( slug ) ).filter( ( category ) => category !== undefined )
     );
+
+    /** True once the panel has something to lay out as a label and value pair. */
+    const hasRows = $derived( entry.dates.length > 0 || entry.infobox.length > 0 );
 </script>
+
+{#snippet row( label: string, value: string )}
+    <div class="gap-x-3 py-2 sm:grid sm:grid-cols-5">
+        <dt class="text-muted leading-snug sm:col-span-2">{label}</dt>
+        <dd class="leading-snug font-medium sm:col-span-3">{value}</dd>
+    </div>
+{/snippet}
 
 <aside class="surface overflow-hidden" aria-label="Fiche signalétique">
     {#if entry.image}
@@ -36,19 +49,14 @@
     <div class="space-y-4 p-5">
         <p class="font-serif text-lg leading-snug font-semibold">{entry.title}</p>
 
-        {#if entry.timelineDate}
-            <p class="text-ink-500 dark:text-paper-300/80 text-sm">
-                <span class="text-muted">Date : </span>{formatUniverseDate( entry.timelineDate )}
-            </p>
-        {/if}
-
-        {#if entry.infobox.length > 0}
+        {#if hasRows}
             <dl class="divide-paper-200 dark:divide-ink-800 divide-y text-sm">
+                {#each entry.dates as date ( date.id )}
+                    {@render row( date.label || UNLABELLED_DATE, formatUniverseDate( date.value ) )}
+                {/each}
+
                 {#each entry.infobox as field, index ( index )}
-                    <div class="gap-x-3 py-2 sm:grid sm:grid-cols-5">
-                        <dt class="text-muted leading-snug sm:col-span-2">{field.label}</dt>
-                        <dd class="leading-snug font-medium sm:col-span-3">{field.value}</dd>
-                    </div>
+                    {@render row( field.label, field.value )}
                 {/each}
             </dl>
         {/if}

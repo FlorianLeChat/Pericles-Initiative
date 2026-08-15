@@ -18,10 +18,11 @@
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { PAIRED_ACTION } from "$lib/config/forms";
     import { wiki } from "$lib/state/wiki.svelte";
-    import type { Entry, EntryStatus, InfoboxField } from "$lib/types";
+    import type { Entry, EntryDate, EntryStatus, InfoboxField } from "$lib/types";
     import { counted } from "$lib/utilities/plural";
     import { slugify } from "$lib/utilities/slug";
     import ChipsInput from "./ChipsInput.svelte";
+    import DatesEditor from "./DatesEditor.svelte";
     import EntryImageFields from "./EntryImageFields.svelte";
     import InfoboxEditor from "./InfoboxEditor.svelte";
     import MarkdownEditor from "./MarkdownEditor.svelte";
@@ -53,7 +54,7 @@
         imageSrc: entry?.image?.src ?? "",
         imageAlt: entry?.image?.alt ?? "",
         imageCaption: entry?.image?.caption ?? "",
-        timelineDate: entry?.timelineDate ?? "",
+        dates: ( entry?.dates ?? [] ).map( ( date ) => ( { ...date } ) ),
         aliases: [ ...( entry?.aliases ?? [] ) ],
         status: entry?.status ?? ( "publie" as EntryStatus ),
         /** The slug stops following the title as soon as it is known. */
@@ -69,7 +70,7 @@
     let imageSrc = $state( initial.imageSrc );
     let imageAlt = $state( initial.imageAlt );
     let imageCaption = $state( initial.imageCaption );
-    let timelineDate = $state( initial.timelineDate );
+    let dates = $state<EntryDate[]>( initial.dates );
     let aliases = $state<string[]>( initial.aliases );
     let status = $state<EntryStatus>( initial.status );
     let slugLocked = $state( initial.slugLocked );
@@ -94,7 +95,7 @@
             imageSrc,
             imageAlt,
             imageCaption,
-            timelineDate,
+            dates,
             aliases,
             status,
             slugLocked
@@ -117,6 +118,19 @@
      */
     const isFilled = ( field: InfoboxField ): boolean => field.label.trim() !== "" || field.value.trim() !== "";
 
+    /**
+     * Tells whether a date row carries a date at all.
+     *
+     * Stricter than `isFilled` on purpose: an intitulé alone places nothing on
+     * the chronology and prints an empty row in the infobox, whereas a date with
+     * no intitulé reads perfectly well under its default heading.
+     *
+     * @param date Date of reference.
+     * @returns True when the date itself holds something.
+     * @author Claude
+     */
+    const isDated = ( date: EntryDate ): boolean => date.value.trim() !== "";
+
     /*
      * What each closed panel of the options says of itself. The panels arrive
      * closed, so a value nobody can see is a value nobody checks before saving,
@@ -129,6 +143,12 @@
         const rows = infobox.filter( isFilled ).length;
 
         return rows === 0 ? "Aucune" : counted( rows, "ligne" );
+    } );
+    const datesSummary = $derived.by( () =>
+    {
+        const rows = dates.filter( isDated ).length;
+
+        return rows === 0 ? "Aucune" : counted( rows, "date" );
     } );
     const aliasesSummary = $derived( aliases.length === 0 ? "Aucun" : counted( aliases.length, "alias", "alias" ) );
 
@@ -195,7 +215,7 @@
             image: imageSrc.trim()
                 ? { src: imageSrc.trim(), alt: imageAlt.trim(), caption: imageCaption.trim() || undefined }
                 : null,
-            timelineDate: timelineDate.trim() || null,
+            dates: dates.filter( isDated ),
             aliases: [ ...aliases ],
             status
         } );
@@ -299,55 +319,36 @@
             />
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-            <div>
-                <Label for="entry-slug" class="field-label">
-                    Adresse de la page
-                    {#if !slugLocked}
-                        <span class="text-muted font-normal">suit le titre</span>
-                    {/if}
-                </Label>
-
-                <div class="flex items-center gap-2">
-                    <span class="text-muted shrink-0 font-mono text-sm">/wiki/</span>
-
-                    <Input
-                        id="entry-slug"
-                        bind:value={slug}
-                        oninput={() => ( slugLocked = true )}
-                        onblur={() => ( slug = slug.trim() ? slugify( slug ) : "" )}
-                        type="text"
-                        class="font-mono"
-                        color={slugTaken ? "red" : "default"}
-                        aria-invalid={slugTaken}
-                        aria-describedby={slugTaken ? "entry-slug-taken" : undefined}
-                        placeholder="adresse-de-la-page"
-                    />
-                </div>
-
-                {#if slugTaken}
-                    <Helper id="entry-slug-taken" color="red" class="mt-1.5 text-xs">
-                        Une autre fiche utilise déjà cette adresse. Un numéro sera ajouté à la fin.
-                    </Helper>
+        <div>
+            <Label for="entry-slug" class="field-label">
+                Adresse de la page
+                {#if !slugLocked}
+                    <span class="text-muted font-normal">suit le titre</span>
                 {/if}
-            </div>
+            </Label>
 
-            <div>
-                <Label for="entry-date" class="field-label">Date dans l'univers</Label>
+            <div class="flex items-center gap-2">
+                <span class="text-muted shrink-0 font-mono text-sm">/wiki/</span>
 
                 <Input
-                    id="entry-date"
-                    bind:value={timelineDate}
+                    id="entry-slug"
+                    bind:value={slug}
+                    oninput={() => ( slugLocked = true )}
+                    onblur={() => ( slug = slug.trim() ? slugify( slug ) : "" )}
                     type="text"
-                    aria-describedby="entry-date-hint"
-                    placeholder="2025-04-02, ou Juin 2043"
+                    class="font-mono"
+                    color={slugTaken ? "red" : "default"}
+                    aria-invalid={slugTaken}
+                    aria-describedby={slugTaken ? "entry-slug-taken" : undefined}
+                    placeholder="adresse-de-la-page"
                 />
-
-                <Helper id="entry-date-hint" class="mt-1.5 text-xs">
-                    Facultatif. Une date comme 2043-06-12 place la fiche dans la chronologie ; « Juin 2043 » ou « Le
-                    troisième hiver » sont acceptés aussi.
-                </Helper>
             </div>
+
+            {#if slugTaken}
+                <Helper id="entry-slug-taken" color="red" class="mt-1.5 text-xs">
+                    Une autre fiche utilise déjà cette adresse. Un numéro sera ajouté à la fin.
+                </Helper>
+            {/if}
         </div>
 
         <div>
@@ -395,6 +396,16 @@
                             {/each}
                         </fieldset>
                     {/if}
+                </OptionPanel>
+
+                <OptionPanel label="Dates" value={datesSummary}>
+                    <DatesEditor bind:dates />
+
+                    <p class="text-muted mt-2 text-xs leading-relaxed">
+                        Une date par repère : naissance et décès, fondation, survenue. Chacune place la fiche dans la
+                        chronologie et s'affiche dans l'infobox. « 2043-06-12 » comme « Juin 2043 » ou « Le troisième
+                        hiver » sont acceptés.
+                    </p>
                 </OptionPanel>
 
                 <OptionPanel label="Infobox" value={infoboxSummary}>

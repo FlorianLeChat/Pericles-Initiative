@@ -8,6 +8,8 @@
  * @author Claude
  */
 
+import type { EntryDate } from "$lib/types";
+
 const LONG_DATE = new Intl.DateTimeFormat( "fr-FR", { day: "numeric", month: "long", year: "numeric" } );
 const SHORT_DATE = new Intl.DateTimeFormat( "fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" } );
 const MONTH_AND_YEAR = new Intl.DateTimeFormat( "fr-FR", { month: "long", year: "numeric" } );
@@ -226,6 +228,20 @@ export const timelineSortKey = ( value: string | null | undefined ): number =>
     const year = extractYear( value );
     return year === null ? UNDATED_SORT_KEY : Number( `${ year }0000` );
 };
+
+/**
+ * Builds the sort key of a whole page, from the earliest date it carries.
+ *
+ * A page holding a birth and a death belongs where its story starts, and one
+ * carrying nothing datable belongs at the end, which is where the undated key
+ * an empty list falls back to already puts it.
+ *
+ * @param dates Dates of reference of the page.
+ * @returns A comparable number.
+ * @author Claude
+ */
+export const earliestDateKey = ( dates: readonly EntryDate[] ): number =>
+    dates.reduce( ( earliest, date ) => Math.min( earliest, timelineSortKey( date.value ) ), UNDATED_SORT_KEY );
 
 /**
  * Formats an in universe date for display, keeping free text as written.

@@ -103,7 +103,10 @@ const ENTRY_LIST: Entry[] = [
             { label: "Port d’attache", value: "Port Méridien" }
         ],
         image: null,
-        timelineDate: "2043-06-12",
+        dates: [
+            { id: "fixture-date-naissance", label: "Naissance", value: "2020-05-14" },
+            { id: "fixture-date-deces", label: "Décès", value: "2043-06-12" }
+        ],
         status: "publie",
         aliases: [ "La Vance" ],
         updatedAt: daysAgo( 1 )
@@ -124,7 +127,7 @@ const ENTRY_LIST: Entry[] = [
         categories: [ "sites" ],
         infobox: [ { label: "Population", value: "12 400" } ],
         image: null,
-        timelineDate: "2041",
+        dates: [ { id: "fixture-date-fondation", label: "Fondation", value: "2018" } ],
         status: "publie",
         aliases: [],
         updatedAt: daysAgo( 2 )
@@ -143,7 +146,7 @@ const ENTRY_LIST: Entry[] = [
         categories: [ "institutions" ],
         infobox: [ { label: "Articles", value: "11" } ],
         image: null,
-        timelineDate: "2043-09-01",
+        dates: [ { id: "fixture-date-signature", label: "Signature", value: "2043-09-01" } ],
         status: "publie",
         aliases: [],
         updatedAt: daysAgo( 3 )
@@ -162,7 +165,7 @@ const ENTRY_LIST: Entry[] = [
         categories: [ "institutions" ],
         infobox: [],
         image: null,
-        timelineDate: null,
+        dates: [],
         status: "publie",
         aliases: [],
         updatedAt: daysAgo( 4 )
@@ -176,7 +179,7 @@ const ENTRY_LIST: Entry[] = [
         categories: [],
         infobox: [],
         image: null,
-        timelineDate: null,
+        dates: [ { id: "fixture-date-brouillon", label: "Découverte", value: "2042-11-02" } ],
         status: "brouillon",
         aliases: [],
         updatedAt: daysAgo( 5 )
@@ -195,7 +198,10 @@ const ENTRY_LIST: Entry[] = [
         categories: [ "doctrines" ],
         infobox: [],
         image: null,
-        timelineDate: "2044-03",
+        dates: [
+            { id: "fixture-date-formulation", label: "Formulation", value: "2044-03" },
+            { id: "fixture-date-application", label: "Première application", value: "Le troisième hiver" }
+        ],
         status: "publie",
         aliases: [ "Le reflux" ],
         updatedAt: daysAgo( 6 )
@@ -269,6 +275,28 @@ export const PAGES = {
     doctrine: pick( ENTRY_LIST, "slug", "doctrine-du-reflux" )
 };
 
+/** Every date of every page, so one can be picked without knowing which page carries it. */
+const DATE_LIST = ENTRY_LIST.flatMap( ( entry ) => entry.dates );
+
+/**
+ * The dates of reference the fixture spreads over its pages.
+ *
+ * Between them they cover every shape the chronology has to read: a bare year, a
+ * year and a month, a full ISO date, and a free text date no year can be read out
+ * of. `naissance` and `deces` belong to the same page, which is what puts one page
+ * at two distant points of the frise, and `brouillon` belongs to an unpublished
+ * one, which must keep it out of the chronology entirely.
+ */
+export const DATES = {
+    naissance: pick( DATE_LIST, "id", "fixture-date-naissance" ),
+    deces: pick( DATE_LIST, "id", "fixture-date-deces" ),
+    fondation: pick( DATE_LIST, "id", "fixture-date-fondation" ),
+    signature: pick( DATE_LIST, "id", "fixture-date-signature" ),
+    formulation: pick( DATE_LIST, "id", "fixture-date-formulation" ),
+    application: pick( DATE_LIST, "id", "fixture-date-application" ),
+    brouillon: pick( DATE_LIST, "id", "fixture-date-brouillon" )
+};
+
 export const CATEGORIES = {
     institutions: pick( CATEGORY_LIST, "slug", "institutions" ),
     sites: pick( CATEGORY_LIST, "slug", "sites" ),
@@ -289,7 +317,9 @@ export const COUNTS = {
     published: published.length,
     drafts: ENTRY_LIST.length - published.length,
     categories: CATEGORY_LIST.length,
-    dated: published.filter( ( entry ) => entry.timelineDate !== null ).length,
+    dated: published.filter( ( entry ) => entry.dates.length > 0 ).length,
+    /** Points of the chronology, which counts dates rather than the pages carrying them. */
+    datePoints: published.reduce( ( total, entry ) => total + entry.dates.length, 0 ),
     live: LIVE_LIST.length,
     /** Pages of the busiest category, which is the one the counters are asserted on. */
     institutions: published.filter( ( entry ) => entry.categories.includes( "institutions" ) ).length
