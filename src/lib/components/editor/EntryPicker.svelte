@@ -15,6 +15,7 @@
     import Input from "flowbite-svelte/Input.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
     import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import { searchEntries } from "$lib/utilities/search";
     import { slugify } from "$lib/utilities/slug";
@@ -77,11 +78,11 @@
         header: "border-paper-200 dark:border-ink-800 p-4",
         body: "p-2"
     }}
-    aria-label="Lier une fiche"
+    aria-label={m.entry_picker_aria_label()}
 >
     {#snippet header()}
         <div class="w-full">
-            <p class="mb-2 text-sm font-medium">Lier une fiche</p>
+            <p class="mb-2 text-sm font-medium">{m.entry_picker_aria_label()}</p>
 
             <Input
                 bind:elementRef={input}
@@ -108,8 +109,8 @@
                 }}
                 type="text"
                 class="rounded-xl bg-white px-3.5 py-2.5 transition"
-                placeholder="Titre de la fiche à lier"
-                aria-label="Titre de la fiche à lier"
+                placeholder={m.entry_picker_input_label()}
+                aria-label={m.entry_picker_input_label()}
                 autocomplete="off"
             />
         </div>
@@ -117,7 +118,7 @@
 
     {#if trimmed.length === 0}
         <p class="text-muted px-3 py-6 text-center text-sm">
-            Cherchez une fiche existante, ou tapez un titre inédit pour poser un lien rouge.
+            {m.entry_picker_hint()}
         </p>
     {:else}
         <ul>
@@ -158,7 +159,7 @@
 
                         <span class="min-w-0 flex-1">
                             <span class="block truncate text-sm font-medium">
-                                Lien rouge vers « {trimmed} »
+                                {m.entry_picker_red_link( { title: trimmed } )}
                             </span>
 
                             <span class="text-muted block truncate font-mono text-xs">

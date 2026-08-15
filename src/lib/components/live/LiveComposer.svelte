@@ -20,6 +20,7 @@
     import ChipsInput from "$lib/components/editor/ChipsInput.svelte";
     import { RADIO_OVERLAY, SMALL_FIELD } from "$lib/config/forms";
     import { SEVERITIES } from "$lib/config/severities";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LiveEntry, LiveSeverity } from "$lib/types";
     import { fromDateTimeInput, toDateTimeInput } from "$lib/utilities/date";
@@ -142,33 +143,33 @@
 >
     <div class="flex flex-wrap items-baseline justify-between gap-2">
         <p class="text-muted text-xs tracking-wide uppercase">
-            {editing ? "Modifier une entrée" : "Publier dans le fil"}
+            {editing ? m.live_composer_edit_heading() : m.live_composer_publish_heading()}
         </p>
 
         {#if editing}
             <button type="button" class="text-muted hover:text-accent-600 text-xs underline" onclick={oncancel}>
-                Abandonner la modification
+                {m.live_composer_cancel_edit()}
             </button>
         {/if}
     </div>
 
     <div class="mt-4 space-y-3">
         <div>
-            <Label for="live-title" class="field-label">Titre</Label>
+            <Label for="live-title" class="field-label">{m.live_composer_title_label()}</Label>
 
-            <Input id="live-title" bind:value={title} type="text" placeholder="Ce qui vient de se produire" required />
+            <Input id="live-title" bind:value={title} type="text" placeholder={m.live_composer_title_placeholder()} required />
         </div>
 
         <div>
             <div class="flex items-baseline justify-between gap-2">
-                <Label for="live-body" class="field-label">Corps</Label>
+                <Label for="live-body" class="field-label">{m.live_composer_body_label()}</Label>
 
                 <button
                     type="button"
                     class="text-accent-600 dark:text-accent-400 mb-1.5 text-xs underline"
                     onclick={() => ( pickerOpen = true )}
                 >
-                    Lier une fiche
+                    {m.live_composer_link_button()}
                 </button>
             </div>
 
@@ -178,13 +179,13 @@
                 bind:value={body}
                 rows={3}
                 class="w-full resize-y"
-                placeholder="Une ou deux phrases. Markdown accepté."
+                placeholder={m.live_composer_body_placeholder()}
             />
         </div>
 
         <div class="grid gap-3 sm:grid-cols-2">
             <fieldset>
-                <legend class="field-label">Gravité</legend>
+                <legend class="field-label">{m.live_composer_severity_legend()}</legend>
 
                 <div class="flex flex-wrap gap-1.5">
                     {#each SEVERITIES as config ( config.id )}
@@ -210,16 +211,16 @@
             </fieldset>
 
             <div>
-                <Label for="live-date" class="field-label">Horodatage</Label>
+                <Label for="live-date" class="field-label">{m.live_composer_timestamp_label()}</Label>
 
                 <Input id="live-date" bind:value={publishedAt} type="datetime-local" size="sm" class={SMALL_FIELD} />
             </div>
 
             <div>
-                <Label for="live-entry" class="field-label">Fiche détaillée</Label>
+                <Label for="live-entry" class="field-label">{m.live_composer_entry_label()}</Label>
 
                 <Select id="live-entry" bind:value={entrySlug} size="sm" placeholder="">
-                    <option value="">Aucune</option>
+                    <option value="">{m.live_composer_entry_none()}</option>
 
                     {#each wiki.entries as entry ( entry.id )}
                         <option value={entry.slug}>{entry.title}</option>
@@ -228,7 +229,7 @@
             </div>
 
             <div>
-                <Label for="live-source" class="field-label">Source</Label>
+                <Label for="live-source" class="field-label">{m.live_composer_source_label()}</Label>
 
                 <Input
                     id="live-source"
@@ -236,24 +237,24 @@
                     type="text"
                     size="sm"
                     class={SMALL_FIELD}
-                    placeholder="Conseil des parties"
+                    placeholder={m.live_composer_source_placeholder()}
                 />
             </div>
         </div>
 
         <div>
-            <Label for="live-tags" class="field-label">Étiquettes</Label>
+            <Label for="live-tags" class="field-label">{m.live_composer_tags_label()}</Label>
 
-            <ChipsInput bind:values={tags} id="live-tags" placeholder="Étiquette, puis Entrée" />
+            <ChipsInput bind:values={tags} id="live-tags" placeholder={m.live_composer_tags_placeholder()} />
         </div>
 
         <Checkbox bind:checked={pinned} classes={{ div: "flex min-h-9 items-center text-sm" }}>
-            Épingler en tête du fil
+            {m.live_composer_pin_checkbox()}
         </Checkbox>
     </div>
 
     <Button type="submit" color="primary" class="mt-4 w-full" disabled={!canPublish}>
-        {editing ? "Enregistrer" : "Publier"}
+        {editing ? m.common_save() : m.live_composer_publish_button()}
     </Button>
 </form>
 

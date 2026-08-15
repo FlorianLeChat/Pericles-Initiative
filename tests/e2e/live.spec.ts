@@ -27,7 +27,7 @@ test.describe( "live feed", () =>
     {
         await wiki.openEmpty( "/live" );
 
-        await expect( page.getByText( "0 entrées." ) ).toBeVisible();
+        await expect( page.getByText( "0 entrée." ) ).toBeVisible();
         await expect( page.getByText( "Rien à cette gravité" ) ).toBeVisible();
     } );
 

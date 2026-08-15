@@ -19,6 +19,7 @@
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import { NAV_LINKS, TOOL_LINKS } from "$lib/config/navigation";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import ThemeToggle from "./ThemeToggle.svelte";
     import ToolsMenu from "./ToolsMenu.svelte";
@@ -71,11 +72,11 @@
                     {wiki.meta.universe}
                 </span>
 
-                <span class="text-muted hidden truncate text-xs leading-tight sm:block">Encyclopédie</span>
+                <span class="text-muted hidden truncate text-xs leading-tight sm:block">{m.common_encyclopedia_tagline()}</span>
             </span>
         </a>
 
-        <nav class="ml-4 hidden items-center gap-1 lg:flex" aria-label="Navigation principale">
+        <nav class="ml-4 hidden items-center gap-1 lg:flex" aria-label={m.site_header_nav_main_aria()}>
             {#each NAV_LINKS as link ( link.href )}
                 <a
                     href={resolve( link.href )}
@@ -99,9 +100,9 @@
             >
                 <Search class="h-4 w-4" />
 
-                <span>Rechercher</span>
+                <span>{m.common_search()}</span>
 
-                <Kbd class="ml-2 px-1.5 py-0.5 font-sans text-[10px] leading-none font-normal">Ctrl K</Kbd>
+                <Kbd class="ml-2 px-1.5 py-0.5 font-sans text-[10px] leading-none font-normal">{m.site_header_shortcut_label()}</Kbd>
             </button>
 
             <button
@@ -109,7 +110,7 @@
                 class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
                        items-center justify-center rounded-full transition lg:hidden"
                 onclick={onsearch}
-                aria-label="Rechercher"
+                aria-label={m.common_search()}
             >
                 <Search class="h-[18px] w-[18px]" />
             </button>
@@ -120,7 +121,7 @@
                        leading-none font-medium text-white shadow-sm transition lg:inline-flex"
             >
                 <Plus class="h-4 w-4" />
-                Nouvelle fiche
+                {m.common_new_entry()}
             </a>
 
             <div class="border-paper-200 dark:border-ink-800 ml-1 flex items-center gap-1 border-l pl-1.5">
@@ -136,7 +137,7 @@
                 onclick={() => ( menuOpen = true )}
                 aria-expanded={menuOpen}
                 aria-controls="navigation-mobile"
-                aria-label="Ouvrir la navigation"
+                aria-label={m.site_header_open_nav()}
             >
                 <Menu class="h-[18px] w-[18px]" />
             </button>
@@ -151,23 +152,23 @@
     dismissable={false}
     transitionParams={{ duration: 0 }}
     class="text-ink-800 dark:bg-ink-950 dark:text-paper-200 z-50 w-72 bg-white p-0 lg:hidden"
-    aria-label="Navigation du site"
+    aria-label={m.site_header_drawer_aria()}
 >
     <div class="border-paper-200 dark:border-ink-800 flex items-center justify-between border-b px-4 py-3">
-        <p class="text-muted text-xs tracking-wide uppercase">Navigation</p>
+        <p class="text-muted text-xs tracking-wide uppercase">{m.site_header_drawer_heading()}</p>
 
         <button
             type="button"
             class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
                    items-center justify-center rounded-full transition"
             onclick={() => ( menuOpen = false )}
-            aria-label="Fermer la navigation"
+            aria-label={m.site_header_close_nav()}
         >
             <X class="h-4.5 w-4.5" />
         </button>
     </div>
 
-    <nav class="px-4 py-3" aria-label="Navigation mobile">
+    <nav class="px-4 py-3" aria-label={m.site_header_nav_mobile_aria()}>
         <ul class="space-y-1">
             {#each NAV_LINKS as link ( link.href )}
                 <li>
@@ -184,7 +185,7 @@
             {/each}
         </ul>
 
-        <p class="text-muted mt-3 px-3 text-xs tracking-wide uppercase">Outils</p>
+        <p class="text-muted mt-3 px-3 text-xs tracking-wide uppercase">{m.common_tools_label()}</p>
 
         <ul class="mt-1 space-y-1">
             {#each TOOL_LINKS as link ( link.href )}
@@ -209,7 +210,7 @@
                     onclick={() => ( menuOpen = false )}
                 >
                     <Plus class="h-4 w-4" />
-                    Nouvelle fiche
+                    {m.common_new_entry()}
                 </a>
             </li>
         </ul>

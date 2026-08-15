@@ -24,7 +24,25 @@
     import FeaturedPagesEditor from "$lib/components/FeaturedPagesEditor.svelte";
     import { ACCENTS } from "$lib/config/accents";
     import { ACTION_ROW, colorPill, RADIO_OVERLAY } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
+    import { getLocale, locales, setLocale } from "$lib/locales/runtime";
     import { wiki } from "$lib/state/wiki.svelte";
+
+    /** Reader facing name of each locale the catalogue supports. */
+    const LANGUAGE_LABEL: Record<( typeof locales )[ number ], () => string> = {
+        en: m.settings_form_language_en,
+        fr: m.settings_form_language_fr
+    };
+
+    /**
+     * Locale the language radios show as picked.
+     *
+     * `Radio` tracks the checked one of a group through `bind:group`, the same
+     * two-way binding the accent picker uses just below, not through a `checked`
+     * prop: passing one instead left every click inert, since it fought the
+     * binding's own management of the input rather than driving it.
+     */
+    let selectedLocale = $state<( typeof locales )[ number ]>( getLocale() );
 
     /** Repository the application is built from, not part of the fiction. */
     const REPOSITORY_URL = "https://github.com/FlorianLeChat/Pericles-Initiative";
@@ -110,8 +128,8 @@
 
 {#if saved && !dirty}
     <Alert color="primary" class="mt-6 rounded-xl text-sm" role="status">
-        Enregistré. Pensez à faire une copie depuis
-        <a href={resolve( "/data" )} class="underline">les sauvegardes</a> pour ne rien perdre.
+        {m.settings_form_saved_intro()}
+        <a href={resolve( "/data" )} class="underline">{m.settings_form_saved_link_text()}</a> {m.settings_form_saved_outro()}
     </Alert>
 {/if}
 
@@ -125,7 +143,7 @@
 >
     <section class="surface space-y-4 p-6">
         <div>
-            <Label for="meta-universe" class="field-label">Nom de l'univers</Label>
+            <Label for="meta-universe" class="field-label">{m.settings_form_universe_label()}</Label>
 
             <Input
                 id="meta-universe"
@@ -138,7 +156,7 @@
         </div>
 
         <div>
-            <Label for="meta-description" class="field-label">Description</Label>
+            <Label for="meta-description" class="field-label">{m.settings_form_description_label()}</Label>
 
             <Textarea
                 id="meta-description"
@@ -146,12 +164,12 @@
                 oninput={() => ( saved = false )}
                 rows={3}
                 class="w-full resize-y"
-                placeholder="Quelques mots sur votre univers, affichés quand un lien est partagé."
+                placeholder={m.settings_form_description_placeholder()}
             />
         </div>
 
         <div>
-            <Label for="meta-logo" class="field-label">Logo</Label>
+            <Label for="meta-logo" class="field-label">{m.settings_form_logo_label()}</Label>
 
             <Input
                 id="meta-logo"
@@ -160,16 +178,16 @@
                 type="text"
                 class="font-mono text-xs"
                 aria-describedby="meta-logo-hint"
-                placeholder="https://exemple.fr/logo.png"
+                placeholder={m.settings_form_logo_placeholder()}
             />
 
             <Helper id="meta-logo-hint" class="mt-1.5 text-xs leading-relaxed">
-                L'adresse d'une image, en ligne ou dans les fichiers du site. Laissez vide pour garder l'initiale.
+                {m.settings_form_logo_hint()}
             </Helper>
         </div>
 
         <fieldset aria-describedby="meta-accent-hint">
-            <legend class="field-label">Couleur d'accentuation</legend>
+            <legend class="field-label">{m.settings_form_accent_legend()}</legend>
 
             <div class="flex flex-wrap gap-1.5">
                 {#each ACCENTS as option ( option.key )}
@@ -190,12 +208,35 @@
             </div>
 
             <Helper id="meta-accent-hint" class="mt-1.5 text-xs leading-relaxed">
-                Elle colore les liens des articles, les boutons et le logo de l'entête.
+                {m.settings_form_accent_hint()}
+            </Helper>
+        </fieldset>
+
+        <fieldset aria-describedby="meta-language-hint">
+            <legend class="field-label">{m.settings_form_language_legend()}</legend>
+
+            <div class="flex flex-wrap gap-1.5">
+                {#each locales as code ( code )}
+                    <Radio
+                        name="meta-language"
+                        value={code}
+                        bind:group={selectedLocale}
+                        onchange={() => setLocale( code )}
+                        class={RADIO_OVERLAY}
+                        classes={{ label: colorPill( selectedLocale === code ) }}
+                    >
+                        {LANGUAGE_LABEL[ code ]()}
+                    </Radio>
+                {/each}
+            </div>
+
+            <Helper id="meta-language-hint" class="mt-1.5 text-xs leading-relaxed">
+                {m.settings_form_language_hint()}
             </Helper>
         </fieldset>
 
         <div>
-            <p class="field-label">Aperçu de l'entête</p>
+            <p class="field-label">{m.settings_form_preview_label()}</p>
 
             <div
                 data-accent={accent}
@@ -214,10 +255,10 @@
 
                 <span>
                     <span class="block text-sm leading-tight font-semibold tracking-tight">
-                        {universe.trim() || "Univers sans nom"}
+                        {universe.trim() || m.settings_form_unnamed_universe()}
                     </span>
 
-                    <span class="text-muted block text-xs leading-tight">Encyclopédie</span>
+                    <span class="text-muted block text-xs leading-tight">{m.common_encyclopedia_tagline()}</span>
                 </span>
             </div>
         </div>
@@ -226,17 +267,17 @@
     <FeaturedPagesEditor bind:slugs={featured} />
 
     <section class="surface space-y-3 p-6" aria-labelledby="about-heading">
-        <h2 id="about-heading" class="font-serif text-xl font-semibold tracking-tight">À propos</h2>
+        <h2 id="about-heading" class="font-serif text-xl font-semibold tracking-tight">{m.settings_form_about_heading()}</h2>
 
         <dl class="text-muted space-y-1.5 text-sm">
             <div class="flex flex-wrap gap-2">
-                <dt>Version de l'application :</dt>
+                <dt>{m.settings_form_version_label()}</dt>
 
                 <dd class="text-ink-600 dark:text-paper-300 font-medium">{env.PUBLIC_VERSION ?? "0.0.1"}</dd>
             </div>
 
             <div class="flex flex-wrap gap-2">
-                <dt>Code source :</dt>
+                <dt>{m.settings_form_source_label()}</dt>
 
                 <dd class="text-ink-600 dark:text-paper-300 min-w-0 font-medium break-all">
                     <a href={REPOSITORY_URL} class="wiki-link" target="_blank" rel="noreferrer">{REPOSITORY_URL}</a>
@@ -246,11 +287,11 @@
     </section>
 
     <div class={ACTION_ROW}>
-        <Button type="submit" color="primary" disabled={!canSave || !dirty}>Enregistrer</Button>
+        <Button type="submit" color="primary" disabled={!canSave || !dirty}>{m.common_save()}</Button>
 
         {#if hasLocalMeta}
             <Button color="red" class="sm:ml-auto" onclick={() => ( resetOpen = true )}>
-                Tout remettre par défaut
+                {m.settings_form_reset_button()}
             </Button>
         {/if}
     </div>
@@ -258,9 +299,9 @@
 
 <ConfirmDialog
     bind:open={resetOpen}
-    title="Tout remettre par défaut ?"
-    message="Le nom, la description, le logo et les fiches à la une reviendront à leur état d'origine."
-    confirmLabel="Remettre"
+    title={m.settings_form_reset_confirm_title()}
+    message={m.settings_form_reset_confirm_message()}
+    confirmLabel={m.settings_form_reset_confirm_label()}
     danger
     onconfirm={reset}
 />

@@ -11,6 +11,7 @@
 import { ACCENT_KEYS, DEFAULT_ACCENT } from "$lib/config/accents";
 import { PALETTE_KEYS } from "$lib/config/palette";
 import { SEVERITY_IDS } from "$lib/config/severities";
+import * as m from "$lib/locales/messages.js";
 import type { Category,
     Dataset,
     Entry,
@@ -186,7 +187,7 @@ const normalizeImage = ( value: unknown ): EntryImage | null =>
 export const normalizeEntry = ( value: unknown ): Entry =>
 {
     const raw = asRecord( value );
-    const title = asTrimmed( raw.title ) || "Sans titre";
+    const title = asTrimmed( raw.title ) || m.dataset_untitled();
     const createdAt = asTrimmed( raw.createdAt );
 
     return {
@@ -222,7 +223,7 @@ export const normalizeEntry = ( value: unknown ): Entry =>
 export const normalizeCategory = ( value: unknown ): Category =>
 {
     const raw = asRecord( value );
-    const name = asTrimmed( raw.name ) || "Sans nom";
+    const name = asTrimmed( raw.name ) || m.dataset_unnamed_category();
     const color = asTrimmed( raw.color );
 
     return {
@@ -249,7 +250,7 @@ export const normalizeLiveEntry = ( value: unknown ): LiveEntry =>
     return {
         id: asTrimmed( raw.id ) || createId(),
         publishedAt: asTrimmed( raw.publishedAt ),
-        title: asTrimmed( raw.title ) || "Sans titre",
+        title: asTrimmed( raw.title ) || m.dataset_untitled(),
         body: asString( raw.body ),
         severity: SEVERITY_IDS.includes( severity ) ? severity : "info",
         tags: [
@@ -278,7 +279,7 @@ export const normalizeMeta = ( value: unknown ): WikiMeta =>
     const accent = asTrimmed( raw.accent );
 
     return {
-        universe: asTrimmed( raw.universe ) || "Univers sans nom",
+        universe: asTrimmed( raw.universe ) || m.dataset_unnamed_universe(),
         description: asTrimmed( raw.description ),
         logo: normalizeImageSource( raw.logo ),
         accent: ACCENT_KEYS.includes( accent ) ? accent : DEFAULT_ACCENT,
@@ -307,7 +308,7 @@ export const normalizeMetaPatch = ( value: unknown ): Partial<WikiMeta> | null =
 
     if ( "universe" in raw )
     {
-        patch.universe = asTrimmed( raw.universe ) || "Univers sans nom";
+        patch.universe = asTrimmed( raw.universe ) || m.dataset_unnamed_universe();
     }
 
     if ( "description" in raw )

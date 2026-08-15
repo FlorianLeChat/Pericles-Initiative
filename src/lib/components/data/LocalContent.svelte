@@ -10,9 +10,10 @@
      * @author Claude
      */
     import { resolve } from "$app/paths";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import { formatDateTime } from "$lib/utilities/date";
-    import { plural } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
 
     /** Above this size the browser is close to refusing to store the overlay. */
     const STORAGE_WARNING = 3_500_000;
@@ -41,50 +42,50 @@
      */
     const formatSize = ( bytes: number ): string =>
         bytes < 1024
-            ? `${ bytes } o`
+            ? `${ bytes } ${ m.local_content_unit_bytes() }`
             : bytes < 1_048_576
-                ? `${ ( bytes / 1024 ).toFixed( 1 ) } ko`
-                : `${ ( bytes / 1_048_576 ).toFixed( 2 ) } Mo`;
+                ? `${ ( bytes / 1024 ).toFixed( 1 ) } ${ m.local_content_unit_kilobytes() }`
+                : `${ ( bytes / 1_048_576 ).toFixed( 2 ) } ${ m.local_content_unit_megabytes() }`;
 </script>
 
 <section class="surface p-6">
     <div class="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">Ce qui est enregistré ici</h2>
+        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.local_content_heading()}</h2>
 
         <p class="text-muted text-xs">
-            {formatSize( overlaySize )} utilisés sur cet appareil
+            {m.local_content_size_used( { size: formatSize( overlaySize ) } )}
         </p>
     </div>
 
     {#if !wiki.hasStoredContent}
         <p class="text-muted mt-4 text-sm leading-relaxed">
-            Rien n'est encore enregistré sur cet appareil.
-            <a href={resolve( "/new" )} class="wiki-link">Créez une fiche</a>
-            pour commencer, ou restaurez une sauvegarde plus bas.
+            {m.local_content_empty_intro()}
+            <a href={resolve( "/new" )} class="wiki-link">{m.local_content_create_link()}</a>
+            {m.local_content_empty_outro()}
         </p>
     {:else}
         <p class="mt-4 text-sm">
             <strong>{wiki.storedItemCount}</strong>
-            {plural( wiki.storedItemCount, "élément enregistré", "éléments enregistrés" )} sur cet appareil.
+            {pluralize( wiki.storedItemCount, { one: m.local_content_stored_items_one, other: m.local_content_stored_items_other } )}
+            {m.local_content_stored_on_device()}
         </p>
 
         {#if wiki.changedAt}
             <p class="text-muted mt-1.5 text-sm">
-                Dernière modification le <time datetime={wiki.changedAt}>{formatDateTime( wiki.changedAt )}</time>.
+                {m.local_content_last_changed_prefix()} <time datetime={wiki.changedAt}>{formatDateTime( wiki.changedAt )}</time>.
             </p>
         {/if}
 
         {#if overlaySize > STORAGE_WARNING}
             <p class="bg-signal-500/15 text-signal-500 mt-4 rounded-xl px-4 py-3 text-sm">
-                La place disponible sur cet appareil est presque épuisée. Faites une copie de votre wiki, puis effacez
-                le pour repartir léger.
+                {m.local_content_storage_warning()}
             </p>
         {/if}
 
         <div class="mt-5 space-y-5 text-sm">
             {#if storedEntries.length > 0}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Fiches</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.local_content_entries_heading()}</p>
 
                     <ul class="space-y-1.5">
                         {#each storedEntries as entry ( entry.id )}
@@ -92,7 +93,7 @@
                                 <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link">{entry.title}</a>
 
                                 {#if entry.status === "brouillon"}
-                                    <span class="text-muted text-xs">brouillon</span>
+                                    <span class="text-muted text-xs">{m.local_content_draft_tag()}</span>
                                 {/if}
                             </li>
                         {/each}
@@ -102,7 +103,7 @@
 
             {#if deletedEntries.length > 0}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Fiches supprimées</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.local_content_deleted_heading()}</p>
 
                     <ul class="space-y-1.5">
                         {#each deletedEntries as item ( item.id )}
@@ -110,7 +111,7 @@
                                 <span
                                     class="bg-alert-500/15 text-alert-600 rounded-full px-2 py-0.5 text-xs dark:text-red-300"
                                 >
-                                    supprimée
+                                    {m.local_content_deleted_tag()}
                                 </span>
 
                                 <span class="line-through">{item.title}</span>
@@ -122,7 +123,7 @@
 
             {#if storedCategories.length > 0}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Catégories</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.common_categories_label()}</p>
 
                     <ul class="flex flex-wrap gap-1.5">
                         {#each storedCategories as category ( category.slug )}
@@ -136,22 +137,22 @@
 
             {#if storedLive.length > 0}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Fil en direct</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.local_content_live_heading()}</p>
 
                     <p class="text-ink-500 dark:text-paper-300/80">
                         {storedLive.length}
-                        {plural( storedLive.length, "entrée enregistrée", "entrées enregistrées" )}.
+                        {pluralize( storedLive.length, { one: m.local_content_stored_live_one, other: m.local_content_stored_live_other } )}.
                     </p>
                 </div>
             {/if}
 
             {#if wiki.overlay.meta}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">Identité du wiki</p>
+                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.local_content_identity_heading()}</p>
 
                     <p class="text-ink-500 dark:text-paper-300/80">
-                        Nom, signature, description, logo ou fiches à la une définis depuis
-                        <a href={resolve( "/settings" )} class="wiki-link">les paramètres</a>.
+                        {m.local_content_identity_intro()}
+                        <a href={resolve( "/settings" )} class="wiki-link">{m.local_content_identity_link()}</a>.
                     </p>
                 </div>
             {/if}

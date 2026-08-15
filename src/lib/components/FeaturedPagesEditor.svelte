@@ -12,6 +12,7 @@
     import X from "@lucide/svelte/icons/x";
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import EntryPicker from "./editor/EntryPicker.svelte";
 
@@ -27,23 +28,23 @@
 
 <section class="surface p-6">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">Fiches à la une</h2>
+        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.featured_pages_heading()}</h2>
 
         <button
             type="button"
             class="text-accent-600 dark:text-accent-400 text-xs underline"
             onclick={() => ( pickerOpen = true )}
         >
-            Ajouter une fiche
+            {m.featured_pages_add()}
         </button>
     </div>
 
     <p class="text-muted mt-1 text-sm leading-relaxed">
-        La première occupe la grande carte de l'accueil, les deux suivantes les cartes latérales.
+        {m.featured_pages_description()}
     </p>
 
     {#if slugs.length === 0}
-        <p class="text-muted mt-4 text-sm">Aucune fiche mise en avant.</p>
+        <p class="text-muted mt-4 text-sm">{m.featured_pages_empty()}</p>
     {:else}
         <ol class="mt-4 space-y-2">
             {#each slugs as slug, index ( slug )}
@@ -56,7 +57,7 @@
                         {#if entry}
                             <a href={resolve( `/wiki/${ slug }` )} class="text-sm font-medium">{entry.title}</a>
                         {:else}
-                            <span class="text-alert-500 font-mono text-xs">{slug}, fiche absente</span>
+                            <span class="text-alert-500 font-mono text-xs">{m.featured_pages_missing( { slug } )}</span>
                         {/if}
                     </span>
 
@@ -70,7 +71,7 @@
                             [ next[ index - 1 ], next[ index ] ] = [ next[ index ], next[ index - 1 ] ];
                             slugs = next;
                         }}
-                        aria-label="Monter {entry?.title ?? slug}"
+                        aria-label={m.common_move_up( { name: entry?.title ?? slug } )}
                     >
                         <ArrowUp class="h-4 w-4" />
                     </Button>
@@ -85,7 +86,7 @@
                             [ next[ index ], next[ index + 1 ] ] = [ next[ index + 1 ], next[ index ] ];
                             slugs = next;
                         }}
-                        aria-label="Descendre {entry?.title ?? slug}"
+                        aria-label={m.common_move_down( { name: entry?.title ?? slug } )}
                     >
                         <ArrowDown class="h-4 w-4" />
                     </Button>
@@ -94,7 +95,7 @@
                         color="alternative"
                         class="hover:text-alert-500 h-9 w-9 shrink-0 border-0 p-0"
                         onclick={() => ( slugs = slugs.filter( ( item ) => item !== slug ) )}
-                        aria-label="Retirer {entry?.title ?? slug}"
+                        aria-label={m.common_remove_item( { name: entry?.title ?? slug } )}
                     >
                         <X class="h-4 w-4" />
                     </Button>

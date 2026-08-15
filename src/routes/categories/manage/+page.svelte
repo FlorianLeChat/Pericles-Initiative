@@ -17,10 +17,11 @@
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
     import { colorPill, RADIO_OVERLAY } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
     import { PALETTE, paletteColor } from "$lib/config/palette";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Category } from "$lib/types";
-    import { plural } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
     import { slugify } from "$lib/utilities/slug";
 
     let editing = $state<Category | null>( null );
@@ -135,15 +136,15 @@
 </script>
 
 <svelte:head>
-    <title>Gérer les catégories · {wiki.meta.universe}</title>
+    <title>{m.categories_manage_title( { universe: wiki.meta.universe } )}</title>
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <Breadcrumb ariaLabel="Fil d'Ariane" class="text-muted text-sm">
+    <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm">
         <BreadcrumbItem href={resolve( "/categories" )}>
             {#snippet icon()}{/snippet}
 
-            Catégories
+            {m.common_categories_label()}
         </BreadcrumbItem>
 
         <BreadcrumbItem aria-current="page">
@@ -151,15 +152,14 @@
                 <ChevronRight class="text-muted mx-1 h-4 w-4" />
             {/snippet}
 
-            Gestion
+            {m.categories_manage_breadcrumb_current()}
         </BreadcrumbItem>
     </Breadcrumb>
 
     <div class="mt-4">
-        <PageHeader title="Gérer les catégories">
+        <PageHeader title={m.common_categories_manage_label()}>
             {#snippet description()}
-                Renommer une catégorie déplace les fiches concernées vers la nouvelle adresse. La supprimer les détache
-                sans les effacer.
+                {m.categories_manage_description()}
             {/snippet}
         </PageHeader>
     </div>
@@ -189,8 +189,10 @@
 
                     <div class="flex shrink-0 items-center gap-2">
                         <span class="text-muted mr-auto text-xs sm:mr-0">
-                            {count}
-                            {plural( count, "fiche" )}
+                            {pluralize( count, {
+                                one: m.common_count_fiche_one,
+                                other: m.common_count_fiche_other
+                            } )}
                         </span>
 
                         <Button
@@ -198,9 +200,9 @@
                             size="xs"
                             class="rounded-full"
                             onclick={() => startEdit( category )}
-                            aria-label="Modifier la catégorie {category.name}"
+                            aria-label={m.categories_manage_edit_aria( { name: category.name } )}
                         >
-                            Modifier
+                            {m.common_edit_action()}
                         </Button>
 
                         <Button
@@ -212,9 +214,9 @@
                                 pendingDeletion = category;
                                 deleteOpen = true;
                             }}
-                            aria-label="Supprimer la catégorie {category.name}"
+                            aria-label={m.categories_manage_delete_aria( { name: category.name } )}
                         >
-                            Supprimer
+                            {m.common_delete_action()}
                         </Button>
                     </div>
                 </article>
@@ -224,16 +226,11 @@
                 <p
                     class="border-paper-300 dark:border-ink-800 text-muted rounded-2xl border border-dashed px-6 py-10 text-center text-sm"
                 >
-                    Aucune catégorie pour le moment.
+                    {m.categories_manage_empty_list()}
                 </p>
             {/if}
         </div>
 
-        <!--
-            First on a phone, where this column would otherwise sit under the
-            whole list: creating a category is what this page is for, and pressing
-            «Modifier» on a card scrolled the form off screen rather than to it.
-        -->
         <form
             class="surface order-first space-y-4 p-5 lg:order-none lg:sticky lg:top-20"
             onsubmit={( event ) =>
@@ -243,17 +240,25 @@
             }}
         >
             <p class="text-muted text-xs tracking-wide uppercase">
-                {isEditing ? `Modifier « ${ editing?.name } »` : "Nouvelle catégorie"}
+                {isEditing
+                    ? m.categories_manage_form_editing_title( { name: editing?.name ?? "" } )
+                    : m.categories_manage_form_new_title()}
             </p>
 
             <div>
-                <Label for="category-name" class="field-label">Nom</Label>
+                <Label for="category-name" class="field-label">{m.categories_manage_field_name_label()}</Label>
 
-                <Input id="category-name" bind:value={name} type="text" placeholder="Sites et installations" required />
+                <Input
+                    id="category-name"
+                    bind:value={name}
+                    type="text"
+                    placeholder={m.categories_manage_field_name_placeholder()}
+                    required
+                />
             </div>
 
             <div>
-                <Label for="category-slug" class="field-label">Adresse</Label>
+                <Label for="category-slug" class="field-label">{m.categories_manage_field_slug_label()}</Label>
 
                 <Input
                     id="category-slug"
@@ -264,30 +269,32 @@
                     color={slugTaken ? "red" : "default"}
                     aria-invalid={slugTaken}
                     aria-describedby={slugTaken ? "category-slug-taken" : undefined}
-                    placeholder="sites-et-installations"
+                    placeholder={m.categories_manage_field_slug_placeholder()}
                 />
 
                 {#if slugTaken}
                     <Helper id="category-slug-taken" color="red" class="mt-1.5 text-xs">
-                        Cette adresse est déjà utilisée.
+                        {m.categories_manage_field_slug_taken()}
                     </Helper>
                 {/if}
             </div>
 
             <div>
-                <Label for="category-description" class="field-label">Description</Label>
+                <Label for="category-description" class="field-label">
+                    {m.categories_manage_field_description_label()}
+                </Label>
 
                 <Textarea
                     id="category-description"
                     bind:value={description}
                     rows={3}
                     class="w-full resize-y"
-                    placeholder="Ce que cette catégorie regroupe."
+                    placeholder={m.categories_manage_field_description_placeholder()}
                 />
             </div>
 
             <fieldset>
-                <legend class="field-label">Couleur</legend>
+                <legend class="field-label">{m.categories_manage_field_color_legend()}</legend>
 
                 <div class="flex flex-wrap gap-1.5">
                     {#each PALETTE as option ( option.key )}
@@ -307,11 +314,13 @@
 
             <div class="flex gap-2 pt-1">
                 <Button type="submit" color="primary" class="flex-1" disabled={!canSave || slugTaken}>
-                    {isEditing ? "Enregistrer" : "Créer"}
+                    {isEditing ? m.categories_manage_save_button() : m.common_create_action()}
                 </Button>
 
                 {#if isEditing}
-                    <Button color="alternative" class="border-0" onclick={reset}>Annuler</Button>
+                    <Button color="alternative" class="border-0" onclick={reset}>
+                        {m.categories_manage_cancel_button()}
+                    </Button>
                 {/if}
             </div>
         </form>
@@ -320,9 +329,9 @@
 
 <ConfirmDialog
     bind:open={deleteOpen}
-    title="Supprimer cette catégorie ?"
-    message="Les fiches qui l'utilisent seront détachées, aucune fiche ne sera supprimée."
-    confirmLabel="Supprimer"
+    title={m.categories_manage_delete_dialog_title()}
+    message={m.categories_manage_delete_dialog_message()}
+    confirmLabel={m.common_delete_action()}
     danger
     onconfirm={confirmDeletion}
 />

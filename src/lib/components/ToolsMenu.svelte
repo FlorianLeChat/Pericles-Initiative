@@ -37,6 +37,7 @@
     import Dropdown from "flowbite-svelte/Dropdown.svelte";
     import { resolve } from "$app/paths";
     import type { NavLink } from "$lib/config/navigation";
+    import * as m from "$lib/locales/messages.js";
 
     interface Props {
         /** Links shown in the dropdown. */
@@ -56,7 +57,7 @@
         class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-9 w-9
                items-center justify-center rounded-full transition"
         aria-expanded={open}
-        aria-label="Outils"
+        aria-label={m.common_tools_label()}
     >
         <Settings2 class="h-4.5 w-4.5" />
     </button>

@@ -19,6 +19,7 @@
     import Input from "flowbite-svelte/Input.svelte";
     import { DATE_LABELS } from "$lib/config/dates";
     import { SMALL_FIELD } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
     import type { EntryDate } from "$lib/types";
     import { createId } from "$lib/utilities/dataset";
 
@@ -81,7 +82,8 @@
      * @returns A phrase identifying the date.
      * @author Claude
      */
-    const rowName = ( date: EntryDate, index: number ): string => date.label.trim() || `date ${ index + 1 }`;
+    const rowName = ( date: EntryDate, index: number ): string =>
+        date.label.trim() || m.dates_editor_row_fallback( { index: index + 1 } );
 </script>
 
 <div class="space-y-2">
@@ -100,8 +102,8 @@
                     size="sm"
                     class={SMALL_FIELD}
                     list={LABEL_LIST}
-                    placeholder="Naissance, Fondation..."
-                    aria-label="Intitulé de la date {index + 1}"
+                    placeholder={m.dates_editor_label_placeholder()}
+                    aria-label={m.dates_editor_label_aria( { index: index + 1 } )}
                 />
 
                 <Input
@@ -109,8 +111,8 @@
                     type="text"
                     size="sm"
                     class={SMALL_FIELD}
-                    placeholder="2043-06-12, ou Juin 2043"
-                    aria-label="Valeur de la date {index + 1}"
+                    placeholder={m.dates_editor_value_placeholder()}
+                    aria-label={m.dates_editor_value_aria( { index: index + 1 } )}
                 />
             </div>
 
@@ -120,7 +122,7 @@
                     class="h-9 w-9 border-0 p-0"
                     onclick={() => move( index, -1 )}
                     disabled={index === 0}
-                    aria-label="Monter {rowName( date, index )}"
+                    aria-label={m.common_move_up( { name: rowName( date, index ) } )}
                 >
                     <ArrowUp class="h-4 w-4" />
                 </Button>
@@ -130,7 +132,7 @@
                     class="h-9 w-9 border-0 p-0"
                     onclick={() => move( index, 1 )}
                     disabled={index === dates.length - 1}
-                    aria-label="Descendre {rowName( date, index )}"
+                    aria-label={m.common_move_down( { name: rowName( date, index ) } )}
                 >
                     <ArrowDown class="h-4 w-4" />
                 </Button>
@@ -139,7 +141,7 @@
                     color="alternative"
                     class="hover:text-alert-500 h-9 w-9 border-0 p-0"
                     onclick={() => remove( index )}
-                    aria-label="Supprimer {rowName( date, index )}"
+                    aria-label={m.common_delete_row( { name: rowName( date, index ) } )}
                 >
                     <X class="h-4 w-4" />
                 </Button>
@@ -147,5 +149,5 @@
         </div>
     {/each}
 
-    <Button color="alternative" size="sm" class="w-full" onclick={add}>Ajouter une date</Button>
+    <Button color="alternative" size="sm" class="w-full" onclick={add}>{m.dates_editor_add_button()}</Button>
 </div>

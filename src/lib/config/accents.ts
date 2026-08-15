@@ -27,18 +27,20 @@
  * @author Claude
  */
 
+import * as m from "$lib/locales/messages.js";
+
 export interface Accent {
     key: string;
     label: string;
 }
 
 export const ACCENTS: readonly Accent[] = [
-    { key: "bleu", label: "Bleu" },
-    { key: "vert", label: "Vert" },
-    { key: "ambre", label: "Ambre" },
-    { key: "violet", label: "Violet" },
-    { key: "rose", label: "Rose" },
-    { key: "cyan", label: "Cyan" }
+    { key: "bleu", label: m.accents_blue() },
+    { key: "vert", label: m.accents_green() },
+    { key: "ambre", label: m.accents_amber() },
+    { key: "violet", label: m.accents_violet() },
+    { key: "rose", label: m.accents_pink() },
+    { key: "cyan", label: m.accents_cyan() }
 ];
 
 /** Accent of a wiki that never chose one, and the one `app.html` starts from. */

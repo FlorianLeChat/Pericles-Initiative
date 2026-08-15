@@ -15,8 +15,9 @@
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { ACTION_BUTTON, ACTION_ROW } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
-    import { counted } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
 
     let importText = $state( "" );
     let feedback = $state<{ kind: "success" | "error"; text: string } | null>( null );
@@ -38,7 +39,7 @@
         link.click();
         URL.revokeObjectURL( url );
 
-        feedback = { kind: "success", text: "Sauvegarde téléchargée. Votre wiki n'a pas changé." };
+        feedback = { kind: "success", text: m.file_backup_download_success() };
     };
 
     /**
@@ -51,13 +52,13 @@
         try
         {
             await navigator.clipboard.writeText( wiki.exportJson() );
-            feedback = { kind: "success", text: "Sauvegarde copiée. Collez la où vous voulez la garder." };
+            feedback = { kind: "success", text: m.file_backup_copy_success() };
         }
         catch
         {
             feedback = {
                 kind: "error",
-                text: "Votre navigateur a refusé la copie. Utilisez le téléchargement, il donne le même fichier."
+                text: m.file_backup_copy_error()
             };
         }
     };
@@ -81,7 +82,7 @@
         importText = await file.text();
         feedback = {
             kind: "success",
-            text: `${ file.name } est prêt. Lancez la restauration pour remplacer vos pages par celles du fichier.`
+            text: m.file_backup_file_ready( { name: file.name } )
         };
     };
 
@@ -96,29 +97,34 @@
         {
             const counts = wiki.importJson( importText );
             importText = "";
+
+            const entries = pluralize( counts.entries, { one: m.common_count_fiche_one, other: m.common_count_fiche_other } );
+            const categories = pluralize(
+                counts.categories,
+                { one: m.common_count_categorie_one, other: m.common_count_categorie_other }
+            );
+            const live = pluralize( counts.live, { one: m.common_count_entree_one, other: m.common_count_entree_other } );
+
             feedback = {
                 kind: "success",
-                text:
-                    `Sauvegarde restaurée : ${ counted( counts.entries, "fiche" ) }, `
-                    + `${ counted( counts.categories, "catégorie" ) } et ${ counted( counts.live, "entrée" ) } du fil.`
+                text: m.file_backup_restored_summary( { entries, categories, live } )
             };
         }
         catch
         {
             feedback = {
                 kind: "error",
-                text: "Ce contenu n'est pas une sauvegarde valide. Votre wiki n'a pas été modifié."
+                text: m.file_backup_import_error()
             };
         }
     };
 </script>
 
 <section class="surface mt-6 p-6">
-    <h2 class="font-serif text-xl font-semibold tracking-tight">Sauvegarder dans un fichier</h2>
+    <h2 class="font-serif text-xl font-semibold tracking-tight">{m.file_backup_heading()}</h2>
 
     <p class="text-muted mt-2 text-sm leading-relaxed">
-        Votre wiki entier dans un seul fichier, téléchargé sur cet appareil. Rien ne part sur internet. Gardez ce
-        fichier de côté : il vous rendra vos pages, ici comme sur un autre ordinateur.
+        {m.file_backup_intro()}
     </p>
 
     {#if feedback}
@@ -128,32 +134,29 @@
     {/if}
 
     <div class="mt-6">
-        <h3 class="font-semibold">Télécharger une copie</h3>
+        <h3 class="font-semibold">{m.file_backup_download_heading()}</h3>
 
         <p class="text-muted mt-1.5 text-sm leading-relaxed">
-            Le fichier reprend tout ce que vous voyez sur le site, brouillons compris. Le télécharger ne change rien à
-            votre wiki : c'est une copie, pas un déplacement.
+            {m.file_backup_download_description()}
         </p>
 
         <div class="mt-4 {ACTION_ROW}">
-            <Button color="primary" onclick={download}>Télécharger ma sauvegarde</Button>
+            <Button color="primary" onclick={download}>{m.file_backup_download_button()}</Button>
 
-            <Button color="alternative" onclick={() => void copy()}>Copier dans le presse papier</Button>
+            <Button color="alternative" onclick={() => void copy()}>{m.file_backup_copy_button()}</Button>
         </div>
     </div>
 
     <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
-        <h3 class="font-semibold">Restaurer une copie</h3>
+        <h3 class="font-semibold">{m.file_backup_restore_heading()}</h3>
 
         <p class="text-muted mt-1.5 text-sm leading-relaxed">
-            Pour reprendre une sauvegarde, ou récupérer le travail fait sur un autre appareil. Attention, le
-            remplacement est total : le site affichera exactement ce que contient le fichier, et vos pages actuelles
-            disparaîtront. Téléchargez une copie avant si vous avez du travail en cours.
+            {m.file_backup_restore_description()}
         </p>
 
         <div class="mt-4 space-y-4">
             <div>
-                <Label for="import-file" class="field-label">Votre fichier de sauvegarde</Label>
+                <Label for="import-file" class="field-label">{m.file_backup_file_label()}</Label>
 
                 <Fileupload
                     id="import-file"
@@ -163,14 +166,14 @@
             </div>
 
             <div>
-                <Label for="import-text" class="field-label">Ou coller le contenu d'une sauvegarde</Label>
+                <Label for="import-text" class="field-label">{m.file_backup_paste_label()}</Label>
 
                 <Textarea
                     id="import-text"
                     bind:value={importText}
                     rows={5}
                     class="w-full resize-y font-mono text-xs"
-                    placeholder="Collez ici le contenu d'un fichier de sauvegarde."
+                    placeholder={m.file_backup_paste_placeholder()}
                 />
             </div>
 
@@ -180,7 +183,7 @@
                 disabled={importText.trim().length === 0}
                 onclick={() => ( importOpen = true )}
             >
-                Restaurer cette sauvegarde
+                {m.file_backup_restore_button()}
             </Button>
         </div>
     </div>
@@ -188,9 +191,8 @@
 
 <ConfirmDialog
     bind:open={importOpen}
-    title="Remplacer votre wiki ?"
-    message={"Vos pages actuelles vont être remplacées par celles de la sauvegarde. "
-      + "Ce qui n'a pas été copié ailleurs sera perdu."}
-    confirmLabel="Restaurer"
+    title={m.file_backup_replace_title()}
+    message={m.file_backup_replace_message()}
+    confirmLabel={m.common_restore()}
     onconfirm={runImport}
 />

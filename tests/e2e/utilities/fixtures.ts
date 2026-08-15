@@ -23,6 +23,17 @@ const OVERLAY_KEY = "pericles:overlay";
 /** Where the application remembers the chosen theme. */
 export const THEME_KEY = "pericles:theme";
 
+/**
+ * Where the application remembers the reader's language.
+ *
+ * Every spec asserts the French strings the fixture describes, so the suite pins this
+ * to `"fr"` before first paint: the base locale the application falls back to is
+ * English, and without this every existing assertion would start failing the moment
+ * the message catalogue ships, rather than the one dedicated case that actually
+ * exercises the language switch.
+ */
+export const LOCALE_KEY = "pericles:locale";
+
 /** Where the application keeps the connection to the optional backup service. */
 export const REMOTE_KEY = "pericles:remote";
 
@@ -34,6 +45,16 @@ export const REMOTE_KEY = "pericles:remote";
  * could prove that an edit survives a cold start.
  */
 const SEEDED_KEY = "pericles:e2e-seeded";
+
+/**
+ * Marker telling the seeding script the locale is already pinned.
+ *
+ * Kept separate from {@link SEEDED_KEY}: a spec that calls `openEmpty` and then
+ * `open` (or `openWith`) in the same test, as `data.spec.ts` does to look at both
+ * states of the browser, would otherwise have its second call see `SEEDED_KEY`
+ * already set and skip writing the overlay entirely.
+ */
+const LOCALE_SEEDED_KEY = "pericles:e2e-locale-seeded";
 
 /** Width below which the header hides its navigation behind the burger menu. */
 const NARROW_VIEWPORT = 1024;
@@ -108,7 +129,16 @@ const createHelper = ( page: Page ): WikiHelper =>
     const openWith = async ( dataset: Dataset, path = "/" ): Promise<void> =>
     {
         await page.addInitScript(
-            ( payload: { key: string; flag: string; value: string } ) =>
+            (
+                payload: {
+                    key: string;
+                    flag: string;
+                    value: string;
+                    localeKey: string;
+                    localeFlag: string;
+                    locale: string;
+                }
+            ) =>
             {
                 try
                 {
@@ -117,6 +147,17 @@ const createHelper = ( page: Page ): WikiHelper =>
                         window.localStorage.setItem( payload.flag, "1" );
                         window.localStorage.setItem( payload.key, payload.value );
                     }
+
+                    // Guarded separately from the overlay above: this script fires again
+                    // on every later navigation, including a reload the settings page
+                    // triggers on its own to switch language, and pinning the locale
+                    // there too would silently undo that switch before the spec
+                    // observes it.
+                    if ( window.localStorage.getItem( payload.localeFlag ) === null )
+                    {
+                        window.localStorage.setItem( payload.localeFlag, "1" );
+                        window.localStorage.setItem( payload.localeKey, payload.locale );
+                    }
                 }
                 catch
                 {
@@ -124,7 +165,14 @@ const createHelper = ( page: Page ): WikiHelper =>
                     // script runs again on the page actually under test.
                 }
             },
-            { key: OVERLAY_KEY, flag: SEEDED_KEY, value: JSON.stringify( toOverlay( dataset ) ) }
+            {
+                key: OVERLAY_KEY,
+                flag: SEEDED_KEY,
+                value: JSON.stringify( toOverlay( dataset ) ),
+                localeKey: LOCALE_KEY,
+                localeFlag: LOCALE_SEEDED_KEY,
+                locale: "fr"
+            }
         );
 
         await page.goto( path );
@@ -141,6 +189,29 @@ const createHelper = ( page: Page ): WikiHelper =>
 
     const openEmpty = async ( path = "/" ): Promise<void> =>
     {
+        await page.addInitScript(
+            ( payload: { key: string; flag: string; locale: string } ) =>
+            {
+                try
+                {
+                    // Same one-time guard as `openWith`: a later navigation, such as the
+                    // reload a language switch triggers on its own, must not have its
+                    // locale pinned back to French by this script running again.
+                    if ( window.localStorage.getItem( payload.flag ) === null )
+                    {
+                        window.localStorage.setItem( payload.flag, "1" );
+                        window.localStorage.setItem( payload.key, payload.locale );
+                    }
+                }
+                catch
+                {
+                    // `about:blank` has no storage of its own, and needs none: the
+                    // script runs again on the page actually under test.
+                }
+            },
+            { key: LOCALE_KEY, flag: LOCALE_SEEDED_KEY, locale: "fr" }
+        );
+
         await page.goto( path );
         await expect( page.getByRole( "banner" ) ).toContainText( "Univers sans nom" );
     };

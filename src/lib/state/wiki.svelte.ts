@@ -16,6 +16,7 @@
  */
 
 import { browser } from "$app/environment";
+import * as m from "$lib/locales/messages.js";
 import type { Category, Dataset, Entry, EntryDate, LiveEntry, Overlay, WikiMeta } from "$lib/types";
 import { timelineSortKey } from "$lib/utilities/date";
 import { buildImportOverlay,
@@ -282,7 +283,7 @@ class WikiStore
         }
         catch ( error )
         {
-            this.storageError = `Modifications locales illisibles : ${ String( error ) }`;
+            this.storageError = m.wiki_storage_read_error( { error: String( error ) } );
         }
         finally
         {
@@ -315,9 +316,7 @@ class WikiStore
         }
         catch ( error )
         {
-            this.storageError
-                = "Impossible d'enregistrer les modifications locales, le stockage du navigateur est plein. "
-                  + `Exportez le JSON pour ne rien perdre. (${ String( error ) })`;
+            this.storageError = m.wiki_storage_write_error( { error: String( error ) } );
         }
     }
 

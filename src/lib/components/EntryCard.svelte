@@ -6,6 +6,7 @@
      */
     import { resolve } from "$app/paths";
     import { staggerRank } from "$lib/config/motion";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry } from "$lib/types";
     import { formatShortDate } from "$lib/utilities/date";
@@ -41,7 +42,7 @@
             <span
                 class="border-paper-300 text-muted dark:border-ink-700 rounded-full border border-dashed px-2 py-0.5 text-xs"
             >
-                Brouillon
+                {m.entry_card_draft_badge()}
             </span>
         {/if}
     </div>
@@ -60,6 +61,6 @@
     {/if}
 
     <p class="text-muted mt-auto text-xs">
-        Modifié le <time datetime={entry.updatedAt}>{formatShortDate( entry.updatedAt )}</time>
+        {m.entry_card_updated_label()} <time datetime={entry.updatedAt}>{formatShortDate( entry.updatedAt )}</time>
     </p>
 </article>

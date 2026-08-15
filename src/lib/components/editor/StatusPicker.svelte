@@ -19,6 +19,7 @@
      */
     import Radio from "flowbite-svelte/Radio.svelte";
     import { RADIO_OVERLAY } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
     import type { EntryStatus } from "$lib/types";
     import OptionPanel from "./OptionPanel.svelte";
 
@@ -29,8 +30,8 @@
     let { status = $bindable() }: Props = $props();
 
     const STATUSES: readonly { id: EntryStatus; label: string }[] = [
-        { id: "publie", label: "Publiée" },
-        { id: "brouillon", label: "Brouillon" }
+        { id: "publie", label: m.status_picker_published() },
+        { id: "brouillon", label: m.status_picker_draft() }
     ];
 
     const chosenStatus = $derived( STATUSES.find( ( option ) => option.id === status )?.label ?? "" );
@@ -42,9 +43,9 @@
             : "bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300";
 </script>
 
-<OptionPanel label="Statut" value={chosenStatus}>
+<OptionPanel label={m.status_picker_legend()} value={chosenStatus}>
     <fieldset>
-        <legend class="sr-only">Statut de la fiche</legend>
+        <legend class="sr-only">{m.status_picker_fieldset_legend()}</legend>
 
         <div class="flex gap-1.5">
             {#each STATUSES as option ( option.id )}

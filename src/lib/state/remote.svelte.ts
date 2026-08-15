@@ -15,6 +15,7 @@
  */
 
 import { browser } from "$app/environment";
+import * as m from "$lib/locales/messages.js";
 import type { RemoteConfig, RemoteFailure, RemoteSnapshot, RemoteStatus } from "$lib/types";
 import { emptyRemoteConfig,
     isUsableBaseUrl,
@@ -78,7 +79,7 @@ class RemoteStore
         }
         catch ( error )
         {
-            this.storageError = `Configuration du serveur illisible : ${ String( error ) }`;
+            this.storageError = m.remote_config_read_error( { error: String( error ) } );
         }
         finally
         {
@@ -104,7 +105,7 @@ class RemoteStore
         }
         catch ( error )
         {
-            this.storageError = `Impossible d'enregistrer la configuration du serveur : ${ String( error ) }`;
+            this.storageError = m.remote_config_write_error( { error: String( error ) } );
         }
     }
 

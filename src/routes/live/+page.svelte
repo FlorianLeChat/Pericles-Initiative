@@ -19,6 +19,8 @@
     import PageHeader from "$lib/components/PageHeader.svelte";
     import { filterPill, RADIO_OVERLAY } from "$lib/config/forms";
     import { SEVERITIES } from "$lib/config/severities";
+    import * as m from "$lib/locales/messages.js";
+    import { pluralize } from "$lib/utilities/plural";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LiveEntry, LiveSeverity } from "$lib/types";
     import { formatLongDate, relativeTime } from "$lib/utilities/date";
@@ -78,24 +80,25 @@
 </script>
 
 <svelte:head>
-    <title>En direct · {wiki.meta.universe}</title>
+    <title>{m.live_title( { universe: wiki.meta.universe } )}</title>
 
-    <meta name="description" content="Fil des événements en cours dans {wiki.meta.universe}." />
+    <meta name="description" content={m.live_meta_description( { universe: wiki.meta.universe } )} />
 </svelte:head>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <PageHeader title="Le fil">
+    <PageHeader title={m.live_heading()}>
         {#snippet eyebrow()}
             <p class="text-alert-500 flex items-center gap-2 text-xs font-medium tracking-[0.2em] uppercase">
                 <span class="bg-alert-500 h-2 w-2 animate-pulse rounded-full" aria-hidden="true"></span>
-                En direct
+                {m.common_live_label()}
             </p>
         {/snippet}
 
         {#snippet description()}
-            {wiki.live.length} entrées.
+            {pluralize( wiki.live.length, { one: m.live_count_one, other: m.live_count_other } )}
             {#if latest}
-                La dernière remonte à <time datetime={latest.publishedAt}>{relativeTime( latest.publishedAt )}</time>.
+                {m.live_latest_prefix()}
+                <time datetime={latest.publishedAt}>{relativeTime( latest.publishedAt )}</time>.
             {/if}
         {/snippet}
 
@@ -109,7 +112,7 @@
                     composerOpen = !composerOpen;
                 }}
             >
-                {composerOpen && !editing ? "Fermer le composeur" : "Publier une entrée"}
+                {composerOpen && !editing ? m.live_close_composer_button() : m.live_publish_button()}
             </Button>
         {/snippet}
     </PageHeader>
@@ -118,7 +121,7 @@
         <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
                 <fieldset class="contents">
-                    <legend class="sr-only">Filtrer par gravité</legend>
+                    <legend class="sr-only">{m.live_filter_severity_legend()}</legend>
 
                     <Radio
                         name="filtre-gravite"
@@ -127,7 +130,7 @@
                         class={RADIO_OVERLAY}
                         classes={{ label: filterPill( severity === "toutes" ) }}
                     >
-                        Toutes gravités
+                        {m.live_filter_all_severities()}
                     </Radio>
 
                     {#each SEVERITIES as config ( config.id )}
@@ -144,8 +147,14 @@
                 </fieldset>
 
                 {#if wiki.liveTags.length > 0}
-                    <Select bind:value={tag} size="sm" placeholder="" class="w-auto" aria-label="Filtrer par étiquette">
-                        <option value="toutes">Toutes étiquettes</option>
+                    <Select
+                        bind:value={tag}
+                        size="sm"
+                        placeholder=""
+                        class="w-auto"
+                        aria-label={m.live_filter_tag_aria()}
+                    >
+                        <option value="toutes">{m.live_filter_all_tags()}</option>
 
                         {#each wiki.liveTags as item ( item )}
                             <option value={item}>{item}</option>
@@ -156,10 +165,7 @@
 
             {#if filtered.length === 0}
                 <div class="mt-8">
-                    <EmptyState
-                        title="Rien à cette gravité"
-                        description="Aucune entrée du fil ne correspond à ce filtre."
-                    >
+                    <EmptyState title={m.live_empty_title()} description={m.live_empty_description()}>
                         <Button
                             color="alternative"
                             onclick={() =>
@@ -168,14 +174,14 @@
                                 tag = "toutes";
                             }}
                         >
-                            Tout afficher
+                            {m.live_show_all_button()}
                         </Button>
                     </EmptyState>
                 </div>
             {:else}
                 {#if pinned.length > 0}
                     <LiveFeedGroup
-                        heading="Épinglées"
+                        heading={m.live_pinned_heading()}
                         items={pinned}
                         onedit={startEdit}
                         ondelete={( target ) =>
@@ -201,13 +207,6 @@
             {/if}
         </div>
 
-        <!--
-            Below `lg` this column follows the feed, which for the composer means
-            the button that opens it is at the top of the page and what it opens
-            is under the whole feed, out of sight. Moving the column above the
-            feed while it is open puts the form where the tap happened; closed, it
-            holds explanations that belong after what they explain.
-        -->
         <aside class="space-y-5 {composerOpen ? "max-lg:order-first" : ""}">
             {#if composerOpen}
                 {#key editing?.id ?? "nouvelle"}
@@ -221,26 +220,23 @@
                 {/key}
             {:else}
                 <div class="surface p-5">
-                    <p class="text-muted text-xs tracking-wide uppercase">Comment ça marche</p>
+                    <p class="text-muted text-xs tracking-wide uppercase">{m.live_how_it_works_heading()}</p>
 
                     <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">
-                        Une entrée du fil est courte et horodatée. Quand un événement mérite mieux, reliez la à une
-                        fiche : le lien « Lire la fiche complète » apparaît sous l'entrée.
+                        {m.live_how_it_works_p1()}
                     </p>
 
                     <p class="text-muted mt-3 text-sm leading-relaxed">
-                        Une entrée en gravité « Alerte » affiche un bandeau sur tout le site pendant vingt quatre
-                        heures.
+                        {m.live_how_it_works_p2()}
                     </p>
                 </div>
             {/if}
 
             <div class="surface p-5">
-                <p class="text-muted text-xs tracking-wide uppercase">Stockage</p>
+                <p class="text-muted text-xs tracking-wide uppercase">{m.live_storage_heading()}</p>
 
                 <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">
-                    Chaque publication est écrite directement dans le stockage local de ce navigateur : elle apparaît
-                    immédiatement ici, mais reste propre à cet appareil tant qu'elle n'a pas été exportée.
+                    {m.live_storage_description()}
                 </p>
             </div>
         </aside>
@@ -249,9 +245,9 @@
 
 <ConfirmDialog
     bind:open={deleteOpen}
-    title="Supprimer cette entrée ?"
-    message="L'entrée sera supprimée définitivement."
-    confirmLabel="Supprimer"
+    title={m.live_delete_dialog_title()}
+    message={m.live_delete_dialog_message()}
+    confirmLabel={m.common_delete_action()}
     danger
     onconfirm={() =>
     {

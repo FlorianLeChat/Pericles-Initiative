@@ -20,6 +20,7 @@
     import Infobox from "$lib/components/Infobox.svelte";
     import TableOfContents from "$lib/components/TableOfContents.svelte";
     import { staggerRank } from "$lib/config/motion";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Category } from "$lib/types";
     import { formatDateTime } from "$lib/utilities/date";
@@ -45,22 +46,22 @@
 
 <svelte:head>
     {#if entry}
-        <title>{entry.title} · {wiki.meta.universe}</title>
+        <title>{m.wiki_slug_title( { name: entry.title, universe: wiki.meta.universe } )}</title>
 
         <meta name="description" content={entry.summary || excerpt( entry.body, 155 )} />
     {:else}
-        <title>Fiche à écrire · {wiki.meta.universe}</title>
+        <title>{m.wiki_slug_title_unwritten( { universe: wiki.meta.universe } )}</title>
     {/if}
 </svelte:head>
 
 {#if entry && rendered}
     <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <Breadcrumb ariaLabel="Fil d'Ariane" class="text-muted text-sm">
+            <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm">
                 <BreadcrumbItem href={resolve( "/wiki" )}>
                     {#snippet icon()}{/snippet}
 
-                    Encyclopédie
+                    {m.common_encyclopedia_label()}
                 </BreadcrumbItem>
 
                 <BreadcrumbItem aria-current="page">
@@ -73,7 +74,7 @@
             </Breadcrumb>
 
             <Button href={resolve( `/edit/${ entry.slug }` )} color="alternative" size="xs" class="rounded-full">
-                Modifier
+                {m.common_edit_action()}
             </Button>
         </div>
 
@@ -82,7 +83,7 @@
                 <p
                     class="border-signal-500/40 bg-signal-500/10 text-signal-500 mb-4 inline-block rounded-full border px-3 py-1 text-xs font-medium"
                 >
-                    Brouillon, contenu incomplet
+                    {m.wiki_slug_draft_label()}
                 </p>
             {/if}
 
@@ -103,7 +104,8 @@
             </div>
 
             <p class="text-muted mt-5 text-xs">
-                Dernière modification le <time datetime={entry.updatedAt}>{formatDateTime( entry.updatedAt )}</time>
+                {m.wiki_slug_updated_prefix()}
+                <time datetime={entry.updatedAt}>{formatDateTime( entry.updatedAt )}</time>
             </p>
         </header>
 
@@ -113,7 +115,7 @@
 
                 {#if related.length > 0}
                     <section class="border-paper-200 dark:border-ink-800 mt-14 border-t pt-8">
-                        <h2 class="font-serif text-xl font-semibold tracking-tight">À lire aussi</h2>
+                        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.wiki_slug_related_heading()}</h2>
 
                         <ul class="mt-4 grid gap-3 sm:grid-cols-2">
                             {#each related as item, index ( item.id )}
@@ -153,26 +155,23 @@
     <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <p class="text-muted font-mono text-sm">/wiki/{slug}</p>
 
-        <EmptyState
-            title="Cette fiche n'existe pas encore"
-            description="Le lien qui mène ici attend une page. C'est le principe du lien rouge : il signale un manque à combler."
-        >
+        <EmptyState title={m.wiki_slug_unwritten_title()} description={m.wiki_slug_unwritten_description()}>
             <Button
                 href={resolve( `/new?slug=${ encodeURIComponent( slug ) }&titre=${ encodeURIComponent( plannedTitle ) }` )}
                 color="primary"
             >
-                Créer cette fiche
+                {m.common_create_this_entry()}
             </Button>
 
-            <Button href={resolve( "/wiki" )} color="alternative">Parcourir l'encyclopédie</Button>
+            <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
         </EmptyState>
 
         {#if backlinks.length > 0}
             <div class="mt-8">
                 <Backlinks
                     entries={backlinks}
-                    title="Fiches qui attendent cette page"
-                    emptyLabel="Aucune fiche ne pointe vers ce slug."
+                    title={m.wiki_slug_backlinks_title()}
+                    emptyLabel={m.wiki_slug_backlinks_empty()}
                 />
             </div>
         {/if}

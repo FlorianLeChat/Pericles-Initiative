@@ -16,6 +16,7 @@
     import RemoteBackup from "$lib/components/data/RemoteBackup.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
     import { ACTION_BUTTON } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
 
     let resetOpen = $state( false );
@@ -23,16 +24,13 @@
 </script>
 
 <svelte:head>
-    <title>Sauvegardes · {wiki.meta.universe}</title>
+    <title>{m.data_title( { universe: wiki.meta.universe } )}</title>
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-    <PageHeader title="Sauvegardes">
+    <PageHeader title={m.data_heading()}>
         {#snippet description()}
-            Ce que vous écrivez reste sur cet appareil, et nulle part ailleurs. Personne d'autre ne le voit, mais rien
-            ne le protège non plus : effacer les données du navigateur, ou changer d'ordinateur, et tout est perdu.
-            Faites une copie, dans un fichier que vous gardez, ou en ligne pour retrouver votre wiki depuis un autre
-            appareil.
+            {m.data_description()}
         {/snippet}
     </PageHeader>
 
@@ -49,11 +47,10 @@
     <RemoteBackup />
 
     <section class="border-alert-500/30 mt-6 rounded-2xl border p-6">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">Tout effacer</h2>
+        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.data_clear_heading()}</h2>
 
         <p class="text-muted mt-2 text-sm leading-relaxed">
-            Supprime toutes vos pages de cet appareil, d'un coup et sans retour possible. Faites une copie avant, sauf
-            si vous voulez vraiment repartir de zéro.
+            {m.data_clear_description()}
         </p>
 
         <Button
@@ -62,20 +59,20 @@
             disabled={!wiki.hasStoredContent}
             onclick={() => ( resetOpen = true )}
         >
-            Effacer tout mon wiki
+            {m.data_clear_button()}
         </Button>
     </section>
 </div>
 
 <ConfirmDialog
     bind:open={resetOpen}
-    title="Effacer tout votre wiki ?"
-    message="Toutes vos pages seront supprimées de cet appareil. Ce qui n'a pas été copié ailleurs sera perdu."
-    confirmLabel="Effacer"
+    title={m.data_reset_dialog_title()}
+    message={m.data_reset_dialog_message()}
+    confirmLabel={m.data_reset_confirm_label()}
     danger
     onconfirm={() =>
     {
         wiki.resetLocal();
-        feedback = "Votre wiki a été effacé de cet appareil.";
+        feedback = m.data_reset_feedback();
     }}
 />

@@ -7,24 +7,24 @@
      */
     import PageHeader from "$lib/components/PageHeader.svelte";
     import SettingsForm from "$lib/components/SettingsForm.svelte";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
 </script>
 
 <svelte:head>
-    <title>Paramètres · {wiki.meta.universe}</title>
+    <title>{m.settings_title( { universe: wiki.meta.universe } )}</title>
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-    <PageHeader title="Paramètres">
+    <PageHeader title={m.settings_heading()}>
         {#snippet description()}
-            Le nom de votre univers et la façon dont il se présente. Ces champs apparaissent dans l'entête, sur la page
-            d'accueil, et quand quelqu'un partage un lien vers votre wiki.
+            {m.settings_description()}
         {/snippet}
     </PageHeader>
 
     {#if wiki.overlayLoaded}
         <SettingsForm />
     {:else}
-        <p class="text-muted mt-8 text-sm">Chargement des paramètres...</p>
+        <p class="text-muted mt-8 text-sm">{m.settings_loading()}</p>
     {/if}
 </div>

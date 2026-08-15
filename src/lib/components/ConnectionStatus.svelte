@@ -24,6 +24,7 @@
     import Toast from "flowbite-svelte/Toast.svelte";
     import { resolve } from "$app/paths";
     import { motionDuration } from "$lib/config/motion";
+    import * as m from "$lib/locales/messages.js";
     import { remote } from "$lib/state/remote.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { RemoteFailure } from "$lib/types";
@@ -53,13 +54,13 @@
 
     /** What the reader is told when automatic publishing gave up. */
     const FAILURE_MESSAGE: Readonly<Record<RemoteFailure, string>> = {
-        network: "Envoi automatique impossible : le serveur ne répond pas.",
-        refused: "Envoi automatique refusé : le mot de passe du serveur a changé.",
-        missing: "Envoi automatique impossible : aucune sauvegarde sur ce serveur.",
-        unsupported: "Envoi automatique impossible : cette adresse ne mène plus à un serveur de sauvegarde.",
-        conflict: "La sauvegarde en ligne a changé sur un autre appareil. À vous de choisir quoi garder.",
-        unreadable: "Envoi automatique impossible : la réponse du serveur est incompréhensible.",
-        server: "Envoi automatique impossible : le serveur a rencontré une erreur."
+        network: m.connection_status_failure_network(),
+        refused: m.connection_status_failure_refused(),
+        missing: m.connection_status_failure_missing(),
+        unsupported: m.connection_status_failure_unsupported(),
+        conflict: m.connection_status_failure_conflict(),
+        unreadable: m.connection_status_failure_unreadable(),
+        server: m.connection_status_failure_server()
     };
 
     let online = $state( true );
@@ -220,27 +221,25 @@
 
             {#if pill === "offline"}
                 <span>
-                    Hors ligne. {pending
-                        ? "Vos modifications partiront dès que la connexion revient."
-                        : "Vous pouvez continuer à écrire."}
+                    {pending ? m.connection_status_offline_pending() : m.connection_status_offline_idle()}
                 </span>
             {:else if pill === "failed"}
                 <span>
                     {failure ? FAILURE_MESSAGE[ failure ] : ""}
-                    <a class="underline" href={resolve( "/data" )}>Ouvrir les sauvegardes</a>
+                    <a class="underline" href={resolve( "/data" )}>{m.connection_status_open_backups()}</a>
                 </span>
 
                 <button
                     type="button"
                     class="text-muted hover:text-ink-800 dark:hover:text-paper-200 -mt-1 -mr-1 ml-auto inline-flex
                            h-7 w-7 shrink-0 items-center justify-center rounded-full"
-                    aria-label="Masquer l'avertissement"
+                    aria-label={m.connection_status_dismiss()}
                     onclick={() => ( dismissedChange = wiki.changedAt )}
                 >
                     <X class="h-4 w-4" />
                 </button>
             {:else}
-                <span>{pill === "sending" ? "Envoi en cours..." : "Envoi automatique imminent"}</span>
+                <span>{pill === "sending" ? m.connection_status_sending() : m.connection_status_imminent()}</span>
             {/if}
         </div>
     </Toast>

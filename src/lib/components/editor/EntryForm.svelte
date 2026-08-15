@@ -17,9 +17,10 @@
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { PAIRED_ACTION } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry, EntryDate, EntryStatus, InfoboxField } from "$lib/types";
-    import { counted } from "$lib/utilities/plural";
+    import { pluralize } from "$lib/utilities/plural";
     import { slugify } from "$lib/utilities/slug";
     import ChipsInput from "./ChipsInput.svelte";
     import DatesEditor from "./DatesEditor.svelte";
@@ -137,20 +138,32 @@
      * and «Aucune» agrees with the noun of its own group rather than with a
      * shared default.
      */
-    const categoriesSummary = $derived( categories.length === 0 ? "Aucune" : counted( categories.length, "catégorie" ) );
+    const categoriesSummary = $derived(
+        categories.length === 0
+            ? m.entry_form_categories_none()
+            : pluralize( categories.length, { one: m.common_count_categorie_one, other: m.common_count_categorie_other } )
+    );
     const infoboxSummary = $derived.by( () =>
     {
         const rows = infobox.filter( isFilled ).length;
 
-        return rows === 0 ? "Aucune" : counted( rows, "ligne" );
+        return rows === 0
+            ? m.entry_form_infobox_none()
+            : pluralize( rows, { one: m.entry_form_infobox_count_one, other: m.entry_form_infobox_count_other } );
     } );
     const datesSummary = $derived.by( () =>
     {
         const rows = dates.filter( isDated ).length;
 
-        return rows === 0 ? "Aucune" : counted( rows, "date" );
+        return rows === 0
+            ? m.entry_form_dates_none()
+            : pluralize( rows, { one: m.entry_form_dates_count_one, other: m.entry_form_dates_count_other } );
     } );
-    const aliasesSummary = $derived( aliases.length === 0 ? "Aucun" : counted( aliases.length, "alias", "alias" ) );
+    const aliasesSummary = $derived(
+        aliases.length === 0
+            ? m.entry_form_aliases_none()
+            : pluralize( aliases.length, { one: m.entry_form_aliases_count_one, other: m.entry_form_aliases_count_other } )
+    );
 
     /** Another page already uses this slug, so a suffix will be added on save. */
     const slugTaken = $derived.by( () =>
@@ -185,7 +198,7 @@
             return;
         }
 
-        if ( !confirm( "Des modifications ne sont pas enregistrées. Quitter quand même l'éditeur ?" ) )
+        if ( !confirm( m.entry_form_unsaved_confirm() ) )
         {
             navigation.cancel();
         }
@@ -269,10 +282,10 @@
     >
         <div class="hidden min-w-0 flex-1 sm:block">
             <p class="text-muted text-xs tracking-wide uppercase">
-                {entry ? "Modifier une fiche" : "Nouvelle fiche"}
+                {entry ? m.entry_form_edit_heading() : m.entry_form_create_heading()}
             </p>
 
-            <p class="truncate text-sm font-medium">{title.trim() || "Sans titre"}</p>
+            <p class="truncate text-sm font-medium">{title.trim() || m.entry_form_untitled()}</p>
         </div>
 
         <div class="ml-auto flex w-full shrink-0 items-center gap-2 sm:w-auto">
@@ -282,11 +295,11 @@
                     size="sm"
                     class="h-9 shrink-0 px-2 sm:px-3"
                     onclick={() => ( deleteOpen = true )}
-                    aria-label="Supprimer la fiche"
+                    aria-label={m.entry_form_delete_aria()}
                 >
                     <Trash2 class="h-4 w-4 sm:hidden" />
 
-                    <span class="hidden sm:inline">Supprimer</span>
+                    <span class="hidden sm:inline">{m.common_delete()}</span>
                 </Button>
             {/if}
 
@@ -296,34 +309,34 @@
                 size="sm"
                 class="h-9 {PAIRED_ACTION}"
             >
-                Annuler
+                {m.common_cancel()}
             </Button>
 
             <Button type="submit" color="primary" size="sm" class="h-9 {PAIRED_ACTION}" disabled={!canSave}>
-                Enregistrer
+                {m.common_save()}
             </Button>
         </div>
     </div>
 
     <div class="space-y-4">
         <div>
-            <Label for="entry-title" class="field-label">Titre</Label>
+            <Label for="entry-title" class="field-label">{m.entry_form_title_label()}</Label>
 
             <Input
                 id="entry-title"
                 bind:value={title}
                 type="text"
                 class="font-serif text-xl"
-                placeholder="Nom du personnage, du lieu, de l'événement..."
+                placeholder={m.entry_form_title_placeholder()}
                 required
             />
         </div>
 
         <div>
             <Label for="entry-slug" class="field-label">
-                Adresse de la page
+                {m.entry_form_slug_label()}
                 {#if !slugLocked}
-                    <span class="text-muted font-normal">suit le titre</span>
+                    <span class="text-muted font-normal">{m.entry_form_slug_follows_title()}</span>
                 {/if}
             </Label>
 
@@ -340,33 +353,33 @@
                     color={slugTaken ? "red" : "default"}
                     aria-invalid={slugTaken}
                     aria-describedby={slugTaken ? "entry-slug-taken" : undefined}
-                    placeholder="adresse-de-la-page"
+                    placeholder={m.entry_form_slug_placeholder()}
                 />
             </div>
 
             {#if slugTaken}
                 <Helper id="entry-slug-taken" color="red" class="mt-1.5 text-xs">
-                    Une autre fiche utilise déjà cette adresse. Un numéro sera ajouté à la fin.
+                    {m.entry_form_slug_taken_hint()}
                 </Helper>
             {/if}
         </div>
 
         <div>
-            <Label for="entry-summary" class="field-label">Résumé</Label>
+            <Label for="entry-summary" class="field-label">{m.entry_form_summary_label()}</Label>
 
             <Textarea
                 id="entry-summary"
                 bind:value={summary}
                 rows={2}
                 class="w-full resize-y"
-                placeholder="Une ou deux phrases. Elles apparaissent sous le titre, dans les listes et dans la recherche."
+                placeholder={m.entry_form_summary_placeholder()}
             />
         </div>
     </div>
 
     <div class="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="min-w-0">
-            <p class="field-label">Corps de la fiche</p>
+            <p class="field-label">{m.entry_form_body_label()}</p>
 
             <MarkdownEditor value={body} onchange={( markdown ) => ( body = markdown )} />
         </div>
@@ -375,15 +388,15 @@
             <Accordion multiple flush class="surface overflow-hidden">
                 <StatusPicker bind:status />
 
-                <OptionPanel label="Catégories" value={categoriesSummary}>
+                <OptionPanel label={m.common_categories_label()} value={categoriesSummary}>
                     {#if wiki.categories.length === 0}
                         <p class="text-muted text-sm">
-                            Aucune catégorie déclarée.
-                            <a href={resolve( "/categories/manage" )} class="wiki-link">En créer</a>.
+                            {m.entry_form_no_categories()}
+                            <a href={resolve( "/categories/manage" )} class="wiki-link">{m.entry_form_create_category_link()}</a>.
                         </p>
                     {:else}
                         <fieldset class="space-y-1.5">
-                            <legend class="sr-only">Catégories de la fiche</legend>
+                            <legend class="sr-only">{m.entry_form_categories_legend()}</legend>
 
                             {#each wiki.categories as item ( item.slug )}
                                 <Checkbox
@@ -398,27 +411,25 @@
                     {/if}
                 </OptionPanel>
 
-                <OptionPanel label="Dates" value={datesSummary}>
+                <OptionPanel label={m.entry_form_dates_label()} value={datesSummary}>
                     <DatesEditor bind:dates />
 
                     <p class="text-muted mt-2 text-xs leading-relaxed">
-                        Une date par repère : naissance et décès, fondation, survenue. Chacune place la fiche dans la
-                        chronologie et s'affiche dans l'infobox. « 2043-06-12 » comme « Juin 2043 » ou « Le troisième
-                        hiver » sont acceptés.
+                        {m.entry_form_dates_hint()}
                     </p>
                 </OptionPanel>
 
-                <OptionPanel label="Infobox" value={infoboxSummary}>
+                <OptionPanel label={m.entry_form_infobox_label()} value={infoboxSummary}>
                     <InfoboxEditor bind:fields={infobox} />
                 </OptionPanel>
 
                 <EntryImageFields bind:src={imageSrc} bind:alt={imageAlt} bind:caption={imageCaption} />
 
-                <OptionPanel label="Autres noms" value={aliasesSummary}>
-                    <ChipsInput bind:values={aliases} id="entry-aliases" placeholder="Alias, puis Entrée" />
+                <OptionPanel label={m.entry_form_aliases_label()} value={aliasesSummary}>
+                    <ChipsInput bind:values={aliases} id="entry-aliases" placeholder={m.entry_form_aliases_placeholder()} />
 
                     <p class="text-muted mt-2 text-xs leading-relaxed">
-                        Pris en compte par la recherche, sans créer de page.
+                        {m.entry_form_aliases_hint()}
                     </p>
                 </OptionPanel>
             </Accordion>
@@ -429,9 +440,9 @@
 {#if entry}
     <ConfirmDialog
         bind:open={deleteOpen}
-        title="Supprimer cette fiche ?"
-        message="La fiche sera supprimée définitivement."
-        confirmLabel="Supprimer"
+        title={m.entry_form_delete_confirm_title()}
+        message={m.entry_form_delete_confirm_message()}
+        confirmLabel={m.common_delete()}
         danger
         onconfirm={remove}
     />

@@ -16,6 +16,7 @@
     import Button from "flowbite-svelte/Button.svelte";
     import Input from "flowbite-svelte/Input.svelte";
     import { SMALL_FIELD } from "$lib/config/forms";
+    import * as m from "$lib/locales/messages.js";
     import type { InfoboxField } from "$lib/types";
 
     interface Props {
@@ -74,7 +75,8 @@
      * @returns A phrase identifying the row.
      * @author Claude
      */
-    const rowName = ( field: InfoboxField, index: number ): string => field.label.trim() || `ligne ${ index + 1 }`;
+    const rowName = ( field: InfoboxField, index: number ): string =>
+        field.label.trim() || m.infobox_editor_row_fallback( { index: index + 1 } );
 </script>
 
 <div class="space-y-2">
@@ -86,8 +88,8 @@
                     type="text"
                     size="sm"
                     class={SMALL_FIELD}
-                    placeholder="Intitulé"
-                    aria-label="Intitulé de la ligne {index + 1}"
+                    placeholder={m.infobox_editor_label_placeholder()}
+                    aria-label={m.infobox_editor_label_aria( { index: index + 1 } )}
                 />
 
                 <Input
@@ -95,8 +97,8 @@
                     type="text"
                     size="sm"
                     class={SMALL_FIELD}
-                    placeholder="Valeur"
-                    aria-label="Valeur de la ligne {index + 1}"
+                    placeholder={m.infobox_editor_value_placeholder()}
+                    aria-label={m.infobox_editor_value_aria( { index: index + 1 } )}
                 />
             </div>
 
@@ -106,7 +108,7 @@
                     class="h-9 w-9 border-0 p-0"
                     onclick={() => move( index, -1 )}
                     disabled={index === 0}
-                    aria-label="Monter {rowName( field, index )}"
+                    aria-label={m.common_move_up( { name: rowName( field, index ) } )}
                 >
                     <ArrowUp class="h-4 w-4" />
                 </Button>
@@ -116,7 +118,7 @@
                     class="h-9 w-9 border-0 p-0"
                     onclick={() => move( index, 1 )}
                     disabled={index === fields.length - 1}
-                    aria-label="Descendre {rowName( field, index )}"
+                    aria-label={m.common_move_down( { name: rowName( field, index ) } )}
                 >
                     <ArrowDown class="h-4 w-4" />
                 </Button>
@@ -125,7 +127,7 @@
                     color="alternative"
                     class="hover:text-alert-500 h-9 w-9 border-0 p-0"
                     onclick={() => remove( index )}
-                    aria-label="Supprimer {rowName( field, index )}"
+                    aria-label={m.common_delete_row( { name: rowName( field, index ) } )}
                 >
                     <X class="h-4 w-4" />
                 </Button>
@@ -133,5 +135,5 @@
         </div>
     {/each}
 
-    <Button color="alternative" size="sm" class="w-full" onclick={add}>Ajouter une ligne</Button>
+    <Button color="alternative" size="sm" class="w-full" onclick={add}>{m.infobox_editor_add_button()}</Button>
 </div>

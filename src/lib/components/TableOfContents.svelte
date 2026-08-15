@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import * as m from "$lib/locales/messages.js";
     import type { Heading } from "$lib/types";
 
     interface Props {
@@ -17,8 +18,8 @@
 </script>
 
 {#if headings.length > 1}
-    <nav class="surface p-5" aria-label="Sommaire">
-        <p class="text-muted mb-3 text-xs tracking-wide uppercase">Sommaire</p>
+    <nav class="surface p-5" aria-label={m.table_of_contents_heading()}>
+        <p class="text-muted mb-3 text-xs tracking-wide uppercase">{m.table_of_contents_heading()}</p>
 
         <ol class="space-y-1.5 text-sm">
             {#each headings as heading ( heading.id )}

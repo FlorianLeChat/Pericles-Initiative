@@ -7,6 +7,8 @@
  * @author Claude
  */
 
+import * as m from "$lib/locales/messages.js";
+import { getLocale } from "$lib/locales/runtime";
 import type { Category, Entry, LiveEntry } from "$lib/types";
 import { countWords } from "./markdown";
 
@@ -66,7 +68,17 @@ export interface StatsInput {
 /** Number of months shown by the activity chart. */
 const ACTIVITY_MONTHS = 12;
 
-const MONTH_LABEL = new Intl.DateTimeFormat( "fr-FR", { month: "short" } );
+/**
+ * Builds the month formatter for the activity chart, following the current locale.
+ *
+ * Built fresh on every call rather than cached at module scope, since the locale can
+ * change at runtime through the settings page switcher, and a formatter cached at
+ * import time would stay frozen to whichever locale was active on the first load.
+ *
+ * @returns A formatter for a short month name, e.g. `janv.` or `Jan`.
+ * @author Claude
+ */
+const monthLabelFormatter = (): Intl.DateTimeFormat => new Intl.DateTimeFormat( getLocale(), { month: "short" } );
 
 /**
  * Builds the activity of the last months, from the edition dates.
@@ -88,6 +100,7 @@ const buildActivity = ( entries: readonly Entry[], now: Date ): ActivityPoint[] 
     }
 
     const points: ActivityPoint[] = [];
+    const monthLabel = monthLabelFormatter();
 
     for ( let offset = ACTIVITY_MONTHS - 1; offset >= 0; offset -= 1 )
     {
@@ -96,7 +109,7 @@ const buildActivity = ( entries: readonly Entry[], now: Date ): ActivityPoint[] 
 
         points.push( {
             month,
-            label: MONTH_LABEL.format( date ),
+            label: monthLabel.format( date ),
             count: counts.get( month ) ?? 0
         } );
     }
@@ -157,32 +170,32 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
     const issues: QualityIssue[] = [
         {
             key: "sans-resume",
-            label: "Sans résumé",
+            label: m.stats_issue_no_summary(),
             entries: entries.filter( ( entry ) => entry.summary.trim() === "" )
         },
         {
             key: "sans-categorie",
-            label: "Sans catégorie",
+            label: m.stats_issue_no_category(),
             entries: entries.filter( ( entry ) => entry.categories.length === 0 )
         },
         {
             key: "sans-date",
-            label: "Sans date de référence",
+            label: m.stats_issue_no_reference_date(),
             entries: entries.filter( ( entry ) => entry.dates.length === 0 )
         },
         {
             key: "sans-lien",
-            label: "Sans lien sortant",
+            label: m.stats_issue_no_outgoing_link(),
             entries: deadEnds
         },
         {
             key: "orphelines",
-            label: "Orphelines, aucune page ne les cite",
+            label: m.stats_issue_orphan(),
             entries: orphans
         },
         {
             key: "trop-courtes",
-            label: "Moins de 50 mots",
+            label: m.stats_issue_too_short(),
             entries: entries.filter( ( entry ) => ( wordsByEntry.get( entry ) ?? 0 ) < 50 )
         }
     ].filter( ( issue ) => issue.entries.length > 0 );

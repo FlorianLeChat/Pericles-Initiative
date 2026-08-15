@@ -9,6 +9,7 @@
     import { slide } from "svelte/transition";
     import { resolve } from "$app/paths";
     import { motionDuration } from "$lib/config/motion";
+    import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import { relativeTime } from "$lib/utilities/date";
 
@@ -20,12 +21,12 @@
 {#if item && !dismissed}
     <aside
         class="bg-alert-500 text-white"
-        aria-label="Alerte en cours"
+        aria-label={m.breaking_banner_aria()}
         transition:slide={{ duration: motionDuration( 260 ), easing: cubicOut }}
     >
         <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2 text-sm sm:px-6">
             <span class="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-xs font-semibold tracking-wide uppercase">
-                Alerte
+                {m.breaking_banner_badge()}
             </span>
 
             <a href={resolve( "/live" )} class="min-w-0 flex-1 truncate font-medium hover:underline">{item.title}</a>
@@ -39,7 +40,7 @@
                 class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full
                        text-white/80 transition hover:bg-white/20 hover:text-white"
                 onclick={() => ( dismissed = true )}
-                aria-label="Masquer l'alerte"
+                aria-label={m.breaking_banner_dismiss()}
             >
                 <X class="h-4 w-4" />
             </button>
