@@ -5,6 +5,7 @@
      * @author Claude
      */
     import "../app.css";
+    import { env } from "$env/dynamic/public";
     import Alert from "flowbite-svelte/Alert.svelte";
     import { asset } from "$app/paths";
     import { untrack, type Snippet } from "svelte";
@@ -134,6 +135,18 @@
 <svelte:head>
     <link rel="icon" href={favicon} type={faviconType} sizes="any" />
     <link rel="manifest" href={asset( "/manifest.webmanifest" )} crossorigin="use-credentials" />
+
+    {#if env.PUBLIC_ANALYTICS_ENABLED === "true"}
+        <script
+            src={env.PUBLIC_ANALYTICS_ENDPOINT}
+            defer
+            data-website-id={env.PUBLIC_ANALYTICS_PROJECT_ID}
+            data-performance="true"
+            data-do-not-track={env.PUBLIC_ANALYTICS_RESPECT_DNT}
+            data-exclude-hash="true"
+            data-exclude-search="true"
+        ></script>
+    {/if}
 </svelte:head>
 
 <svelte:window onkeydown={onKeydown} />
@@ -150,11 +163,6 @@
 
 <SiteHeader onsearch={() => ( searchOpen = true )} />
 
-<!--
-    `tabindex` is what makes the skip link actually move the focus: without it
-    the browser scrolls to the landmark and leaves the focus where it was, so the
-    next tab goes back to the header the reader just skipped.
--->
 <main id="contenu" tabindex="-1" class="flex-1 focus:outline-none">
     {@render children()}
 </main>
