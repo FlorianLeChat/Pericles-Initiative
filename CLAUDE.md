@@ -289,7 +289,10 @@ Two rules with no exception, because both hide the very thing these questions lo
 - That precache is best effort, file by file. `addAll` rejects as a whole over a single file the host
   does not answer, and a rejected install is no offline mode at all rather than a shell with one hole
   in it; a hole heals on the next visit with a connection, an empty cache never heals. Only storing
-  nothing at all fails the install, so that the browser retries it.
+  nothing at all fails the install, so that the browser retries it. A real host in front of the built
+  site drops a share of a burst of requests, a different file each time, which never showed up against
+  the local static host the end to end suite serves the build from: the precache therefore fetches ten
+  files at a time and retries whatever a pass failed to store, up to three attempts, a beat apart.
 - A new build waits rather than taking over: `UpdateBanner.svelte` offers the reload, so the shell is
   never swapped under a half written article.
 

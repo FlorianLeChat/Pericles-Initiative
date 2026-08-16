@@ -73,14 +73,34 @@ const SHELL = [ ...build, ...files, ...prerendered, FALLBACK, ...GENERATED ];
  * How many files are fetched at a time while filling the cache.
  *
  * The whole shell in one go asks for two hundred and sixty odd responses at the
- * same instant, and a host answers the tail of that with a reset rather than
- * with bytes. What is lost is never random: the requests still in flight when
- * the pipe gives up are the heaviest, which here are the Milkdown chunks, so the
- * install reports success and the reader finds the editor missing the first time
- * they open it with no connection. Ten at a time is slower on paper and is the
- * one that actually arrives.
+ * same instant, and a host answers a share of that burst with a reset rather
+ * than with bytes. Which files are lost is not fixed: it is whatever the host
+ * was in the middle of when the burst hit, so a different file goes missing
+ * from one build to the next. Ten at a time asks less of the host at once.
  */
 const BATCH = 10;
+
+/**
+ * How many times a batch is attempted before its failures are given up on.
+ *
+ * A local host answers everything from disk and never drops a request, which is
+ * why this never showed up against `tests/e2e/utilities/host.js`. A real host
+ * fronting the built site over an actual network occasionally resets one, and
+ * retrying is what a browser tab does on its own for a single asset it needs;
+ * the install has to do the same for every file at once, since nothing here can
+ * tell in advance which one the host will drop.
+ */
+const ATTEMPTS = 3;
+
+/**
+ * Pauses between attempts, so whatever caused the previous one to drop a file
+ * has time to pass before the next.
+ *
+ * @param ms Milliseconds to wait.
+ * @returns Resolves once the delay is over.
+ * @author Claude
+ */
+const wait = ( ms: number ): Promise<void> => new Promise( ( resolve ) => setTimeout( resolve, ms ) );
 
 /**
  * Fills the cache for this build, storing what it can, a handful at a time.
@@ -100,14 +120,37 @@ const BATCH = 10;
 const precache = async (): Promise<void> =>
 {
     const cache = await caches.open( CACHE );
+    let pending = SHELL;
     let stored = 0;
 
-    for ( let start = 0; start < SHELL.length; start += BATCH )
+    for ( let attempt = 0; attempt < ATTEMPTS && pending.length > 0; attempt += 1 )
     {
-        const batch = SHELL.slice( start, start + BATCH );
-        const results = await Promise.allSettled( batch.map( ( url ) => cache.add( url ) ) );
+        if ( attempt > 0 )
+        {
+            await wait( 1_000 );
+        }
 
-        stored += results.filter( ( result ) => result.status === "fulfilled" ).length;
+        const failed: string[] = [];
+
+        for ( let start = 0; start < pending.length; start += BATCH )
+        {
+            const batch = pending.slice( start, start + BATCH );
+            const results = await Promise.allSettled( batch.map( ( url ) => cache.add( url ) ) );
+
+            results.forEach( ( result, index ) =>
+            {
+                if ( result.status === "fulfilled" )
+                {
+                    stored += 1;
+                }
+                else
+                {
+                    failed.push( batch[ index ] );
+                }
+            } );
+        }
+
+        pending = failed;
     }
 
     if ( stored === 0 )
