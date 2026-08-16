@@ -46,34 +46,54 @@ const FALLBACK = `${ base }/200.html`;
 const IMMUTABLE_PREFIX = `${ base }/_app/immutable/`;
 
 /**
- * The built application: chunks, stylesheets, and everything under `static/`.
+ * Files SvelteKit writes into the build but leaves out of `$service-worker`.
+ *
+ * `_app/env.js` holds the `PUBLIC_` variables and is dynamically imported while
+ * the client boots. Without it in the cache the shell still paints, since the
+ * prerendered listings carry their server rendered markup, and then hydration
+ * dies on the failed import: every route served through `200.html`, which is all
+ * of the content, stays blank. `_app/version.json` is what the client reads to
+ * notice a new deployment, and a stored copy is the right answer offline, there
+ * being no new deployment to see.
+ */
+const GENERATED = [ `${ base }/_app/env.js`, `${ base }/_app/version.json` ];
+
+/**
+ * The whole shell for this build: chunks, stylesheets, everything under
+ * `static/`, the prerendered listings, and the fallback carrying every other
+ * route.
  *
  * The Milkdown editor is a lazily loaded chunk, and `build` contains it. Leaving
  * it out would give a site that reads offline but cannot be written to, which is
  * half of what an offline wiki is for.
  */
-const ASSETS = [ ...build, ...files ];
-
-/** Prerendered HTML, plus the fallback that carries every other route. */
-const PAGES = [ ...prerendered, FALLBACK ];
+const SHELL = [ ...build, ...files, ...prerendered, FALLBACK, ...GENERATED ];
 
 /**
- * Fills the cache for this build.
+ * Fills the cache for this build, storing what it can.
  *
- * Assets are required: a build whose own chunks cannot be fetched is broken, and
- * failing here leaves the previous worker in place rather than installing a shell
- * with holes in it. Pages are best effort, since a listing that fails to render
- * at build time should not cost the reader the whole offline mode.
+ * `addAll` was tried and dropped: it rejects as a whole over a single file the
+ * host does not answer, and a rejected install is no offline mode at all rather
+ * than a shell with one hole in it. A hole heals on the next visit with a
+ * connection, since `respond` stores what it fetches; an empty cache never heals,
+ * and it is what a reader running a preview server started before the last build
+ * ends up with. Storing nothing at all is still a failure, so that the browser
+ * retries the install rather than leaving a worker that answers nothing.
  *
  * @returns Resolves once the shell is stored.
+ * @throws {Error} When not a single file could be fetched.
  * @author Claude
  */
 const precache = async (): Promise<void> =>
 {
     const cache = await caches.open( CACHE );
+    const results = await Promise.allSettled( SHELL.map( ( url ) => cache.add( url ) ) );
+    const stored = results.filter( ( result ) => result.status === "fulfilled" ).length;
 
-    await cache.addAll( ASSETS );
-    await Promise.allSettled( PAGES.map( ( page ) => cache.add( page ) ) );
+    if ( stored === 0 )
+    {
+        throw new Error( "Nothing could be stored for this build." );
+    }
 };
 
 /**
@@ -100,8 +120,7 @@ const cleanup = async (): Promise<void> =>
  * cache expires, and falls back to whatever was stored when the network fails.
  *
  * @param event Fetch event being handled.
- * @returns The response to hand back to the page.
- * @throws {TypeError} When the request fails and nothing was cached for it.
+ * @returns The response to hand back to the page, or a network error.
  * @author Claude
  */
 const respond = async ( event: FetchEvent ): Promise<Response> =>
@@ -135,7 +154,7 @@ const respond = async ( event: FetchEvent ): Promise<Response> =>
 
         return response;
     }
-    catch ( error )
+    catch
     {
         const stored = await cache.match( request );
 
@@ -146,12 +165,11 @@ const respond = async ( event: FetchEvent ): Promise<Response> =>
 
         const fallback = request.mode === "navigate" ? await cache.match( FALLBACK ) : undefined;
 
-        if ( fallback )
-        {
-            return fallback;
-        }
-
-        throw error;
+        // A network error rather than a rethrow: the page sees the same failed
+        // request either way, but rejecting inside `respondWith` is also reported
+        // as an unhandled rejection, which buries the one error that matters under
+        // a line of worker noise per asset.
+        return fallback ?? Response.error();
     }
 };
 

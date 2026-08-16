@@ -279,11 +279,17 @@ Two rules with no exception, because both hide the very thing these questions lo
 - Server rendered output must never contain overlay data. The overlay is loaded in an effect, after
   hydration, so that the static HTML matches the (empty) seed exactly.
 - `src/service-worker.ts` precaches that build so the site survives a reload with no connection:
-  every chunk, every file under `static/`, the prerendered listings, and `200.html`, which
-  `prerendered` does not list and which carries every page of actual content. The lazily loaded
-  Milkdown chunk is precached too, since a wiki that reads offline but cannot be written to is half a
-  wiki. Cross origin requests are never intercepted, so the remote snapshot service is always
-  answered by the network.
+  every chunk, every file under `static/`, the prerendered listings, and the three files
+  `$service-worker` does not list, `200.html`, `_app/env.js` and `_app/version.json`. `200.html`
+  carries every page of actual content, and `_app/env.js` is dynamically imported while the client
+  boots, so a shell without it paints the prerendered markup and then dies on that import, leaving
+  every page served through the fallback blank. The lazily loaded Milkdown chunk is precached too,
+  since a wiki that reads offline but cannot be written to is half a wiki. Cross origin requests are
+  never intercepted, so the remote snapshot service is always answered by the network.
+- That precache is best effort, file by file. `addAll` rejects as a whole over a single file the host
+  does not answer, and a rejected install is no offline mode at all rather than a shell with one hole
+  in it; a hole heals on the next visit with a connection, an empty cache never heals. Only storing
+  nothing at all fails the install, so that the browser retries it.
 - A new build waits rather than taking over: `UpdateBanner.svelte` offers the reload, so the shell is
   never swapped under a half written article.
 
@@ -399,6 +405,9 @@ commit**:
   identity when it initialises, which on a cold load happens before the overlay has been read.
 - `tests/e2e/navigation.spec.ts` — header, tools menu, search palette, theme, on both viewports.
 - `tests/e2e/remote-backup.spec.ts` — the optional snapshot service, entirely mocked.
+- `tests/e2e/offline.spec.ts` — the service worker: the shell it stores, and a page of content read
+  back with the network cut. It restores the connection in an `afterEach`, since a context left
+  offline hangs on teardown, long after its assertions passed.
 - `tests/e2e/accessibility.spec.ts` — axe over every page, both viewports. It asks for reduced motion
   before measuring, since axe samples the colour an element happens to have and would otherwise read
   a listing halfway through its entrance and call every card a contrast failure.
