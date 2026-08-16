@@ -19,7 +19,7 @@
     import Toast from "flowbite-svelte/Toast.svelte";
     import { browser } from "$app/environment";
     import { motionDuration } from "$lib/config/motion";
-    import { ACTIVATE_NOW } from "$lib/config/service-worker";
+    import { ACTIVATE_NOW, PRECACHE_STATUS } from "$lib/config/service-worker";
     import * as m from "$lib/locales/messages.js";
 
     let waiting = $state<ServiceWorker | null>( null );
@@ -86,6 +86,29 @@
             if ( reloading )
             {
                 location.reload();
+            }
+        } );
+
+        // Diagnostic only: this component is already the one channel the page
+        // keeps open to the worker, so it is where a build that left files behind
+        // gets logged, rather than staying invisible until a reader reports a
+        // `fetchError` nobody can otherwise trace back to a specific missing file.
+        navigator.serviceWorker.addEventListener( "message", ( event: MessageEvent ) =>
+        {
+            if ( event.data?.type !== PRECACHE_STATUS )
+            {
+                return;
+            }
+
+            const missing = event.data.missing as string[];
+
+            if ( missing.length > 0 )
+            {
+                console.warn(
+                    `[sw] this build never cached ${ missing.length } file(s), which will fail offline until a `
+                    + "connection heals them:",
+                    missing
+                );
             }
         } );
     } );
