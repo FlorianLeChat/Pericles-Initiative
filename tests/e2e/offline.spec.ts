@@ -24,6 +24,9 @@ import { expect, test } from "./utilities/fixtures";
  */
 const REQUIRED = [ "/200.html", "/_app/env.js" ];
 
+/** Where the Milkdown editor writes, once it has finished booting. */
+const BODY = "[contenteditable=\"true\"]";
+
 /**
  * Waits for the worker to have stored what the site cannot start without.
  *
@@ -83,5 +86,45 @@ test.describe( "Offline", () =>
 
         await expect( page.getByRole( "heading", { level: 1, name: PAGES.athena.title } ) ).toBeVisible();
         expect( errors ).toEqual( [] );
+    } );
+
+    test( "opens the editor with no connection, down to the Milkdown chunk", async ( { page, context, wiki } ) =>
+    {
+        test.slow();
+
+        await wiki.open();
+        await waitForShell( page );
+
+        await context.setOffline( true );
+
+        await page.goto( "/new" );
+
+        // The heaviest files of the build are the editor's, so they are the ones a
+        // precache drops first when the host stops answering. A wiki that reads
+        // offline but cannot be written to is half a wiki, and nothing else in the
+        // suite would notice them missing.
+        await expect( page.getByLabel( "Titre", { exact: true } ) ).toBeVisible();
+        await expect( page.locator( BODY ) ).toBeVisible();
+    } );
+
+    test( "arrives from nowhere, with no tab of the site left open", async ( { page, context, wiki } ) =>
+    {
+        test.slow();
+
+        await wiki.open();
+        await waitForShell( page );
+        await page.close();
+
+        await context.setOffline( true );
+
+        // The reader who loses their connection elsewhere and then comes here has no
+        // client of this origin left running, so nothing of the site is in memory to
+        // answer with. The browser starts the stored worker for the navigation
+        // itself, which is the whole reason a shell survives a closed tab.
+        const visitor = await context.newPage();
+
+        await visitor.goto( `/wiki/${ PAGES.athena.slug }` );
+
+        await expect( visitor.getByRole( "heading", { level: 1, name: PAGES.athena.title } ) ).toBeVisible();
     } );
 } );

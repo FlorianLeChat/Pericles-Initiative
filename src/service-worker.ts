@@ -70,7 +70,20 @@ const GENERATED = [ `${ base }/_app/env.js`, `${ base }/_app/version.json` ];
 const SHELL = [ ...build, ...files, ...prerendered, FALLBACK, ...GENERATED ];
 
 /**
- * Fills the cache for this build, storing what it can.
+ * How many files are fetched at a time while filling the cache.
+ *
+ * The whole shell in one go asks for two hundred and sixty odd responses at the
+ * same instant, and a host answers the tail of that with a reset rather than
+ * with bytes. What is lost is never random: the requests still in flight when
+ * the pipe gives up are the heaviest, which here are the Milkdown chunks, so the
+ * install reports success and the reader finds the editor missing the first time
+ * they open it with no connection. Ten at a time is slower on paper and is the
+ * one that actually arrives.
+ */
+const BATCH = 10;
+
+/**
+ * Fills the cache for this build, storing what it can, a handful at a time.
  *
  * `addAll` was tried and dropped: it rejects as a whole over a single file the
  * host does not answer, and a rejected install is no offline mode at all rather
@@ -87,8 +100,15 @@ const SHELL = [ ...build, ...files, ...prerendered, FALLBACK, ...GENERATED ];
 const precache = async (): Promise<void> =>
 {
     const cache = await caches.open( CACHE );
-    const results = await Promise.allSettled( SHELL.map( ( url ) => cache.add( url ) ) );
-    const stored = results.filter( ( result ) => result.status === "fulfilled" ).length;
+    let stored = 0;
+
+    for ( let start = 0; start < SHELL.length; start += BATCH )
+    {
+        const batch = SHELL.slice( start, start + BATCH );
+        const results = await Promise.allSettled( batch.map( ( url ) => cache.add( url ) ) );
+
+        stored += results.filter( ( result ) => result.status === "fulfilled" ).length;
+    }
 
     if ( stored === 0 )
     {
