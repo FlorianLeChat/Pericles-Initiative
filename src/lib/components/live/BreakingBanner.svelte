@@ -20,6 +20,7 @@
 
 {#if item && !dismissed}
     <aside
+        id="breaking-banner"
         class="bg-alert-500 text-white"
         aria-label={m.breaking_banner_aria()}
         transition:slide={{ duration: motionDuration( 260 ), easing: cubicOut }}

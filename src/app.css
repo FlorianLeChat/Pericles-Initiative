@@ -726,6 +726,22 @@
 }
 
 /*
+ * The breaking banner is the same case: it sits above the header across a
+ * navigation and already has its own Svelte `slide` transition for appearing
+ * and disappearing, so it must not also inherit `page-leave` and `page-enter`
+ * from the `root` group underneath it.
+ */
+#breaking-banner {
+    view-transition-name: breaking-banner;
+}
+
+::view-transition-group(breaking-banner),
+::view-transition-old(breaking-banner),
+::view-transition-new(breaking-banner) {
+    animation: none;
+}
+
+/*
  * Native dialogs.
  *
  * Every dialog on the site is a Flowbite `Modal`, which is a real `<dialog>`
