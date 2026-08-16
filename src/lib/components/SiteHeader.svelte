@@ -46,6 +46,7 @@
 </script>
 
 <header
+    id="site-header"
     class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/80 sticky top-0 z-40 border-b bg-white/85 backdrop-blur"
 >
     <div class="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">

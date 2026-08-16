@@ -715,7 +715,7 @@
  * that group's own animation, so it simply stays put while the page crossfades
  * behind it.
  */
-header {
+#site-header {
     view-transition-name: site-header;
 }
 
