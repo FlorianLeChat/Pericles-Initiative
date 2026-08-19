@@ -8,6 +8,12 @@
      * the fields were seeded before `localStorage` had been read, and nothing
      * afterwards told them to catch up.
      *
+     * Both cards of the form carry their own submit button, and the two write the
+     * same draft: a single one under the last card floated between panels that
+     * have nothing to do with it, and read as the end of the page rather than as
+     * the end of the fields it saves. The demonstration content and the about
+     * panel follow the form rather than sit in it, for the same reason.
+     *
      * @author Claude
      */
     import Alert from "flowbite-svelte/Alert.svelte";
@@ -20,11 +26,10 @@
     import { resolve } from "$app/paths";
     import { env } from "$env/dynamic/public";
     import { untrack } from "svelte";
-    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import DemoContent from "$lib/components/DemoContent.svelte";
     import FeaturedPagesEditor from "$lib/components/FeaturedPagesEditor.svelte";
     import { ACCENTS } from "$lib/config/accents";
-    import { ACTION_ROW, colorPill, RADIO_OVERLAY } from "$lib/config/forms";
+    import { ACTION_BUTTON, colorPill, RADIO_OVERLAY } from "$lib/config/forms";
     import * as m from "$lib/locales/messages.js";
     import { getLocale, locales, setLocale } from "$lib/locales/runtime";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -72,7 +77,6 @@
     let accent = $state( initial.accent );
     let featured = $state<string[]>( initial.featured );
 
-    let resetOpen = $state( false );
     let saved = $state( false );
 
     const snapshot = (): string => JSON.stringify( { universe, description, logo, accent, featured } );
@@ -82,7 +86,6 @@
 
     const dirty = $derived( snapshot() !== baseline );
     const canSave = $derived( universe.trim().length > 0 );
-    const hasLocalMeta = $derived( wiki.overlay.meta !== null );
 
     /**
      * Applies the form to the dataset.
@@ -107,30 +110,12 @@
         baseline = snapshot();
         saved = true;
     };
-
-    /**
-     * Puts the form back on the default identity, before any local change.
-     *
-     * @author Claude
-     */
-    const reset = (): void =>
-    {
-        wiki.resetMeta();
-
-        universe = wiki.seed.meta.universe;
-        description = wiki.seed.meta.description;
-        logo = wiki.seed.meta.logo;
-        accent = wiki.seed.meta.accent;
-        featured = [ ...wiki.seed.meta.featured ];
-        baseline = snapshot();
-        saved = false;
-    };
 </script>
 
 {#if saved && !dirty}
     <Alert color="primary" class="mt-6 rounded-xl text-sm" role="status">
         {m.settings_form_saved_intro()}
-        <a href={resolve( "/data" )} class="underline">{m.settings_form_saved_link_text()}</a> {m.settings_form_saved_outro()}
+        <a href={resolve( "/data" )} class="underline">{m.common_backups_link()}</a> {m.settings_form_saved_outro()}
     </Alert>
 {/if}
 
@@ -263,48 +248,37 @@
                 </span>
             </div>
         </div>
+
+        <Button type="submit" color="primary" class={ACTION_BUTTON} disabled={!canSave || !dirty}>{m.common_save()}</Button>
     </section>
 
-    <FeaturedPagesEditor bind:slugs={featured} />
-
-    <DemoContent />
-
-    <section class="surface space-y-3 p-6" aria-labelledby="about-heading">
-        <h2 id="about-heading" class="font-serif text-xl font-semibold tracking-tight">{m.settings_form_about_heading()}</h2>
-
-        <dl class="text-muted space-y-1.5 text-sm">
-            <div class="flex flex-wrap gap-2">
-                <dt>{m.settings_form_version_label()}</dt>
-
-                <dd class="text-ink-600 dark:text-paper-300 font-medium">{env.PUBLIC_VERSION ?? "0.0.1"}</dd>
-            </div>
-
-            <div class="flex flex-wrap gap-2">
-                <dt>{m.settings_form_source_label()}</dt>
-
-                <dd class="text-ink-600 dark:text-paper-300 min-w-0 font-medium break-all">
-                    <a href={REPOSITORY_URL} class="wiki-link" target="_blank" rel="noreferrer">{REPOSITORY_URL}</a>
-                </dd>
-            </div>
-        </dl>
-    </section>
-
-    <div class={ACTION_ROW}>
-        <Button type="submit" color="primary" disabled={!canSave || !dirty}>{m.common_save()}</Button>
-
-        {#if hasLocalMeta}
-            <Button color="red" class="sm:ml-auto" onclick={() => ( resetOpen = true )}>
-                {m.settings_form_reset_button()}
+    <FeaturedPagesEditor bind:slugs={featured}>
+        {#snippet actions()}
+            <Button type="submit" color="primary" class={ACTION_BUTTON} disabled={!canSave || !dirty}>
+                {m.common_confirm()}
             </Button>
-        {/if}
-    </div>
+        {/snippet}
+    </FeaturedPagesEditor>
 </form>
 
-<ConfirmDialog
-    bind:open={resetOpen}
-    title={m.settings_form_reset_confirm_title()}
-    message={m.settings_form_reset_confirm_message()}
-    confirmLabel={m.settings_form_reset_confirm_label()}
-    danger
-    onconfirm={reset}
-/>
+<DemoContent />
+
+<section class="surface mt-6 space-y-3 p-6" aria-labelledby="about-heading">
+    <h2 id="about-heading" class="font-serif text-xl font-semibold tracking-tight">{m.settings_form_about_heading()}</h2>
+
+    <dl class="text-muted space-y-1.5 text-sm">
+        <div class="flex flex-wrap gap-2">
+            <dt>{m.settings_form_version_label()}</dt>
+
+            <dd class="text-ink-600 dark:text-paper-300 font-medium">{env.PUBLIC_VERSION ?? "0.0.1"}</dd>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+            <dt>{m.settings_form_source_label()}</dt>
+
+            <dd class="text-ink-600 dark:text-paper-300 min-w-0 font-medium break-all">
+                <a href={REPOSITORY_URL} class="wiki-link" target="_blank" rel="noreferrer">{REPOSITORY_URL}</a>
+            </dd>
+        </div>
+    </dl>
+</section>

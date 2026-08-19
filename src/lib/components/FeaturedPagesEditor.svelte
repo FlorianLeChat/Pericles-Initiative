@@ -11,6 +11,7 @@
     import ArrowUp from "@lucide/svelte/icons/arrow-up";
     import X from "@lucide/svelte/icons/x";
     import Button from "flowbite-svelte/Button.svelte";
+    import type { Snippet } from "svelte";
     import { resolve } from "$app/paths";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -19,9 +20,11 @@
     interface Props {
         /** Slugs of the featured pages, most prominent first. */
         slugs: string[];
+        /** Control writing the list down, rendered at the foot of the card. */
+        actions: Snippet;
     }
 
-    let { slugs = $bindable() }: Props = $props();
+    let { slugs = $bindable(), actions }: Props = $props();
 
     let pickerOpen = $state( false );
 </script>
@@ -103,6 +106,8 @@
             {/each}
         </ol>
     {/if}
+
+    <div class="mt-5">{@render actions()}</div>
 </section>
 
 <EntryPicker

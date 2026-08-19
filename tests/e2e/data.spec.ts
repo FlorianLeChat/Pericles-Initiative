@@ -10,7 +10,7 @@
 
 import { readFile } from "node:fs/promises";
 import type { Dataset } from "$lib/types";
-import { COUNTS, PAGES } from "./utilities/dataset";
+import { COUNTS, PAGES, UNIVERSE } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
 
 /**
@@ -55,7 +55,7 @@ test.describe( "data page", () =>
         await wiki.openEmpty( "/data" );
 
         await expect( page.getByText( "Rien n'est encore enregistré sur cet appareil." ) ).toBeVisible();
-        await expect( page.getByRole( "button", { name: "Effacer tout mon wiki" } ) ).toBeDisabled();
+        await expect( page.getByRole( "button", { name: "Effacer tout mon contenu" } ) ).toBeDisabled();
 
         await wiki.open( "/data" );
 
@@ -105,14 +105,20 @@ test.describe( "data page", () =>
         await expect( page.getByRole( "link", { name: PAGES.athena.title } ) ).toBeHidden();
     } );
 
-    test( "erases the content of the browser once confirmed", async ( { page, wiki } ) =>
+    test( "erases the content of the browser once confirmed, and spares the settings", async ( { page, wiki } ) =>
     {
         await wiki.open( "/data" );
 
-        await page.getByRole( "button", { name: "Effacer tout mon wiki" } ).click();
-        await wiki.confirm( "Effacer tout votre wiki ?", "Effacer" );
+        await page.getByRole( "button", { name: "Effacer tout mon contenu" } ).click();
+        await wiki.confirm( "Effacer tout votre contenu ?", "Effacer" );
 
-        await expect( page.getByText( "Votre wiki a été effacé de cet appareil." ) ).toBeVisible();
-        expect( await wiki.storedOverlay() ).toBeNull();
+        await expect( page.getByText( "Le contenu de votre wiki a été effacé de cet appareil." ) ).toBeVisible();
+
+        const overlay = await wiki.storedOverlay();
+
+        expect( Object.keys( overlay?.entries ?? {} ) ).toHaveLength( 0 );
+        expect( Object.keys( overlay?.categories ?? {} ) ).toHaveLength( 0 );
+        expect( overlay?.meta?.universe ).toBe( UNIVERSE );
+        await expect( page.getByRole( "banner" ) ).toContainText( UNIVERSE );
     } );
 } );

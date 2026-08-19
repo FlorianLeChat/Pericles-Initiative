@@ -475,25 +475,29 @@ export const withoutKey = <T>( record: Record<string, T>, key: string ): Record<
     Object.fromEntries( Object.entries( record ).filter( ( [ candidate ] ) => candidate !== key ) );
 
 /**
- * Counts the items the overlay holds.
+ * Counts the pages, categories and feed items the overlay holds.
  *
  * With an empty seed the overlay is not a delta but the whole content of the
  * wiki, so this is a count of what this browser stores, not of changes pending
  * anything. Deletions are counted too: a recorded deletion is one more thing
  * this browser knows and a backup does not.
  *
+ * The identity of the wiki is deliberately left out. It is a setting rather than
+ * content, and the two are undone by two different buttons on two different
+ * pages, so a count mixing them would answer neither question: `WikiStore` adds
+ * it back for the inventory, which does ask about both.
+ *
  * @param overlay Content stored in this browser.
- * @returns The number of stored or deleted items, the wiki identity included.
+ * @returns The number of stored or deleted items, the wiki identity aside.
  * @author Claude
  */
-export const countOverlayItems = ( overlay: Overlay ): number =>
+export const countOverlayContent = ( overlay: Overlay ): number =>
     Object.keys( overlay.entries ).length
     + Object.keys( overlay.categories ).length
     + Object.keys( overlay.live ).length
     + overlay.deleted.entries.length
     + overlay.deleted.categories.length
-    + overlay.deleted.live.length
-    + ( overlay.meta ? 1 : 0 );
+    + overlay.deleted.live.length;
 
 /**
  * Turns an imported dataset into an overlay.

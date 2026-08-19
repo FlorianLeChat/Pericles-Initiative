@@ -9,7 +9,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { ACCENTS, DEFAULT_ACCENT, type Accent } from "$lib/config/accents";
-import { PAGES, UNIVERSE } from "./utilities/dataset";
+import { COUNTS, PAGES, UNIVERSE } from "./utilities/dataset";
 import { expect, isNarrow, LOCALE_KEY, test, waitForDrawer, type WikiHelper } from "./utilities/fixtures";
 
 /**
@@ -99,7 +99,7 @@ test.describe( "settings", () =>
 
         await expect( featured.getByRole( "listitem" ) ).toHaveCount( 3 );
 
-        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+        await featured.getByRole( "button", { name: "Confirmer" } ).click();
         await page.goto( "/" );
 
         const highlight = page.locator( "section" ).filter( { hasText: "À la une" } );
@@ -134,19 +134,23 @@ test.describe( "settings", () =>
         expect( ( await wiki.storedOverlay() )?.meta?.accent ).toBe( chosen.key );
     } );
 
-    test( "goes back to the default identity once confirmed", async ( { page, wiki } ) =>
+    test( "puts every setting back once confirmed, and spares the pages", async ( { page, wiki } ) =>
     {
         await openSettings( page, wiki );
 
         await page.getByLabel( "Description" ).fill( "Une description de passage." );
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
-        await page.getByRole( "button", { name: "Tout remettre par défaut" } ).click();
-        await wiki.confirm( "Tout remettre par défaut ?", "Remettre" );
+        await page.getByRole( "button", { name: "Remettre mes réglages par défaut" } ).click();
+        await wiki.confirm( "Remettre vos réglages par défaut ?", "Remettre" );
 
-        // The seed is empty for every reader, so the default identity is the nameless one.
-        await expect( page.getByLabel( "Nom de l'univers" ) ).toHaveValue( "Univers sans nom" );
-        expect( ( await wiki.storedOverlay() )?.meta ).toBeNull();
+        await expect( page.getByRole( "heading", { name: "Settings", level: 1 } ) ).toBeVisible();
+        await expect( page.getByLabel( "Universe name" ) ).toHaveValue( "Unnamed universe" );
+
+        const overlay = await wiki.storedOverlay();
+
+        expect( overlay?.meta ).toBeNull();
+        expect( Object.keys( overlay?.entries ?? {} ) ).toHaveLength( COUNTS.entries );
     } );
 
     test( "switches the language, remembers it, and reloads the page in it", async ( { page, wiki } ) =>

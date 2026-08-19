@@ -12,10 +12,6 @@
      * everything exactly as a restore does and needs the same confirmation. It also
      * switches the interface to English, the language the fiction is written in.
      *
-     * Rendered inside the identity form of `SettingsForm`, which is why its trigger
-     * spells out `type="button"`: a button inside a `<form>` submits it by default,
-     * and here that would save the identity the reader is about to have replaced.
-     *
      * @author Claude
      */
     import Alert from "flowbite-svelte/Alert.svelte";
@@ -72,7 +68,7 @@
     };
 </script>
 
-<section class="surface space-y-3 p-6" aria-labelledby="demo-heading">
+<section class="surface mt-6 space-y-3 p-6" aria-labelledby="demo-heading">
     <h2 id="demo-heading" class="font-serif text-xl font-semibold tracking-tight">{m.demo_heading()}</h2>
 
     <p class="text-muted text-sm leading-relaxed">{m.demo_description()}</p>
@@ -81,13 +77,7 @@
         <Alert color="red" class="rounded-xl text-sm" role="status">{m.demo_error()}</Alert>
     {/if}
 
-    <Button
-        type="button"
-        color="alternative"
-        class={ACTION_BUTTON}
-        disabled={loading}
-        onclick={() => ( confirmOpen = true )}
-    >
+    <Button color="alternative" class={ACTION_BUTTON} disabled={loading} onclick={() => ( confirmOpen = true )}>
         {loading ? m.demo_button_loading() : m.demo_button()}
     </Button>
 </section>

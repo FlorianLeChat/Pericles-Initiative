@@ -57,7 +57,7 @@
         </p>
     </div>
 
-    {#if !wiki.hasStoredContent}
+    {#if !wiki.hasStoredItems}
         <p class="text-muted mt-4 text-sm leading-relaxed">
             {m.local_content_empty_intro()}
             <a href={resolve( "/new" )} class="wiki-link">{m.local_content_create_link()}</a>
@@ -152,7 +152,7 @@
 
                     <p class="text-ink-500 dark:text-paper-300/80">
                         {m.local_content_identity_intro()}
-                        <a href={resolve( "/settings" )} class="wiki-link">{m.local_content_identity_link()}</a>.
+                        <a href={resolve( "/settings" )} class="wiki-link">{m.common_settings_link()}</a>.
                     </p>
                 </div>
             {/if}

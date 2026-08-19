@@ -20,7 +20,7 @@ import * as m from "$lib/locales/messages.js";
 import type { Category, Dataset, Entry, EntryDate, LiveEntry, Overlay, WikiMeta } from "$lib/types";
 import { timelineSortKey } from "$lib/utilities/date";
 import { buildImportOverlay,
-    countOverlayItems,
+    countOverlayContent,
     emptyDataset,
     emptyOverlay,
     mergeDataset,
@@ -220,14 +220,21 @@ class WikiStore
     recentlyUpdated = $derived( [ ...this.entries ].sort( ( a, b ) => b.updatedAt.localeCompare( a.updatedAt ) ) );
 
     /**
-     * How many items this browser stores.
+     * How many pages, categories and feed items this browser stores.
      *
      * Not a count of unsaved changes: the seed being empty, the overlay holds the
      * whole wiki, and exporting it does not empty it.
      */
-    storedItemCount = $derived( countOverlayItems( this.overlay ) );
+    storedContentCount = $derived( countOverlayContent( this.overlay ) );
 
-    hasStoredContent = $derived( this.storedItemCount > 0 );
+    /** True when this browser holds content of its own, the identity of the wiki aside. */
+    hasStoredContent = $derived( this.storedContentCount > 0 );
+
+    /** How many items this browser stores, the identity of the wiki included. */
+    storedItemCount = $derived( this.storedContentCount + ( this.overlay.meta ? 1 : 0 ) );
+
+    /** True when this browser holds anything at all, be it content or settings. */
+    hasStoredItems = $derived( this.storedItemCount > 0 );
 
     /**
      * When this browser last wrote something, null while it stores nothing.
@@ -603,14 +610,57 @@ class WikiStore
     }
 
     /**
-     * Drops the local changes made to the identity of the wiki.
+     * Forgets the stored overlay, for a browser that now holds nothing at all.
+     *
+     * An empty overlay and no overlay describe the same wiki, so writing the
+     * empty one back would leave a key behind claiming this browser stores
+     * something. Only the two resets below can reach that state; everywhere else
+     * a mutation has just written something worth keeping.
+     *
+     * @author Claude
+     */
+    #forgetStorage(): void
+    {
+        if ( !browser )
+        {
+            return;
+        }
+
+        try
+        {
+            localStorage.removeItem( OVERLAY_KEY );
+            this.storageError = null;
+        }
+        catch ( error )
+        {
+            this.storageError = m.wiki_storage_write_error( { error: String( error ) } );
+        }
+    }
+
+    /**
+     * Drops the settings of the wiki, keeping every page.
+     *
+     * One half of a deliberate pair, `resetContent` being the other: this one
+     * puts the identity, the colour and the pages put forward back to their
+     * default and does not touch a single page, that one empties the
+     * encyclopedia and leaves the settings alone. The language is not ours to
+     * forget here, since it is not part of the overlay, so the settings page
+     * clears it alongside this call.
      *
      * @author Claude
      */
     resetMeta(): void
     {
-        this.overlay.meta = null;
-        this.persist();
+        this.overlay = { ...this.overlay, meta: null };
+
+        if ( this.hasStoredContent )
+        {
+            this.persist();
+        }
+        else
+        {
+            this.#forgetStorage();
+        }
     }
 
     /**
@@ -673,25 +723,28 @@ class WikiStore
     }
 
     /**
-     * Drops every local change and goes back to the empty seed.
+     * Drops every page, category and feed item, keeping the settings of the wiki.
+     *
+     * The counterpart of `resetMeta`, and the reason the two live on two
+     * different pages. A reader emptying the encyclopedia is starting a new one
+     * here, not disowning the name, the colour and the language they picked for
+     * this browser, so those survive.
      *
      * @author Claude
      */
-    resetLocal(): void
+    resetContent(): void
     {
-        this.overlay = emptyOverlay();
+        const identity = this.overlay.meta;
 
-        if ( browser )
+        this.overlay = { ...emptyOverlay(), meta: identity };
+
+        if ( identity )
         {
-            try
-            {
-                localStorage.removeItem( OVERLAY_KEY );
-                this.storageError = null;
-            }
-            catch ( error )
-            {
-                this.storageError = String( error );
-            }
+            this.persist();
+        }
+        else
+        {
+            this.#forgetStorage();
         }
     }
 }

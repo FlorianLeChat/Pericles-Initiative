@@ -9,17 +9,15 @@
      * @author Claude
      */
     import Alert from "flowbite-svelte/Alert.svelte";
-    import Button from "flowbite-svelte/Button.svelte";
-    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+    import { resolve } from "$app/paths";
     import FileBackup from "$lib/components/data/FileBackup.svelte";
     import LocalContent from "$lib/components/data/LocalContent.svelte";
     import RemoteBackup from "$lib/components/data/RemoteBackup.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
-    import { ACTION_BUTTON } from "$lib/config/forms";
+    import ResetPanel from "$lib/components/ResetPanel.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
 
-    let resetOpen = $state( false );
     let feedback = $state<string | null>( null );
 </script>
 
@@ -46,33 +44,23 @@
 
     <RemoteBackup />
 
-    <section class="border-alert-500/30 mt-6 rounded-2xl border p-6">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.data_clear_heading()}</h2>
-
-        <p class="text-muted mt-2 text-sm leading-relaxed">
-            {m.data_clear_description()}
-        </p>
-
-        <Button
-            color="red"
-            class="mt-5 {ACTION_BUTTON}"
-            disabled={!wiki.hasStoredContent}
-            onclick={() => ( resetOpen = true )}
-        >
-            {m.data_clear_button()}
-        </Button>
-    </section>
+    <ResetPanel
+        heading={m.data_clear_heading()}
+        description={m.data_clear_description()}
+        action={m.data_clear_button()}
+        disabled={!wiki.hasStoredContent}
+        confirmTitle={m.data_reset_dialog_title()}
+        confirmMessage={m.data_reset_dialog_message()}
+        confirmLabel={m.data_reset_confirm_label()}
+        onconfirm={() =>
+        {
+            wiki.resetContent();
+            feedback = m.data_reset_feedback();
+        }}
+    >
+        {#snippet spares()}
+            {m.data_clear_spares_intro()}
+            <a href={resolve( "/settings" )} class="wiki-link">{m.common_settings_link()}</a>.
+        {/snippet}
+    </ResetPanel>
 </div>
-
-<ConfirmDialog
-    bind:open={resetOpen}
-    title={m.data_reset_dialog_title()}
-    message={m.data_reset_dialog_message()}
-    confirmLabel={m.data_reset_confirm_label()}
-    danger
-    onconfirm={() =>
-    {
-        wiki.resetLocal();
-        feedback = m.data_reset_feedback();
-    }}
-/>
