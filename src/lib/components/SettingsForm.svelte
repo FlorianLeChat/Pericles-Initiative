@@ -21,6 +21,7 @@
     import { env } from "$env/dynamic/public";
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+    import DemoContent from "$lib/components/DemoContent.svelte";
     import FeaturedPagesEditor from "$lib/components/FeaturedPagesEditor.svelte";
     import { ACCENTS } from "$lib/config/accents";
     import { ACTION_ROW, colorPill, RADIO_OVERLAY } from "$lib/config/forms";
@@ -265,6 +266,8 @@
     </section>
 
     <FeaturedPagesEditor bind:slugs={featured} />
+
+    <DemoContent />
 
     <section class="surface space-y-3 p-6" aria-labelledby="about-heading">
         <h2 id="about-heading" class="font-serif text-xl font-semibold tracking-tight">{m.settings_form_about_heading()}</h2>

@@ -167,6 +167,15 @@
     "dates_signature": "Signature",
     "dates_start": "Start",
 
+    "demo_button": "Load the demonstration content",
+    "demo_button_loading": "Loading...",
+    "demo_confirm_label": "Load",
+    "demo_confirm_message": "Your current pages will be replaced with those of the demonstration, identity of the wiki included, and the interface will switch to English. Anything not copied elsewhere will be lost.",
+    "demo_confirm_title": "Replace your wiki with the demonstration?",
+    "demo_description": "A wiki of about twenty pages, its categories, its chronology and its feed, to see what the site looks like with content in it. Its fiction is written in English, and the interface switches to English with it. You may set the interface back afterwards; the fiction itself will not be translated. The content is loaded like a backup: it replaces everything, and the page reloads to apply it. The illustrations of these pages are hosted elsewhere and need a connection.",
+    "demo_error": "The demonstration content could not be loaded. Your wiki has not changed.",
+    "demo_heading": "Demonstration content",
+
     "edit_empty_description": "It may have been deleted, or its address may have changed.",
     "edit_empty_title": "No entry at this address",
     "edit_loading": "Loading the entry...",

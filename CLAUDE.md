@@ -85,7 +85,9 @@ editor, and any sample text written into components.
 
 - **Never use an em dash or an en dash** in narrative text, summaries, infobox values or live feed
   items. Use a comma, a colon, or split the sentence.
-- Use French quotation marks with their spaces, « comme ceci », not straight double quotes.
+- Use French quotation marks with their spaces, « comme ceci », not straight double quotes. The one
+  exception is the demonstration wiki of `src/lib/demo.ts`, whose fiction is written in English and
+  quotes it with the English curly pair; the rule against straight quotes holds there too.
 - Prefer the typographic apostrophe in prose. `slugify` strips it, so it never leaks into a slug.
 - Write numbers out when the fiction reads better that way: `soixante douze heures`, not `72 h`, in
   narrative prose. Infobox values may stay numeric.
@@ -196,7 +198,10 @@ Two rules with no exception, because both hide the very thing these questions lo
   `@ts-expect-error` in `svelte.config.js` predates this and covers an adapter option the types do
   not know; it is not a precedent.
 - **No test mode in `src/`.** Nothing in the application knows the suite exists: no seed file, no
-  build flag, no branch taken only under test.
+  build flag, no branch taken only under test. `src/lib/demo.ts` is not that: it is content a reader
+  asks for by pressing a button in the settings, never something the application installs on its own,
+  and the suite keeps its own separate wiki in `tests/e2e/utilities/dataset.ts`. The two never share a
+  dataset, and neither knows the other exists.
 
 ## Data rules
 
@@ -205,11 +210,28 @@ Two rules with no exception, because both hide the very thing these questions lo
   feeds one, but that seed is always empty today: nothing ships a JSON file to seed the wiki from,
   the end to end suite included, which writes the overlay itself. Application code never writes
   anywhere else. Import and export from `/data` are how content moves between browsers or gets
-  backed up, until a backend replaces that.
+  backed up, until a backend replaces that, and the demonstration content of `/settings` is a third
+  caller of that same import.
 - Everything installed into the store, seed or overlay, goes through `normalizeDataset` /
   `normalizeOverlay` in `src/lib/utilities/dataset.ts`. Both a missing seed and a missing overlay key
   must degrade into an empty, valid dataset, never throw. When you add a field to a type in
   `src/lib/types.ts`, add its normalisation in the same commit.
+- **The demonstration dataset follows the shape of the data.** `src/lib/demo.ts` is a complete
+  `Dataset` written by hand, offered from `/settings` and installed through `importDataset`, the same
+  path a restored backup takes. It is not a seed: `WikiStore` still merges an always empty one, and
+  nothing is installed until a reader presses the button. Its fiction is written in English, so the
+  panel switches the interface to English with it rather than framing English pages in French labels;
+  the reader may switch back, and the fiction stays as authored, like any other page of a wiki. Because it states every field rather than
+  letting normalisation fill them in, **any change to the contracts of `src/lib/types.ts` updates it
+  in the same commit**: a new field gets a plausible value on the pages that would carry it, a renamed
+  one is renamed there too, a removed one leaves. Normalisation would paper over a stale dataset
+  rather than fail, so nothing but reading this file catches the drift, and a demonstration that
+  quietly stopped showing a feature is worse than none. The same commit also revisits what the
+  dashboard reads from it: the corpus is dimensioned so every panel has something to show, red links
+  included, and a page added or removed moves those figures. The panel offering it is deliberately
+  left out of the Playwright suite: `importDataset` is already covered through the file import of
+  `data.spec.ts` and the snapshot of `remote-backup.spec.ts`, so a spec here would assert the fiction
+  rather than a behaviour.
 - Local changes live in a `localStorage` overlay, keyed by identifier, merged over the seed by
   `mergeDataset`. Upserts are keyed so re-hydrating a seed never discards work in progress.
 - `id` is stable and survives a rename. `slug` is the url and may change, so never key anything
@@ -397,7 +419,8 @@ commit**:
 - `tests/e2e/data.spec.ts` — inventory of the browser, export to `wiki.json`, import, reset.
 - `tests/e2e/settings.spec.ts` — identity of the wiki, the pages put forward on the home page, and the
   language switch. These reach `/settings` by clicking, never by `goto`: the form snapshots the
-  identity when it initialises, which on a cold load happens before the overlay has been read.
+  identity when it initialises, which on a cold load happens before the overlay has been read. The
+  demonstration content is deliberately not covered here, see the data rules.
 - `tests/e2e/navigation.spec.ts` — header, tools menu, search palette, theme, on both viewports.
 - `tests/e2e/remote-backup.spec.ts` — the optional snapshot service, entirely mocked.
 - `tests/e2e/accessibility.spec.ts` — axe over every page, both viewports. It asks for reduced motion
@@ -492,6 +515,7 @@ src/
             editor/             Milkdown editor, page form, link picker
             live/               live feed, composer, alert banner
         config/                 page types, palette, severities, navigation, motion, forms
+        demo.ts                 the demonstration wiki, imported on demand from /settings
         locales/                generated by the Paraglide vite plugin, gitignored, never hand edited
         state/wiki.svelte.ts    seed plus overlay, link graph, mutations, export and import
         state/remote.svelte.ts  connection to the optional snapshot service

@@ -167,6 +167,15 @@
     "dates_signature": "Signature",
     "dates_start": "Début",
 
+    "demo_button": "Charger le contenu de démonstration",
+    "demo_button_loading": "Chargement...",
+    "demo_confirm_label": "Charger",
+    "demo_confirm_message": "Vos pages actuelles vont être remplacées par celles de la démonstration, identité du wiki comprise, et l'interface passera en anglais. Ce qui n'a pas été copié ailleurs sera perdu.",
+    "demo_confirm_title": "Remplacer votre wiki par la démonstration ?",
+    "demo_description": "Un wiki d'une vingtaine de fiches, avec ses catégories, sa chronologie et son fil, pour voir à quoi ressemble le site avec du contenu dedans. Sa fiction est rédigée en anglais, et l'interface passe en anglais avec elle. Vous pouvez la remettre en français ; la fiction, elle, ne sera pas traduite. Le contenu se charge comme une sauvegarde : il remplace tout, et la page se recharge pour l'appliquer. Les illustrations de ces fiches sont hébergées ailleurs et demandent une connexion.",
+    "demo_error": "Le contenu de démonstration n'a pas pu être chargé. Votre wiki n'a pas changé.",
+    "demo_heading": "Contenu de démonstration",
+
     "edit_empty_description": "Elle a peut-être été supprimée, ou son adresse a changé.",
     "edit_empty_title": "Aucune fiche à cette adresse",
     "edit_loading": "Chargement de la fiche...",
