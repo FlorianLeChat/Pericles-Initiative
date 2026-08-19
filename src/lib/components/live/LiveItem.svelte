@@ -60,9 +60,9 @@
 
     <div class="text-muted mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
         {#if target}
-            <a href={resolve( `/wiki/${ target.slug }` )} class="wiki-link font-medium">{m.live_item_read_entry()}</a>
+            <a href={resolve( `/wiki/${ target.slug }/` )} class="wiki-link font-medium">{m.live_item_read_entry()}</a>
         {:else if item.entrySlug}
-            <a href={resolve( `/wiki/${ item.entrySlug }` )} class="wiki-link-missing font-medium">
+            <a href={resolve( `/wiki/${ item.entrySlug }/` )} class="wiki-link-missing font-medium">
                 {m.live_item_missing_entry( { slug: item.entrySlug } )}
             </a>
         {/if}

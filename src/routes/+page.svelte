@@ -132,7 +132,7 @@
 
                     <h3 class="font-serif text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
                         <a
-                            href={resolve( `/wiki/${ headline.slug }` )}
+                            href={resolve( `/wiki/${ headline.slug }/` )}
                             class="hover:text-accent-600 dark:hover:text-accent-400 stretched-link"
                         >
                             {headline.title}
@@ -144,7 +144,7 @@
                     </p>
 
                     <a
-                        href={resolve( `/wiki/${ headline.slug }` )}
+                        href={resolve( `/wiki/${ headline.slug }/` )}
                         class="wiki-link relative inline-block text-sm font-medium"
                     >
                         {m.home_read_entry()}
@@ -183,7 +183,7 @@
 
                         <span class="min-w-0 flex-1">
                             {#if item.entrySlug}
-                                <a href={resolve( `/wiki/${ item.entrySlug }` )} class="font-medium hover:underline"
+                                <a href={resolve( `/wiki/${ item.entrySlug }/` )} class="font-medium hover:underline"
                                     >{item.title}</a
                                 >
                             {:else}

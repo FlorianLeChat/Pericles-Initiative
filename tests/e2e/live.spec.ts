@@ -42,7 +42,7 @@ test.describe( "live feed", () =>
 
         await item( page, LIVE.recent.title ).getByRole( "link", { name: "Lire la fiche complète" } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
     } );
 
     test( "filters by severity and by tag, and clears an empty result", async ( { page, wiki } ) =>

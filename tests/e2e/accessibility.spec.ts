@@ -130,7 +130,7 @@ test.describe( "accessibility", () =>
             await page.getByRole( "menuitem", { name: "Paramètres" } ).click();
         }
 
-        await expect( page ).toHaveURL( /\/settings$/ );
+        await expect( page ).toHaveURL( /\/settings\/$/ );
         await audit( page );
     } );
 

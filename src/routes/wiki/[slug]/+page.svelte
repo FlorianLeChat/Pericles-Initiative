@@ -73,7 +73,7 @@
                 </BreadcrumbItem>
             </Breadcrumb>
 
-            <Button href={resolve( `/edit/${ entry.slug }` )} color="alternative" size="xs" class="rounded-full">
+            <Button href={resolve( `/edit/${ entry.slug }/` )} color="alternative" size="xs" class="rounded-full">
                 {m.common_edit_action()}
             </Button>
         </div>
@@ -125,7 +125,7 @@
                                 >
                                     <div class="flex items-center gap-2">
                                         <a
-                                            href={resolve( `/wiki/${ item.slug }` )}
+                                            href={resolve( `/wiki/${ item.slug }/` )}
                                             class="stretched-link text-sm font-medium"
                                         >
                                             {item.title}
@@ -157,7 +157,7 @@
 
         <EmptyState title={m.wiki_slug_unwritten_title()} description={m.wiki_slug_unwritten_description()}>
             <Button
-                href={resolve( `/new?slug=${ encodeURIComponent( slug ) }&titre=${ encodeURIComponent( plannedTitle ) }` )}
+                href={resolve( `/new/?slug=${ encodeURIComponent( slug ) }&titre=${ encodeURIComponent( plannedTitle ) }` )}
                 color="primary"
             >
                 {m.common_create_this_entry()}

@@ -38,11 +38,15 @@
     /**
      * Tells whether a navigation link matches the current page.
      *
-     * @param href Link target.
+     * Every link already ends in a slash, since the layout asks for one, so a
+     * prefix test is enough to light «Encyclopédie» up on an article and needs no
+     * separator of its own. Appending one here would look for `/wiki//`.
+     *
+     * @param href Link target, ending in a slash.
      * @returns True when the link should be highlighted.
      * @author Claude
      */
-    const isActive = ( href: string ): boolean => page.url.pathname === href || page.url.pathname.startsWith( `${ href }/` );
+    const isActive = ( href: string ): boolean => page.url.pathname.startsWith( href );
 </script>
 
 <header

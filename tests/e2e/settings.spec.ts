@@ -41,7 +41,7 @@ const openSettings = async ( page: Page, wiki: WikiHelper ): Promise<void> =>
         await page.getByRole( "menuitem", { name: "Paramètres" } ).click();
     }
 
-    await expect( page ).toHaveURL( /\/settings$/ );
+    await expect( page ).toHaveURL( /\/settings\/$/ );
 };
 
 /**
@@ -154,7 +154,7 @@ test.describe( "settings", () =>
         await openSettings( page, wiki );
         await page.getByRole( "radio", { name: "Anglais" } ).click();
 
-        await expect( page ).toHaveURL( /\/settings$/ );
+        await expect( page ).toHaveURL( /\/settings\/$/ );
         await expect( page.getByRole( "heading", { name: "Settings", level: 1 } ) ).toBeVisible();
         await expect( page.getByLabel( "Universe name" ) ).toBeVisible();
 

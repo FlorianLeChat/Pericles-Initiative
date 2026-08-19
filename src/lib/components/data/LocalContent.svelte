@@ -90,7 +90,7 @@
                     <ul class="space-y-1.5">
                         {#each storedEntries as entry ( entry.id )}
                             <li class="flex flex-wrap items-center gap-2">
-                                <a href={resolve( `/wiki/${ entry.slug }` )} class="wiki-link">{entry.title}</a>
+                                <a href={resolve( `/wiki/${ entry.slug }/` )} class="wiki-link">{entry.title}</a>
 
                                 {#if entry.status === "brouillon"}
                                     <span class="text-muted text-xs">{m.local_content_draft_tag()}</span>

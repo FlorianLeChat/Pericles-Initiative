@@ -21,7 +21,7 @@ test.describe( "categories", () =>
 
         await page.getByRole( "link", { name: "Créer une catégorie" } ).click();
 
-        await expect( page ).toHaveURL( /\/categories\/manage$/ );
+        await expect( page ).toHaveURL( /\/categories\/manage\/$/ );
     } );
 
     test( "counts and lists the pages of a category", async ( { page, wiki } ) =>
@@ -35,7 +35,7 @@ test.describe( "categories", () =>
 
         await card.click();
 
-        await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }/$` ) );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( CATEGORIES.institutions.name );
         await expect( page.getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
     } );

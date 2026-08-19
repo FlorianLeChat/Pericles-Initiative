@@ -29,7 +29,7 @@
         <p class="text-muted font-mono text-sm">/wiki/{slug}</p>
 
         <EmptyState title={m.edit_empty_title()} description={m.edit_empty_description()}>
-            <Button href={resolve( `/new?slug=${ slug }` )} color="primary">{m.common_create_this_entry()}</Button>
+            <Button href={resolve( `/new/?slug=${ slug }` )} color="primary">{m.common_create_this_entry()}</Button>
             <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
         </EmptyState>
     </div>

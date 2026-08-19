@@ -106,7 +106,7 @@
     {
         open = false;
         query = "";
-        void goto( resolve( `/wiki/${ slug }` ) );
+        void goto( resolve( `/wiki/${ slug }/` ) );
     };
 
     /**

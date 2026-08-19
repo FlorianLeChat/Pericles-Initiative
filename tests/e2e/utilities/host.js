@@ -8,8 +8,15 @@
  * with an empty seed.
  *
  * So the suite runs against exactly what gets deployed: the files in `build/`,
- * with `200.html` for anything else. Deliberately dependency free, since its only
+ * with `404.html` for anything else. Deliberately dependency free, since its only
  * job is to hand back bytes the adapter already wrote.
+ *
+ * That fallback is served under a 404 status, as a real static host does, rather
+ * than under the 200 this used to answer with. A host cannot be told about a
+ * fallback; it can only be handed the document it already serves for a path it
+ * does not know. Answering 200 here made the suite kinder than production, and hid
+ * the whole class of failure where the site is reached by url rather than by a
+ * click.
  *
  * @author Claude
  */
@@ -21,7 +28,7 @@ import { extname, join, normalize, resolve } from "node:path";
 
 const ROOT = resolve( "build" );
 
-const FALLBACK = join( ROOT, "200.html" );
+const FALLBACK = join( ROOT, "404.html" );
 
 const PORT = Number( process.env.PORT ?? 4173 );
 
@@ -60,7 +67,9 @@ const locate = async ( pathname ) =>
         return null;
     }
 
-    const attempts = extname( candidate ) ? [ candidate ] : [ candidate, join( candidate, "index.html" ), `${ candidate }.html` ];
+    // Every route is written as a directory holding an index, since the layout asks
+    // for a trailing slash, so an extensionless path never names a file directly.
+    const attempts = extname( candidate ) ? [ candidate ] : [ candidate, join( candidate, "index.html" ) ];
 
     for ( const attempt of attempts )
     {
@@ -91,7 +100,7 @@ const server = createServer( ( request, response ) =>
     {
         const served = file ?? FALLBACK;
 
-        response.writeHead( 200, {
+        response.writeHead( file ? 200 : 404, {
             "Content-Type": TYPES[ extname( served ) ] ?? "application/octet-stream",
             // A test run must never read a page a previous run left in the cache.
             "Cache-Control": "no-store"

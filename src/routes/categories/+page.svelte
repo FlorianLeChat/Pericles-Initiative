@@ -54,7 +54,7 @@
         <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {#each groups as group, index ( group.category.slug )}
                 <a
-                    href={resolve( `/categories/${ group.category.slug }` )}
+                    href={resolve( `/categories/${ group.category.slug }/` )}
                     class="surface surface-lift rise-in hover:border-accent-300 dark:hover:border-accent-700 group flex flex-col gap-3 p-6"
                     style="--rank: {staggerRank( index )}"
                 >
@@ -93,7 +93,7 @@
                 {#each uncategorized as entry ( entry.id )}
                     <li>
                         <a
-                            href={resolve( `/wiki/${ entry.slug }` )}
+                            href={resolve( `/wiki/${ entry.slug }/` )}
                             class="border-paper-300 dark:border-ink-800 hover:border-accent-400 rounded-full border px-3 py-1.5 text-sm transition"
                         >
                             {entry.title}

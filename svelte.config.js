@@ -14,8 +14,12 @@ const config = {
             pages: "build",
             assets: "build",
             // SPA fallback: pages created locally (localStorage overlay) have no prerendered
-            // HTML, so any unknown path boots the client router instead of a 404.
-            fallback: "200.html",
+            // HTML, so any unknown path boots the client router instead of a 404. Named
+            // `404.html` because a static host cannot be told about a fallback, only about
+            // the document it already serves for a path it does not know: GitLab Pages, where
+            // this is deployed, reads that name from the root of the project. A `200.html`
+            // nothing looks for is a fallback nothing ever serves.
+            fallback: "404.html",
             precompress: false,
             strict: false
         } ),

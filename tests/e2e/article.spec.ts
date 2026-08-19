@@ -51,7 +51,7 @@ test.describe( "article page", () =>
 
         await page.getByRole( "article" ).getByRole( "link", { name: PAGES.port.title } ).first().click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.port.slug }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.port.slug }/$` ) );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( PAGES.port.title );
     } );
 
@@ -72,14 +72,14 @@ test.describe( "article page", () =>
 
         await redLink.click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ MISSING_SLUG }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/wiki/${ MISSING_SLUG }/$` ) );
         await expect( page.getByText( "Cette fiche n'existe pas encore" ) ).toBeVisible();
         await expect( page.getByRole( "region", { name: "Fiches qui attendent cette page" } )
             .getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
 
         await page.getByRole( "link", { name: "Créer cette fiche" } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/new\\?slug=${ MISSING_SLUG }&titre=` ) );
+        await expect( page ).toHaveURL( new RegExp( `/new/\\?slug=${ MISSING_SLUG }&titre=` ) );
         await expect( page.getByLabel( "Titre", { exact: true } ) ).toHaveValue( "Conseil des parties" );
     } );
 } );

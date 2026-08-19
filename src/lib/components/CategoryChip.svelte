@@ -21,7 +21,7 @@
 </script>
 
 <Badge
-    href={resolve( `/categories/${ category.slug }` )}
+    href={resolve( `/categories/${ category.slug }/` )}
     class="gap-1.5 rounded-full px-2.5 py-1 text-xs transition hover:brightness-105 {color.chip}"
     classes={{ linkClass: "flex items-center gap-1.5" }}
 >

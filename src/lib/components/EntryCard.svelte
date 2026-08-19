@@ -49,7 +49,7 @@
 
     <h3 class="text-lg leading-snug font-semibold tracking-tight">
         <a
-            href={resolve( `/wiki/${ entry.slug }` )}
+            href={resolve( `/wiki/${ entry.slug }/` )}
             class="group-hover:text-accent-600 dark:group-hover:text-accent-400 stretched-link"
         >
             {entry.title}

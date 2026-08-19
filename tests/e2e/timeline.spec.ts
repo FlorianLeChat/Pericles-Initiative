@@ -37,7 +37,7 @@ test.describe( "timeline", () =>
 
         await page.getByRole( "link", { name: "Parcourir l'encyclopédie" } ).click();
 
-        await expect( page ).toHaveURL( /\/wiki$/ );
+        await expect( page ).toHaveURL( /\/wiki\/$/ );
     } );
 
     test( "counts dates rather than pages, and leaves the drafts out", async ( { page, wiki } ) =>
@@ -80,6 +80,6 @@ test.describe( "timeline", () =>
 
         await death.getByRole( "link", { name: PAGES.athena.title } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
     } );
 } );

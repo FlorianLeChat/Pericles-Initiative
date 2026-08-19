@@ -56,7 +56,7 @@ test.describe( "dashboard", () =>
 
         await panel( page, "Par catégorie" ).getByRole( "link", { name: CATEGORIES.institutions.name } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }/$` ) );
     } );
 
     test( "ranks the most cited pages and lists the ones the corpus is asking for", async ( { page, wiki } ) =>
@@ -75,7 +75,7 @@ test.describe( "dashboard", () =>
 
         await missing.getByRole( "link", { name: "Créer" } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/new\\?slug=${ MISSING_SLUG }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/new/\\?slug=${ MISSING_SLUG }$` ) );
     } );
 
     test( "spreads the edition activity over the last twelve months", async ( { page, wiki } ) =>

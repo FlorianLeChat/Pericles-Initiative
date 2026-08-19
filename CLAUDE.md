@@ -274,13 +274,26 @@ Two rules with no exception, because both hide the very thing these questions lo
   `/wiki/[slug]` and `/categories/[slug]` are never prerendered: every page of actual content is
   served through the SPA fallback instead. This is expected, not a regression to fix.
 - Editor routes cannot be prerendered. They export `prerender = false` and `ssr = false`, and the
-  SPA fallback `200.html` serves them, along with every page that only exists in the local overlay,
+  SPA fallback `404.html` serves them, along with every page that only exists in the local overlay,
   which today means essentially all content.
+- That fallback is named `404.html`, not `200.html`. A static host cannot be told about a fallback;
+  it can only be handed the document it already serves for a path it does not know, and GitLab Pages
+  reads that name from the root of the project. A `200.html` nothing looks for is a fallback nothing
+  ever serves, which is how the deployed site answered every `/wiki/<slug>` with the host's own error
+  page while every listing worked. The status stays 404, which a browser renders like any other page.
+- `+layout.ts` asks for `trailingSlash = "always"`, so every route is written as a directory holding
+  an `index.html`. Without it, `/categories` is both a page and the parent of `/categories/manage`,
+  the build writes `categories.html` beside a `categories/` directory, and the host has to guess which
+  one the path means: GitLab Pages picks the directory, redirects to `/categories/`, finds no index
+  and answers 404 for a page that prerendered perfectly well. `/wiki` collides the same way the day a
+  backend feeds the seed. The cost is that every url carries a trailing slash, which the client router
+  appends on its own, so links written without one still work and specs assert `\/wiki\/$`.
+  `Pathname` values, such as the ones in `src/lib/config/navigation.ts`, must carry it explicitly.
 - Server rendered output must never contain overlay data. The overlay is loaded in an effect, after
   hydration, so that the static HTML matches the (empty) seed exactly.
 - `src/service-worker.ts` precaches that build so the site survives a reload with no connection:
   every chunk, every file under `static/`, the prerendered listings, and the three files
-  `$service-worker` does not list, `200.html`, `_app/env.js` and `_app/version.json`. `200.html`
+  `$service-worker` does not list, `404.html`, `_app/env.js` and `_app/version.json`. `404.html`
   carries every page of actual content, and `_app/env.js` is dynamically imported while the client
   boots, so a shell without it paints the prerendered markup and then dies on that import, leaving
   every page served through the fallback blank. The lazily loaded Milkdown chunk is precached too,
@@ -293,6 +306,11 @@ Two rules with no exception, because both hide the very thing these questions lo
   site drops a share of a burst of requests, a different file each time, which never showed up against
   the local static host the end to end suite serves the build from: the precache therefore fetches ten
   files at a time and retries whatever a pass failed to store, up to three attempts, a beat apart.
+- A navigation the host answers with a **404** is served the stored shell instead. A 404 is a
+  successful response, so it never reaches the path a failed network takes, and the reader gets the
+  host's error page for a page the client router renders perfectly well. This is the one case where
+  the fallback matters online rather than offline, and it keeps the site correct on a host that
+  resolves paths differently from the one the build was written for.
 - A new build waits rather than taking over: `UpdateBanner.svelte` offers the reload, so the shell is
   never swapped under a half written article.
 
@@ -408,9 +426,10 @@ commit**:
   identity when it initialises, which on a cold load happens before the overlay has been read.
 - `tests/e2e/navigation.spec.ts` — header, tools menu, search palette, theme, on both viewports.
 - `tests/e2e/remote-backup.spec.ts` — the optional snapshot service, entirely mocked.
-- `tests/e2e/offline.spec.ts` — the service worker: the shell it stores, and a page of content read
-  back with the network cut. It restores the connection in an `afterEach`, since a context left
-  offline hangs on teardown, long after its assertions passed.
+- `tests/e2e/offline.spec.ts` — the service worker: the shell it stores, a page of content read back
+  with the network cut, and a page a host answers 404 for served from that shell while online. It
+  restores the connection in an `afterEach`, since a context left offline hangs on teardown, long
+  after its assertions passed.
 - `tests/e2e/accessibility.spec.ts` — axe over every page, both viewports. It asks for reduced motion
   before measuring, since axe samples the colour an element happens to have and would otherwise read
   a listing halfway through its entrance and call every card a contrast failure.
@@ -445,8 +464,12 @@ Conventions to follow:
 - Both projects run every spec, `chromium` on a desktop viewport and `Mobile Chrome` on a phone one.
   The header hides its navigation below the `lg` breakpoint, so branch on `isNarrow( page )` rather
   than assuming a desktop.
-- `tests/e2e/utilities/host.js` serves `build/` with the `200.html` fallback, since `vite preview`
-  answers 404 for every page that only exists in a browser's storage. Keep the suite on it.
+- `tests/e2e/utilities/host.js` serves `build/` with the `404.html` fallback, since `vite preview`
+  answers 404 for every page that only exists in a browser's storage. Keep the suite on it. It serves
+  that fallback **under a 404 status**, as a real host does: answering 200 made the suite kinder than
+  production and hid the whole class of failure where the site is reached by url rather than by a
+  click. A spec that reaches a page of content directly is therefore reading a 404 response, which is
+  the real thing rather than a quirk to work around.
 - Adding a view, a mutation of the store or a shortcut without extending a spec leaves the work
   incomplete.
 
@@ -524,5 +547,5 @@ tests/
     e2e/                        one spec per section of the site
         utilities/dataset.ts    the fixture wiki, and the constants specs assert against
         utilities/fixtures.ts   the `wiki` fixture: seeding, navigation, stored overlay, pinned locale
-        utilities/host.js       static host for `build/`, with the SPA fallback
+        utilities/host.js       static host for `build/`, with the `404.html` fallback
 ```

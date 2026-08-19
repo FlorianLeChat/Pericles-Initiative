@@ -95,7 +95,7 @@
                                 <div class="mt-1.5 flex flex-wrap items-baseline gap-2">
                                     <h3 class="text-lg leading-snug font-semibold tracking-tight">
                                         <a
-                                            href={resolve( `/wiki/${ point.entry.slug }` )}
+                                            href={resolve( `/wiki/${ point.entry.slug }/` )}
                                             class="hover:text-accent-600 dark:hover:text-accent-400"
                                         >
                                             {point.entry.title}

@@ -18,16 +18,16 @@ test.describe( "site frame", () =>
         await wiki.open();
 
         await wiki.navigate( "Encyclopédie" );
-        await expect( page ).toHaveURL( /\/wiki$/ );
+        await expect( page ).toHaveURL( /\/wiki\/$/ );
 
         await wiki.navigate( "Catégories" );
-        await expect( page ).toHaveURL( /\/categories$/ );
+        await expect( page ).toHaveURL( /\/categories\/$/ );
 
         await wiki.navigate( "En direct" );
-        await expect( page ).toHaveURL( /\/live$/ );
+        await expect( page ).toHaveURL( /\/live\/$/ );
 
         await wiki.navigate( "Chronologie" );
-        await expect( page ).toHaveURL( /\/timeline$/ );
+        await expect( page ).toHaveURL( /\/timeline\/$/ );
     } );
 
     test( "reaches the authoring tools", async ( { page, wiki } ) =>
@@ -47,7 +47,7 @@ test.describe( "site frame", () =>
             await page.getByRole( "menuitem", { name: "Tableau de bord" } ).click();
         }
 
-        await expect( page ).toHaveURL( /\/dashboard$/ );
+        await expect( page ).toHaveURL( /\/dashboard\/$/ );
     } );
 
     test( "searches by title, by alias, and says when nothing matches", async ( { page, wiki } ) =>
@@ -76,7 +76,7 @@ test.describe( "site frame", () =>
 
         await page.keyboard.press( "Enter" );
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
     } );
 
     test( "flips the theme and remembers the choice", async ( { page, wiki } ) =>

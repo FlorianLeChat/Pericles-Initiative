@@ -15,15 +15,17 @@ export interface NavLink {
     label: string;
 }
 
+// `Pathname` is the resolved form, and the layout asks for a trailing slash, so
+// these carry one. Dropping it would type check nowhere and route nowhere.
 export const NAV_LINKS: readonly NavLink[] = [
-    { href: "/wiki", label: m.nav_wiki() },
-    { href: "/categories", label: m.nav_categories() },
-    { href: "/live", label: m.nav_live() },
-    { href: "/timeline", label: m.nav_timeline() }
+    { href: "/wiki/", label: m.nav_wiki() },
+    { href: "/categories/", label: m.nav_categories() },
+    { href: "/live/", label: m.nav_live() },
+    { href: "/timeline/", label: m.nav_timeline() }
 ];
 
 export const TOOL_LINKS: readonly NavLink[] = [
-    { href: "/dashboard", label: m.nav_dashboard() },
-    { href: "/data", label: m.nav_backups() },
-    { href: "/settings", label: m.nav_settings() }
+    { href: "/dashboard/", label: m.nav_dashboard() },
+    { href: "/data/", label: m.nav_backups() },
+    { href: "/settings/", label: m.nav_settings() }
 ];

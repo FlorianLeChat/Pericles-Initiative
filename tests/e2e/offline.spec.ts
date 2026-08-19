@@ -16,16 +16,25 @@ import { expect, test } from "./utilities/fixtures";
 /**
  * Files the shell is worthless without.
  *
- * `200.html` is what every page of content is served from, there being no
+ * `404.html` is what every page of content is served from, there being no
  * prerendered HTML for any of them. `_app/env.js` is dynamically imported while
  * the client boots, and a shell missing it paints the prerendered markup and then
  * dies on that import, leaving the fallback blank: the failure this spec exists
  * for, since nothing else about the site looks wrong when it happens.
  */
-const REQUIRED = [ "/200.html", "/_app/env.js" ];
+const REQUIRED = [ "/404.html", "/_app/env.js" ];
 
 /** Where the Milkdown editor writes, once it has finished booting. */
 const BODY = "[contenteditable=\"true\"]";
+
+/**
+ * What a static host with no fallback of its own answers for a route it has no
+ * file for, which is every page of actual content.
+ *
+ * Nothing of the site is in this body, so an article rendering on top of it can
+ * only have come from the shell the worker stored.
+ */
+const HOST_ERROR = "<!doctype html><html><head><title>404</title></head><body><p>Introuvable</p></body></html>";
 
 /**
  * Waits for the worker to have stored what the site cannot start without.
@@ -126,5 +135,24 @@ test.describe( "Offline", () =>
         await visitor.goto( `/wiki/${ PAGES.athena.slug }` );
 
         await expect( visitor.getByRole( "heading", { level: 1, name: PAGES.athena.title } ) ).toBeVisible();
+    } );
+
+    test( "renders a page the host answers 404 for, from the stored shell", async ( { page, context, wiki } ) =>
+    {
+        test.slow();
+
+        await wiki.open();
+        await waitForShell( page );
+
+        // Online, and still the reader's problem: a host that cannot be told about a
+        // fallback answers every route living only in the overlay with its own error
+        // page, and that answer is a successful response rather than a failed one, so
+        // it never reaches the path the offline specs above exercise.
+        await context.route( new RegExp( `/wiki/${ PAGES.athena.slug }/?$` ), ( route ) =>
+            route.fulfill( { status: 404, contentType: "text/html; charset=utf-8", body: HOST_ERROR } ) );
+
+        await page.goto( `/wiki/${ PAGES.athena.slug }` );
+
+        await expect( page.getByRole( "heading", { level: 1, name: PAGES.athena.title } ) ).toBeVisible();
     } );
 } );

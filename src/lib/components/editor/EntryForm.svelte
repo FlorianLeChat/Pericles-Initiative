@@ -234,7 +234,7 @@
         } );
 
         leaving = true;
-        void goto( resolve( `/wiki/${ saved.slug }` ) );
+        void goto( resolve( `/wiki/${ saved.slug }/` ) );
     };
 
     /**
@@ -304,7 +304,7 @@
             {/if}
 
             <Button
-                href={resolve( entry ? `/wiki/${ entry.slug }` : "/wiki" )}
+                href={resolve( entry ? `/wiki/${ entry.slug }/` : "/wiki" )}
                 color="alternative"
                 size="sm"
                 class="h-9 {PAIRED_ACTION}"

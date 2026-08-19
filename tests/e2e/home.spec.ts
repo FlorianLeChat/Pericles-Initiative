@@ -19,7 +19,7 @@ test.describe( "home page", () =>
 
         await page.getByRole( "link", { name: "Créer une fiche" } ).click();
 
-        await expect( page ).toHaveURL( /\/new$/ );
+        await expect( page ).toHaveURL( /\/new\/$/ );
     } );
 
     test( "presents the universe and counts what the corpus holds", async ( { page, wiki } ) =>
@@ -52,7 +52,7 @@ test.describe( "home page", () =>
 
         await highlight.getByRole( "link", { name: "Lire la fiche" } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
     } );
 
     test( "picks up the live feed and counts every category", async ( { page, wiki } ) =>
@@ -70,6 +70,6 @@ test.describe( "home page", () =>
 
         await feed.getByRole( "link", { name: "Tout le fil" } ).click();
 
-        await expect( page ).toHaveURL( /\/live$/ );
+        await expect( page ).toHaveURL( /\/live\/$/ );
     } );
 } );

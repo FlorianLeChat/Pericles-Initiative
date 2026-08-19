@@ -55,7 +55,7 @@
 
                     <span class="min-w-0 flex-1">
                         {#if entry}
-                            <a href={resolve( `/wiki/${ slug }` )} class="text-sm font-medium">{entry.title}</a>
+                            <a href={resolve( `/wiki/${ slug }/` )} class="text-sm font-medium">{entry.title}</a>
                         {:else}
                             <span class="text-alert-500 font-mono text-xs">{m.featured_pages_missing( { slug } )}</span>
                         {/if}

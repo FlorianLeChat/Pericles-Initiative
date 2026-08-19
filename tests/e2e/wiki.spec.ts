@@ -56,7 +56,7 @@ test.describe( "encyclopedia index", () =>
 
         await page.getByRole( "link", { name: "Créer une fiche" } ).click();
 
-        await expect( page ).toHaveURL( /\/new$/ );
+        await expect( page ).toHaveURL( /\/new\/$/ );
     } );
 
     test( "lists every page, drafts included", async ( { page, wiki } ) =>

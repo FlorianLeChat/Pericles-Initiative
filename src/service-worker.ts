@@ -39,8 +39,14 @@ const CACHE = `pericles-${ version }`;
  * actual content exists solely in the overlay, so it is served by booting the
  * client router from here. Without it in the cache, the site would work offline
  * on `/wiki` and fail on `/wiki/athena-vance`, which is most of the wiki.
+ *
+ * It is named `404.html` rather than `200.html` because a static host has no way
+ * of being told about a fallback: it can only be handed the document it already
+ * serves for a path it does not know. GitLab Pages, which is where this is
+ * deployed, reads that file from the root of the project and answers with it,
+ * under a 404 status the browser is happy to render.
  */
-const FALLBACK = `${ base }/200.html`;
+const FALLBACK = `${ base }/404.html`;
 
 /** Hashed assets, whose name changes whenever their content does. */
 const IMMUTABLE_PREFIX = `${ base }/_app/immutable/`;
@@ -51,8 +57,8 @@ const IMMUTABLE_PREFIX = `${ base }/_app/immutable/`;
  * `_app/env.js` holds the `PUBLIC_` variables and is dynamically imported while
  * the client boots. Without it in the cache the shell still paints, since the
  * prerendered listings carry their server rendered markup, and then hydration
- * dies on the failed import: every route served through `200.html`, which is all
- * of the content, stays blank. `_app/version.json` is what the client reads to
+ * dies on the failed import: every route served through the fallback, which is
+ * all of the content, stays blank. `_app/version.json` is what the client reads to
  * notice a new deployment, and a stored copy is the right answer offline, there
  * being no new deployment to see.
  */
@@ -263,6 +269,9 @@ const fetchWithRetry = async ( request: Request ): Promise<Response> =>
  * network, so a deployed fix is picked up on the next load rather than after the
  * cache expires, and falls back to whatever was stored when the network fails.
  *
+ * A navigation the host answers with a 404 falls back to the shell too, which is
+ * the one case where the fallback matters online rather than offline.
+ *
  * @param event Fetch event being handled.
  * @returns The response to hand back to the page, or a network error.
  * @author Claude
@@ -286,6 +295,27 @@ const respond = async ( event: FetchEvent ): Promise<Response> =>
     try
     {
         const response = await fetchWithRetry( request );
+
+        // A host answering 404 for a route it has no file for is describing its own
+        // disk, not the site: every page of actual content lives in the overlay and
+        // has no file anywhere. That answer is a successful response, so it would
+        // sail past the `catch` below and hand the reader the host's error page for
+        // a page the client router renders perfectly well. The shell is substituted
+        // here instead, which also covers a host resolving a path differently from
+        // the one this build was written for.
+        const unknownRoute = request.mode === "navigate" && response.status === 404;
+
+        if ( unknownRoute )
+        {
+            const shell = await cache.match( FALLBACK );
+
+            if ( shell )
+            {
+                console.debug( `${ LOG } ${ request.url } is unknown to the host, served the shell instead` );
+
+                return shell;
+            }
+        }
 
         // `basic` excludes opaque and error responses, which are useless once
         // replayed: their body cannot be read and their status is always zero.
