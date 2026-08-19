@@ -143,7 +143,7 @@ test.describe( "entry editor", () =>
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
         await expect( page ).toHaveURL( /\/wiki\/bureau-des-marees\/$/ );
-        await expect( page.getByText( "Brouillon, contenu incomplet" ) ).toBeVisible();
+        await expect( page.getByText( "Brouillon : le contenu est encore incomplet" ) ).toBeVisible();
 
         const stored = await wiki.storedEntry( "bureau-des-marees" );
 
@@ -195,7 +195,7 @@ test.describe( "entry editor", () =>
         await page.getByRole( "link", { name: "Annuler" } ).click();
 
         await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.traite.slug }/$` ) );
-        expect( asked ).toContain( "Des modifications ne sont pas enregistrées" );
+        expect( asked ).toContain( "Certaines modifications ne sont pas enregistrées" );
         expect( ( await wiki.storedEntry( PAGES.traite.slug ) )?.summary ).toBe( PAGES.traite.summary );
     } );
 } );

@@ -71,7 +71,7 @@ test.describe( "dashboard", () =>
         const missing = panel( page, "Pages à écrire" );
 
         await expect( missing ).toContainText( MISSING_SLUG );
-        await expect( missing ).toContainText( "cité 1 fois" );
+        await expect( missing ).toContainText( "citée 1 fois" );
 
         await missing.getByRole( "link", { name: "Créer" } ).click();
 

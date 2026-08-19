@@ -16,7 +16,7 @@ test.describe( "article page", () =>
     {
         await wiki.open( `/wiki/${ PAGES.athena.slug }` );
 
-        await expect( page ).toHaveTitle( `${ PAGES.athena.title } · ${ UNIVERSE }` );
+        await expect( page ).toHaveTitle( `${ PAGES.athena.title } - ${ UNIVERSE }` );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( PAGES.athena.title );
         await expect( page.getByText( "Navigatrice en chef de l’archipel" ) ).toBeVisible();
         await expect( page.getByRole( "navigation", { name: "Fil d'Ariane" } ) ).toContainText( PAGES.athena.title );
@@ -32,7 +32,7 @@ test.describe( "article page", () =>
         await expect( infobox.getByText( "12 juin 2043" ) ).toBeVisible();
 
         await expect( infobox.getByRole( "link", { name: CATEGORIES.institutions.name } ) ).toBeVisible();
-        await expect( infobox.getByText( "Aussi appelé : La Vance" ) ).toBeVisible();
+        await expect( infobox.getByText( "Autres noms : La Vance" ) ).toBeVisible();
 
         await expect( page.getByRole( "navigation", { name: "Sommaire" } ).getByRole( "link" ) )
             .toHaveText( [ "Origines", "Le traité", "Postérité" ] );
@@ -59,7 +59,7 @@ test.describe( "article page", () =>
     {
         await wiki.open( `/wiki/${ PAGES.sceau.slug }` );
 
-        await expect( page.getByText( "Brouillon, contenu incomplet" ) ).toBeVisible();
+        await expect( page.getByText( "Brouillon : le contenu est encore incomplet" ) ).toBeVisible();
     } );
 
     test( "turns a red link into an invitation to write the page", async ( { page, wiki } ) =>

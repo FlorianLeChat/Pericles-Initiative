@@ -28,7 +28,7 @@ test.describe( "live feed", () =>
         await wiki.openEmpty( "/live" );
 
         await expect( page.getByText( "0 entrée." ) ).toBeVisible();
-        await expect( page.getByText( "Rien à cette gravité" ) ).toBeVisible();
+        await expect( page.getByText( "Aucune entrée à cette gravité" ) ).toBeVisible();
     } );
 
     test( "shows the pinned items first, then one group per day", async ( { page, wiki } ) =>
@@ -62,7 +62,7 @@ test.describe( "live feed", () =>
 
         await page.getByRole( "radio", { name: "Alerte", exact: true } ).check();
 
-        await expect( page.getByText( "Rien à cette gravité" ) ).toBeVisible();
+        await expect( page.getByText( "Aucune entrée à cette gravité" ) ).toBeVisible();
 
         await page.getByRole( "button", { name: "Tout afficher" } ).click();
 
