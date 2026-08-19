@@ -121,6 +121,7 @@
     "dashboard_missing_heading": "Pages à écrire",
     "dashboard_most_linked_empty": "Aucun lien entre fiches pour l'instant.",
     "dashboard_most_linked_heading": "Fiches les plus citées",
+    "dashboard_recent_empty": "Aucune fiche modifiée pour l'instant.",
     "dashboard_stat_entries_hint": "{published} publiées, {drafts} en brouillon",
     "dashboard_stat_live_hint": "entrées publiées",
     "dashboard_stat_live_label": "Fil en direct",

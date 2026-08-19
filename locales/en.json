@@ -121,6 +121,7 @@
     "dashboard_missing_heading": "Pages to write",
     "dashboard_most_linked_empty": "No link between entries yet.",
     "dashboard_most_linked_heading": "Most cited entries",
+    "dashboard_recent_empty": "No entry edited yet.",
     "dashboard_stat_entries_hint": "{published} published, {drafts} in draft",
     "dashboard_stat_live_hint": "published entries",
     "dashboard_stat_live_label": "Live feed",

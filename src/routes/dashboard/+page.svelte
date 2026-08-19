@@ -192,23 +192,27 @@
         <section class="surface p-6">
             <h2 class="font-serif text-xl font-semibold tracking-tight">{m.common_recent_changes_heading()}</h2>
 
-            <ul class="mt-5 space-y-2.5 text-sm">
-                {#each recent as entry ( entry.id )}
-                    <li class="flex items-center gap-2">
-                        <a href={resolve( `/wiki/${ entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate"
-                            >{entry.title}</a
-                        >
+            {#if recent.length === 0}
+                <p class="text-muted mt-4 text-sm">{m.dashboard_recent_empty()}</p>
+            {:else}
+                <ul class="mt-5 space-y-2.5 text-sm">
+                    {#each recent as entry ( entry.id )}
+                        <li class="flex items-center gap-2">
+                            <a href={resolve( `/wiki/${ entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate"
+                                >{entry.title}</a
+                            >
 
-                        {#if entry.status === "brouillon"}
-                            <span class="text-muted text-xs">{m.dashboard_draft_label()}</span>
-                        {/if}
+                            {#if entry.status === "brouillon"}
+                                <span class="text-muted text-xs">{m.dashboard_draft_label()}</span>
+                            {/if}
 
-                        <time datetime={entry.updatedAt} class="text-muted shrink-0 font-mono text-xs">
-                            {formatShortDate( entry.updatedAt )}
-                        </time>
-                    </li>
-                {/each}
-            </ul>
+                            <time datetime={entry.updatedAt} class="text-muted shrink-0 font-mono text-xs">
+                                {formatShortDate( entry.updatedAt )}
+                            </time>
+                        </li>
+                    {/each}
+                </ul>
+            {/if}
         </section>
     </div>
 </div>
