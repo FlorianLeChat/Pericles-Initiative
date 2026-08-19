@@ -144,11 +144,6 @@ The static build is the real test of the pipeline: it exercises prerendering, wh
 rendering, the link graph and the crawler actually get proven. Playwright is the real test of the
 behaviour. These three commands are the whole safety net.
 
-`npm run check` runs twice on purpose. SvelteKit excludes `src/service-worker.ts` from the
-application's `tsconfig.json`, since `lib.dom` and `lib.webworker` declare the same identifiers and
-cannot share a program, so the worker is checked separately through `tsconfig.worker.json`. Without
-that second pass it would be the one file nothing verifies.
-
 - To see what the pre-commit hook will say, without committing:
 
 ```bash
@@ -221,8 +216,6 @@ Two rules with no exception, because both hide the very thing these questions lo
   persistent on it. Categories are the exception: they are keyed by slug.
 - `localStorage` keys are namespaced `pericles:`. Currently `pericles:overlay`, `pericles:theme`,
   `pericles:locale` and `pericles:remote`, the last one absent until a remote service is configured.
-  The service worker's caches are namespaced `pericles-` followed by the build version, and hold the
-  application only: clearing them loses nothing an author wrote.
 - Images are a path under `/media/` or an absolute URL. Never store base64 in the dataset: the
   overlay shares the roughly five megabyte `localStorage` quota with all the text. Static images
   under `static/media/` are the one thing that still ships with the repository.
@@ -291,28 +284,9 @@ Two rules with no exception, because both hide the very thing these questions lo
   `Pathname` values, such as the ones in `src/lib/config/navigation.ts`, must carry it explicitly.
 - Server rendered output must never contain overlay data. The overlay is loaded in an effect, after
   hydration, so that the static HTML matches the (empty) seed exactly.
-- `src/service-worker.ts` precaches that build so the site survives a reload with no connection:
-  every chunk, every file under `static/`, the prerendered listings, and the three files
-  `$service-worker` does not list, `404.html`, `_app/env.js` and `_app/version.json`. `404.html`
-  carries every page of actual content, and `_app/env.js` is dynamically imported while the client
-  boots, so a shell without it paints the prerendered markup and then dies on that import, leaving
-  every page served through the fallback blank. The lazily loaded Milkdown chunk is precached too,
-  since a wiki that reads offline but cannot be written to is half a wiki. Cross origin requests are
-  never intercepted, so the remote snapshot service is always answered by the network.
-- That precache is best effort, file by file. `addAll` rejects as a whole over a single file the host
-  does not answer, and a rejected install is no offline mode at all rather than a shell with one hole
-  in it; a hole heals on the next visit with a connection, an empty cache never heals. Only storing
-  nothing at all fails the install, so that the browser retries it. A real host in front of the built
-  site drops a share of a burst of requests, a different file each time, which never showed up against
-  the local static host the end to end suite serves the build from: the precache therefore fetches ten
-  files at a time and retries whatever a pass failed to store, up to three attempts, a beat apart.
-- A navigation the host answers with a **404** is served the stored shell instead. A 404 is a
-  successful response, so it never reaches the path a failed network takes, and the reader gets the
-  host's error page for a page the client router renders perfectly well. This is the one case where
-  the fallback matters online rather than offline, and it keeps the site correct on a host that
-  resolves paths differently from the one the build was written for.
-- A new build waits rather than taking over: `UpdateBanner.svelte` offers the reload, so the shell is
-  never swapped under a half written article.
+- There is **no service worker**, so nothing of the build is stored for a visit without a connection:
+  the content lives in `localStorage` and needs none, but the application around it is fetched from
+  the host like any other static site. Do not reintroduce one under the guise of a caching tweak.
 
 ## Semantic HTML
 
@@ -426,10 +400,6 @@ commit**:
   identity when it initialises, which on a cold load happens before the overlay has been read.
 - `tests/e2e/navigation.spec.ts` — header, tools menu, search palette, theme, on both viewports.
 - `tests/e2e/remote-backup.spec.ts` — the optional snapshot service, entirely mocked.
-- `tests/e2e/offline.spec.ts` — the service worker: the shell it stores, a page of content read back
-  with the network cut, and a page a host answers 404 for served from that shell while online. It
-  restores the connection in an `afterEach`, since a context left offline hangs on teardown, long
-  after its assertions passed.
 - `tests/e2e/accessibility.spec.ts` — axe over every page, both viewports. It asks for reduced motion
   before measuring, since axe samples the colour an element happens to have and would otherwise read
   a listing halfway through its entrance and call every card a contrast failure.
@@ -515,7 +485,6 @@ src/
     app.html                    shell, pre paint theme script, manifest and theme colour
     hooks.server.ts             Paraglide request middleware, %paraglide.lang%/%paraglide.dir%
     hooks.ts                    de-localizes the URL before SvelteKit's own routing sees it
-    service-worker.ts           offline shell, checked by tsconfig.worker.json
     lib/
         components/             presentation components
             dashboard/          figures and charts

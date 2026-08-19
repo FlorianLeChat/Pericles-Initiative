@@ -14,7 +14,6 @@
     import BreakingBanner from "$lib/components/live/BreakingBanner.svelte";
     import SearchDialog from "$lib/components/SearchDialog.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
-    import UpdateBanner from "$lib/components/UpdateBanner.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LayoutData } from "./$types";
@@ -178,6 +177,4 @@
     {/if}
 
     <ConnectionStatus />
-
-    <UpdateBanner />
 </div>

@@ -49,14 +49,12 @@
  * reader types or clicks, IBM Plex Mono for slugs, paths and code.
  *
  * The files live in `static/assets/fonts/`, beside the licence they ship
- * under, rather than in a package: the site has to survive offline, so the
- * shell must own its typography the way it already owns its icons. Being
- * under `static/` also puts them in the `files` list the service worker
- * precaches, so a cold start with no connection paints in the real faces
- * instead of the fallbacks.
+ * under, rather than in a package: the site owns its typography the way it
+ * already owns its icons, so painting a page never reaches a third party font
+ * host.
  *
  * Only the `latin` subset is kept, and only one axis per face, since the
- * whole set is downloaded on install: `wght` alone for Plex Sans, whose
+ * whole set is downloaded on the first visit: `wght` alone for Plex Sans, whose
  * width axis nothing here asks for, and `wght` plus `opsz` for Newsreader,
  * the optical size being what makes a title at sixty pixels read tighter
  * than a heading at twenty rather than the same drawing blown up.

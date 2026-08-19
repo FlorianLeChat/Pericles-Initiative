@@ -28,7 +28,7 @@
 
 Ceci est un projet personnel que je pensais faire depuis longtemps, mais pour lequel je ne trouvais pas assez de temps pour le réaliser. Avec une bonne dose de motivation et l'aide de l'intelligence artificielle, j'ai pu le concrétiser. Il s'agit d'un site Internet sous la forme d'une encyclopédie, à la manière du célèbre site Internet [Wikipédia](https://fr.wikipedia.org/), qui permet de manière simplifiée de créer et documenter un univers de fiction. Cette création d'univers se fait à partir de fiches de connaissances, qui peuvent être liées à d'autres, mais aussi à une chronologie et à des événements en direct, en fonction de vos besoins. Voici donc **Périclès Initiative** ! ☺️
 
-Sous ce nom (anglais !) plutôt déroutant, en référence à un ancien [Google Sites](https://sites.google.com/) personnel que j'avais créé pour les besoins de mes sessions de jeu de rôle sur le jeu vidéo [Garry's Mod](https://fr.wikipedia.org/wiki/Garry%27s_Mod), se trouve le résultat de ce que j'aurais voulu avoir il y a quelques années et que je vais m'amuser à utiliser pour mes nouveaux projets de fiction. En termes de fonctionnalités, on retrouve l'essentiel, comme un système de gestion de fiches, de chronologies et d'événements, de traductions, de gestion des médias, de synchronisation et de gestion des données issues de l'encyclopédie. Certaines fonctionnalités restent même disponibles lorsque vous avez quitté le site et que vous êtes désormais hors ligne, merci les [Service Workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) ! 🎀
+Sous ce nom (anglais !) plutôt déroutant, en référence à un ancien [Google Sites](https://sites.google.com/) personnel que j'avais créé pour les besoins de mes sessions de jeu de rôle sur le jeu vidéo [Garry's Mod](https://fr.wikipedia.org/wiki/Garry%27s_Mod), se trouve le résultat de ce que j'aurais voulu avoir il y a quelques années et que je vais m'amuser à utiliser pour mes nouveaux projets de fiction. En termes de fonctionnalités, on retrouve l'essentiel, comme un système de gestion de fiches, de chronologies et d'événements, de traductions, de gestion des médias, de synchronisation et de gestion des données issues de l'encyclopédie. 🎀
 
 Oui, vous l'avez deviné, il n'y a pas de système d'authentification, ni de gestion des utilisateurs. Le site est conçu pour un usage personnel et n'est pas destiné à être utilisé par plusieurs personnes. D'ailleurs, le site GitLab Pages hébergé pour ce projet est disponible à toutes et à tous à des fins de visibilité, mais sauf réelle utilité, il ne vous servira à rien. Pourquoi ? Parce que ce site, fonctionnant que dans votre navigateur, se base sur des données importables via un fichier [JSON](https://fr.wikipedia.org/wiki/JavaScript_Object_Notation) ou via un serveur de sauvegarde externe que vous devez fournir. Vous pouvez travailler sans tout ça, mais vos données ne sortiront pas de votre navigateur et les autres ne pourront pas voir ce que vous avez fait : tout est côté client, aucun intermédiaire, aucune base de données, aucun serveur. La vie est belle, non ? 😉
 
@@ -55,7 +55,7 @@ sequenceDiagram
     loop À chaque fiche
         Utilisateur->>Éditeur interactif: Je crée ou je modifie une fiche
         Éditeur interactif->>Stockage local: Enregistre la fiche dans la surcouche
-        Stockage local-->>Utilisateur: Le contenu, aussitôt disponible et hors ligne
+        Stockage local-->>Utilisateur: Le contenu, aussitôt disponible, sans requête réseau
     end
 
     Utilisateur->>Interface: Je publie un événement dans le direct
@@ -113,7 +113,7 @@ serveur déjà privé (VPN, réseau interne, serveur mandataire authentifiant).
 
 This is a personal project I've been thinking about doing for a long time, but I couldn't find enough time to get it done. With a good amount of motivation and the help from artificial intelligence, I've finally been able to bring it to life. It's a website in the form of an encyclopaedia, similar to the famous [Wikipedia](https://fr.wikipedia.org/) website, which provides a simple way to create and document a fictional universe. This world-building is done using knowledge cards, which can be linked to one another, as well as to a timeline and real-time events, depending on your needs. So, here is **Périclès Initiative**! ☺️
 
-Behind this slightly confusing name, which is a reference to an old personal [Google Sites](https://sites.google.com/) page I created for my role-playing sessions on the video game [Garry's Mod](https://fr.wikipedia.org/wiki/Garry%27s_Mod), lies the result of what I would have loved to have had a few years ago and which I'm going to have fun using for my new fiction projects. In terms of features, it includes all the essentials, such as a system for managing character sheets, timelines and events, translations, media management, synchronization and management of data from the encyclopaedia. Some features even remain available once you've left the website and are now offline, thanks to [Service Workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)! 🎀
+Behind this slightly confusing name, which is a reference to an old personal [Google Sites](https://sites.google.com/) page I created for my role-playing sessions on the video game [Garry's Mod](https://fr.wikipedia.org/wiki/Garry%27s_Mod), lies the result of what I would have loved to have had a few years ago and which I'm going to have fun using for my new fiction projects. In terms of features, it includes all the essentials, such as a system for managing character sheets, timelines and events, translations, media management, synchronization and management of data from the encyclopaedia. 🎀
 
 Yes, you've guessed it: there's no authentication system or user management. The website is designed for personal use and isn't intended for use by multiple people. In fact, the GitLab Pages website hosted for this project is available to everyone for visibility purposes, but unless you have a specific use for it, it won't be of any use to you. Why? Because this website, which runs entirely within your browser, relies on data that can be imported via a [JSON](https://fr.wikipedia.org/wiki/JavaScript_Object_Notation) file or via an external backup server that you must provide. You can work without any of that, but your data won't leave your browser and others won't be able to see what you've done: everything is client-side, with no intermediaries, no database and no server. Life's good, isn't it? 😉
 
@@ -140,7 +140,7 @@ sequenceDiagram
     loop For every entry
         User->>Interactive editor: I create or edit an entry
         Interactive editor->>Local storage: Saves the entry into the overlay
-        Local storage-->>User: The content, available right away and offline
+        Local storage-->>User: The content, available right away, with no network request
     end
 
     User->>Interface: I publish an item in the live feed

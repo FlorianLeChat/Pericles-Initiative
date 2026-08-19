@@ -527,12 +527,6 @@
     "timeline_title": "Chronologie · {universe}",
     "timeline_undated_group": "Sans année",
 
-    "update_banner_aria": "Mise à jour disponible",
-    "update_banner_later": "Plus tard",
-    "update_banner_loading": "Chargement...",
-    "update_banner_message": "Une nouvelle version du site est prête.",
-    "update_banner_reload": "Recharger",
-
     "wiki_description_drafts": "dont {count} en brouillon.",
     "wiki_description_filter_hint": "Filtrez par catégorie, par statut ou par mot clé.",
     "wiki_meta_description": "Index de toutes les fiches de {universe}.",

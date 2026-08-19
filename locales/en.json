@@ -527,12 +527,6 @@
     "timeline_title": "Timeline · {universe}",
     "timeline_undated_group": "No year",
 
-    "update_banner_aria": "Update available",
-    "update_banner_later": "Later",
-    "update_banner_loading": "Loading...",
-    "update_banner_message": "A new version of the site is ready.",
-    "update_banner_reload": "Reload",
-
     "wiki_description_drafts": "including {count} in draft.",
     "wiki_description_filter_hint": "Filter by category, by status or by keyword.",
     "wiki_meta_description": "Index of every entry of {universe}.",
