@@ -188,4 +188,4 @@ optional secret can be sent as the `X-Pericles-Secret` header, but it is **not**
 mechanism: it protects nothing on its own, and belongs on a server that is already private (VPN,
 internal network, authenticating proxy).
 
-![image](static/assets/images/opengraph.png)
+![image](.gitlab/images/pericles-initiative.png)
