@@ -10,8 +10,8 @@
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
-    import EntryCard from "$lib/components/EntryCard.svelte";
-    import EntryFilters from "$lib/components/EntryFilters.svelte";
+    import EntryCard from "$lib/components/wiki/EntryCard.svelte";
+    import EntryFilters from "$lib/components/wiki/EntryFilters.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";

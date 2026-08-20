@@ -6,9 +6,9 @@
      */
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
-    import CategoryChip from "$lib/components/CategoryChip.svelte";
+    import CategoryChip from "$lib/components/wiki/CategoryChip.svelte";
     import EmptyState from "$lib/components/EmptyState.svelte";
-    import EntryCard from "$lib/components/EntryCard.svelte";
+    import EntryCard from "$lib/components/wiki/EntryCard.svelte";
     import SeverityBadge from "$lib/components/live/SeverityBadge.svelte";
     import { ACTION_ROW } from "$lib/config/forms";
     import { staggerRank } from "$lib/config/motion";

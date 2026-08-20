@@ -26,8 +26,8 @@
     import { resolve } from "$app/paths";
     import { env } from "$env/dynamic/public";
     import { untrack } from "svelte";
-    import DemoContent from "$lib/components/DemoContent.svelte";
-    import FeaturedPagesEditor from "$lib/components/FeaturedPagesEditor.svelte";
+    import DemoContent from "./DemoContent.svelte";
+    import FeaturedPagesEditor from "./FeaturedPagesEditor.svelte";
     import { ACCENTS } from "$lib/config/accents";
     import { ACTION_BUTTON, colorPill, RADIO_OVERLAY } from "$lib/config/forms";
     import * as m from "$lib/locales/messages.js";

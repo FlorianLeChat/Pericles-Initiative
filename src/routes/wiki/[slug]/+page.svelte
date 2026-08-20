@@ -13,12 +13,12 @@
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
-    import ArticleBody from "$lib/components/ArticleBody.svelte";
-    import Backlinks from "$lib/components/Backlinks.svelte";
-    import CategoryChip from "$lib/components/CategoryChip.svelte";
+    import ArticleBody from "$lib/components/wiki/ArticleBody.svelte";
+    import Backlinks from "$lib/components/wiki/Backlinks.svelte";
+    import CategoryChip from "$lib/components/wiki/CategoryChip.svelte";
     import EmptyState from "$lib/components/EmptyState.svelte";
-    import Infobox from "$lib/components/Infobox.svelte";
-    import TableOfContents from "$lib/components/TableOfContents.svelte";
+    import Infobox from "$lib/components/wiki/Infobox.svelte";
+    import TableOfContents from "$lib/components/wiki/TableOfContents.svelte";
     import { staggerRank } from "$lib/config/motion";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";

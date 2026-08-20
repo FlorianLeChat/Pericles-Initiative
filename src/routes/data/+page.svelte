@@ -14,7 +14,7 @@
     import LocalContent from "$lib/components/data/LocalContent.svelte";
     import RemoteBackup from "$lib/components/data/RemoteBackup.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
-    import ResetPanel from "$lib/components/ResetPanel.svelte";
+    import ResetPanel from "$lib/components/data/ResetPanel.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
 

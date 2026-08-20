@@ -10,10 +10,10 @@
     import { asset } from "$app/paths";
     import { untrack, type Snippet } from "svelte";
     import { onNavigate } from "$app/navigation";
-    import ConnectionStatus from "$lib/components/ConnectionStatus.svelte";
+    import ConnectionStatus from "$lib/components/layout/ConnectionStatus.svelte";
     import BreakingBanner from "$lib/components/live/BreakingBanner.svelte";
-    import SearchDialog from "$lib/components/SearchDialog.svelte";
-    import SiteHeader from "$lib/components/SiteHeader.svelte";
+    import SearchDialog from "$lib/components/layout/SearchDialog.svelte";
+    import SiteHeader from "$lib/components/layout/SiteHeader.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LayoutData } from "./$types";

@@ -15,7 +15,7 @@
     import { resolve } from "$app/paths";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
-    import EntryPicker from "./editor/EntryPicker.svelte";
+    import EntryPicker from "../editor/EntryPicker.svelte";
 
     interface Props {
         /** Slugs of the featured pages, most prominent first. */

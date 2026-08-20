@@ -12,8 +12,8 @@
      */
     import { resolve } from "$app/paths";
     import PageHeader from "$lib/components/PageHeader.svelte";
-    import ResetPanel from "$lib/components/ResetPanel.svelte";
-    import SettingsForm from "$lib/components/SettingsForm.svelte";
+    import ResetPanel from "$lib/components/data/ResetPanel.svelte";
+    import SettingsForm from "$lib/components/settings/SettingsForm.svelte";
     import * as m from "$lib/locales/messages.js";
     import { localStorageKey } from "$lib/locales/runtime";
     import { wiki } from "$lib/state/wiki.svelte";
