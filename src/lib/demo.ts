@@ -93,7 +93,17 @@ const monthsAgo = ( months: number ): string =>
  */
 const illustration = ( seed: string ): string => `https://picsum.photos/seed/${ seed }/1600/900?grayscale`;
 
-const CATEGORY_LIST: Category[] = [
+/**
+ * Builds the category tree of the demonstration wiki.
+ *
+ * A function rather than a constant, like the two lists below: `importDataset`
+ * stores what it is handed, so a shared array would end up aliased by the overlay
+ * and edited in place by the reader.
+ *
+ * @returns The categories, freshly built.
+ * @author Claude
+ */
+const categoryList = (): Category[] => [
     {
         slug: "people",
         name: "People",
@@ -166,7 +176,18 @@ const CATEGORY_LIST: Category[] = [
     }
 ];
 
-const ENTRY_LIST: Entry[] = [
+/**
+ * Builds the pages of the demonstration wiki.
+ *
+ * Called from {@link demoDataset}, so `hoursAgo`, `daysAgo` and `monthsAgo` are
+ * evaluated when the reader presses the button rather than when this module is
+ * first loaded. A constant would freeze the whole corpus on the moment of the
+ * import, and a browser that keeps the page open reinstalls yesterday's dates.
+ *
+ * @returns The pages, freshly built and dated from now.
+ * @author Claude
+ */
+const entryList = (): Entry[] => [
     {
         id: "demo-mira-halloway",
         slug: "mira-halloway",
@@ -994,7 +1015,17 @@ const ENTRY_LIST: Entry[] = [
     }
 ];
 
-const LIVE_LIST: LiveEntry[] = [
+/**
+ * Builds the live feed of the demonstration wiki.
+ *
+ * Dated from the call for the same reason as {@link entryList}, and it matters more
+ * here: the feed groups its items by day and states how long ago each was published,
+ * so a frozen timestamp is visible on the page rather than only in a chart.
+ *
+ * @returns The feed items, freshly built and dated from now.
+ * @author Claude
+ */
+const liveList = (): LiveEntry[] => [
     {
         id: "demo-live-lens",
         publishedAt: hoursAgo( 26 ),
@@ -1125,9 +1156,9 @@ const LIVE_LIST: LiveEntry[] = [
 /**
  * Builds the demonstration wiki, with its timestamps taken from this moment.
  *
- * Rebuilt on every call rather than shared, both because the timestamps are
- * relative and because `importDataset` stores what it is handed: a shared object
- * would end up aliased by the overlay.
+ * Every list is rebuilt here rather than held in a constant, both because the
+ * timestamps are relative to the call and because `importDataset` stores what it is
+ * handed: a shared object would end up aliased by the overlay.
  *
  * @returns A complete dataset, ready for `normalizeDataset`.
  * @author Claude
@@ -1141,7 +1172,7 @@ export const demoDataset = (): Dataset => ( {
         accent: "ambre",
         featured: [ "mira-halloway", "cape-ainsley", "the-long-night" ]
     },
-    categories: structuredClone( CATEGORY_LIST ),
-    entries: structuredClone( ENTRY_LIST ),
-    live: structuredClone( LIVE_LIST )
+    categories: categoryList(),
+    entries: entryList(),
+    live: liveList()
 } );
