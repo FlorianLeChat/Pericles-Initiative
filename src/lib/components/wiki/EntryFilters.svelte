@@ -75,7 +75,7 @@
         color="alternative"
         class="mt-3 w-full gap-2 sm:hidden"
         aria-expanded={expanded}
-        aria-controls="filtres-fiches"
+        aria-controls="entry-filters"
         onclick={() => ( expanded = !expanded )}
     >
         <SlidersHorizontal class="h-4 w-4" aria-hidden="true" />
@@ -89,12 +89,12 @@
         {/if}
     </Button>
 
-    <div id="filtres-fiches" class="mt-4 space-y-4 {expanded ? "block" : "hidden"} sm:block">
+    <div id="entry-filters" class="mt-4 space-y-4 {expanded ? "block" : "hidden"} sm:block">
         <div class="grid gap-3 sm:grid-cols-3 sm:gap-4">
             <div>
-                <Label for="filtre-categorie" class="field-label">{m.entry_filters_category_label()}</Label>
+                <Label for="filter-category" class="field-label">{m.entry_filters_category_label()}</Label>
 
-                <Select id="filtre-categorie" bind:value={filters.category} placeholder="">
+                <Select id="filter-category" bind:value={filters.category} placeholder="">
                     <option value="toutes">{m.entry_filters_category_all()}</option>
 
                     {#each wiki.categories as item ( item.slug )}
@@ -104,9 +104,9 @@
             </div>
 
             <div>
-                <Label for="filtre-statut" class="field-label">{m.entry_filters_status_label()}</Label>
+                <Label for="filter-status" class="field-label">{m.entry_filters_status_label()}</Label>
 
-                <Select id="filtre-statut" bind:value={filters.status} placeholder="">
+                <Select id="filter-status" bind:value={filters.status} placeholder="">
                     <option value="tous">{m.entry_filters_status_all()}</option>
                     <option value="publie">{m.entry_filters_status_published()}</option>
                     <option value="brouillon">{m.entry_filters_status_draft()}</option>
@@ -114,9 +114,9 @@
             </div>
 
             <div>
-                <Label for="filtre-tri" class="field-label">{m.entry_filters_sort_label()}</Label>
+                <Label for="filter-sort" class="field-label">{m.entry_filters_sort_label()}</Label>
 
-                <Select id="filtre-tri" bind:value={filters.sort} placeholder="">
+                <Select id="filter-sort" bind:value={filters.sort} placeholder="">
                     <option value="alphabetique">{m.entry_filters_sort_alphabetical()}</option>
                     <option value="recent">{m.entry_filters_sort_recent()}</option>
                     <option value="chronologique">{m.entry_filters_sort_chronological()}</option>

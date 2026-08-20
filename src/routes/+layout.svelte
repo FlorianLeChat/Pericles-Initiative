@@ -152,7 +152,7 @@
 <svelte:window onkeydown={onKeydown} />
 
 <a
-    href="#contenu"
+    href="#main-content"
     class="bg-accent-600 focus:ring-accent-500 sr-only rounded-full px-4 py-2 text-sm font-medium text-white
            focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:ring-2 focus:ring-offset-2"
 >
@@ -163,7 +163,7 @@
 
 <SiteHeader onsearch={() => ( searchOpen = true )} />
 
-<main id="contenu" tabindex="-1" class="flex-1 focus:outline-none">
+<main id="main-content" tabindex="-1" class="flex-1 focus:outline-none">
     {@render children()}
 </main>
 
