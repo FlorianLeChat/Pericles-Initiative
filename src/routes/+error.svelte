@@ -7,12 +7,11 @@
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import * as m from "$lib/locales/messages.js";
 </script>
 
-<svelte:head>
-    <title>{m.error_title()}</title>
-</svelte:head>
+<PageMeta title={m.error_title()} />
 
 <section class="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
     <p class="text-muted font-mono text-sm">{page.status}</p>

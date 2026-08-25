@@ -9,6 +9,7 @@
      */
     import { page } from "$app/state";
     import EntryForm from "$lib/components/editor/EntryForm.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
 
@@ -16,9 +17,7 @@
     const initialTitle = $derived( page.url.searchParams.get( "titre" ) ?? "" );
 </script>
 
-<svelte:head>
-    <title>{m.new_title( { universe: wiki.meta.universe } )}</title>
-</svelte:head>
+<PageMeta title={m.new_title( { universe: wiki.meta.universe } )} />
 
 {#key `${ initialSlug }-${ initialTitle }`}
     <EntryForm {initialSlug} {initialTitle} />

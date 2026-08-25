@@ -9,6 +9,7 @@
     import CategoryChip from "$lib/components/wiki/CategoryChip.svelte";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/wiki/EntryCard.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import SeverityBadge from "$lib/components/live/SeverityBadge.svelte";
     import { ACTION_ROW } from "$lib/config/forms";
     import { staggerRank } from "$lib/config/motion";
@@ -42,11 +43,7 @@
     );
 </script>
 
-<svelte:head>
-    <title>{wiki.meta.universe}</title>
-
-    <meta name="description" content={wiki.meta.description} />
-</svelte:head>
+<PageMeta title={wiki.meta.universe} />
 
 <section class="border-paper-200 dark:border-ink-800 border-b">
     <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">

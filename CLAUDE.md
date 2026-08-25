@@ -304,6 +304,12 @@ Two rules with no exception, because both hide the very thing these questions lo
   backend feeds the seed. The cost is that every url carries a trailing slash, which the client router
   appends on its own, so links written without one still work and specs assert `\/wiki\/$`.
   `Pathname` values, such as the ones in `src/lib/config/navigation.ts`, must carry it explicitly.
+- `app.html` declares no title and no description, in any of their forms. Its head is injected
+  **before** `%sveltekit.head%`, so a value written there sits ahead of the one the page renders and
+  wins, leaving two of each tag in the document. `PageMeta` in `src/lib/components/layout/` is the
+  single source for the title, the description and their `og:`/`twitter:` counterparts, and every
+  route renders it instead of a `<svelte:head>` of its own. What stays in the shell is only what no
+  page can know: the repository url, the shared image, the author, the keywords, the theme colour.
 - Server rendered output must never contain overlay data. The overlay is loaded in an effect, after
   hydration, so that the static HTML matches the (empty) seed exactly.
 - There is **no service worker**, so nothing of the build is stored for a visit without a connection:
@@ -521,7 +527,7 @@ src/
             dashboard/          figures and charts
             data/               file backup, remote backup, local content, the two resets
             editor/             Milkdown editor, page form, link picker
-            layout/             header, tools menu, search palette, theme, connection status
+            layout/             header, tools menu, search palette, theme, connection status, page meta
             live/               live feed, composer, alert banner
             settings/           identity of the wiki, featured pages, demonstration content
             wiki/               article body, infobox, table of contents, backlinks, cards, filters

@@ -8,6 +8,7 @@
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import { staggerRank } from "$lib/config/motion";
     import * as m from "$lib/locales/messages.js";
     import { wiki, type ChronologyPoint } from "$lib/state/wiki.svelte";
@@ -45,11 +46,10 @@
     } );
 </script>
 
-<svelte:head>
-    <title>{m.timeline_title( { universe: wiki.meta.universe } )}</title>
-
-    <meta name="description" content={m.timeline_meta_description( { universe: wiki.meta.universe } )} />
-</svelte:head>
+<PageMeta
+    title={m.timeline_title( { universe: wiki.meta.universe } )}
+    description={m.timeline_meta_description( { universe: wiki.meta.universe } )}
+/>
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <PageHeader title={m.timeline_heading()}>

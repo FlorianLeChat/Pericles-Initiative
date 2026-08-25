@@ -12,6 +12,7 @@
      */
     import { resolve } from "$app/paths";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import ResetPanel from "$lib/components/data/ResetPanel.svelte";
     import SettingsForm from "$lib/components/settings/SettingsForm.svelte";
     import * as m from "$lib/locales/messages.js";
@@ -50,9 +51,7 @@
     };
 </script>
 
-<svelte:head>
-    <title>{m.settings_title( { universe: wiki.meta.universe } )}</title>
-</svelte:head>
+<PageMeta title={m.settings_title( { universe: wiki.meta.universe } )} />
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <PageHeader title={m.settings_heading()}>

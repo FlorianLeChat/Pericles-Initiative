@@ -18,6 +18,7 @@
     import CategoryChip from "$lib/components/wiki/CategoryChip.svelte";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import Infobox from "$lib/components/wiki/Infobox.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import TableOfContents from "$lib/components/wiki/TableOfContents.svelte";
     import { staggerRank } from "$lib/config/motion";
     import * as m from "$lib/locales/messages.js";
@@ -42,17 +43,18 @@
             .map( ( item ) => wiki.categoriesBySlug.get( item ) )
             .filter( ( item ): item is Category => item !== undefined )
     );
+
+    const metaTitle = $derived(
+        entry
+            ? m.wiki_slug_title( { name: entry.title, universe: wiki.meta.universe } )
+            : m.wiki_slug_title_unwritten( { universe: wiki.meta.universe } )
+    );
+
+    /* A page still to be written describes nothing of its own, so it falls back. */
+    const metaDescription = $derived( entry ? entry.summary || excerpt( entry.body, 155 ) : undefined );
 </script>
 
-<svelte:head>
-    {#if entry}
-        <title>{m.wiki_slug_title( { name: entry.title, universe: wiki.meta.universe } )}</title>
-
-        <meta name="description" content={entry.summary || excerpt( entry.body, 155 )} />
-    {:else}
-        <title>{m.wiki_slug_title_unwritten( { universe: wiki.meta.universe } )}</title>
-    {/if}
-</svelte:head>
+<PageMeta title={metaTitle} description={metaDescription} />
 
 {#if entry && rendered}
     <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">

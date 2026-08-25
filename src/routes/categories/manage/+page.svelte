@@ -16,6 +16,7 @@
     import { resolve } from "$app/paths";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import { colorPill, RADIO_OVERLAY } from "$lib/config/forms";
     import * as m from "$lib/locales/messages.js";
     import { PALETTE, paletteColor } from "$lib/config/palette";
@@ -135,9 +136,7 @@
     };
 </script>
 
-<svelte:head>
-    <title>{m.categories_manage_title( { universe: wiki.meta.universe } )}</title>
-</svelte:head>
+<PageMeta title={m.categories_manage_title( { universe: wiki.meta.universe } )} />
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm">

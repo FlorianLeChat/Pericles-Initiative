@@ -9,6 +9,7 @@
     import { page } from "$app/state";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryForm from "$lib/components/editor/EntryForm.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
 
@@ -16,9 +17,7 @@
     const entry = $derived( wiki.bySlug( slug ) );
 </script>
 
-<svelte:head>
-    <title>{m.edit_title( { name: entry?.title ?? slug, universe: wiki.meta.universe } )}</title>
-</svelte:head>
+<PageMeta title={m.edit_title( { name: entry?.title ?? slug, universe: wiki.meta.universe } )} />
 
 {#if entry}
     {#key entry.id}

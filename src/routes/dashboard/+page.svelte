@@ -10,6 +10,7 @@
     import BarChart from "$lib/components/dashboard/BarChart.svelte";
     import StatCard from "$lib/components/dashboard/StatCard.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import { formatShortDate } from "$lib/utilities/date";
@@ -30,9 +31,7 @@
     const recent = $derived( wiki.recentlyUpdated.slice( 0, 8 ) );
 </script>
 
-<svelte:head>
-    <title>{m.dashboard_title( { universe: wiki.meta.universe } )}</title>
-</svelte:head>
+<PageMeta title={m.dashboard_title( { universe: wiki.meta.universe } )} />
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <PageHeader title={m.dashboard_heading()}>

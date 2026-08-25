@@ -36,6 +36,25 @@ test.describe( "home page", () =>
         await expect( heroFigure( page, "Brouillons" ) ).toHaveText( String( COUNTS.drafts ) );
     } );
 
+    test( "describes itself once, for the reader as for whoever receives the link", async ( { page, wiki } ) =>
+    {
+        await wiki.open();
+
+        /*
+         * Counts as much as it reads: the shell used to carry a description of its
+         * own, injected ahead of the one the page renders, so the document held two
+         * and the wrong one won.
+         */
+        const description = page.locator( "meta[name=\"description\"]" );
+
+        await expect( page.locator( "title" ) ).toHaveCount( 1 );
+        await expect( description ).toHaveCount( 1 );
+        await expect( description ).toHaveAttribute( "content", DESCRIPTION );
+
+        await expect( page.locator( "meta[property=\"og:title\"]" ) ).toHaveAttribute( "content", UNIVERSE );
+        await expect( page.locator( "meta[name=\"twitter:description\"]" ) ).toHaveAttribute( "content", DESCRIPTION );
+    } );
+
     test( "highlights the chosen pages and the latest edits, never a draft", async ( { page, wiki } ) =>
     {
         await wiki.open();

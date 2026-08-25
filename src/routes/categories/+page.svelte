@@ -8,6 +8,7 @@
     import { resolve } from "$app/paths";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import { staggerRank } from "$lib/config/motion";
     import { paletteColor } from "$lib/config/palette";
     import * as m from "$lib/locales/messages.js";
@@ -25,11 +26,10 @@
     const uncategorized = $derived( wiki.publishedEntries.filter( ( entry ) => entry.categories.length === 0 ) );
 </script>
 
-<svelte:head>
-    <title>{m.categories_title( { universe: wiki.meta.universe } )}</title>
-
-    <meta name="description" content={m.categories_meta_description( { universe: wiki.meta.universe } )} />
-</svelte:head>
+<PageMeta
+    title={m.categories_title( { universe: wiki.meta.universe } )}
+    description={m.categories_meta_description( { universe: wiki.meta.universe } )}
+/>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <PageHeader title={m.common_categories_label()}>

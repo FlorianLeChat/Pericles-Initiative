@@ -17,6 +17,7 @@
     import LiveComposer from "$lib/components/live/LiveComposer.svelte";
     import LiveFeedGroup from "$lib/components/live/LiveFeedGroup.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import { filterPill, RADIO_OVERLAY } from "$lib/config/forms";
     import { SEVERITIES } from "$lib/config/severities";
     import * as m from "$lib/locales/messages.js";
@@ -79,11 +80,10 @@
     };
 </script>
 
-<svelte:head>
-    <title>{m.live_title( { universe: wiki.meta.universe } )}</title>
-
-    <meta name="description" content={m.live_meta_description( { universe: wiki.meta.universe } )} />
-</svelte:head>
+<PageMeta
+    title={m.live_title( { universe: wiki.meta.universe } )}
+    description={m.live_meta_description( { universe: wiki.meta.universe } )}
+/>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <PageHeader title={m.live_heading()}>

@@ -387,6 +387,8 @@
     "markdown_missing_page_title": "Cette page n'existe pas encore",
     "markdown_table_aria": "Tableau",
 
+    "meta_description_fallback": "Une encyclopédie d'un univers imaginé, écrite fiche après fiche.",
+
     "nav_backups": "Sauvegardes",
     "nav_categories": "Catégories",
     "nav_dashboard": "Tableau de bord",

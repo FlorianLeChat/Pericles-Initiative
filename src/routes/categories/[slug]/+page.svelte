@@ -12,6 +12,7 @@
     import { page } from "$app/state";
     import EmptyState from "$lib/components/EmptyState.svelte";
     import EntryCard from "$lib/components/wiki/EntryCard.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import { paletteColor } from "$lib/config/palette";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -23,16 +24,13 @@
     const entries = $derived( wiki.entriesInCategory( slug, true ) );
 </script>
 
-<svelte:head>
-    <title>
-        {m.categories_slug_title( {
-            name: category?.name ?? m.categories_slug_unknown_label(),
-            universe: wiki.meta.universe
-        } )}
-    </title>
-
-    <meta name="description" content={category?.description ?? ""} />
-</svelte:head>
+<PageMeta
+    title={m.categories_slug_title( {
+        name: category?.name ?? m.categories_slug_unknown_label(),
+        universe: wiki.meta.universe
+    } )}
+    description={category?.description}
+/>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm">

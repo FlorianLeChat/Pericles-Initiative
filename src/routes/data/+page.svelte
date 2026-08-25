@@ -14,6 +14,7 @@
     import LocalContent from "$lib/components/data/LocalContent.svelte";
     import RemoteBackup from "$lib/components/data/RemoteBackup.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import ResetPanel from "$lib/components/data/ResetPanel.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
@@ -21,9 +22,7 @@
     let feedback = $state<string | null>( null );
 </script>
 
-<svelte:head>
-    <title>{m.data_title( { universe: wiki.meta.universe } )}</title>
-</svelte:head>
+<PageMeta title={m.data_title( { universe: wiki.meta.universe } )} />
 
 <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
     <PageHeader title={m.data_heading()}>

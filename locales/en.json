@@ -387,6 +387,8 @@
     "markdown_missing_page_title": "This page does not exist yet",
     "markdown_table_aria": "Table",
 
+    "meta_description_fallback": "An encyclopedia of an imagined universe, written page by page.",
+
     "nav_backups": "Backups",
     "nav_categories": "Categories",
     "nav_dashboard": "Dashboard",

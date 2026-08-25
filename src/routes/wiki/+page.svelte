@@ -13,6 +13,7 @@
     import EntryCard from "$lib/components/wiki/EntryCard.svelte";
     import EntryFilters from "$lib/components/wiki/EntryFilters.svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
+    import PageMeta from "$lib/components/layout/PageMeta.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { EntryFilterState } from "$lib/types";
@@ -73,11 +74,10 @@
     };
 </script>
 
-<svelte:head>
-    <title>{m.wiki_title( { universe: wiki.meta.universe } )}</title>
-
-    <meta name="description" content={m.wiki_meta_description( { universe: wiki.meta.universe } )} />
-</svelte:head>
+<PageMeta
+    title={m.wiki_title( { universe: wiki.meta.universe } )}
+    description={m.wiki_meta_description( { universe: wiki.meta.universe } )}
+/>
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <PageHeader title={m.common_encyclopedia_label()}>
