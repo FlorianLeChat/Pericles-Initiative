@@ -296,6 +296,56 @@ test.describe( "entry editor", () =>
         await expect( page.getByText( "min de lecture" ) ).toBeVisible();
     } );
 
+    test( "writes an invented name into the body", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/new" );
+
+        await page.getByLabel( "Titre", { exact: true } ).fill( "Le cartographe des seuils" );
+        await page.locator( BODY ).click();
+        await page.getByRole( "button", { name: "Inventer", exact: true } ).click();
+
+        const dialog = page.getByRole( "dialog", { name: "Inventer un nom" } );
+        const first = dialog.getByRole( "listitem" ).first().getByRole( "button" );
+
+        await expect( first ).toBeVisible();
+
+        const invented = ( await first.textContent() )?.trim() ?? "";
+
+        await first.click();
+        await expect( dialog ).toBeHidden();
+        await expect( page.locator( BODY ) ).toContainText( invented );
+
+        await page.waitForTimeout( MARKDOWN_DEBOUNCE );
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        expect( ( await wiki.storedEntry( "le-cartographe-des-seuils" ) )?.body ).toContain( invented );
+    } );
+
+    test( "holds the invented names still until another draw is asked for", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/new" );
+
+        await page.getByRole( "button", { name: "Inventer", exact: true } ).click();
+
+        const dialog = page.getByRole( "dialog", { name: "Inventer un nom" } );
+        const offered = dialog.getByRole( "listitem" );
+
+        await expect( offered.first() ).toBeVisible();
+
+        const first = await offered.allInnerTexts();
+
+        // Walking through the kinds is looking at what was drawn, not drawing again:
+        // a candidate half chosen has to still be there on the way back.
+        await dialog.getByRole( "button", { name: "Ville" } ).click();
+        await dialog.getByRole( "button", { name: "Nom complet" } ).click();
+
+        expect( await offered.allInnerTexts() ).toEqual( first );
+
+        await dialog.getByRole( "button", { name: "Relancer" } ).click();
+
+        await expect.poll( () => offered.allInnerTexts() ).not.toEqual( first );
+    } );
+
     test( "deletes a page once the deletion is confirmed", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.sceau.slug }` );

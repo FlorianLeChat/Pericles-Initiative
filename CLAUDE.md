@@ -23,8 +23,14 @@ backend, a build step that writes into `static/`, or an authentication shim.
 
 SvelteKit 2 with Svelte 5 runes, TypeScript, `adapter-static`, Tailwind CSS 4, `flowbite-svelte` for
 the interface components, `@lucide/svelte` for the icons, `marked` for rendering Markdown,
-`@milkdown/crepe` for authoring it. No charting library: the two dashboard charts are laid out with
-the grid, as explained under Flowbite below.
+`@milkdown/crepe` for authoring it, `@faker-js/faker` for the invented names the editor offers. No
+charting library: the two dashboard charts are laid out with the grid, as explained under Flowbite
+below.
+
+Both Crepe and Faker are imported dynamically, and Faker per locale: they are the two heavy things
+this site installs, roughly two hundred and forty and a hundred and fifty kilobytes gzipped, and
+neither belongs on the path of a reader who only reads. Anything of that order follows the same
+rule, or does not come in at all.
 
 Tooling is ESLint with a flat config (`typescript-eslint` strict and stylistic, `@stylistic`,
 `eslint-plugin-svelte`), Prettier with `prettier-plugin-svelte`, and commitlint on the conventional
@@ -423,7 +429,8 @@ commit**:
 - `tests/e2e/article.spec.ts` — a single page (infobox, table of contents, backlinks, related reads,
   draft marker, red links).
 - `tests/e2e/editor.spec.ts` — creation, edition, deletion, slug derivation and collisions, the
-  Milkdown body, the link picker, the unsaved changes guard.
+  Milkdown body, the link picker, the name generator, the unsaved changes guard, saving in place,
+  the rewrite of incoming links on a rename, the categories, the suggested vocabularies.
 - `tests/e2e/categories.spec.ts` — overview, one category, and management (create, rename, delete).
 - `tests/e2e/live.spec.ts` — feed (pinned group, day groups, severity and tag filters, composer,
   edition, deletion, the site wide alert banner).
@@ -526,7 +533,7 @@ src/
         components/             the three controls every section shares, then one folder per domain
             dashboard/          figures and charts
             data/               file backup, remote backup, local content, the two resets
-            editor/             Milkdown editor, page form, link picker
+            editor/             Milkdown editor, page form, link picker, category picker, name generator
             layout/             header, tools menu, search palette, theme, connection status, page meta
             live/               live feed, composer, alert banner
             settings/           identity of the wiki, featured pages, demonstration content

@@ -14,12 +14,14 @@
      */
     import "@milkdown/crepe/theme/common/style.css";
     import Link from "@lucide/svelte/icons/link";
+    import Sparkles from "@lucide/svelte/icons/sparkles";
     import Button from "flowbite-svelte/Button.svelte";
     import Kbd from "flowbite-svelte/Kbd.svelte";
     import type { Crepe as CrepeEditor } from "@milkdown/crepe";
     import { onMount } from "svelte";
     import * as m from "$lib/locales/messages.js";
     import EntryPicker from "./EntryPicker.svelte";
+    import GeneratorDialog from "./GeneratorDialog.svelte";
 
     interface Props {
         /** Initial Markdown. */
@@ -42,6 +44,7 @@
     let crepe: CrepeEditor | null = null;
     let ready = $state( false );
     let pickerOpen = $state( false );
+    let generatorOpen = $state( false );
 
     onMount( () =>
     {
@@ -145,6 +148,31 @@
     };
 
     /**
+     * Writes plain text at the caret, replacing the selection when there is one.
+     *
+     * @param value Text to write.
+     * @author Claude
+     */
+    const insertText = async ( value: string ): Promise<void> =>
+    {
+        if ( !crepe )
+        {
+            return;
+        }
+
+        const { editorViewCtx } = await import( "@milkdown/kit/core" );
+
+        crepe.editor.action( ( ctx ) =>
+        {
+            const view = ctx.get( editorViewCtx );
+            const { state, dispatch } = view;
+
+            dispatch( state.tr.insertText( value ).scrollIntoView() );
+            view.focus();
+        } );
+    };
+
+    /**
      * Opens the page picker on Ctrl+L, the usual shortcut for a link.
      *
      * @param event Keyboard event from the editor frame.
@@ -176,6 +204,17 @@
             <Kbd class="ml-1 px-1 py-0.5 text-[10px] font-normal">{m.markdown_editor_link_shortcut()}</Kbd>
         </Button>
 
+        <Button
+            color="alternative"
+            size="xs"
+            class="gap-2 rounded-full"
+            onclick={() => ( generatorOpen = true )}
+            disabled={!ready}
+        >
+            <Sparkles class="h-3.5 w-3.5" />
+            {m.markdown_editor_generate_button()}
+        </Button>
+
         <p class="text-muted ml-auto hidden text-xs sm:block">{m.markdown_editor_format_hint()}</p>
     </div>
 
@@ -191,5 +230,13 @@
     onselect={( slug, label ) =>
     {
         void insertPageLink( slug, label );
+    }}
+/>
+
+<GeneratorDialog
+    bind:open={generatorOpen}
+    oninsert={( value ) =>
+    {
+        void insertText( value );
     }}
 />
