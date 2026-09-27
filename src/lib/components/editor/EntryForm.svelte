@@ -14,6 +14,7 @@
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import { beforeNavigate, goto } from "$app/navigation";
     import { resolve } from "$app/paths";
+    import type { ResolvedPathname } from "$app/types";
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { PAIRED_ACTION } from "$lib/config/forms";
@@ -77,7 +78,25 @@
     let slugLocked = $state( initial.slugLocked );
 
     let deleteOpen = $state( false );
+    let leaveOpen = $state( false );
     let leaving = $state( false );
+
+    /** Where the reader was going when the guard stopped them. */
+    let destination: URL | null = null;
+
+    /**
+     * Reads a url the router was navigating to as an already resolved path.
+     *
+     * `resolve` exists to prepend the base path, and the site is deployed under
+     * one, so a url coming out of a navigation already carries it: resolving it
+     * again would write the base twice. The assertion says as much, in the one
+     * place that knows where the url came from.
+     *
+     * @param url Url the navigation was aimed at.
+     * @returns Its path and query string, as a resolved path.
+     * @author Claude
+     */
+    const resolvedPath = ( url: URL ): ResolvedPathname => `${ url.pathname }${ url.search }` as ResolvedPathname;
 
     /**
      * Compares two lists item by item, in order.
@@ -200,16 +219,48 @@
 
     beforeNavigate( ( navigation ) =>
     {
-        if ( !dirty || leaving )
+        if ( !dirty || leaving || leaveOpen )
         {
             return;
         }
 
-        if ( !confirm( m.entry_form_unsaved_confirm() ) )
+        navigation.cancel();
+
+        /*
+         * A navigation unloading the document, a reload or a link out of the
+         * site, cannot wait for a dialog of ours: the browser suspends the page
+         * and offers only its own prompt, which cancelling is precisely what
+         * raises. Everything else is held back and replayed once answered.
+         *
+         * A step through the history is replayed as a plain navigation rather
+         * than as a step: cancelling has already put the cancelled entry back,
+         * so the reader reaches the page they asked for, at the cost of one more
+         * entry in the history.
+         */
+        if ( navigation.willUnload )
         {
-            navigation.cancel();
+            return;
         }
+
+        destination = navigation.to?.url ?? null;
+        leaveOpen = true;
     } );
+
+    /**
+     * Leaves the editor for the page the guard held back, dropping the changes.
+     *
+     * @author Claude
+     */
+    const leave = (): void =>
+    {
+        if ( !destination )
+        {
+            return;
+        }
+
+        leaving = true;
+        void goto( resolvedPath( destination ) );
+    };
 
     /**
      * Saves the page and opens it.
@@ -443,6 +494,15 @@
         </aside>
     </div>
 </form>
+
+<ConfirmDialog
+    bind:open={leaveOpen}
+    title={m.entry_form_unsaved_title()}
+    message={m.entry_form_unsaved_message()}
+    confirmLabel={m.entry_form_unsaved_leave()}
+    danger
+    onconfirm={leave}
+/>
 
 {#if entry}
     <ConfirmDialog

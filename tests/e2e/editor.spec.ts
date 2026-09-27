@@ -14,6 +14,9 @@ import { expect, test } from "./utilities/fixtures";
 /** Where the Milkdown editor writes, once it has finished booting. */
 const BODY = "[contenteditable=\"true\"]";
 
+/** Accessible name of the dialog standing between unsaved changes and the way out. */
+const UNSAVED_DIALOG = "Quitter l'éditeur ?";
+
 /** How long `@milkdown/plugin-listener` waits before reporting the Markdown, in milliseconds. */
 const MARKDOWN_DEBOUNCE = 200;
 
@@ -169,10 +172,9 @@ test.describe( "entry editor", () =>
         await wiki.open( `/edit/${ PAGES.traite.slug }` );
 
         await page.getByLabel( "Résumé" ).fill( "Une reformulation en cours." );
-
-        // Playwright dismisses native dialogs by default, which is the reader
-        // answering «non» to the confirmation: the navigation has to be cancelled.
         await page.getByRole( "link", { name: "Annuler" } ).click();
+
+        await wiki.confirm( UNSAVED_DIALOG, "Annuler" );
 
         await expect( page ).toHaveURL( new RegExp( `/edit/${ PAGES.traite.slug }/$` ) );
         await expect( page.getByLabel( "Résumé" ) ).toHaveValue( "Une reformulation en cours." );
@@ -183,19 +185,13 @@ test.describe( "entry editor", () =>
         await wiki.open( `/edit/${ PAGES.traite.slug }` );
 
         await page.getByLabel( "Résumé" ).fill( "Une reformulation abandonnée." );
-
-        let asked = "";
-
-        page.on( "dialog", ( dialog ) =>
-        {
-            asked = dialog.message();
-            void dialog.accept();
-        } );
-
         await page.getByRole( "link", { name: "Annuler" } ).click();
 
+        await expect( page.getByText( "Certaines modifications ne sont pas enregistrées" ) ).toBeVisible();
+
+        await wiki.confirm( UNSAVED_DIALOG, "Quitter sans enregistrer" );
+
         await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.traite.slug }/$` ) );
-        expect( asked ).toContain( "Certaines modifications ne sont pas enregistrées" );
         expect( ( await wiki.storedEntry( PAGES.traite.slug ) )?.summary ).toBe( PAGES.traite.summary );
     } );
 } );
