@@ -80,31 +80,38 @@
     let leaving = $state( false );
 
     /**
-     * Serialises the form, to detect unsaved changes.
+     * Compares two lists item by item, in order.
      *
-     * @returns A comparable representation of every field.
+     * @param left First list.
+     * @param right Second list.
+     * @param same Tells whether two items at the same position are equal.
+     * @returns True when both lists hold the same items in the same order.
      * @author Claude
      */
-    const snapshot = (): string =>
-        JSON.stringify( {
-            title,
-            slug,
-            summary,
-            body,
-            categories,
-            infobox,
-            imageSrc,
-            imageAlt,
-            imageCaption,
-            dates,
-            aliases,
-            status,
-            slugLocked
-        } );
+    const sameList = <T>( left: T[], right: T[], same: ( a: T, b: T ) => boolean ): boolean =>
+        left.length === right.length && left.every( ( item, index ) => same( item, right[ index ] ) );
 
-    const initialSnapshot = JSON.stringify( initial );
-
-    const dirty = $derived( snapshot() !== initialSnapshot );
+    /*
+     * The form used to be serialised to JSON and compared to a serialisation of
+     * its initial values, which copied the whole body of the page on every
+     * keystroke. Comparing the fields instead stops at the first difference, and
+     * a body left untouched is the same string rather than a new one.
+     */
+    const dirty = $derived.by( () =>
+        title !== initial.title
+        || slug !== initial.slug
+        || summary !== initial.summary
+        || body !== initial.body
+        || imageSrc !== initial.imageSrc
+        || imageAlt !== initial.imageAlt
+        || imageCaption !== initial.imageCaption
+        || status !== initial.status
+        || slugLocked !== initial.slugLocked
+        || !sameList( categories, initial.categories, ( a, b ) => a === b )
+        || !sameList( aliases, initial.aliases, ( a, b ) => a === b )
+        || !sameList( infobox, initial.infobox, ( a, b ) => a.label === b.label && a.value === b.value )
+        || !sameList( dates, initial.dates, ( a, b ) => a.id === b.id && a.label === b.label && a.value === b.value )
+    );
     const canSave = $derived( title.trim().length > 0 );
 
     /**
