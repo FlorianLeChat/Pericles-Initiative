@@ -17,6 +17,7 @@
     import Input from "flowbite-svelte/Input.svelte";
     import { SMALL_FIELD } from "$lib/config/forms";
     import * as m from "$lib/locales/messages.js";
+    import { wiki } from "$lib/state/wiki.svelte";
     import type { InfoboxField } from "$lib/types";
 
     interface Props {
@@ -24,6 +25,46 @@
     }
 
     let { fields = $bindable() }: Props = $props();
+
+    /** Identifier of the suggestion list every intitulé of the panel points at. */
+    const LABEL_LIST = "entry-infobox-labels";
+
+    /**
+     * Intitulés the wiki already uses, most used first.
+     *
+     * Suggested rather than declared in `src/lib/config/`, unlike the dates: an
+     * infobox describes whatever its page is, so the vocabulary belongs to the
+     * fiction rather than to the application, and a list written here would be
+     * wrong for the second wiki that installs this. Reading the corpus instead
+     * makes the panel push towards the words already chosen, which is what keeps
+     * an encyclopedia readable: «Fondation» on one page and «Fondée en» on the
+     * next are two rows saying one thing.
+     *
+     * Counted in a plain record and sorted once, the way the store builds its
+     * own groupings, and derived from the corpus rather than from the field, so
+     * typing an intitulé does not recount the wiki.
+     */
+    const suggestions = $derived.by( () =>
+    {
+        const counts: Record<string, number> = {};
+
+        for ( const entry of wiki.entries )
+        {
+            for ( const field of entry.infobox )
+            {
+                const label = field.label.trim();
+
+                if ( label )
+                {
+                    counts[ label ] = ( counts[ label ] ?? 0 ) + 1;
+                }
+            }
+        }
+
+        return Object.entries( counts )
+            .sort( ( [ left, times ], [ right, others ] ) => others - times || left.localeCompare( right, "fr" ) )
+            .map( ( [ label ] ) => label );
+    } );
 
     /**
      * Appends an empty row.
@@ -80,6 +121,12 @@
 </script>
 
 <div class="space-y-2">
+    <datalist id={LABEL_LIST}>
+        {#each suggestions as label ( label )}
+            <option value={label}></option>
+        {/each}
+    </datalist>
+
     {#each fields as field, index ( index )}
         <div class="flex items-start gap-1.5">
             <div class="grid flex-1 gap-1.5">
@@ -88,6 +135,7 @@
                     type="text"
                     size="sm"
                     class={SMALL_FIELD}
+                    list={LABEL_LIST}
                     placeholder={m.infobox_editor_label_placeholder()}
                     aria-label={m.infobox_editor_label_aria( { index: index + 1 } )}
                 />

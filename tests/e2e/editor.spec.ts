@@ -223,6 +223,22 @@ test.describe( "entry editor", () =>
         await expect( page.getByText( "Aucune catégorie ne correspond." ) ).toBeVisible();
     } );
 
+    test( "offers the infobox labels the wiki already uses", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/new" );
+
+        await page.getByRole( "button", { name: "Infobox" } ).click();
+        await page.getByRole( "button", { name: "Ajouter une ligne" } ).click();
+
+        const label = page.getByLabel( "Intitulé de la ligne 1" );
+        const list = await label.getAttribute( "list" );
+        const suggested = await page
+            .locator( `datalist#${ list } option` )
+            .evaluateAll( ( options ) => options.map( ( option ) => ( option as HTMLOptionElement ).value ) );
+
+        expect( suggested ).toContain( PAGES.port.infobox[ 0 ]?.label );
+    } );
+
     test( "deletes a page once the deletion is confirmed", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.sceau.slug }` );
