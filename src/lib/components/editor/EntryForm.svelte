@@ -4,6 +4,7 @@
      *
      * @author Claude
      */
+    import Check from "@lucide/svelte/icons/check";
     import Trash2 from "@lucide/svelte/icons/trash-2";
     import Accordion from "flowbite-svelte/Accordion.svelte";
     import Button from "flowbite-svelte/Button.svelte";
@@ -12,12 +13,14 @@
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
+    import Toast from "flowbite-svelte/Toast.svelte";
     import { beforeNavigate, goto } from "$app/navigation";
     import { resolve } from "$app/paths";
     import type { ResolvedPathname } from "$app/types";
     import { untrack } from "svelte";
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { PAIRED_ACTION } from "$lib/config/forms";
+    import { motionDuration } from "$lib/config/motion";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry, EntryDate, EntryStatus, InfoboxField } from "$lib/types";
@@ -31,6 +34,9 @@
     import OptionPanel from "./OptionPanel.svelte";
     import StatusPicker from "./StatusPicker.svelte";
 
+    /** How long the confirmation of a save stays on screen, in milliseconds. */
+    const CONFIRMATION_DELAY = 2500;
+
     interface Props {
         /** Page being edited, absent when creating one. */
         entry?: Entry;
@@ -40,6 +46,15 @@
     }
 
     let { entry, initialSlug = "", initialTitle = "" }: Props = $props();
+
+    /**
+     * The page the form is currently the editor of.
+     *
+     * Seeded from the prop, and replaced by what `Ctrl+S` writes: saving a new
+     * page without leaving makes the form the editor of the page it just
+     * created, so a second save updates it rather than writing a second one.
+     */
+    let current = $state( untrack( () => entry ) );
 
     /**
      * The form is a snapshot: it is seeded once from the props, and the parent
@@ -77,7 +92,16 @@
     let status = $state<EntryStatus>( initial.status );
     let slugLocked = $state( initial.slugLocked );
 
+    /**
+     * Values the form is compared against to tell whether anything was changed.
+     *
+     * It starts as the seed above and moves to whatever was last written, which
+     * is what lets a save leave the form clean without remounting it.
+     */
+    let baseline = $state( initial );
+
     let deleteOpen = $state( false );
+    let saved = $state( false );
     let leaveOpen = $state( false );
     let leaving = $state( false );
 
@@ -99,6 +123,28 @@
     const resolvedPath = ( url: URL ): ResolvedPathname => `${ url.pathname }${ url.search }` as ResolvedPathname;
 
     /**
+     * Reads the current values of every field.
+     *
+     * @returns The values, copied deeply enough to survive a later edit.
+     * @author Claude
+     */
+    const fields = (): typeof initial => ( {
+        title,
+        slug,
+        summary,
+        body,
+        categories: [ ...categories ],
+        infobox: infobox.map( ( field ) => ( { ...field } ) ),
+        imageSrc,
+        imageAlt,
+        imageCaption,
+        dates: dates.map( ( date ) => ( { ...date } ) ),
+        aliases: [ ...aliases ],
+        status,
+        slugLocked
+    } );
+
+    /**
      * Compares two lists item by item, in order.
      *
      * @param left First list.
@@ -117,19 +163,19 @@
      * a body left untouched is the same string rather than a new one.
      */
     const dirty = $derived.by( () =>
-        title !== initial.title
-        || slug !== initial.slug
-        || summary !== initial.summary
-        || body !== initial.body
-        || imageSrc !== initial.imageSrc
-        || imageAlt !== initial.imageAlt
-        || imageCaption !== initial.imageCaption
-        || status !== initial.status
-        || slugLocked !== initial.slugLocked
-        || !sameList( categories, initial.categories, ( a, b ) => a === b )
-        || !sameList( aliases, initial.aliases, ( a, b ) => a === b )
-        || !sameList( infobox, initial.infobox, ( a, b ) => a.label === b.label && a.value === b.value )
-        || !sameList( dates, initial.dates, ( a, b ) => a.id === b.id && a.label === b.label && a.value === b.value )
+        title !== baseline.title
+        || slug !== baseline.slug
+        || summary !== baseline.summary
+        || body !== baseline.body
+        || imageSrc !== baseline.imageSrc
+        || imageAlt !== baseline.imageAlt
+        || imageCaption !== baseline.imageCaption
+        || status !== baseline.status
+        || slugLocked !== baseline.slugLocked
+        || !sameList( categories, baseline.categories, ( a, b ) => a === b )
+        || !sameList( aliases, baseline.aliases, ( a, b ) => a === b )
+        || !sameList( infobox, baseline.infobox, ( a, b ) => a.label === b.label && a.value === b.value )
+        || !sameList( dates, baseline.dates, ( a, b ) => a.id === b.id && a.label === b.label && a.value === b.value )
     );
     const canSave = $derived( title.trim().length > 0 );
 
@@ -206,7 +252,7 @@
         }
 
         const owner = wiki.bySlug( candidate );
-        return owner !== undefined && owner.id !== entry?.id;
+        return owner !== undefined && owner.id !== current?.id;
     } );
 
     $effect( () =>
@@ -263,20 +309,20 @@
     };
 
     /**
-     * Saves the page and opens it.
+     * Writes the page, and makes the form the editor of what was written.
      *
+     * The address actually taken is read back into the field: `saveEntry` appends
+     * a number when the slug collides, and a form still showing the address it
+     * asked for would be lying about where the page now lives.
+     *
+     * @returns The stored page.
      * @author Claude
      */
-    const save = (): void =>
+    const store = (): Entry =>
     {
-        if ( !canSave )
-        {
-            return;
-        }
-
-        const saved = wiki.saveEntry( {
-            id: entry?.id,
-            createdAt: entry?.createdAt,
+        const stored = wiki.saveEntry( {
+            id: current?.id,
+            createdAt: current?.createdAt,
             title: title.trim(),
             slug: slug.trim() || slugify( title ),
             summary: summary.trim(),
@@ -291,9 +337,82 @@
             status
         } );
 
-        leaving = true;
-        void goto( resolve( `/wiki/${ saved.slug }/` ) );
+        current = stored;
+        slug = stored.slug;
+        slugLocked = true;
+        baseline = fields();
+
+        return stored;
     };
+
+    /**
+     * Saves the page and opens it.
+     *
+     * @author Claude
+     */
+    const save = (): void =>
+    {
+        if ( !canSave )
+        {
+            return;
+        }
+
+        const stored = store();
+
+        leaving = true;
+        void goto( resolve( `/wiki/${ stored.slug }/` ) );
+    };
+
+    /**
+     * Saves the page without leaving the editor.
+     *
+     * The address of the page is deliberately left alone: the url would have to
+     * change with it, and rewriting it under a creation remounts the form
+     * through the `{#key}` of the route, which is the work being saved.
+     *
+     * @author Claude
+     */
+    const saveInPlace = (): void =>
+    {
+        if ( !canSave )
+        {
+            return;
+        }
+
+        store();
+        saved = true;
+    };
+
+    /**
+     * Saves on Ctrl+S, the shortcut every editor answers to.
+     *
+     * @param event Keyboard event on the window.
+     * @author Claude
+     */
+    const onKeydown = ( event: KeyboardEvent ): void =>
+    {
+        if ( ( event.ctrlKey || event.metaKey ) && event.key.toLowerCase() === "s" )
+        {
+            event.preventDefault();
+            saveInPlace();
+        }
+    };
+
+    /*
+     * The confirmation goes on its own, rather than waiting for a dismissal that
+     * would be one more thing to do in the middle of writing.
+     */
+    $effect( () =>
+    {
+        if ( !saved )
+        {
+            return;
+        }
+
+        const timer = setTimeout( () => ( saved = false ), CONFIRMATION_DELAY );
+
+        return () => clearTimeout( timer );
+    } );
 
     /**
      * Deletes the page and goes back to the index.
@@ -302,12 +421,12 @@
      */
     const remove = (): void =>
     {
-        if ( !entry )
+        if ( !current )
         {
             return;
         }
 
-        wiki.deleteEntry( entry.id );
+        wiki.deleteEntry( current.id );
         leaving = true;
         void goto( resolve( "/wiki" ) );
     };
@@ -326,6 +445,8 @@
     };
 </script>
 
+<svelte:window onkeydown={onKeydown} />
+
 <form
     class="mx-auto max-w-6xl px-4 py-8 sm:px-6"
     onsubmit={( event ) =>
@@ -340,14 +461,14 @@
     >
         <div class="hidden min-w-0 flex-1 sm:block">
             <p class="text-muted text-xs tracking-wide uppercase">
-                {entry ? m.entry_form_edit_heading() : m.entry_form_create_heading()}
+                {current ? m.entry_form_edit_heading() : m.entry_form_create_heading()}
             </p>
 
             <p class="truncate text-sm font-medium">{title.trim() || m.entry_form_untitled()}</p>
         </div>
 
         <div class="ml-auto flex w-full shrink-0 items-center gap-2 sm:w-auto">
-            {#if entry}
+            {#if current}
                 <Button
                     color="red"
                     size="sm"
@@ -362,7 +483,7 @@
             {/if}
 
             <Button
-                href={resolve( entry ? `/wiki/${ entry.slug }/` : "/wiki" )}
+                href={resolve( current ? `/wiki/${ current.slug }/` : "/wiki" )}
                 color="alternative"
                 size="sm"
                 class="h-9 {PAIRED_ACTION}"
@@ -504,7 +625,27 @@
     onconfirm={leave}
 />
 
-{#if entry}
+{#if saved}
+    <div class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex justify-end sm:inset-x-6">
+        <Toast
+            dismissable={false}
+            color="green"
+            params={{ duration: motionDuration() }}
+            class="surface text-ink-800 dark:text-paper-200 max-w-xs rounded-2xl p-3 text-xs shadow-lg
+                   max-sm:w-full max-sm:max-w-none"
+            role="status"
+            aria-live="polite"
+        >
+            <div class="flex items-center gap-2.5">
+                <Check class="text-accent-600 dark:text-accent-400 h-4 w-4 shrink-0" />
+
+                <span>{m.entry_form_saved()}</span>
+            </div>
+        </Toast>
+    </div>
+{/if}
+
+{#if current}
     <ConfirmDialog
         bind:open={deleteOpen}
         title={m.entry_form_delete_confirm_title()}

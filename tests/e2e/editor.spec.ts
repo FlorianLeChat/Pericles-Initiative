@@ -167,6 +167,33 @@ test.describe( "entry editor", () =>
         expect( await wiki.storedEntry( PAGES.sceau.slug ) ).toBeUndefined();
     } );
 
+    test( "saves without leaving, and keeps editing the page it just created", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/new" );
+
+        await page.getByLabel( "Titre", { exact: true } ).fill( "Digue de Sainte Roque" );
+        await page.getByLabel( "Résumé" ).fill( "La digue qui protège le seuil." );
+
+        await page.keyboard.press( "Control+s" );
+
+        await expect( page.getByText( "Fiche enregistrée" ) ).toBeVisible();
+        await expect( page ).toHaveURL( /\/new\/$/ );
+        expect( ( await wiki.storedEntry( "digue-de-sainte-roque" ) )?.summary ).toBe( "La digue qui protège le seuil." );
+
+        await page.getByLabel( "Résumé" ).fill( "La digue qui protège le seuil des vents du nord." );
+        await page.keyboard.press( "Control+s" );
+
+        const overlay = await wiki.storedOverlay();
+        const written = Object.values( overlay?.entries ?? {} ).filter( ( item ) => item.slug === "digue-de-sainte-roque" );
+
+        expect( written ).toHaveLength( 1 );
+        expect( written[ 0 ]?.summary ).toBe( "La digue qui protège le seuil des vents du nord." );
+
+        await page.getByRole( "link", { name: "Annuler" } ).click();
+
+        await expect( page ).toHaveURL( /\/wiki\/digue-de-sainte-roque\/$/ );
+    } );
+
     test( "keeps the editor open when the reader refuses to leave", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.traite.slug }` );
