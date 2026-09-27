@@ -26,6 +26,7 @@
     import type { Entry, EntryDate, EntryStatus, InfoboxField } from "$lib/types";
     import { pluralize } from "$lib/utilities/plural";
     import { slugify, uniqueSlug } from "$lib/utilities/slug";
+    import CategoryPicker from "./CategoryPicker.svelte";
     import ChipsInput from "./ChipsInput.svelte";
     import DatesEditor from "./DatesEditor.svelte";
     import EntryImageFields from "./EntryImageFields.svelte";
@@ -211,11 +212,6 @@
      * and «Aucune» agrees with the noun of its own group rather than with a
      * shared default.
      */
-    const categoriesSummary = $derived(
-        categories.length === 0
-            ? m.entry_form_categories_none()
-            : pluralize( categories.length, { one: m.common_count_categorie_one, other: m.common_count_categorie_other } )
-    );
     const infoboxSummary = $derived.by( () =>
     {
         const rows = infobox.filter( isFilled ).length;
@@ -465,18 +461,6 @@
         void goto( resolve( "/wiki" ) );
     };
 
-    /**
-     * Adds or removes a category.
-     *
-     * @param slugToToggle Category slug.
-     * @author Claude
-     */
-    const toggleCategory = ( slugToToggle: string ): void =>
-    {
-        categories = categories.includes( slugToToggle )
-            ? categories.filter( ( item ) => item !== slugToToggle )
-            : [ ...categories, slugToToggle ];
-    };
 </script>
 
 <svelte:window onkeydown={onKeydown} />
@@ -615,28 +599,7 @@
             <Accordion multiple flush class="surface overflow-hidden">
                 <StatusPicker bind:status />
 
-                <OptionPanel label={m.common_categories_label()} value={categoriesSummary}>
-                    {#if wiki.categories.length === 0}
-                        <p class="text-muted text-sm">
-                            {m.entry_form_no_categories()}
-                            <a href={resolve( "/categories/manage" )} class="wiki-link">{m.entry_form_create_category_link()}</a>.
-                        </p>
-                    {:else}
-                        <fieldset class="space-y-1.5">
-                            <legend class="sr-only">{m.entry_form_categories_legend()}</legend>
-
-                            {#each wiki.categories as item ( item.slug )}
-                                <Checkbox
-                                    classes={{ div: "flex min-h-9 items-center text-sm" }}
-                                    checked={categories.includes( item.slug )}
-                                    onchange={() => toggleCategory( item.slug )}
-                                >
-                                    {item.name}
-                                </Checkbox>
-                            {/each}
-                        </fieldset>
-                    {/if}
-                </OptionPanel>
+                <CategoryPicker bind:categories />
 
                 <OptionPanel label={m.entry_form_dates_label()} value={datesSummary}>
                     <DatesEditor bind:dates />

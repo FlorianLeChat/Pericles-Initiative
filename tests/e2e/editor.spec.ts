@@ -8,7 +8,7 @@
  * @author Claude
  */
 
-import { CATEGORIES, MISSING_SLUG, PAGES } from "./utilities/dataset";
+import { CATEGORIES, crowdedDataset, MISSING_SLUG, PAGES } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
 
 /** Where the Milkdown editor writes, once it has finished booting. */
@@ -187,6 +187,40 @@ test.describe( "entry editor", () =>
         const citing = await wiki.storedEntry( PAGES.port.slug );
 
         expect( citing?.body ).toContain( `(/wiki/${ PAGES.bureau.slug })` );
+    } );
+
+    test( "declares a missing category without leaving the form", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/new" );
+
+        await page.getByLabel( "Titre", { exact: true } ).fill( "Relevé des courants" );
+        await page.getByRole( "button", { name: "Catégories" } ).click();
+        await page.getByRole( "button", { name: "Nouvelle catégorie" } ).click();
+
+        await page.getByLabel( "Nom" ).fill( "Relevés" );
+        await page.getByRole( "dialog" ).getByRole( "button", { name: "Créer" } ).click();
+
+        await expect( page.getByRole( "checkbox", { name: "Relevés" } ) ).toBeChecked();
+
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        expect( ( await wiki.storedEntry( "releve-des-courants" ) )?.categories ).toContain( "releves" );
+        expect( ( await wiki.storedOverlay() )?.categories[ "releves" ]?.name ).toBe( "Relevés" );
+    } );
+
+    test( "filters the categories once there are too many to scan", async ( { page, wiki } ) =>
+    {
+        await wiki.openWith( crowdedDataset(), "/new" );
+
+        await page.getByRole( "button", { name: "Catégories" } ).click();
+        await page.getByLabel( "Filtrer les catégories" ).fill( "cartographie 1" );
+
+        await expect( page.getByRole( "checkbox", { name: "Cartographie 1", exact: true } ) ).toBeVisible();
+        await expect( page.getByRole( "checkbox", { name: CATEGORIES.sites.name } ) ).toBeHidden();
+
+        await page.getByLabel( "Filtrer les catégories" ).fill( "ce que personne ne range" );
+
+        await expect( page.getByText( "Aucune catégorie ne correspond." ) ).toBeVisible();
     } );
 
     test( "deletes a page once the deletion is confirmed", async ( { page, wiki } ) =>

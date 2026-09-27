@@ -379,6 +379,33 @@ export const breakingDataset = ( title: string ): Dataset =>
 };
 
 /**
+ * Builds a wiki declaring more categories than a writer can scan at a glance.
+ *
+ * The entry form offers a filter over its categories only past a handful of
+ * them, which the sample deliberately stays under: it describes an archipelago,
+ * not a taxonomy. The extra ones are named after the sample's own first
+ * category so a filter can be proven to keep some and drop the others.
+ *
+ * @returns A dataset carrying a dozen categories.
+ * @author Claude
+ */
+export const crowdedDataset = (): Dataset =>
+{
+    const dataset = sampleDataset();
+    const extra: Category[] = Array.from( { length: 12 }, ( _unused, rank ) => ( {
+        slug: `cartographie-${ rank + 1 }`,
+        name: `Cartographie ${ rank + 1 }`,
+        description: "",
+        color: "bleu",
+        parent: null
+    } ) );
+
+    dataset.categories = [ ...dataset.categories, ...extra ];
+
+    return dataset;
+};
+
+/**
  * Turns a dataset into the overlay a browser would have written itself.
  *
  * Entries and live items are keyed by identifier, categories by slug, exactly as
