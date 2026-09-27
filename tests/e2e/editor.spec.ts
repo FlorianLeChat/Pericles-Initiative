@@ -28,17 +28,20 @@ test.describe( "entry editor", () =>
 
         await page.getByLabel( "Titre", { exact: true } ).fill( PAGES.port.title );
 
-        await expect( page.getByText( "Une autre fiche utilise déjà cette adresse." ) ).toBeVisible();
+        await expect( page.getByText( `sera enregistrée sous ${ PAGES.port.slug }-2` ) ).toBeVisible();
+
+        await page.getByRole( "button", { name: "Utiliser cette adresse" } ).click();
+
+        await expect( page.getByLabel( "Adresse de la page" ) ).toHaveValue( `${ PAGES.port.slug }-2` );
 
         await page.getByLabel( "Titre", { exact: true } ).fill( "Digue de Sainte Roque" );
+
+        await page.getByLabel( "Adresse de la page" ).fill( "digue-de-sainte-roque" );
 
         await expect( page.getByLabel( "Adresse de la page" ) ).toHaveValue( "digue-de-sainte-roque" );
 
         await page.getByLabel( "Résumé" ).fill( "La digue qui protège le seuil des vents du nord." );
 
-        // The options of the form arrive folded, and a folded group renders none
-        // of its controls, so each one is unfolded by its header before being
-        // reached.
         await page.getByRole( "button", { name: "Catégories" } ).click();
         await page.getByRole( "checkbox", { name: CATEGORIES.sites.name } ).check();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();

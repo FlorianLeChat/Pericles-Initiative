@@ -25,7 +25,7 @@
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry, EntryDate, EntryStatus, InfoboxField } from "$lib/types";
     import { pluralize } from "$lib/utilities/plural";
-    import { slugify } from "$lib/utilities/slug";
+    import { slugify, uniqueSlug } from "$lib/utilities/slug";
     import ChipsInput from "./ChipsInput.svelte";
     import DatesEditor from "./DatesEditor.svelte";
     import EntryImageFields from "./EntryImageFields.svelte";
@@ -238,8 +238,11 @@
             : pluralize( aliases.length, { one: m.entry_form_aliases_count_one, other: m.entry_form_aliases_count_other } )
     );
 
+    /** The address as typed, which is what every check below reads. */
+    const candidateSlug = $derived( slug.trim() );
+
     /** Address the page is leaving, empty while it is not moving anywhere. */
-    const previousSlug = $derived( current && current.slug !== slug.trim() ? current.slug : "" );
+    const previousSlug = $derived( current && current.slug !== candidateSlug ? current.slug : "" );
 
     /** Pages whose links would turn red were the address to change without them. */
     const citations = $derived( previousSlug ? wiki.backlinksOf( previousSlug ).length : 0 );
@@ -256,15 +259,29 @@
             return false;
         }
 
-        const candidate = slug.trim();
-        if ( !candidate )
+        if ( !candidateSlug )
         {
             return false;
         }
 
-        const owner = wiki.bySlug( candidate );
+        const owner = wiki.bySlug( candidateSlug );
         return owner !== undefined && owner.id !== current?.id;
     } );
+
+    /**
+     * Addresses that are not this page's to take.
+     *
+     * Read from the corpus exactly as `saveEntry` reads it when it settles the
+     * address for real, the page's own address left out: that one is free for
+     * the page already holding it. The list is derived, so it is rebuilt when
+     * the corpus moves rather than on every keystroke in the field.
+     */
+    const takenSlugs = $derived(
+        wiki.entries.filter( ( item ) => item.id !== current?.id ).map( ( item ) => item.slug )
+    );
+
+    /** The address the page would end up under, once the collision is settled. */
+    const settledSlug = $derived( slugTaken ? uniqueSlug( candidateSlug, takenSlugs ) : "" );
 
     $effect( () =>
     {
@@ -554,9 +571,15 @@
             </div>
 
             {#if slugTaken}
-                <Helper id="entry-slug-taken" color="red" class="mt-1.5 text-xs">
-                    {m.entry_form_slug_taken_hint()}
-                </Helper>
+                <div id="entry-slug-taken" class="mt-1.5 flex flex-wrap items-center gap-2">
+                    <Helper color="red" class="text-xs">
+                        {m.entry_form_slug_taken_hint( { slug: settledSlug } )}
+                    </Helper>
+
+                    <Button color="alternative" size="xs" class="rounded-full" onclick={() => ( slug = settledSlug )}>
+                        {m.entry_form_slug_take_settled()}
+                    </Button>
+                </div>
             {/if}
 
             {#if citations > 0}
