@@ -101,6 +101,7 @@
     let baseline = $state( initial );
 
     let deleteOpen = $state( false );
+    let relink = $state( true );
     let saved = $state( false );
     let leaveOpen = $state( false );
     let leaving = $state( false );
@@ -237,6 +238,16 @@
             : pluralize( aliases.length, { one: m.entry_form_aliases_count_one, other: m.entry_form_aliases_count_other } )
     );
 
+    /** Address the page is leaving, empty while it is not moving anywhere. */
+    const previousSlug = $derived( current && current.slug !== slug.trim() ? current.slug : "" );
+
+    /** Pages whose links would turn red were the address to change without them. */
+    const citations = $derived( previousSlug ? wiki.backlinksOf( previousSlug ).length : 0 );
+
+    const relinkLabel = $derived(
+        pluralize( citations, { one: m.entry_form_relink_one, other: m.entry_form_relink_other } )
+    );
+
     /** Another page already uses this slug, so a suffix will be added on save. */
     const slugTaken = $derived.by( () =>
     {
@@ -320,6 +331,7 @@
      */
     const store = (): Entry =>
     {
+        const moving = relink ? previousSlug : "";
         const stored = wiki.saveEntry( {
             id: current?.id,
             createdAt: current?.createdAt,
@@ -341,6 +353,11 @@
         slug = stored.slug;
         slugLocked = true;
         baseline = fields();
+
+        if ( moving && moving !== stored.slug )
+        {
+            wiki.retargetLinks( moving, stored.slug );
+        }
 
         return stored;
     };
@@ -540,6 +557,14 @@
                 <Helper id="entry-slug-taken" color="red" class="mt-1.5 text-xs">
                     {m.entry_form_slug_taken_hint()}
                 </Helper>
+            {/if}
+
+            {#if citations > 0}
+                <Checkbox bind:checked={relink} classes={{ div: "mt-2 flex min-h-9 items-center text-sm" }}>
+                    {relinkLabel}
+                </Checkbox>
+
+                <Helper class="text-xs leading-relaxed">{m.entry_form_relink_hint()}</Helper>
             {/if}
         </div>
 

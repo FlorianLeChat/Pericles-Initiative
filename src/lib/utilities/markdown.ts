@@ -23,6 +23,16 @@ marked.use( { gfm: true, breaks: false } );
 /** Matches the slug of an internal page url, ignoring any anchor or query. */
 const INTERNAL_HREF = /^\/wiki\/([^#?/]+)/;
 
+/**
+ * What may follow a slug inside the target of an internal link: the closing
+ * parenthesis, a trailing slash, an anchor, a query, or the space introducing
+ * the title Markdown allows inside the parentheses.
+ *
+ * Written as a lookahead so the character stays out of the match and survives
+ * the replacement untouched.
+ */
+const SLUG_END = "(?=[)/#?\\s])";
+
 /** A link leaving the site, which is opened in a new tab. */
 const EXTERNAL_HREF = /^https?:\/\//i;
 
@@ -310,6 +320,29 @@ export const collectHeadings = ( markdown: string ): Heading[] => analyzeBody( m
  * @author Claude
  */
 export const extractInternalLinks = ( markdown: string ): string[] => analyzeBody( markdown ).links;
+
+/**
+ * Points every internal link of a body at another page.
+ *
+ * Used when a page changes address: the links written towards the old one would
+ * otherwise turn red, which is a broken wiki rather than a planned page.
+ *
+ * The slug is put straight into the expression without being escaped, because
+ * every stored slug comes out of `slugify` and therefore holds nothing but
+ * lowercase letters, digits and dashes.
+ *
+ * @param markdown Article body.
+ * @param from Slug the links currently point at.
+ * @param to Slug they should point at.
+ * @returns The body, with those links rewritten.
+ * @author Claude
+ */
+export const retargetInternalLinks = ( markdown: string, from: string, to: string ): string =>
+{
+    const links = new RegExp( `(\\]\\(/wiki/)${ from }${ SLUG_END }`, "g" );
+
+    return markdown.replace( links, ( _match, opening: string ) => `${ opening }${ to }` );
+};
 
 /**
  * Adds anchor identifiers to the rendered headings.

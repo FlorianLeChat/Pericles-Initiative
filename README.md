@@ -55,6 +55,7 @@ sequenceDiagram
     loop À chaque fiche
         Utilisateur->>Éditeur interactif: Je crée ou je modifie une fiche
         Éditeur interactif->>Stockage local: Enregistre la fiche dans la surcouche
+        Éditeur interactif->>Stockage local: Réécrit les liens des fiches qui citaient l'ancienne adresse
         Stockage local-->>Utilisateur: Le contenu, aussitôt disponible, sans requête réseau
     end
 
@@ -140,6 +141,7 @@ sequenceDiagram
     loop For every entry
         User->>Interactive editor: I create or edit an entry
         Interactive editor->>Local storage: Saves the entry into the overlay
+        Interactive editor->>Local storage: Rewrites the links of the entries citing the old address
         Local storage-->>User: The content, available right away, with no network request
     end
 

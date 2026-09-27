@@ -155,6 +155,37 @@ test.describe( "entry editor", () =>
         expect( stored?.status ).toBe( "brouillon" );
     } );
 
+    test( "points the pages citing a renamed page at its new address", async ( { page, wiki } ) =>
+    {
+        await wiki.open( `/edit/${ PAGES.bureau.slug }` );
+
+        await page.getByLabel( "Adresse de la page" ).fill( "bureau-des-marees" );
+
+        const relink = page.getByRole( "checkbox", { name: "Mettre à jour la fiche qui cite l'ancienne adresse" } );
+
+        await expect( relink ).toBeChecked();
+
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        const citing = await wiki.storedEntry( PAGES.port.slug );
+
+        expect( citing?.body ).toContain( "(/wiki/bureau-des-marees)" );
+        expect( citing?.body ).not.toContain( `(/wiki/${ PAGES.bureau.slug })` );
+    } );
+
+    test( "leaves the citing pages alone when the reader declines", async ( { page, wiki } ) =>
+    {
+        await wiki.open( `/edit/${ PAGES.bureau.slug }` );
+
+        await page.getByLabel( "Adresse de la page" ).fill( "bureau-des-marees" );
+        await page.getByRole( "checkbox", { name: "Mettre à jour la fiche qui cite l'ancienne adresse" } ).uncheck();
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        const citing = await wiki.storedEntry( PAGES.port.slug );
+
+        expect( citing?.body ).toContain( `(/wiki/${ PAGES.bureau.slug })` );
+    } );
+
     test( "deletes a page once the deletion is confirmed", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.sceau.slug }` );

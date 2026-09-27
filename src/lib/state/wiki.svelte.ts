@@ -31,7 +31,7 @@ import { buildImportOverlay,
     normalizeMetaPatch,
     normalizeOverlay,
     withoutKey } from "$lib/utilities/dataset";
-import { extractInternalLinks } from "$lib/utilities/markdown";
+import { extractInternalLinks, retargetInternalLinks } from "$lib/utilities/markdown";
 import { uniqueSlug } from "$lib/utilities/slug";
 
 /** `localStorage` key holding the unpublished changes. */
@@ -451,6 +451,37 @@ class WikiStore
         this.persist();
 
         return entry;
+    }
+
+    /**
+     * Points the links of every page at a page that changed address.
+     *
+     * A slug is the url, and nothing else keys a link: renaming a page leaves
+     * every body that cited it pointing at an address nobody answers, which the
+     * site renders as a red link, so a rename silently turns citations into
+     * pages waiting to be written.
+     *
+     * The pages are read from the link graph rather than scanned, and rewritten
+     * in one batch, so the overlay is serialised once however many cite the page.
+     *
+     * @param from Slug the links currently point at.
+     * @param to Slug they should point at.
+     * @returns The number of pages rewritten.
+     * @author Claude
+     */
+    retargetLinks( from: string, to: string ): number
+    {
+        const sources = this.backlinksOf( from );
+
+        this.#batch( () =>
+        {
+            for ( const source of sources )
+            {
+                this.saveEntry( { ...source, body: retargetInternalLinks( source.body, from, to ) } );
+            }
+        } );
+
+        return sources.length;
     }
 
     /**
