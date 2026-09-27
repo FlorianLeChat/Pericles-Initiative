@@ -20,11 +20,16 @@
     import { wiki } from "$lib/state/wiki.svelte";
     import type { InfoboxField } from "$lib/types";
 
+    import { tick } from "svelte";
+
     interface Props {
         fields: InfoboxField[];
     }
 
     let { fields = $bindable() }: Props = $props();
+
+    /** The first field of each row, so Enter can walk down the column. */
+    let labelFields = $state<( HTMLInputElement | undefined )[]>( [] );
 
     /** Identifier of the suggestion list every intitulé of the panel points at. */
     const LABEL_LIST = "entry-infobox-labels";
@@ -109,6 +114,35 @@
     };
 
     /**
+     * Walks to the next row on Enter, adding one when there is none.
+     *
+     * Enter inside a text field of a form submits it, which here saved the page
+     * and left the editor in the middle of filling a table. Rows are written one
+     * after the other, so the key that ends a row is the one that opens the next.
+     *
+     * @param event Keyboard event on a field of the row.
+     * @param index Position of the row.
+     * @author Claude
+     */
+    const onEnter = ( event: KeyboardEvent, index: number ): void =>
+    {
+        if ( event.key !== "Enter" )
+        {
+            return;
+        }
+
+        event.preventDefault();
+
+        if ( index === fields.length - 1 )
+        {
+            add();
+        }
+
+        // The row Enter walks into may not be rendered yet.
+        void tick().then( () => labelFields[ index + 1 ]?.focus() );
+    };
+
+    /**
      * Names a row for assistive technology, by its label when it has one.
      *
      * @param field Row being described.
@@ -131,7 +165,9 @@
         <div class="flex items-start gap-1.5">
             <div class="grid flex-1 gap-1.5">
                 <Input
+                    bind:elementRef={labelFields[ index ]}
                     bind:value={field.label}
+                    onkeydown={( event: KeyboardEvent ) => onEnter( event, index )}
                     type="text"
                     size="sm"
                     class={SMALL_FIELD}
@@ -142,6 +178,7 @@
 
                 <Input
                     bind:value={field.value}
+                    onkeydown={( event: KeyboardEvent ) => onEnter( event, index )}
                     type="text"
                     size="sm"
                     class={SMALL_FIELD}

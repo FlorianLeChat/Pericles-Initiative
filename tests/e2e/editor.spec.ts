@@ -264,6 +264,26 @@ test.describe( "entry editor", () =>
         await expect( page.getByText( "Cette illustration ne se charge pas" ) ).toBeVisible();
     } );
 
+    test( "walks from one infobox row to the next with the enter key", async ( { page, wiki } ) =>
+    {
+        await wiki.open( `/edit/${ PAGES.port.slug }` );
+
+        await page.getByRole( "button", { name: "Infobox" } ).click();
+
+        await page.getByLabel( "Valeur de la ligne 1" ).press( "Enter" );
+
+        await expect( page ).toHaveURL( new RegExp( `/edit/${ PAGES.port.slug }/$` ) );
+        await expect( page.getByLabel( "Intitulé de la ligne 2" ) ).toBeFocused();
+
+        await page.getByLabel( "Intitulé de la ligne 2" ).fill( "Quais" );
+        await page.getByLabel( "Valeur de la ligne 2" ).fill( "Sept" );
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        const stored = await wiki.storedEntry( PAGES.port.slug );
+
+        expect( stored?.infobox ).toContainEqual( { label: "Quais", value: "Sept" } );
+    } );
+
     test( "deletes a page once the deletion is confirmed", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.sceau.slug }` );
