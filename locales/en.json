@@ -252,6 +252,7 @@
     "entry_form_untitled": "Untitled",
     "entry_image_fields_alt_fallback": "Preview of the illustration",
     "entry_image_fields_alt_label": "Alt text",
+    "entry_image_fields_broken": "This illustration does not load. Check the path under /media/, or the full address.",
     "entry_image_fields_caption_label": "Caption",
     "entry_image_fields_hint": "Paste the address of an image online. If you have access to the site's files, you can also drop the image in the media folder, then give its path here.",
     "entry_image_fields_label": "Illustration",

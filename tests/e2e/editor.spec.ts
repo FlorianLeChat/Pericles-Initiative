@@ -8,7 +8,7 @@
  * @author Claude
  */
 
-import { CATEGORIES, crowdedDataset, MISSING_SLUG, PAGES } from "./utilities/dataset";
+import { CATEGORIES, crowdedDataset, ILLUSTRATION, illustratedDataset, MISSING_SLUG, PAGES } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
 
 /** Where the Milkdown editor writes, once it has finished booting. */
@@ -237,6 +237,31 @@ test.describe( "entry editor", () =>
             .evaluateAll( ( options ) => options.map( ( option ) => ( option as HTMLOptionElement ).value ) );
 
         expect( suggested ).toContain( PAGES.port.infobox[ 0 ]?.label );
+    } );
+
+    test( "offers the illustration paths the wiki already points at", async ( { page, wiki } ) =>
+    {
+        await wiki.openWith( illustratedDataset(), `/edit/${ PAGES.port.slug }` );
+
+        await page.getByRole( "button", { name: "Illustration" } ).click();
+
+        const field = page.getByLabel( "Adresse de l'image" );
+        const list = await field.getAttribute( "list" );
+        const suggested = await page
+            .locator( `datalist#${ list } option` )
+            .evaluateAll( ( options ) => options.map( ( option ) => ( option as HTMLOptionElement ).value ) );
+
+        expect( suggested ).toContain( ILLUSTRATION );
+    } );
+
+    test( "says so when an illustration does not load", async ( { page, wiki } ) =>
+    {
+        await wiki.open( `/edit/${ PAGES.port.slug }` );
+
+        await page.getByRole( "button", { name: "Illustration" } ).click();
+        await page.getByLabel( "Adresse de l'image" ).fill( "/media/une-illustration-qui-nexiste-pas.webp" );
+
+        await expect( page.getByText( "Cette illustration ne se charge pas" ) ).toBeVisible();
     } );
 
     test( "deletes a page once the deletion is confirmed", async ( { page, wiki } ) =>

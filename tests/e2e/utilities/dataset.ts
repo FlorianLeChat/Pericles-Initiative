@@ -297,6 +297,9 @@ export const DATES = {
     brouillon: pick( DATE_LIST, "id", "fixture-date-brouillon" )
 };
 
+/** Path the illustrated wiki points at, asserted on by the editor spec. */
+export const ILLUSTRATION = "/media/ponton-de-port-meridien.webp";
+
 export const CATEGORIES = {
     institutions: pick( CATEGORY_LIST, "slug", "institutions" ),
     sites: pick( CATEGORY_LIST, "slug", "sites" ),
@@ -401,6 +404,30 @@ export const crowdedDataset = (): Dataset =>
     } ) );
 
     dataset.categories = [ ...dataset.categories, ...extra ];
+
+    return dataset;
+};
+
+/**
+ * Builds a wiki where one page carries an illustration.
+ *
+ * The sample keeps every page unillustrated, since the repository ships no
+ * media and a spec that reached the network would not be a spec. The path here
+ * is never fetched successfully either: what it proves is that the editor reads
+ * the corpus to suggest the paths a wiki already uses.
+ *
+ * @returns A dataset whose first page points at an illustration.
+ * @author Claude
+ */
+export const illustratedDataset = (): Dataset =>
+{
+    const dataset = sampleDataset();
+    const illustrated = dataset.entries.find( ( entry ) => entry.slug === PAGES.athena.slug );
+
+    if ( illustrated )
+    {
+        illustrated.image = { src: ILLUSTRATION, alt: "Le ponton de Port Méridien, au petit matin." };
+    }
 
     return dataset;
 };

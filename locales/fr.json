@@ -252,6 +252,7 @@
     "entry_form_untitled": "Sans titre",
     "entry_image_fields_alt_fallback": "Aperçu de l'illustration",
     "entry_image_fields_alt_label": "Texte alternatif",
+    "entry_image_fields_broken": "Cette illustration ne se charge pas. Vérifiez le chemin sous /media/, ou l'adresse complète.",
     "entry_image_fields_caption_label": "Légende",
     "entry_image_fields_hint": "Collez l'adresse d'une image en ligne. Si vous avez accès aux fichiers du site, vous pouvez aussi déposer l'image dans le dossier des médias, puis indiquer son chemin ici.",
     "entry_image_fields_label": "Illustration",
