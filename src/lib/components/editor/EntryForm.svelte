@@ -24,6 +24,7 @@
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { Entry, EntryDate, EntryStatus, InfoboxField } from "$lib/types";
+    import { countWords } from "$lib/utilities/markdown";
     import { pluralize } from "$lib/utilities/plural";
     import { slugify, uniqueSlug } from "$lib/utilities/slug";
     import CategoryPicker from "./CategoryPicker.svelte";
@@ -37,6 +38,18 @@
 
     /** How long the confirmation of a save stays on screen, in milliseconds. */
     const CONFIRMATION_DELAY = 2500;
+
+    /**
+     * Length past which a summary stops being read whole where it is reused.
+     *
+     * The summary is what `PageMeta` hands to the description of the page, and a
+     * search engine or a messaging application cuts that off around here. It is a
+     * guide rather than a limit: nothing stops a longer one from being saved.
+     */
+    const SUMMARY_LENGTH = 160;
+
+    /** Words a minute, the usual figure for prose read on a screen. */
+    const READING_SPEED = 200;
 
     interface Props {
         /** Page being edited, absent when creating one. */
@@ -180,6 +193,10 @@
         || !sameList( dates, baseline.dates, ( a, b ) => a.id === b.id && a.label === b.label && a.value === b.value )
     );
     const canSave = $derived( title.trim().length > 0 );
+
+    const words = $derived( countWords( body ) );
+    const wordCount = $derived( pluralize( words, { one: m.common_count_mot_one, other: m.common_count_mot_other } ) );
+    const readingTime = $derived( m.entry_form_reading_time( { minutes: Math.max( 1, Math.round( words / READING_SPEED ) ) } ) );
 
     /**
      * Tells whether an infobox row carries anything at all.
@@ -585,6 +602,10 @@
                 class="w-full resize-y"
                 placeholder={m.entry_form_summary_placeholder()}
             />
+
+            <Helper color={summary.length > SUMMARY_LENGTH ? "red" : "gray"} class="mt-1.5 text-xs">
+                {m.entry_form_summary_length( { count: summary.length, limit: SUMMARY_LENGTH } )}
+            </Helper>
         </div>
     </div>
 
@@ -593,6 +614,8 @@
             <p class="field-label">{m.entry_form_body_label()}</p>
 
             <MarkdownEditor value={body} onchange={( markdown ) => ( body = markdown )} />
+
+            <p class="text-muted mt-2 text-xs">{wordCount} · {readingTime}</p>
         </div>
 
         <aside>

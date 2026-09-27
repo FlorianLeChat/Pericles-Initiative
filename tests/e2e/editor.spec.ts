@@ -284,6 +284,18 @@ test.describe( "entry editor", () =>
         expect( stored?.infobox ).toContainEqual( { label: "Quais", value: "Sept" } );
     } );
 
+    test( "measures the body and the summary as they are written", async ( { page, wiki } ) =>
+    {
+        await wiki.open( `/edit/${ PAGES.port.slug }` );
+
+        await expect( page.getByText( `Longueur : ${ PAGES.port.summary.length } / 160` ) ).toBeVisible();
+
+        await page.getByLabel( "Résumé" ).fill( "Court." );
+
+        await expect( page.getByText( "Longueur : 6 / 160" ) ).toBeVisible();
+        await expect( page.getByText( "min de lecture" ) ).toBeVisible();
+    } );
+
     test( "deletes a page once the deletion is confirmed", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.sceau.slug }` );
