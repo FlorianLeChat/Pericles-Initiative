@@ -2,12 +2,10 @@
     /**
      * Backup and restore against the optional remote snapshot service.
      *
-     * This component owns the wiring between the two stores: it hands
-     * `WikiStore.exportJson()` to the service, and hands what the service returns
-     * back to `WikiStore.importDataset()`. Neither store knows about the other,
-     * which is what keeps the overlay independent from the network. Telling an up
-     * to date backup from a stale one is part of that wiring: the marker compared
-     * here means something to the wiki and nothing to the service.
+     * Sending and restoring go through `SyncStore`, the one module that wires
+     * `WikiStore` to the service. Neither store knows about the other, which is
+     * what keeps the overlay independent from the network. This panel only adds
+     * the form, the confirmations and the sentences reporting each outcome.
      *
      * Everything here is optional. With no endpoint configured, the panel explains
      * that the wiki works from this browser alone and fires no request at all.
@@ -24,33 +22,13 @@
     import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
     import { ACTION_BUTTON, ACTION_ROW } from "$lib/config/forms";
     import * as m from "$lib/locales/messages.js";
+    import { REMOTE_FAILURE_MESSAGE } from "$lib/config/remote";
     import { remote } from "$lib/state/remote.svelte";
+    import { sync } from "$lib/state/sync.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
-    import type { RemoteFailure } from "$lib/types";
     import { formatDateTime } from "$lib/utilities/date";
     import { pluralize } from "$lib/utilities/plural";
     import { isUsableBaseUrl } from "$lib/utilities/remote";
-
-    /**
-     * What the reader is told for each documented failure.
-     *
-     * The transport only reports a machine readable cause, so the sentences live
-     * here, in the component that displays them, as the project has no message
-     * catalogue for its single language.
-     *
-     * Each one says what happened and what to try, and none of them names a
-     * protocol. Whoever set this server up can read the cause off the sentence,
-     * and whoever did not is not helped by the word CORS.
-     */
-    const FAILURE_MESSAGE: Readonly<Record<RemoteFailure, string>> = {
-        network: m.remote_backup_failure_network(),
-        refused: m.remote_backup_failure_refused(),
-        missing: m.remote_backup_failure_missing(),
-        unsupported: m.remote_backup_failure_unsupported(),
-        conflict: m.remote_backup_failure_conflict(),
-        unreadable: m.remote_backup_failure_unreadable(),
-        server: m.remote_backup_failure_server()
-    };
 
     let baseUrl = $state( "" );
     let secret = $state( "" );
@@ -80,25 +58,9 @@
 
     const canConnect = $derived( isUsableBaseUrl( baseUrl ) );
     const dirty = $derived( baseUrl.trim() !== remote.config.baseUrl || secret !== remote.config.secret );
-    const failureText = $derived( remote.failure ? FAILURE_MESSAGE[ remote.failure ] : "" );
+    const failureText = $derived( remote.failure ? REMOTE_FAILURE_MESSAGE[ remote.failure ]() : "" );
     const conflicted = $derived( remote.failure === "conflict" );
-
-    /**
-     * Where the online backup stands against the content of this browser.
-     *
-     * Compared by marker rather than by date: a wall clock comparison would call a
-     * restore stale, since installing the snapshot is itself a local write, and it
-     * happens after the read that brought it in.
-     */
-    const syncState = $derived.by( (): "unknown" | "synced" | "stale" =>
-    {
-        if ( remote.config.syncedChange === null )
-        {
-            return "unknown";
-        }
-
-        return remote.config.syncedChange === wiki.changedAt ? "synced" : "stale";
-    } );
+    const syncState = $derived( sync.localState );
 
     /** True while no transfer has ever happened, which is what automatic publishing waits for. */
     const neverSynced = $derived( syncState === "unknown" );
@@ -165,15 +127,7 @@
         commit();
         feedback = null;
 
-        // Read before the request, not after: what leaves this browser is the content
-        // as it stands now, and an edit made while the request flies is not in it.
-        const sent = wiki.changedAt;
-        const stored = await remote.push( wiki.exportJson(), conditional );
-
-        if ( stored )
-        {
-            remote.markSynced( sent );
-        }
+        const stored = await sync.send( conditional );
 
         feedback = stored
             ? { kind: "success", text: m.remote_backup_send_success() }
@@ -190,20 +144,14 @@
         commit();
         feedback = null;
 
-        const snapshot = await remote.pull();
+        const counts = await sync.restore();
 
-        if ( !snapshot )
+        if ( !counts )
         {
             feedback = { kind: "error", text: failureText };
 
             return;
         }
-
-        const counts = wiki.importDataset( snapshot.dataset );
-
-        // Marked after the import, since installing the snapshot is itself a write:
-        // the marker to remember is the one that write just produced.
-        remote.markSynced( wiki.changedAt );
 
         const entries = pluralize( counts.entries, { one: m.common_count_fiche_one, other: m.common_count_fiche_other } );
         const categories = pluralize(

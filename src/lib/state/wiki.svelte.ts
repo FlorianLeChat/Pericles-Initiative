@@ -697,6 +697,11 @@ class WikiStore
     /**
      * Serialises the current state as a portable JSON export.
      *
+     * The file carries `changedAt` beside the dataset: once it sits on the
+     * backup service, it is the only thing telling another browser how recent
+     * its content is. Importing ignores it, since an import is itself a write
+     * and stamps the overlay anew.
+     *
      * @returns Pretty printed JSON of the whole dataset, entries, categories and live feed.
      * @author Claude
      */
@@ -708,8 +713,9 @@ class WikiStore
             entries: this.entries,
             live: this.live
         };
+        const stamped = { ...dataset, changedAt: this.changedAt };
 
-        return `${ JSON.stringify( dataset, null, 4 ) }\n`;
+        return `${ JSON.stringify( stamped, null, 4 ) }\n`;
     }
 
     /**

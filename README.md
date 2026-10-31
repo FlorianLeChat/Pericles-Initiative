@@ -156,10 +156,14 @@ sequenceDiagram
     User->>Interface: I import a file
     Interface->>Local storage: Replaces the whole content of the browser
 
-    User->>Online backup: I push a snapshot, if I configured one
-    Online backup-->>User: Where the synchronisation stands
-    User->>Online backup: I pull the snapshot from another browser
+    Interface->>Online backup: Reads the snapshot on arrival, then at most once a minute, if I configured one
+    Online backup-->>Interface: The dataset, stamped with when its content last changed
+    Interface-->>User: A single offer to restore it, when it is more recent than my pages
+    User->>Online backup: I pull the snapshot, from that offer or from the data page
     Online backup-->>Local storage: The whole dataset, reinstalled into the overlay
+    Interface-->>User: After each of my changes, an offer to update the backup
+    User->>Online backup: I push a snapshot, from that offer or from the data page
+    Online backup-->>User: Where the synchronisation stands
 ```
 
 ### Setup
@@ -185,7 +189,10 @@ sequenceDiagram
 
 The website can sync with an external HTTP server, optional and off by default: no network request is
 ever sent until a base url is set on the `/data` page. The contract is minimal: `GET` and `PUT` on
-`{baseUrl}/dataset` exchange the whole dataset as JSON, with no merging and no notion of a user. An
+`{baseUrl}/dataset` exchange the whole dataset as JSON, with no merging and no notion of a user. The
+JSON carries a top level `changedAt` timestamp, written by the browser that sent it: once configured,
+the website reads the snapshot when it is opened and offers to restore it when it is more recent, so
+the server only has to store and return the bytes untouched. An
 optional secret can be sent as the `X-Pericles-Secret` header, but it is **not** an authentication
 mechanism: it protects nothing on its own, and belongs on a server that is already private (VPN,
 internal network, authenticating proxy).

@@ -7,8 +7,8 @@
      * author wants to know afterwards is whether what they wrote offline made it
      * out. Mounted by the root layout, so a page written from anywhere is covered.
      *
-     * Like `RemoteBackup.svelte`, this owns the wiring between the two stores
-     * rather than coupling them: the wiki hands over its content and its change
+     * Like `RemoteBackup.svelte`, this goes through `SyncStore` rather than
+     * coupling the two stores: the wiki hands over its content and its change
      * marker, the service moves the bytes, and neither knows the other exists.
      *
      * Nothing here fires unless the reader configured a service, synchronised it
@@ -26,6 +26,7 @@
     import { motionDuration } from "$lib/config/motion";
     import * as m from "$lib/locales/messages.js";
     import { remote } from "$lib/state/remote.svelte";
+    import { sync } from "$lib/state/sync.svelte";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { RemoteFailure } from "$lib/types";
 
@@ -88,7 +89,7 @@
     const armed = $derived( ready && remote.configured && remote.config.autoPush && remote.config.syncedChange !== null );
 
     /** True when this browser holds content the service does not have yet. */
-    const pending = $derived( armed && remote.config.syncedChange !== wiki.changedAt );
+    const pending = $derived( armed && sync.localState === "stale" );
 
     /** True while the reader has waved the warning away and nothing has changed since. */
     const dismissed = $derived( dismissedChange !== null && dismissedChange === wiki.changedAt );
@@ -110,14 +111,10 @@
      */
     const publish = async (): Promise<void> =>
     {
-        // Captured before the request, so an edit made while it flies is counted
-        // as pending rather than marked as sent.
-        const sent = wiki.changedAt;
-        const stored = await remote.push( wiki.exportJson() );
+        const stored = await sync.send();
 
         if ( stored )
         {
-            remote.markSynced( sent );
             attempts = 0;
             failure = null;
 

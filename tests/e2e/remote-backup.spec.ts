@@ -10,8 +10,8 @@
 
 import type { Page, Route } from "@playwright/test";
 import type { Dataset } from "$lib/types";
-import { COUNTS, PAGES, sampleDataset } from "./utilities/dataset";
-import { expect, REMOTE_KEY, test } from "./utilities/fixtures";
+import { COUNTS, LIVE, PAGES, sampleDataset } from "./utilities/dataset";
+import { expect, REMOTE_KEY, test, type WikiHelper } from "./utilities/fixtures";
 
 /** Endpoint the panel is pointed at, on a host that must never be reached. */
 const BASE_URL = "https://sauvegarde.invalid/pericles";
@@ -37,6 +37,86 @@ const connect = async ( page: Page ): Promise<void> =>
 {
     await page.getByLabel( "Adresse du serveur" ).fill( BASE_URL );
     await page.getByRole( "button", { name: "Tester la connexion" } ).click();
+};
+
+/** Stamp of the snapshot this browser last synchronised with. */
+const SYNCED_STAMP = "2026-01-10T09:00:00.000Z";
+
+/** Stamp of a snapshot sent from another browser since. */
+const NEWER_STAMP = "2026-02-20T18:30:00.000Z";
+
+/** Sentence of the offer made on arrival when the backup is more recent. */
+const NEWER_OFFER = "Une sauvegarde en ligne plus récente est disponible";
+
+/** Sentence of the reminder shown after a change. */
+const REMINDER = "Vos dernières modifications ne sont pas encore dans la sauvegarde en ligne.";
+
+/**
+ * Serves a snapshot carrying a stamp the spec can change, and counts the reads.
+ *
+ * @param page Page under test.
+ * @param dataset Content of the snapshot.
+ * @param initial Stamp the snapshot starts with.
+ * @returns Accessors over the stamp served, the reads made and the bodies sent.
+ * @author Claude
+ */
+const serveSnapshot = async ( page: Page, dataset: Dataset, initial: string ): Promise<{
+    stamp: ( value: string ) => void;
+    reads: () => number;
+    sent: Record<string, unknown>[];
+}> =>
+{
+    let stamp = initial;
+    let reads = 0;
+    const sent: Record<string, unknown>[] = [];
+
+    await page.route( DATASET_ROUTE, ( route: Route ) =>
+    {
+        if ( route.request().method() === "PUT" )
+        {
+            sent.push( JSON.parse( route.request().postData() ?? "{}" ) as Record<string, unknown> );
+
+            return route.fulfill( { status: 204, headers: CORS } );
+        }
+
+        reads += 1;
+
+        return route.fulfill( { status: 200, headers: CORS, json: { ...dataset, changedAt: stamp } } );
+    } );
+
+    return {
+        stamp: ( value ) =>
+        {
+            stamp = value;
+        },
+        reads: () => reads,
+        sent
+    };
+};
+
+/**
+ * Configures the service as already synchronised with this browser, then arrives on the site again.
+ *
+ * Written once the overlay is in place, since the local marker is the stamp of
+ * that very overlay, and followed by a reload so the arrival is a real one.
+ *
+ * @param page Page under test.
+ * @param wiki The `wiki` fixture, to read the stored overlay.
+ * @param remoteStamp Stamp of the snapshot this browser last matched.
+ * @author Claude
+ */
+const arriveSynced = async ( page: Page, wiki: WikiHelper, remoteStamp: string ): Promise<void> =>
+{
+    const local = ( await wiki.storedOverlay() )?.changedAt ?? null;
+    const config = { baseUrl: BASE_URL, syncedChange: local, syncedRemote: remoteStamp };
+
+    await page.evaluate(
+        ( payload ) => window.localStorage.setItem( payload.key, JSON.stringify( payload.config ) ),
+        { key: REMOTE_KEY, config }
+    );
+
+    await page.reload();
+    await expect( page.getByRole( "banner" ) ).toContainText( sampleDataset().meta.universe );
 };
 
 test.describe( "remote backup", () =>
@@ -143,5 +223,92 @@ test.describe( "remote backup", () =>
 
         await expect( page.getByText( "Wiki restauré : 1 fiche" ) ).toBeVisible();
         await expect( page.getByRole( "banner" ) ).toContainText( "Périclès, sauvegardé" );
+    } );
+
+    test( "offers a more recent backup once, and keeps quiet across pages", async ( { page, wiki } ) =>
+    {
+        await page.clock.install();
+        const service = await serveSnapshot( page, sampleDataset(), NEWER_STAMP );
+
+        await wiki.open( "/" );
+        await arriveSynced( page, wiki, SYNCED_STAMP );
+
+        const offer = page.getByRole( "status" ).filter( { hasText: NEWER_OFFER } );
+
+        await expect( offer ).toBeVisible();
+        await offer.getByRole( "button", { name: "Ignorer" } ).click();
+        await expect( offer ).toBeHidden();
+
+        const readsBefore = service.reads();
+
+        await page.clock.fastForward( "01:01" );
+        await wiki.navigate( "Catégories" );
+
+        await expect.poll( () => service.reads() ).toBeGreaterThan( readsBefore );
+        await expect( offer ).toBeHidden();
+    } );
+
+    test( "offers it again once an up to date backup falls behind", async ( { page, wiki } ) =>
+    {
+        await page.clock.install();
+        const service = await serveSnapshot( page, sampleDataset(), SYNCED_STAMP );
+
+        await wiki.open( "/" );
+        await arriveSynced( page, wiki, SYNCED_STAMP );
+
+        await expect.poll( () => service.reads() ).toBeGreaterThan( 0 );
+        await expect( page.getByText( NEWER_OFFER ) ).toBeHidden();
+
+        service.stamp( NEWER_STAMP );
+
+        await page.clock.fastForward( "01:01" );
+        await wiki.navigate( "Catégories" );
+
+        await expect( page.getByText( NEWER_OFFER ) ).toBeVisible();
+    } );
+
+    test( "restores the more recent backup from the offer", async ( { page, wiki } ) =>
+    {
+        const stored = sampleDataset();
+
+        stored.meta.universe = "Périclès, venu d'ailleurs";
+        await serveSnapshot( page, stored, NEWER_STAMP );
+
+        await wiki.open( "/" );
+        await arriveSynced( page, wiki, SYNCED_STAMP );
+
+        await page.getByRole( "button", { name: "Récupérer la sauvegarde" } ).click();
+        await wiki.confirm( "Restaurer depuis le serveur ?", "Restaurer" );
+
+        await expect( page.getByRole( "banner" ) ).toContainText( "Périclès, venu d'ailleurs" );
+        await expect( page.getByText( NEWER_OFFER ) ).toBeHidden();
+
+        const config = await page.evaluate( ( key ) => window.localStorage.getItem( key ), REMOTE_KEY );
+
+        expect( JSON.parse( config ?? "{}" ) ).toMatchObject( { syncedRemote: NEWER_STAMP } );
+    } );
+
+    test( "offers to update the backup after a change, and sends it", async ( { page, wiki } ) =>
+    {
+        const service = await serveSnapshot( page, sampleDataset(), SYNCED_STAMP );
+
+        await wiki.open( "/live" );
+        await arriveSynced( page, wiki, SYNCED_STAMP );
+
+        await expect( page.getByText( REMINDER ) ).toBeHidden();
+
+        await page.getByRole( "article" ).filter( { hasText: LIVE.older.title } )
+            .getByRole( "button", { name: "Supprimer" } ).click();
+        await wiki.confirm( "Supprimer cette entrée ?", "Supprimer" );
+
+        await expect( page.getByText( REMINDER ) ).toBeVisible();
+        await page.getByRole( "button", { name: "Mettre à jour la sauvegarde" } ).click();
+
+        await expect( page.getByText( REMINDER ) ).toBeHidden();
+
+        const changedAt = ( await wiki.storedOverlay() )?.changedAt;
+
+        expect( service.sent ).toHaveLength( 1 );
+        expect( service.sent[ 0 ] ).toMatchObject( { changedAt } );
     } );
 } );

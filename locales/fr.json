@@ -11,6 +11,10 @@
     "backlinks_empty": "Aucune page ne pointe encore vers celle-ci.",
     "backlinks_title": "Pages qui mènent ici",
 
+    "backup_reminder_later": "Plus tard",
+    "backup_reminder_message": "Vos dernières modifications ne sont pas encore dans la sauvegarde en ligne.",
+    "backup_reminder_send": "Mettre à jour la sauvegarde",
+
     "breaking_banner_aria": "Alerte en cours",
     "breaking_banner_badge": "Alerte",
     "breaking_banner_dismiss": "Masquer l'alerte",
@@ -559,6 +563,13 @@
     "status_picker_fieldset_legend": "Statut de la fiche",
     "status_picker_legend": "Statut",
     "status_picker_published": "Publiée",
+
+    "sync_prompt_diverged": "La sauvegarde en ligne a changé ailleurs le {remote}, et vos pages ici le {local}. Choisissez quelle version garder.",
+    "sync_prompt_ignore": "Ignorer",
+    "sync_prompt_newer": "Une sauvegarde en ligne plus récente est disponible, du {date}.",
+    "sync_prompt_older": "Vos pages, modifiées le {local}, sont plus récentes que la sauvegarde en ligne du {remote}.",
+    "sync_prompt_restore": "Récupérer la sauvegarde",
+    "sync_prompt_send": "Garder mes pages",
 
     "table_of_contents_heading": "Sommaire",
 

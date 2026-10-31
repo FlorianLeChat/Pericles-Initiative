@@ -3,13 +3,16 @@
  *
  * The service is a backup target, never a source of content. `WikiStore` remains
  * the only thing the site reads from, so this store deliberately knows nothing
- * about it: it moves opaque JSON in and out, and the component that owns the
- * panel wires it to `exportJson` and `importJson`. Coupling two state modules to
- * each other would be the easy way to make the overlay depend on the network.
+ * about it: it moves opaque JSON in and out, and `SyncStore` in
+ * `./sync.svelte.ts` wires it to `exportJson` and `importDataset`. Coupling the
+ * two state modules to each other would be the easy way to make the overlay
+ * depend on the network.
  *
- * Nothing here runs on its own. No request is ever fired by a page loading, and
- * the `pericles:remote` key does not exist until the reader configures an
- * endpoint. Working from `localStorage` alone stays a first class mode.
+ * Nothing here runs on its own. No request is fired while no endpoint is
+ * configured, and the `pericles:remote` key does not exist until the reader
+ * configures one. Once there is one, `SyncStore` reads the snapshot when the site
+ * is reached, to offer a more recent backup. Working from `localStorage` alone
+ * stays a first class mode.
  *
  * @author Claude
  */
@@ -129,7 +132,7 @@ class RemoteStore
             ...this.config,
             ...patch,
             baseUrl: patch.baseUrl === undefined ? this.config.baseUrl : patch.baseUrl.trim(),
-            ...( movedEndpoint ? { revision: null, syncedChange: null } : {} )
+            ...( movedEndpoint ? { revision: null, syncedChange: null, syncedRemote: null } : {} )
         };
 
         this.status = "idle";
@@ -140,18 +143,43 @@ class RemoteStore
     /**
      * Records that the local content is known to match the remote snapshot.
      *
-     * The marker is opaque here on purpose: this store never reads the wiki, so
-     * the panel is the one that knows the value identifies a state of the overlay.
-     * Called after a successful send, and after a restore has been installed, the
-     * two moments where both sides genuinely hold the same thing.
+     * Both markers are opaque here on purpose: this store never reads the wiki,
+     * so `SyncStore` is the one that knows what they identify. Called after a
+     * successful send, and after a restore has been installed, the two moments
+     * where both sides genuinely hold the same thing.
      *
-     * @param marker Value identifying the local content, or null to forget the synchronisation.
+     * @param local Value identifying the local content.
+     * @param snapshot Value identifying the remote snapshot.
      * @author Claude
      */
-    markSynced( marker: string | null ): void
+    markSynced( local: string | null, snapshot: string | null ): void
     {
-        this.config = { ...this.config, syncedChange: marker };
+        this.config = { ...this.config, syncedChange: local, syncedRemote: snapshot };
         this.persist();
+    }
+
+    /**
+     * Reads the snapshot stored by the service, leaving no trace of the read.
+     *
+     * Unlike `pull`, the revision is not recorded: a snapshot that is only looked
+     * at must not become the base of the next conditional write, or a send would
+     * silently overwrite the very change this read was meant to report. Nor is
+     * the status touched, so a check made in the background never disables the
+     * buttons of the data page or reports an error nobody asked about.
+     *
+     * @returns The snapshot, or null when there is none or it could not be read.
+     * @author Claude
+     */
+    async peek(): Promise<RemoteSnapshot | null>
+    {
+        try
+        {
+            return await readRemoteSnapshot( this.config );
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     /**

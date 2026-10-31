@@ -10,10 +10,12 @@
     import { asset } from "$app/paths";
     import { untrack, type Snippet } from "svelte";
     import { onNavigate } from "$app/navigation";
+    import BackupReminder from "$lib/components/layout/BackupReminder.svelte";
     import ConnectionStatus from "$lib/components/layout/ConnectionStatus.svelte";
     import BreakingBanner from "$lib/components/live/BreakingBanner.svelte";
     import SearchDialog from "$lib/components/layout/SearchDialog.svelte";
     import SiteHeader from "$lib/components/layout/SiteHeader.svelte";
+    import SyncPrompt from "$lib/components/layout/SyncPrompt.svelte";
     import * as m from "$lib/locales/messages.js";
     import { wiki } from "$lib/state/wiki.svelte";
     import type { LayoutData } from "./$types";
@@ -182,5 +184,7 @@
         </Alert>
     {/if}
 
+    <SyncPrompt />
+    <BackupReminder />
     <ConnectionStatus />
 </div>

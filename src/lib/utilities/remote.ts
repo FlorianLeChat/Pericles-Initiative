@@ -84,7 +84,8 @@ export const emptyRemoteConfig = (): RemoteConfig => ( {
     autoPush: false,
     lastPulledAt: null,
     lastPushedAt: null,
-    syncedChange: null
+    syncedChange: null,
+    syncedRemote: null
 } );
 
 /**
@@ -109,7 +110,8 @@ export const normalizeRemoteConfig = ( value: unknown ): RemoteConfig =>
         autoPush: asBoolean( raw.autoPush ),
         lastPulledAt: asNullableString( raw.lastPulledAt ),
         lastPushedAt: asNullableString( raw.lastPushedAt ),
-        syncedChange: asNullableString( raw.syncedChange )
+        syncedChange: asNullableString( raw.syncedChange ),
+        syncedRemote: asNullableString( raw.syncedRemote )
     };
 };
 
@@ -204,6 +206,11 @@ export const datasetEndpoint = ( baseUrl: string ): string =>
  * Only the `ETag` header can be replayed as `If-Match`, so the envelope's own
  * `revision` field is informational and is not used for conditional writes.
  *
+ * The `changedAt` stamp sits beside the dataset in the exported file, so it is
+ * read from the dataset itself, whichever shape wraps it. The envelope's
+ * `updatedAt` is only a fallback: it says when the server stored the bytes,
+ * not when their content last moved.
+ *
  * @param payload Parsed JSON body.
  * @param revision `ETag` of the response, when the server sent one.
  * @returns The normalised snapshot.
@@ -213,11 +220,13 @@ export const parseSnapshot = ( payload: unknown, revision: string | null ): Remo
 {
     const raw = asRecord( payload );
     const enveloped = typeof raw.dataset === "object" && raw.dataset !== null;
+    const content = enveloped ? asRecord( raw.dataset ) : raw;
+    const storedAt = enveloped ? asNullableString( raw.updatedAt ) : null;
 
     return {
-        dataset: normalizeDataset( enveloped ? raw.dataset : raw ),
+        dataset: normalizeDataset( content ),
         revision,
-        updatedAt: enveloped ? asNullableString( raw.updatedAt ) : null
+        changedAt: asNullableString( content.changedAt ) ?? storedAt
     };
 };
 

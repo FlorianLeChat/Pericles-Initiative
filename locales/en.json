@@ -11,6 +11,10 @@
     "backlinks_empty": "No page points here yet.",
     "backlinks_title": "Pages that lead here",
 
+    "backup_reminder_later": "Later",
+    "backup_reminder_message": "Your latest changes are not in the online backup yet.",
+    "backup_reminder_send": "Update the backup",
+
     "breaking_banner_aria": "Ongoing alert",
     "breaking_banner_badge": "Alert",
     "breaking_banner_dismiss": "Hide the alert",
@@ -559,6 +563,13 @@
     "status_picker_fieldset_legend": "Page status",
     "status_picker_legend": "Status",
     "status_picker_published": "Published",
+
+    "sync_prompt_diverged": "The online backup changed elsewhere on {remote}, and your pages here on {local}. Choose which version to keep.",
+    "sync_prompt_ignore": "Ignore",
+    "sync_prompt_newer": "A more recent online backup is available, from {date}.",
+    "sync_prompt_older": "Your pages, changed on {local}, are more recent than the online backup from {remote}.",
+    "sync_prompt_restore": "Restore the backup",
+    "sync_prompt_send": "Keep my pages",
 
     "table_of_contents_heading": "Contents",
 

@@ -174,6 +174,15 @@ export interface RemoteConfig {
      * stale one. Null means this browser has never been in sync with the service.
      */
     syncedChange: string | null;
+    /**
+     * Marker of the remote snapshot last known to match the local content.
+     *
+     * The counterpart of `syncedChange` on the other side: the `changedAt` the
+     * snapshot carried, or its `ETag` for a snapshot written before that stamp
+     * existed. A snapshot read later with another marker was written from
+     * somewhere else since. Null means nothing is known about what the service holds.
+     */
+    syncedRemote: string | null;
 }
 
 /** A snapshot read from the remote service, already normalised. */
@@ -181,8 +190,13 @@ export interface RemoteSnapshot {
     dataset: Dataset;
     /** `ETag` of the response, when the server sent one. */
     revision: string | null;
-    /** Server reported timestamp, only present with the enveloped shape. */
-    updatedAt: string | null;
+    /**
+     * When the content of the snapshot last changed, as stamped by the browser that sent it.
+     *
+     * Falls back on the `updatedAt` of the enveloped shape, and is null for a
+     * snapshot carrying neither, such as one sent before the stamp existed.
+     */
+    changedAt: string | null;
 }
 
 /**
