@@ -21,7 +21,7 @@ backend, a build step that writes into `static/`, or an authentication shim.
 
 ## Stack
 
-SvelteKit 2 with Svelte 5 runes, TypeScript, `adapter-static`, Tailwind CSS 4, `flowbite-svelte` for
+SvelteKit 3 with Svelte 5 runes, TypeScript, `adapter-static`, Tailwind CSS 4, `flowbite-svelte` for
 the interface components, `@lucide/svelte` for the icons, `marked` for rendering Markdown,
 `@milkdown/crepe` for authoring it, `@faker-js/faker` for the invented names the editor offers. No
 charting library: the two dashboard charts are laid out with the grid, as explained under Flowbite
@@ -51,7 +51,7 @@ Husky enforces all of it, so a mistake here fails a commit rather than a review:
   page copy, labels, button text, error messages, `aria-label`, `alt` text. The catalogue lives in
   `locales/en.json` (the base locale) and `locales/fr.json`, compiled by `@inlang/paraglide-js` into
   `src/lib/locales/` (generated, gitignored, never edited by hand). A component calls its strings
-  through `import * as m from "$lib/locales/messages.js"`, never an inline literal.
+  through `import * as m from "#lib/locales/messages.js"`, never an inline literal.
 - Message ids are `snake_case`, namespaced by the area that owns them (`nav_wiki`,
   `dashboard_stat_words`, `common_cancel` for text repeated verbatim across several places). A string
   built around interpolated data, `{ "categories_title": "Catégories · {universe}" }`, keeps only its
@@ -69,12 +69,12 @@ Husky enforces all of it, so a mistake here fails a commit rather than a review:
 - The locale is chosen by `strategy: [ "localStorage", "preferredLanguage", "baseLocale" ]` in
   `vite.config.ts`, under the `pericles:locale` key, namespaced like every other key this application
   writes to `localStorage`. A reader can also choose it explicitly from `/settings`, which calls
-  `setLocale()` from `$lib/locales/runtime` and reloads, Paraglide's own recommended pattern for a
+  `setLocale()` from `#lib/locales/runtime.js` and reloads, Paraglide's own recommended pattern for a
   manual switcher. Because the build has no runtime server, a prerendered page always bakes the base
   locale (English); the client swaps to the stored or preferred locale on hydration, which is an
   accepted flash for a statically generated, serverless site, not a defect to chase.
 - `Intl.DateTimeFormat`/`Intl.RelativeTimeFormat` read the current locale through `getLocale()` from
-  `$lib/locales/runtime` rather than a fixed tag, so date and relative-time formatting follow the
+  `#lib/locales/runtime.js` rather than a fixed tag, so date and relative-time formatting follow the
   reader's language too.
 - Identifiers that end up in data are French and lowercase: `personnage`, `evenement`, `brouillon`,
   `publie`. Keep that convention when adding one; these are data values, not UI copy, and stay outside
@@ -201,7 +201,7 @@ Two rules with no exception, because both hide the very thing these questions lo
   rule genuinely does not apply, the shape of the code is what has to say so: the search palette
   makes its hits real buttons rather than silencing the click handler warning, and the activity chart
   lays its columns down on a phone rather than silencing the tab stop warning. The single
-  `@ts-expect-error` in `svelte.config.js` predates this and covers an adapter option the types do
+  `@ts-expect-error` in `vite.config.ts` predates this and covers an adapter option the types do
   not know; it is not a precedent.
 - **No test mode in `src/`.** Nothing in the application knows the suite exists: no seed file, no
   build flag, no branch taken only under test. `src/lib/demo.ts` is not that: it is content a reader
@@ -284,7 +284,7 @@ Two rules with no exception, because both hide the very thing these questions lo
 - Shared state lives in `src/lib/state/*.svelte.ts` as a class holding `$state` fields, exported as a
   singleton. `src/lib/state/wiki.svelte.ts` is the model to follow.
 - An effect that only writes derived looking values is a smell. Reach for `$derived` first.
-- Browser only code is guarded with `browser` from `$app/environment`. Never touch `localStorage`,
+- Browser only code is guarded with `browser` from `$app/env`. Never touch `localStorage`,
   `document` or `window` during rendering, only from `$effect` or `onMount`.
 
 ## Static build constraints
@@ -309,7 +309,7 @@ Two rules with no exception, because both hide the very thing these questions lo
   and answers 404 for a page that prerendered perfectly well. `/wiki` collides the same way the day a
   backend feeds the seed. The cost is that every url carries a trailing slash, which the client router
   appends on its own, so links written without one still work and specs assert `\/wiki\/$`.
-  `Pathname` values, such as the ones in `src/lib/config/navigation.ts`, must carry it explicitly.
+  `Path` values, such as the ones in `src/lib/config/navigation.ts`, must carry it explicitly.
 - `app.html` declares no title and no description, in any of their forms. Its head is injected
   **before** `%sveltekit.head%`, so a value written there sits ahead of the one the page renders and
   wins, leaving two of each tag in the document. `PageMeta` in `src/lib/components/layout/` is the
@@ -342,7 +342,7 @@ meant to stay that short: `ConfirmDialog`, `EmptyState` and `PageHeader`, the on
 from nearly every section of the site. A fourth candidate is a signal to look again, since serving
 two domains is usually serving one of them plus a listing that happens to reuse it. A component
 imports its neighbours relatively, `./LiveItem.svelte`, and anything from another folder through the
-alias, `$lib/components/editor/EntryPicker.svelte`.
+`#lib` subpath import, `#lib/components/editor/EntryPicker.svelte`, always with its extension.
 
 ## Flowbite
 

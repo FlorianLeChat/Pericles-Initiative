@@ -5,8 +5,8 @@
      * @author Claude
      */
     import { resolve } from "$app/paths";
-    import * as m from "$lib/locales/messages.js";
-    import type { Entry } from "$lib/types";
+    import * as m from "#lib/locales/messages.js";
+    import type { Entry } from "#lib/types.ts";
 
     interface Props {
         entries: Entry[];
@@ -26,7 +26,7 @@
         <ul class="space-y-2.5 text-sm">
             {#each entries as entry ( entry.id )}
                 <li class="flex items-center gap-2">
-                    <a href={resolve( `/wiki/${ entry.slug }/` )} class="wiki-link">{entry.title}</a>
+                    <a href={resolve( `wiki/${ entry.slug }/` )} class="wiki-link">{entry.title}</a>
                 </li>
             {/each}
         </ul>

@@ -7,7 +7,7 @@
  * @author Claude
  */
 
-import type { Entry } from "$lib/types";
+import type { Entry } from "#lib/types.ts";
 import { markdownToPlainText } from "./markdown";
 import { deburr } from "./slug";
 

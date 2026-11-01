@@ -13,11 +13,11 @@
     import Fileupload from "flowbite-svelte/Fileupload.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
-    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON, ACTION_ROW } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { pluralize } from "$lib/utilities/plural";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { ACTION_BUTTON, ACTION_ROW } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
 
     let importText = $state( "" );
     let feedback = $state<{ kind: "success" | "error"; text: string } | null>( null );

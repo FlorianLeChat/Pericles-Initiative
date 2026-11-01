@@ -6,15 +6,15 @@
      */
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
-    import EmptyState from "$lib/components/EmptyState.svelte";
-    import PageHeader from "$lib/components/PageHeader.svelte";
-    import PageMeta from "$lib/components/layout/PageMeta.svelte";
-    import { staggerRank } from "$lib/config/motion";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki, type ChronologyPoint } from "$lib/state/wiki.svelte";
-    import { extractYear, formatUniverseDate } from "$lib/utilities/date";
-    import { excerpt } from "$lib/utilities/markdown";
-    import { pluralize } from "$lib/utilities/plural";
+    import EmptyState from "#lib/components/EmptyState.svelte";
+    import PageHeader from "#lib/components/PageHeader.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import { staggerRank } from "#lib/config/motion.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki, type ChronologyPoint } from "#lib/state/wiki.svelte.ts";
+    import { extractYear, formatUniverseDate } from "#lib/utilities/date.ts";
+    import { excerpt } from "#lib/utilities/markdown.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
 
     /** Heading gathering the dates no year can be read out of, such as «Le troisième hiver». */
     const UNDATED_GROUP = $derived( m.timeline_undated_group() );
@@ -95,7 +95,7 @@
                                 <div class="mt-1.5 flex flex-wrap items-baseline gap-2">
                                     <h3 class="text-lg leading-snug font-semibold tracking-tight">
                                         <a
-                                            href={resolve( `/wiki/${ point.entry.slug }/` )}
+                                            href={resolve( `wiki/${ point.entry.slug }/` )}
                                             class="hover:text-accent-600 dark:hover:text-accent-400"
                                         >
                                             {point.entry.title}

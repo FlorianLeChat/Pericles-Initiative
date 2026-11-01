@@ -15,7 +15,7 @@
  * @author Claude
  */
 
-import type { RemoteConfig, RemoteFailure, RemoteSnapshot } from "$lib/types";
+import type { RemoteConfig, RemoteFailure, RemoteSnapshot } from "#lib/types.ts";
 import { asBoolean, asNullableString, asRecord, asTrimmed, normalizeDataset } from "./dataset";
 
 /** Path appended to the configured base url, per the contract. */

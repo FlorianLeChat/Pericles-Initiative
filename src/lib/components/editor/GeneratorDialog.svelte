@@ -18,10 +18,10 @@
     import Button from "flowbite-svelte/Button.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
     import type { Faker } from "@faker-js/faker";
-    import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
-    import { filterPill } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
-    import { getLocale } from "$lib/locales/runtime";
+    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
+    import { filterPill } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { getLocale } from "#lib/locales/runtime.js";
 
     interface Props {
         open: boolean;

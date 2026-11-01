@@ -12,6 +12,9 @@
     "bugs": {
         "url": "https://github.com/FlorianLeChat/Pericles-Initiative/issues"
     },
+    "imports": {
+        "#lib/*": "./src/lib/*"
+    },
     "devDependencies": {
         "vite": "~8.3.0",
         "husky": "~9.1",
@@ -25,7 +28,7 @@
         "tailwindcss": "~4.3",
         "lint-staged": "~17.6.0",
         "svelte-check": "~4.7",
-        "@sveltejs/kit": "~2.70",
+        "@sveltejs/kit": "~3.1.0",
         "@milkdown/kit": "~7.22",
         "@lucide/svelte": "~1.61.0",
         "@faker-js/faker": "~10.6",
@@ -33,6 +36,7 @@
         "@commitlint/cli": "~21.2.0",
         "flowbite-svelte": "~1.33",
         "@tsconfig/svelte": "~5.0",
+        "@types/node": "~22.20",
         "@playwright/test": "~1.64.0",
         "@tailwindcss/vite": "~4.3",
         "typescript-eslint": "~8.72.0",
@@ -43,11 +47,11 @@
         "eslint-formatter-gitlab": "~7.2",
         "@tailwindcss/typography": "~0.5",
         "@stylistic/eslint-plugin": "~5.10",
-        "@sveltejs/adapter-static": "~3.0",
+        "@sveltejs/adapter-static": "~4.0.0",
         "@commitlint/config-conventional": "~21.2.0"
     },
     "engines": {
-        "node": ">=22.0",
+        "node": ">=22.17",
         "npm": ">=10.5"
     },
     "scripts": {

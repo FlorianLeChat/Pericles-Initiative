@@ -8,9 +8,9 @@
  * @author Claude
  */
 
-import * as m from "$lib/locales/messages.js";
-import { getLocale } from "$lib/locales/runtime";
-import type { EntryDate } from "$lib/types";
+import * as m from "#lib/locales/messages.js";
+import { getLocale } from "#lib/locales/runtime.js";
+import type { EntryDate } from "#lib/types.ts";
 
 /**
  * Builds the formatters that depend on the current locale.

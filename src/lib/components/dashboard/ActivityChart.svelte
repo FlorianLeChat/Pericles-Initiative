@@ -16,8 +16,8 @@
      *
      * @author Claude
      */
-    import { staggerRank } from "$lib/config/motion";
-    import type { ActivityPoint } from "$lib/utilities/stats";
+    import { staggerRank } from "#lib/config/motion.ts";
+    import type { ActivityPoint } from "#lib/utilities/stats.ts";
 
     interface Props {
         points: ActivityPoint[];

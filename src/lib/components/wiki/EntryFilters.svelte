@@ -22,10 +22,10 @@
     import Label from "flowbite-svelte/Label.svelte";
     import Search from "flowbite-svelte/Search.svelte";
     import Select from "flowbite-svelte/Select.svelte";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { EntryFilterState } from "$lib/types";
-    import { pluralize } from "$lib/utilities/plural";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { EntryFilterState } from "#lib/types.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
 
     interface Props {
         filters: EntryFilterState;

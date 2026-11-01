@@ -4,8 +4,8 @@
  * @author Claude
  */
 
-import * as m from "$lib/locales/messages.js";
-import type { RemoteFailure } from "$lib/types";
+import * as m from "#lib/locales/messages.js";
+import type { RemoteFailure } from "#lib/types.ts";
 
 /**
  * Sentence describing each documented failure, for a send or a restore the reader asked for.

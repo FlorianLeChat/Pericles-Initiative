@@ -9,7 +9,7 @@
      * @author Claude
      */
     import type { Snippet } from "svelte";
-    import { ACTION_ROW } from "$lib/config/forms";
+    import { ACTION_ROW } from "#lib/config/forms.ts";
 
     interface Props {
         title: string;

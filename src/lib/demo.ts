@@ -27,7 +27,7 @@
  * @author Claude
  */
 
-import type { Category, Dataset, Entry, LiveEntry } from "$lib/types";
+import type { Category, Dataset, Entry, LiveEntry } from "#lib/types.ts";
 
 /** Milliseconds in an hour, the unit every relative timestamp here is built from. */
 const HOUR = 3_600_000;

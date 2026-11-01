@@ -4,8 +4,8 @@
      *
      * @author Claude
      */
-    import * as m from "$lib/locales/messages.js";
-    import type { Heading } from "$lib/types";
+    import * as m from "#lib/locales/messages.js";
+    import type { Heading } from "#lib/types.ts";
 
     interface Props {
         headings: Heading[];

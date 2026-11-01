@@ -27,12 +27,12 @@
     import Modal from "flowbite-svelte/Modal.svelte";
     import { goto } from "$app/navigation";
     import { resolve } from "$app/paths";
-    import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
-    import { staggerRank } from "$lib/config/motion";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { pluralize } from "$lib/utilities/plural";
-    import { searchEntries } from "$lib/utilities/search";
+    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
+    import { staggerRank } from "#lib/config/motion.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import { searchEntries } from "#lib/utilities/search.ts";
 
     interface Props {
         open: boolean;
@@ -106,7 +106,7 @@
     {
         open = false;
         query = "";
-        void goto( resolve( `/wiki/${ slug }/` ) );
+        void goto( resolve( `wiki/${ slug }/` ) );
     };
 
     /**

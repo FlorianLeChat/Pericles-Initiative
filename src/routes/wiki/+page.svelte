@@ -9,17 +9,17 @@
      */
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
-    import EmptyState from "$lib/components/EmptyState.svelte";
-    import EntryCard from "$lib/components/wiki/EntryCard.svelte";
-    import EntryFilters from "$lib/components/wiki/EntryFilters.svelte";
-    import PageHeader from "$lib/components/PageHeader.svelte";
-    import PageMeta from "$lib/components/layout/PageMeta.svelte";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { EntryFilterState } from "$lib/types";
-    import { earliestDateKey } from "$lib/utilities/date";
-    import { pluralize } from "$lib/utilities/plural";
-    import { deburr } from "$lib/utilities/slug";
+    import EmptyState from "#lib/components/EmptyState.svelte";
+    import EntryCard from "#lib/components/wiki/EntryCard.svelte";
+    import EntryFilters from "#lib/components/wiki/EntryFilters.svelte";
+    import PageHeader from "#lib/components/PageHeader.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { EntryFilterState } from "#lib/types.ts";
+    import { earliestDateKey } from "#lib/utilities/date.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import { deburr } from "#lib/utilities/slug.ts";
 
     let filters = $state<EntryFilterState>( {
         query: "",

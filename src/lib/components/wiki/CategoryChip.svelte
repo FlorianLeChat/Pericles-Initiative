@@ -6,8 +6,8 @@
      */
     import Badge from "flowbite-svelte/Badge.svelte";
     import { resolve } from "$app/paths";
-    import { paletteColor } from "$lib/config/palette";
-    import type { Category } from "$lib/types";
+    import { paletteColor } from "#lib/config/palette.ts";
+    import type { Category } from "#lib/types.ts";
 
     interface Props {
         category: Category;
@@ -21,7 +21,7 @@
 </script>
 
 <Badge
-    href={resolve( `/categories/${ category.slug }/` )}
+    href={resolve( `categories/${ category.slug }/` )}
     class="gap-1.5 rounded-full px-2.5 py-1 text-xs transition hover:brightness-105 {color.chip}"
     classes={{ linkClass: "flex items-center gap-1.5" }}
 >

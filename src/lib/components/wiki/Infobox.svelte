@@ -4,10 +4,10 @@
      *
      * @author Claude
      */
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { Entry } from "$lib/types";
-    import { formatUniverseDate } from "$lib/utilities/date";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { Entry } from "#lib/types.ts";
+    import { formatUniverseDate } from "#lib/utilities/date.ts";
     import CategoryChip from "./CategoryChip.svelte";
 
     interface Props {

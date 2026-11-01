@@ -19,7 +19,7 @@
     import Kbd from "flowbite-svelte/Kbd.svelte";
     import type { Crepe as CrepeEditor } from "@milkdown/crepe";
     import { onMount } from "svelte";
-    import * as m from "$lib/locales/messages.js";
+    import * as m from "#lib/locales/messages.js";
     import EntryPicker from "./EntryPicker.svelte";
     import GeneratorDialog from "./GeneratorDialog.svelte";
 

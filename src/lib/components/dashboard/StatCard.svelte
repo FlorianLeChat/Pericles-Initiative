@@ -4,7 +4,7 @@
      *
      * @author Claude
      */
-    import { staggerRank } from "$lib/config/motion";
+    import { staggerRank } from "#lib/config/motion.ts";
 
     interface Props {
         label: string;

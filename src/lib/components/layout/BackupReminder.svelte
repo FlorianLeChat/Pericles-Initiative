@@ -17,12 +17,12 @@
     import Button from "flowbite-svelte/Button.svelte";
     import Toast from "flowbite-svelte/Toast.svelte";
     import { resolve } from "$app/paths";
-    import { motionDuration } from "$lib/config/motion";
-    import { REMOTE_FAILURE_MESSAGE } from "$lib/config/remote";
-    import * as m from "$lib/locales/messages.js";
-    import { remote } from "$lib/state/remote.svelte";
-    import { sync } from "$lib/state/sync.svelte";
-    import { wiki } from "$lib/state/wiki.svelte";
+    import { motionDuration } from "#lib/config/motion.ts";
+    import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { remote } from "#lib/state/remote.svelte.ts";
+    import { sync } from "#lib/state/sync.svelte.ts";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
 
     let online = $state( true );
     let failure = $state<string | null>( null );

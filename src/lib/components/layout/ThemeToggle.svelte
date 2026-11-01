@@ -12,8 +12,8 @@
     import { onMount } from "svelte";
     import { cubicOut } from "svelte/easing";
     import { scale } from "svelte/transition";
-    import { motionDuration } from "$lib/config/motion";
-    import * as m from "$lib/locales/messages.js";
+    import { motionDuration } from "#lib/config/motion.ts";
+    import * as m from "#lib/locales/messages.js";
 
     let dark = $state( false );
 

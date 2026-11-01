@@ -10,14 +10,14 @@
      * @author Claude
      */
     import { resolve } from "$app/paths";
-    import type { Pathname } from "$app/types";
-    import { staggerRank } from "$lib/config/motion";
-    import type { CountByKey } from "$lib/utilities/stats";
+    import type { Path } from "$app/types";
+    import { staggerRank } from "#lib/config/motion.ts";
+    import type { CountByKey } from "#lib/utilities/stats.ts";
 
     interface Props {
         items: CountByKey[];
         /** Optional link target per item. */
-        href?: ( item: CountByKey ) => Pathname;
+        href?: ( item: CountByKey ) => Path;
     }
 
     let { items, href }: Props = $props();

@@ -14,7 +14,7 @@
  * @author Claude
  */
 
-import * as m from "$lib/locales/messages.js";
+import * as m from "#lib/locales/messages.js";
 
 export const DATE_LABELS: readonly string[] = [
     m.dates_birth(),

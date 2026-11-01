@@ -27,7 +27,7 @@
  * @author Claude
  */
 
-import * as m from "$lib/locales/messages.js";
+import * as m from "#lib/locales/messages.js";
 
 export interface Accent {
     key: string;

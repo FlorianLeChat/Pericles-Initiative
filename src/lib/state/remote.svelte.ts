@@ -17,15 +17,15 @@
  * @author Claude
  */
 
-import { browser } from "$app/environment";
-import * as m from "$lib/locales/messages.js";
-import type { RemoteConfig, RemoteFailure, RemoteSnapshot, RemoteStatus } from "$lib/types";
+import { browser } from "$app/env";
+import * as m from "#lib/locales/messages.js";
+import type { RemoteConfig, RemoteFailure, RemoteSnapshot, RemoteStatus } from "#lib/types.ts";
 import { emptyRemoteConfig,
     isUsableBaseUrl,
     normalizeRemoteConfig,
     readRemoteSnapshot,
     RemoteError,
-    writeRemoteSnapshot } from "$lib/utilities/remote";
+    writeRemoteSnapshot } from "#lib/utilities/remote.ts";
 
 /** `localStorage` key holding the connection to the service. */
 const REMOTE_KEY = "pericles:remote";

@@ -14,16 +14,16 @@
     import Radio from "flowbite-svelte/Radio.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import { resolve } from "$app/paths";
-    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-    import PageHeader from "$lib/components/PageHeader.svelte";
-    import PageMeta from "$lib/components/layout/PageMeta.svelte";
-    import { colorPill, RADIO_OVERLAY } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
-    import { PALETTE, paletteColor } from "$lib/config/palette";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { Category } from "$lib/types";
-    import { pluralize } from "$lib/utilities/plural";
-    import { slugify } from "$lib/utilities/slug";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import PageHeader from "#lib/components/PageHeader.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import { colorPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { PALETTE, paletteColor } from "#lib/config/palette.ts";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { Category } from "#lib/types.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import { slugify } from "#lib/utilities/slug.ts";
 
     let editing = $state<Category | null>( null );
     let name = $state( "" );

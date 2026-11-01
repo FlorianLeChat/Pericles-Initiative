@@ -14,7 +14,7 @@
  */
 
 import { expect, test as base, type Locator, type Page } from "@playwright/test";
-import type { Dataset, Entry, Overlay } from "$lib/types";
+import type { Dataset, Entry, Overlay } from "#lib/types.ts";
 import { sampleDataset, toOverlay } from "./dataset";
 
 /** Where the application keeps the content written from this browser. */

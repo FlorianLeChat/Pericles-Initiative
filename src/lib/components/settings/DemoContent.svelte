@@ -16,12 +16,12 @@
      */
     import Alert from "flowbite-svelte/Alert.svelte";
     import Button from "flowbite-svelte/Button.svelte";
-    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
-    import { setLocale } from "$lib/locales/runtime";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { normalizeDataset } from "$lib/utilities/dataset";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { ACTION_BUTTON } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { setLocale } from "#lib/locales/runtime.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { normalizeDataset } from "#lib/utilities/dataset.ts";
 
     let confirmOpen = $state( false );
     let loading = $state( false );
@@ -43,7 +43,7 @@
             // Imported here rather than at the top of the module so the fiction sits
             // in a chunk of its own: it weighs more than the panel offering it, and a
             // reader who never asks for it never downloads it.
-            const { demoDataset } = await import( "$lib/demo" );
+            const { demoDataset } = await import( "#lib/demo.ts" );
 
             wiki.importDataset( normalizeDataset( demoDataset() ) );
 

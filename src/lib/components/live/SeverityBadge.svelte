@@ -5,7 +5,7 @@
      * @author Claude
      */
     import Badge from "flowbite-svelte/Badge.svelte";
-    import { severityConfig } from "$lib/config/severities";
+    import { severityConfig } from "#lib/config/severities.ts";
 
     interface Props {
         severity: string;

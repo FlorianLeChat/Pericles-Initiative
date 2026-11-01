@@ -7,8 +7,8 @@
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
-    import PageMeta from "$lib/components/layout/PageMeta.svelte";
-    import * as m from "$lib/locales/messages.js";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import * as m from "#lib/locales/messages.js";
 </script>
 
 <PageMeta title={m.error_title()} />
