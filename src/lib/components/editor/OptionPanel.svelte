@@ -29,7 +29,7 @@
     import ChevronUp from "@lucide/svelte/icons/chevron-up";
     import AccordionItem from "flowbite-svelte/AccordionItem.svelte";
     import type { Snippet } from "svelte";
-    import { motionDuration } from "$lib/config/motion";
+    import { motionDuration } from "#lib/config/motion.ts";
 
     interface Props {
         /** Name of the group, worn by the header. */

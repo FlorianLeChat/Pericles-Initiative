@@ -21,12 +21,12 @@
     import Label from "flowbite-svelte/Label.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
     import { resolve } from "$app/paths";
-    import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
-    import { PAIRED_ACTION, SMALL_FIELD } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { pluralize } from "$lib/utilities/plural";
-    import { deburr } from "$lib/utilities/slug";
+    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
+    import { PAIRED_ACTION, SMALL_FIELD } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import { deburr } from "#lib/utilities/slug.ts";
     import OptionPanel from "./OptionPanel.svelte";
 
     interface Props {

@@ -18,15 +18,15 @@
     import { resolve } from "$app/paths";
     import type { ResolvedPathname } from "$app/types";
     import { untrack } from "svelte";
-    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-    import { PAIRED_ACTION } from "$lib/config/forms";
-    import { motionDuration } from "$lib/config/motion";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { Entry, EntryDate, EntryStatus, InfoboxField } from "$lib/types";
-    import { countWords } from "$lib/utilities/markdown";
-    import { pluralize } from "$lib/utilities/plural";
-    import { slugify, uniqueSlug } from "$lib/utilities/slug";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { PAIRED_ACTION } from "#lib/config/forms.ts";
+    import { motionDuration } from "#lib/config/motion.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { Entry, EntryDate, EntryStatus, InfoboxField } from "#lib/types.ts";
+    import { countWords } from "#lib/utilities/markdown.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import { slugify, uniqueSlug } from "#lib/utilities/slug.ts";
     import CategoryPicker from "./CategoryPicker.svelte";
     import ChipsInput from "./ChipsInput.svelte";
     import DatesEditor from "./DatesEditor.svelte";
@@ -407,7 +407,7 @@
         const stored = store();
 
         leaving = true;
-        void goto( resolve( `/wiki/${ stored.slug }/` ) );
+        void goto( resolve( `wiki/${ stored.slug }/` ) );
     };
 
     /**
@@ -518,7 +518,7 @@
             {/if}
 
             <Button
-                href={resolve( current ? `/wiki/${ current.slug }/` : "/wiki" )}
+                href={current ? resolve( `wiki/${ current.slug }/` ) : resolve( "/wiki" )}
                 color="alternative"
                 size="sm"
                 class="h-9 {PAIRED_ACTION}"

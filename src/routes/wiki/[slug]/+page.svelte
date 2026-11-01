@@ -13,19 +13,19 @@
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
-    import ArticleBody from "$lib/components/wiki/ArticleBody.svelte";
-    import Backlinks from "$lib/components/wiki/Backlinks.svelte";
-    import CategoryChip from "$lib/components/wiki/CategoryChip.svelte";
-    import EmptyState from "$lib/components/EmptyState.svelte";
-    import Infobox from "$lib/components/wiki/Infobox.svelte";
-    import PageMeta from "$lib/components/layout/PageMeta.svelte";
-    import TableOfContents from "$lib/components/wiki/TableOfContents.svelte";
-    import { staggerRank } from "$lib/config/motion";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { Category } from "$lib/types";
-    import { formatDateTime } from "$lib/utilities/date";
-    import { excerpt, renderArticle } from "$lib/utilities/markdown";
+    import ArticleBody from "#lib/components/wiki/ArticleBody.svelte";
+    import Backlinks from "#lib/components/wiki/Backlinks.svelte";
+    import CategoryChip from "#lib/components/wiki/CategoryChip.svelte";
+    import EmptyState from "#lib/components/EmptyState.svelte";
+    import Infobox from "#lib/components/wiki/Infobox.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import TableOfContents from "#lib/components/wiki/TableOfContents.svelte";
+    import { staggerRank } from "#lib/config/motion.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { Category } from "#lib/types.ts";
+    import { formatDateTime } from "#lib/utilities/date.ts";
+    import { excerpt, renderArticle } from "#lib/utilities/markdown.ts";
 
     const slug = $derived( page.params.slug ?? "" );
     const entry = $derived( wiki.bySlug( slug ) );
@@ -75,7 +75,7 @@
                 </BreadcrumbItem>
             </Breadcrumb>
 
-            <Button href={resolve( `/edit/${ entry.slug }/` )} color="alternative" size="xs" class="rounded-full">
+            <Button href={resolve( `edit/${ entry.slug }/` )} color="alternative" size="xs" class="rounded-full">
                 {m.common_edit_action()}
             </Button>
         </div>
@@ -127,7 +127,7 @@
                                 >
                                     <div class="flex items-center gap-2">
                                         <a
-                                            href={resolve( `/wiki/${ item.slug }/` )}
+                                            href={resolve( `wiki/${ item.slug }/` )}
                                             class="stretched-link text-sm font-medium"
                                         >
                                             {item.title}
@@ -159,7 +159,7 @@
 
         <EmptyState title={m.wiki_slug_unwritten_title()} description={m.wiki_slug_unwritten_description()}>
             <Button
-                href={resolve( `/new/?slug=${ encodeURIComponent( slug ) }&titre=${ encodeURIComponent( plannedTitle ) }` )}
+                href={resolve( `new/?slug=${ encodeURIComponent( slug ) }&titre=${ encodeURIComponent( plannedTitle ) }` )}
                 color="primary"
             >
                 {m.common_create_this_entry()}

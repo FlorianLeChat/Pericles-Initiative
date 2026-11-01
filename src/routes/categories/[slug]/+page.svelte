@@ -10,13 +10,13 @@
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
-    import EmptyState from "$lib/components/EmptyState.svelte";
-    import EntryCard from "$lib/components/wiki/EntryCard.svelte";
-    import PageMeta from "$lib/components/layout/PageMeta.svelte";
-    import { paletteColor } from "$lib/config/palette";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { pluralize } from "$lib/utilities/plural";
+    import EmptyState from "#lib/components/EmptyState.svelte";
+    import EntryCard from "#lib/components/wiki/EntryCard.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import { paletteColor } from "#lib/config/palette.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
 
     const slug = $derived( page.params.slug ?? "" );
     const category = $derived( wiki.categoriesBySlug.get( slug ) );

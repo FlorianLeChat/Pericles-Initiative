@@ -6,7 +6,7 @@
      */
     import X from "@lucide/svelte/icons/x";
     import Input from "flowbite-svelte/Input.svelte";
-    import * as m from "$lib/locales/messages.js";
+    import * as m from "#lib/locales/messages.js";
 
     interface Props {
         values: string[];

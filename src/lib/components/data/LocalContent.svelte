@@ -10,10 +10,10 @@
      * @author Claude
      */
     import { resolve } from "$app/paths";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { formatDateTime } from "$lib/utilities/date";
-    import { pluralize } from "$lib/utilities/plural";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { formatDateTime } from "#lib/utilities/date.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
 
     /** Above this size the browser is close to refusing to store the overlay. */
     const STORAGE_WARNING = 3_500_000;
@@ -90,7 +90,7 @@
                     <ul class="space-y-1.5">
                         {#each storedEntries as entry ( entry.id )}
                             <li class="flex flex-wrap items-center gap-2">
-                                <a href={resolve( `/wiki/${ entry.slug }/` )} class="wiki-link">{entry.title}</a>
+                                <a href={resolve( `wiki/${ entry.slug }/` )} class="wiki-link">{entry.title}</a>
 
                                 {#if entry.status === "brouillon"}
                                     <span class="text-muted text-xs">{m.local_content_draft_tag()}</span>

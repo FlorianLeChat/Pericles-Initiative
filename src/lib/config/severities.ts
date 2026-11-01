@@ -4,8 +4,8 @@
  * @author Claude
  */
 
-import type { LiveSeverity } from "$lib/types";
-import * as m from "$lib/locales/messages.js";
+import type { LiveSeverity } from "#lib/types.ts";
+import * as m from "#lib/locales/messages.js";
 
 export interface SeverityConfig {
     id: LiveSeverity;

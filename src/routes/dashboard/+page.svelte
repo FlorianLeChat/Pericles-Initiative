@@ -6,16 +6,16 @@
      */
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
-    import ActivityChart from "$lib/components/dashboard/ActivityChart.svelte";
-    import BarChart from "$lib/components/dashboard/BarChart.svelte";
-    import StatCard from "$lib/components/dashboard/StatCard.svelte";
-    import PageHeader from "$lib/components/PageHeader.svelte";
-    import PageMeta from "$lib/components/layout/PageMeta.svelte";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { formatShortDate } from "$lib/utilities/date";
-    import { pluralize } from "$lib/utilities/plural";
-    import { computeStats } from "$lib/utilities/stats";
+    import ActivityChart from "#lib/components/dashboard/ActivityChart.svelte";
+    import BarChart from "#lib/components/dashboard/BarChart.svelte";
+    import StatCard from "#lib/components/dashboard/StatCard.svelte";
+    import PageHeader from "#lib/components/PageHeader.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { formatShortDate } from "#lib/utilities/date.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import { computeStats } from "#lib/utilities/stats.ts";
 
     const stats = $derived(
         computeStats( {
@@ -72,7 +72,7 @@
             {#if stats.byCategory.length === 0}
                 <p class="text-muted text-sm">{m.dashboard_by_category_empty()}</p>
             {:else}
-                <BarChart items={stats.byCategory} href={( item ) => `/categories/${ item.key }/`} />
+                <BarChart items={stats.byCategory} href={( item ) => `categories/${ item.key }/`} />
             {/if}
         </div>
     </section>
@@ -97,7 +97,7 @@
                 <ul class="mt-5 space-y-2.5 text-sm">
                     {#each stats.mostLinked as item ( item.entry.id )}
                         <li class="flex items-center gap-2">
-                            <a href={resolve( `/wiki/${ item.entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate">
+                            <a href={resolve( `wiki/${ item.entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate">
                                 {item.entry.title}
                             </a>
 
@@ -123,7 +123,7 @@
                     {#each stats.missing as item ( item.slug )}
                         <li class="flex items-center gap-2">
                             <a
-                                href={resolve( `/wiki/${ item.slug }/` )}
+                                href={resolve( `wiki/${ item.slug }/` )}
                                 class="wiki-link-missing min-w-0 flex-1 truncate font-mono text-xs"
                             >
                                 {item.slug}
@@ -134,7 +134,7 @@
                             </span>
 
                             <Button
-                                href={resolve( `/new/?slug=${ item.slug }` )}
+                                href={resolve( `new/?slug=${ item.slug }` )}
                                 color="alternative"
                                 size="xs"
                                 class="shrink-0 rounded-full"
@@ -168,7 +168,7 @@
                                 {#each issue.entries.slice( 0, 8 ) as entry ( entry.id )}
                                     <li>
                                         <a
-                                            href={resolve( `/wiki/${ entry.slug }/` )}
+                                            href={resolve( `wiki/${ entry.slug }/` )}
                                             class="border-paper-300 dark:border-ink-800 hover:border-accent-400 rounded-full border px-2.5 py-0.5 text-xs transition"
                                         >
                                             {entry.title}
@@ -197,7 +197,7 @@
                 <ul class="mt-5 space-y-2.5 text-sm">
                     {#each recent as entry ( entry.id )}
                         <li class="flex items-center gap-2">
-                            <a href={resolve( `/wiki/${ entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate"
+                            <a href={resolve( `wiki/${ entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate"
                                 >{entry.title}</a
                             >
 

@@ -14,8 +14,8 @@
      */
     import Button from "flowbite-svelte/Button.svelte";
     import type { Snippet } from "svelte";
-    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON } from "$lib/config/forms";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { ACTION_BUTTON } from "#lib/config/forms.ts";
 
     interface Props {
         /** Names what this card resets. */

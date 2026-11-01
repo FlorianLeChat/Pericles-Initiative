@@ -6,14 +6,14 @@
      */
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
-    import EmptyState from "$lib/components/EmptyState.svelte";
-    import PageHeader from "$lib/components/PageHeader.svelte";
-    import PageMeta from "$lib/components/layout/PageMeta.svelte";
-    import { staggerRank } from "$lib/config/motion";
-    import { paletteColor } from "$lib/config/palette";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { pluralize } from "$lib/utilities/plural";
+    import EmptyState from "#lib/components/EmptyState.svelte";
+    import PageHeader from "#lib/components/PageHeader.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import { staggerRank } from "#lib/config/motion.ts";
+    import { paletteColor } from "#lib/config/palette.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
 
     const groups = $derived(
         wiki.categories.map( ( category ) => ( {
@@ -54,7 +54,7 @@
         <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {#each groups as group, index ( group.category.slug )}
                 <a
-                    href={resolve( `/categories/${ group.category.slug }/` )}
+                    href={resolve( `categories/${ group.category.slug }/` )}
                     class="surface surface-lift rise-in hover:border-accent-300 dark:hover:border-accent-700 group flex flex-col gap-3 p-6"
                     style="--rank: {staggerRank( index )}"
                 >
@@ -93,7 +93,7 @@
                 {#each uncategorized as entry ( entry.id )}
                     <li>
                         <a
-                            href={resolve( `/wiki/${ entry.slug }/` )}
+                            href={resolve( `wiki/${ entry.slug }/` )}
                             class="border-paper-300 dark:border-ink-800 hover:border-accent-400 rounded-full border px-3 py-1.5 text-sm transition"
                         >
                             {entry.title}

@@ -13,8 +13,8 @@
  * @author Claude
  */
 
-import { DEFAULT_ACCENT } from "$lib/config/accents";
-import type { Category, Dataset, Entry, LiveEntry, Overlay } from "$lib/types";
+import { DEFAULT_ACCENT } from "#lib/config/accents.ts";
+import type { Category, Dataset, Entry, LiveEntry, Overlay } from "#lib/types.ts";
 
 export const UNIVERSE = "Périclès";
 

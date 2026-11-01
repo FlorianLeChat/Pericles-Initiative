@@ -18,9 +18,9 @@
      * @author Claude
      */
     import Radio from "flowbite-svelte/Radio.svelte";
-    import { RADIO_OVERLAY } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
-    import type { EntryStatus } from "$lib/types";
+    import { RADIO_OVERLAY } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
+    import type { EntryStatus } from "#lib/types.ts";
     import OptionPanel from "./OptionPanel.svelte";
 
     interface Props {

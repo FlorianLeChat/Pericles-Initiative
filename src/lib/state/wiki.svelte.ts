@@ -15,10 +15,10 @@
  * @author Claude
  */
 
-import { browser } from "$app/environment";
-import * as m from "$lib/locales/messages.js";
-import type { Category, Dataset, Entry, EntryDate, LiveEntry, Overlay, WikiMeta } from "$lib/types";
-import { timelineSortKey } from "$lib/utilities/date";
+import { browser } from "$app/env";
+import * as m from "#lib/locales/messages.js";
+import type { Category, Dataset, Entry, EntryDate, LiveEntry, Overlay, WikiMeta } from "#lib/types.ts";
+import { timelineSortKey } from "#lib/utilities/date.ts";
 import { buildImportOverlay,
     countOverlayContent,
     emptyDataset,
@@ -30,9 +30,9 @@ import { buildImportOverlay,
     normalizeLiveEntry,
     normalizeMetaPatch,
     normalizeOverlay,
-    withoutKey } from "$lib/utilities/dataset";
-import { extractInternalLinks, retargetInternalLinks } from "$lib/utilities/markdown";
-import { uniqueSlug } from "$lib/utilities/slug";
+    withoutKey } from "#lib/utilities/dataset.ts";
+import { extractInternalLinks, retargetInternalLinks } from "#lib/utilities/markdown.ts";
+import { uniqueSlug } from "#lib/utilities/slug.ts";
 
 /** `localStorage` key holding the unpublished changes. */
 const OVERLAY_KEY = "pericles:overlay";

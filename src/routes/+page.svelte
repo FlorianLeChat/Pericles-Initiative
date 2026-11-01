@@ -6,18 +6,18 @@
      */
     import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
-    import CategoryChip from "$lib/components/wiki/CategoryChip.svelte";
-    import EmptyState from "$lib/components/EmptyState.svelte";
-    import EntryCard from "$lib/components/wiki/EntryCard.svelte";
-    import PageMeta from "$lib/components/layout/PageMeta.svelte";
-    import SeverityBadge from "$lib/components/live/SeverityBadge.svelte";
-    import { ACTION_ROW } from "$lib/config/forms";
-    import { staggerRank } from "$lib/config/motion";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { Entry } from "$lib/types";
-    import { relativeTime } from "$lib/utilities/date";
-    import { excerpt } from "$lib/utilities/markdown";
+    import CategoryChip from "#lib/components/wiki/CategoryChip.svelte";
+    import EmptyState from "#lib/components/EmptyState.svelte";
+    import EntryCard from "#lib/components/wiki/EntryCard.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import SeverityBadge from "#lib/components/live/SeverityBadge.svelte";
+    import { ACTION_ROW } from "#lib/config/forms.ts";
+    import { staggerRank } from "#lib/config/motion.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { Entry } from "#lib/types.ts";
+    import { relativeTime } from "#lib/utilities/date.ts";
+    import { excerpt } from "#lib/utilities/markdown.ts";
 
     const featured = $derived(
         wiki.meta.featured.map( ( slug ) => wiki.bySlug( slug ) ).filter( ( entry ): entry is Entry => entry !== undefined )
@@ -129,7 +129,7 @@
 
                     <h3 class="font-serif text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
                         <a
-                            href={resolve( `/wiki/${ headline.slug }/` )}
+                            href={resolve( `wiki/${ headline.slug }/` )}
                             class="hover:text-accent-600 dark:hover:text-accent-400 stretched-link"
                         >
                             {headline.title}
@@ -141,7 +141,7 @@
                     </p>
 
                     <a
-                        href={resolve( `/wiki/${ headline.slug }/` )}
+                        href={resolve( `wiki/${ headline.slug }/` )}
                         class="wiki-link relative inline-block text-sm font-medium"
                     >
                         {m.home_read_entry()}
@@ -180,7 +180,7 @@
 
                         <span class="min-w-0 flex-1">
                             {#if item.entrySlug}
-                                <a href={resolve( `/wiki/${ item.entrySlug }/` )} class="font-medium hover:underline"
+                                <a href={resolve( `wiki/${ item.entrySlug }/` )} class="font-medium hover:underline"
                                     >{item.title}</a
                                 >
                             {:else}

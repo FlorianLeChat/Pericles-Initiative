@@ -17,11 +17,11 @@
     import X from "@lucide/svelte/icons/x";
     import Button from "flowbite-svelte/Button.svelte";
     import Input from "flowbite-svelte/Input.svelte";
-    import { DATE_LABELS } from "$lib/config/dates";
-    import { SMALL_FIELD } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
-    import type { EntryDate } from "$lib/types";
-    import { createId } from "$lib/utilities/dataset";
+    import { DATE_LABELS } from "#lib/config/dates.ts";
+    import { SMALL_FIELD } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
+    import type { EntryDate } from "#lib/types.ts";
+    import { createId } from "#lib/utilities/dataset.ts";
 
     import { tick } from "svelte";
 

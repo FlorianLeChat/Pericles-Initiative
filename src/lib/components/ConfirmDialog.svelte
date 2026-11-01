@@ -15,9 +15,9 @@
      */
     import Button from "flowbite-svelte/Button.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
-    import { MODAL_MOBILE_FULLSCREEN } from "$lib/config/dialogs";
-    import { PAIRED_ACTION } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
+    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
+    import { PAIRED_ACTION } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
 
     interface Props {
         open: boolean;

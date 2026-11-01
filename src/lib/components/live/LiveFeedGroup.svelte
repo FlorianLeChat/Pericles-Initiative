@@ -10,8 +10,8 @@
     import { flip } from "svelte/animate";
     import { cubicOut } from "svelte/easing";
     import { fly, slide } from "svelte/transition";
-    import { staggerDelay } from "$lib/config/motion";
-    import type { LiveEntry } from "$lib/types";
+    import { staggerDelay } from "#lib/config/motion.ts";
+    import type { LiveEntry } from "#lib/types.ts";
     import LiveItem from "./LiveItem.svelte";
 
     interface Props {

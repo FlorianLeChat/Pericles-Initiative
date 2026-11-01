@@ -9,7 +9,7 @@
  */
 
 import { readFile } from "node:fs/promises";
-import type { Dataset } from "$lib/types";
+import type { Dataset } from "#lib/types.ts";
 import { COUNTS, PAGES, UNIVERSE } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
 

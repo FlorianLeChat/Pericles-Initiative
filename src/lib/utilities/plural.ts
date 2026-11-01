@@ -1,4 +1,4 @@
-import { getLocale } from "$lib/locales/runtime";
+import { getLocale } from "#lib/locales/runtime.js";
 
 /**
  * Picks between the `one` and `other` form of a counted noun, for whichever locale is

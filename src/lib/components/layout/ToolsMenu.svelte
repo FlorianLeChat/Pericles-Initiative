@@ -36,14 +36,15 @@
     import Settings2 from "@lucide/svelte/icons/settings-2";
     import Dropdown from "flowbite-svelte/Dropdown.svelte";
     import { resolve } from "$app/paths";
-    import type { NavLink } from "$lib/config/navigation";
-    import * as m from "$lib/locales/messages.js";
+    import type { Path } from "$app/types";
+    import type { NavLink } from "#lib/config/navigation.ts";
+    import * as m from "#lib/locales/messages.js";
 
     interface Props {
         /** Links shown in the dropdown. */
         links: readonly NavLink[];
         /** Tells whether a link matches the current page. */
-        isActive: ( href: string ) => boolean;
+        isActive: ( href: Path ) => boolean;
     }
 
     let { links, isActive }: Props = $props();

@@ -17,14 +17,14 @@
     import Button from "flowbite-svelte/Button.svelte";
     import Toast from "flowbite-svelte/Toast.svelte";
     import { afterNavigate } from "$app/navigation";
-    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-    import { motionDuration } from "$lib/config/motion";
-    import { REMOTE_FAILURE_MESSAGE } from "$lib/config/remote";
-    import * as m from "$lib/locales/messages.js";
-    import { remote } from "$lib/state/remote.svelte";
-    import { sync } from "$lib/state/sync.svelte";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { formatDateTime } from "$lib/utilities/date";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { motionDuration } from "#lib/config/motion.ts";
+    import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { remote } from "#lib/state/remote.svelte.ts";
+    import { sync } from "#lib/state/sync.svelte.ts";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { formatDateTime } from "#lib/utilities/date.ts";
 
     let restoreOpen = $state( false );
     let sendOpen = $state( false );

@@ -11,8 +11,8 @@
      *
      * @author Claude
      */
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
 
     interface Props {
         title: string;

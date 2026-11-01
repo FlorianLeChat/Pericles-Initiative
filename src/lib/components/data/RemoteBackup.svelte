@@ -19,16 +19,16 @@
     import Helper from "flowbite-svelte/Helper.svelte";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
-    import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON, ACTION_ROW } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
-    import { REMOTE_FAILURE_MESSAGE } from "$lib/config/remote";
-    import { remote } from "$lib/state/remote.svelte";
-    import { sync } from "$lib/state/sync.svelte";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { formatDateTime } from "$lib/utilities/date";
-    import { pluralize } from "$lib/utilities/plural";
-    import { isUsableBaseUrl } from "$lib/utilities/remote";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { ACTION_BUTTON, ACTION_ROW } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
+    import { remote } from "#lib/state/remote.svelte.ts";
+    import { sync } from "#lib/state/sync.svelte.ts";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { formatDateTime } from "#lib/utilities/date.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import { isUsableBaseUrl } from "#lib/utilities/remote.ts";
 
     let baseUrl = $state( "" );
     let secret = $state( "" );

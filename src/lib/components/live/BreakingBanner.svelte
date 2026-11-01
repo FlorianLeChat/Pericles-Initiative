@@ -8,10 +8,10 @@
     import { cubicOut } from "svelte/easing";
     import { slide } from "svelte/transition";
     import { resolve } from "$app/paths";
-    import { motionDuration } from "$lib/config/motion";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import { relativeTime } from "$lib/utilities/date";
+    import { motionDuration } from "#lib/config/motion.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { relativeTime } from "#lib/utilities/date.ts";
 
     let dismissed = $state( false );
 

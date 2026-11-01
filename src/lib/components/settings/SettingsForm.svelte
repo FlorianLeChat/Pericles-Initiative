@@ -24,15 +24,15 @@
     import Radio from "flowbite-svelte/Radio.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import { resolve } from "$app/paths";
-    import { env } from "$env/dynamic/public";
+    import { PUBLIC_VERSION } from "$app/env/public";
     import { untrack } from "svelte";
     import DemoContent from "./DemoContent.svelte";
     import FeaturedPagesEditor from "./FeaturedPagesEditor.svelte";
-    import { ACCENTS } from "$lib/config/accents";
-    import { ACTION_BUTTON, colorPill, RADIO_OVERLAY } from "$lib/config/forms";
-    import * as m from "$lib/locales/messages.js";
-    import { getLocale, locales, setLocale } from "$lib/locales/runtime";
-    import { wiki } from "$lib/state/wiki.svelte";
+    import { ACCENTS } from "#lib/config/accents.ts";
+    import { ACTION_BUTTON, colorPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { getLocale, locales, setLocale } from "#lib/locales/runtime.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
 
     /** Reader facing name of each locale the catalogue supports. */
     const LANGUAGE_LABEL: Record<( typeof locales )[ number ], () => string> = {
@@ -270,7 +270,7 @@
         <div class="flex flex-wrap gap-2">
             <dt>{m.settings_form_version_label()}</dt>
 
-            <dd class="text-ink-600 dark:text-paper-300 font-medium">{env.PUBLIC_VERSION ?? "0.0.1"}</dd>
+            <dd class="text-ink-600 dark:text-paper-300 font-medium">{PUBLIC_VERSION}</dd>
         </div>
 
         <div class="flex flex-wrap gap-2">

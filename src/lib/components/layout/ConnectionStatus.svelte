@@ -23,12 +23,12 @@
     import X from "@lucide/svelte/icons/x";
     import Toast from "flowbite-svelte/Toast.svelte";
     import { resolve } from "$app/paths";
-    import { motionDuration } from "$lib/config/motion";
-    import * as m from "$lib/locales/messages.js";
-    import { remote } from "$lib/state/remote.svelte";
-    import { sync } from "$lib/state/sync.svelte";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { RemoteFailure } from "$lib/types";
+    import { motionDuration } from "#lib/config/motion.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { remote } from "#lib/state/remote.svelte.ts";
+    import { sync } from "#lib/state/sync.svelte.ts";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { RemoteFailure } from "#lib/types.ts";
 
     /**
      * How long the content has to stop changing before it is sent.

@@ -13,8 +13,8 @@
  */
 
 import { marked, type Token, type Tokens } from "marked";
-import * as m from "$lib/locales/messages.js";
-import type { Heading, RenderedArticle } from "$lib/types";
+import * as m from "#lib/locales/messages.js";
+import type { Heading, RenderedArticle } from "#lib/types.ts";
 import { slugify } from "./slug";
 import { isSafeUrl } from "./url";
 

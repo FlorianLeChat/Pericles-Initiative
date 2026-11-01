@@ -16,14 +16,14 @@
     import Select from "flowbite-svelte/Select.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import { untrack } from "svelte";
-    import EntryPicker from "$lib/components/editor/EntryPicker.svelte";
-    import ChipsInput from "$lib/components/editor/ChipsInput.svelte";
-    import { RADIO_OVERLAY, SMALL_FIELD } from "$lib/config/forms";
-    import { SEVERITIES } from "$lib/config/severities";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { LiveEntry, LiveSeverity } from "$lib/types";
-    import { fromDateTimeInput, toDateTimeInput } from "$lib/utilities/date";
+    import EntryPicker from "#lib/components/editor/EntryPicker.svelte";
+    import ChipsInput from "#lib/components/editor/ChipsInput.svelte";
+    import { RADIO_OVERLAY, SMALL_FIELD } from "#lib/config/forms.ts";
+    import { SEVERITIES } from "#lib/config/severities.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { LiveEntry, LiveSeverity } from "#lib/types.ts";
+    import { fromDateTimeInput, toDateTimeInput } from "#lib/utilities/date.ts";
 
     interface Props {
         /** Item being edited, absent when publishing a new one. */

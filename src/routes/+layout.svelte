@@ -5,19 +5,19 @@
      * @author Claude
      */
     import "../app.css";
-    import { env } from "$env/dynamic/public";
+    import * as env from "$app/env/public";
     import Alert from "flowbite-svelte/Alert.svelte";
     import { asset } from "$app/paths";
     import { untrack, type Snippet } from "svelte";
     import { onNavigate } from "$app/navigation";
-    import BackupReminder from "$lib/components/layout/BackupReminder.svelte";
-    import ConnectionStatus from "$lib/components/layout/ConnectionStatus.svelte";
-    import BreakingBanner from "$lib/components/live/BreakingBanner.svelte";
-    import SearchDialog from "$lib/components/layout/SearchDialog.svelte";
-    import SiteHeader from "$lib/components/layout/SiteHeader.svelte";
-    import SyncPrompt from "$lib/components/layout/SyncPrompt.svelte";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
+    import BackupReminder from "#lib/components/layout/BackupReminder.svelte";
+    import ConnectionStatus from "#lib/components/layout/ConnectionStatus.svelte";
+    import BreakingBanner from "#lib/components/live/BreakingBanner.svelte";
+    import SearchDialog from "#lib/components/layout/SearchDialog.svelte";
+    import SiteHeader from "#lib/components/layout/SiteHeader.svelte";
+    import SyncPrompt from "#lib/components/layout/SyncPrompt.svelte";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
     import type { LayoutData } from "./$types";
 
     interface Props {
@@ -40,7 +40,7 @@
      * lookup, which some engines only redo when the existing `<link>` changes in
      * place. A single reactive node cannot lose that race.
      */
-    const favicon = $derived( wiki.meta.logo || asset( "/assets/favicon.svg" ) );
+    const favicon = $derived( wiki.meta.logo || asset( "assets/favicon.svg" ) );
 
     /** Only the bundled default is actually an svg; an author's logo can be anything. */
     const faviconType = $derived( wiki.meta.logo ? undefined : "image/svg+xml" );
@@ -136,9 +136,9 @@
 
 <svelte:head>
     <link rel="icon" href={favicon} type={faviconType} sizes="any" />
-    <link rel="manifest" href={asset( "/manifest.webmanifest" )} crossorigin="use-credentials" />
+    <link rel="manifest" href={asset( "manifest.webmanifest" )} crossorigin="use-credentials" />
 
-    {#if env.PUBLIC_ANALYTICS_ENABLED === "true"}
+    {#if env.PUBLIC_ANALYTICS_ENABLED}
         <script
             src={env.PUBLIC_ANALYTICS_ENDPOINT + "/script.js"}
             defer

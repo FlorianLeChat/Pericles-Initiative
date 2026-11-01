@@ -9,7 +9,7 @@
  */
 
 import type { Page, Route } from "@playwright/test";
-import type { Dataset } from "$lib/types";
+import type { Dataset } from "#lib/types.ts";
 import { COUNTS, LIVE, PAGES, sampleDataset } from "./utilities/dataset";
 import { expect, REMOTE_KEY, test, type WikiHelper } from "./utilities/fixtures";
 

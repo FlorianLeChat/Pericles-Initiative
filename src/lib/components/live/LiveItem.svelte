@@ -5,12 +5,12 @@
      * @author Claude
      */
     import { resolve } from "$app/paths";
-    import { severityConfig } from "$lib/config/severities";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { LiveEntry } from "$lib/types";
-    import { formatDateTime, formatTime, relativeTime } from "$lib/utilities/date";
-    import { renderInline } from "$lib/utilities/markdown";
+    import { severityConfig } from "#lib/config/severities.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { LiveEntry } from "#lib/types.ts";
+    import { formatDateTime, formatTime, relativeTime } from "#lib/utilities/date.ts";
+    import { renderInline } from "#lib/utilities/markdown.ts";
     import SeverityBadge from "./SeverityBadge.svelte";
 
     interface Props {
@@ -60,9 +60,9 @@
 
     <div class="text-muted mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
         {#if target}
-            <a href={resolve( `/wiki/${ target.slug }/` )} class="wiki-link font-medium">{m.live_item_read_entry()}</a>
+            <a href={resolve( `wiki/${ target.slug }/` )} class="wiki-link font-medium">{m.live_item_read_entry()}</a>
         {:else if item.entrySlug}
-            <a href={resolve( `/wiki/${ item.entrySlug }/` )} class="wiki-link-missing font-medium">
+            <a href={resolve( `wiki/${ item.entrySlug }/` )} class="wiki-link-missing font-medium">
                 {m.live_item_missing_entry( { slug: item.entrySlug } )}
             </a>
         {/if}

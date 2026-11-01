@@ -5,12 +5,12 @@
      * @author Claude
      */
     import { resolve } from "$app/paths";
-    import { staggerRank } from "$lib/config/motion";
-    import * as m from "$lib/locales/messages.js";
-    import { wiki } from "$lib/state/wiki.svelte";
-    import type { Entry } from "$lib/types";
-    import { formatShortDate } from "$lib/utilities/date";
-    import { excerpt } from "$lib/utilities/markdown";
+    import { staggerRank } from "#lib/config/motion.ts";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import type { Entry } from "#lib/types.ts";
+    import { formatShortDate } from "#lib/utilities/date.ts";
+    import { excerpt } from "#lib/utilities/markdown.ts";
     import CategoryChip from "./CategoryChip.svelte";
 
     interface Props {
@@ -49,7 +49,7 @@
 
     <h3 class="text-lg leading-snug font-semibold tracking-tight">
         <a
-            href={resolve( `/wiki/${ entry.slug }/` )}
+            href={resolve( `wiki/${ entry.slug }/` )}
             class="group-hover:text-accent-600 dark:group-hover:text-accent-400 stretched-link"
         >
             {entry.title}
