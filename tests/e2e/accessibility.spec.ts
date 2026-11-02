@@ -13,8 +13,8 @@
  * @author Claude
  */
 
-import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { CATEGORIES, PAGES } from "./utilities/dataset";
 import { expect, isNarrow, test, waitForDrawer } from "./utilities/fixtures";
 

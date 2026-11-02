@@ -8,10 +8,12 @@
  * @author Claude
  */
 
-import { ACCENT_KEYS, DEFAULT_ACCENT } from "#lib/config/accents.ts";
+import { slugify } from "./slug";
+import { isSafeUrl } from "./url";
+import * as m from "#lib/locales/messages.js";
 import { PALETTE_KEYS } from "#lib/config/palette.ts";
 import { SEVERITY_IDS } from "#lib/config/severities.ts";
-import * as m from "#lib/locales/messages.js";
+import { ACCENT_KEYS, DEFAULT_ACCENT } from "#lib/config/accents.ts";
 import type { Category,
     Dataset,
     Entry,
@@ -22,8 +24,6 @@ import type { Category,
     LiveSeverity,
     Overlay,
     WikiMeta } from "#lib/types.ts";
-import { slugify } from "./slug";
-import { isSafeUrl } from "./url";
 
 const DEFAULT_COLOR = "pierre";
 

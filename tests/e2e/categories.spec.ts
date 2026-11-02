@@ -8,8 +8,33 @@
  * @author Claude
  */
 
-import { CATEGORIES, COUNTS, PAGES } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
+import type { Category, Dataset } from "#lib/types.ts";
+import { CATEGORIES, COUNTS, PAGES, sampleDataset } from "./utilities/dataset";
+
+/** A category filed under one of the sample, which keeps all of its own at the top level. */
+const PONTOONS: Category = {
+    slug: "pontons",
+    name: "Pontons",
+    description: "Les quais flottants où les cités s’amarrent.",
+    color: "vert",
+    parent: CATEGORIES.sites.slug
+};
+
+/**
+ * Builds the sample wiki with one subcategory, filed under the sites.
+ *
+ * @returns The dataset to install.
+ * @author Claude
+ */
+const nestedDataset = (): Dataset =>
+{
+    const dataset = sampleDataset();
+
+    dataset.categories.push( structuredClone( PONTOONS ) );
+
+    return dataset;
+};
 
 test.describe( "categories", () =>
 {
@@ -28,16 +53,43 @@ test.describe( "categories", () =>
     {
         await wiki.open( "/categories" );
 
-        const card = page.getByRole( "link" ).filter( { hasText: CATEGORIES.institutions.name } );
+        const link = page.getByRole( "link", { name: CATEGORIES.institutions.name, exact: true } );
+        const row = page.getByRole( "listitem" ).filter( { has: link } );
 
-        await expect( card ).toContainText( `${ COUNTS.institutions } fiches` );
-        await expect( card ).toContainText( CATEGORIES.institutions.description );
+        await expect( row ).toContainText( `${ COUNTS.institutions } fiches` );
+        await expect( row ).toContainText( CATEGORIES.institutions.description );
 
-        await card.click();
+        await link.click();
 
         await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }/$` ) );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( CATEGORIES.institutions.name );
-        await expect( page.getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
+
+        const pages = page.getByRole( "region", { name: "Fiches de cette catégorie" } );
+
+        await expect( pages.getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
+    } );
+
+    test( "files a subcategory under its parent, on the overview and on both pages", async ( { page, wiki } ) =>
+    {
+        await wiki.openWith( nestedDataset(), "/categories" );
+
+        const parentLink = page.getByRole( "link", { name: CATEGORIES.sites.name, exact: true } );
+        const parentRow = page.getByRole( "listitem" ).filter( { has: parentLink } );
+
+        await expect( parentRow.getByRole( "list" ).getByRole( "link", { name: PONTOONS.name } ) ).toBeVisible();
+
+        await parentLink.click();
+
+        const subcategories = page.getByRole( "region", { name: "Sous-catégories" } );
+
+        await subcategories.getByRole( "link", { name: PONTOONS.name } ).click();
+
+        await expect( page ).toHaveURL( new RegExp( `/categories/${ PONTOONS.slug }/$` ) );
+        await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( PONTOONS.name );
+
+        const breadcrumb = page.getByRole( "navigation", { name: "Fil d'Ariane" } );
+
+        await expect( breadcrumb.getByRole( "link", { name: CATEGORIES.sites.name } ) ).toBeVisible();
     } );
 
     test( "creates a category and refuses an address already in use", async ( { page, wiki } ) =>
@@ -63,6 +115,26 @@ test.describe( "categories", () =>
         await expect( page.getByRole( "link" ).filter( { hasText: "Routes et courants" } ) ).toBeVisible();
     } );
 
+    test( "creates a category filed under a parent", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/categories/manage" );
+
+        await page.getByLabel( "Nom" ).fill( PONTOONS.name );
+        await page.getByLabel( "Catégorie parente" ).selectOption( { label: CATEGORIES.sites.name } );
+        await page.getByRole( "button", { name: "Créer" } ).click();
+
+        await expect( page.getByText( `Rangée sous ${ CATEGORIES.sites.name }` ) ).toBeVisible();
+        expect( ( await wiki.storedOverlay() )?.categories[ PONTOONS.slug ]?.parent ).toBe( CATEGORIES.sites.slug );
+
+        await page.goto( "/categories" );
+
+        const parentRow = page.getByRole( "listitem" ).filter( {
+            has: page.getByRole( "link", { name: CATEGORIES.sites.name, exact: true } )
+        } );
+
+        await expect( parentRow.getByRole( "list" ).getByRole( "link", { name: PONTOONS.name } ) ).toBeVisible();
+    } );
+
     test( "renames a category and moves its pages to the new address", async ( { page, wiki } ) =>
     {
         await wiki.open( "/categories/manage" );
@@ -79,6 +151,22 @@ test.describe( "categories", () =>
 
         await expect( page.getByRole( "link", { name: PAGES.doctrine.title } ) ).toBeVisible();
         expect( ( await wiki.storedEntry( PAGES.doctrine.slug ) )?.categories ).toEqual( [ "doctrines-maritimes" ] );
+    } );
+
+    test( "keeps the subcategories of a renamed category filed under it", async ( { page, wiki } ) =>
+    {
+        await wiki.openWith( nestedDataset(), "/categories/manage" );
+
+        // The subcategory row names its parent too, «Rangée sous …», so it is left out by that line.
+        await page.locator( "article" ).filter( { hasText: CATEGORIES.sites.name } ).filter( { hasNotText: "Rangée sous" } )
+            .getByRole( "button", { name: "Modifier" } ).click();
+
+        await page.getByLabel( "Adresse" ).fill( "sites-du-port" );
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        await expect( page.getByText( "/categories/sites-du-port" ) ).toBeVisible();
+
+        expect( ( await wiki.storedOverlay() )?.categories[ PONTOONS.slug ]?.parent ).toBe( "sites-du-port" );
     } );
 
     test( "deletes a category and detaches its pages without erasing them", async ( { page, wiki } ) =>

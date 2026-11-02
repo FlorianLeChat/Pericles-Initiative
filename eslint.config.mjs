@@ -1,9 +1,9 @@
+import globals from "globals";
 import eslint from "@eslint/js";
 import tslint from "typescript-eslint";
-import globals from "globals";
-import stylistic from "@stylistic/eslint-plugin";
-import sveltelint from "eslint-plugin-svelte";
 import { defineConfig } from "eslint/config";
+import sveltelint from "eslint-plugin-svelte";
+import stylistic from "@stylistic/eslint-plugin";
 
 export default defineConfig(
     {

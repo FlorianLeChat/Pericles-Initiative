@@ -4,37 +4,37 @@
      *
      * @author Claude
      */
+    import { untrack } from "svelte";
+    import { resolve } from "$app/paths";
+    import ChipsInput from "./ChipsInput.svelte";
+    import * as m from "#lib/locales/messages.js";
     import Check from "@lucide/svelte/icons/check";
-    import Trash2 from "@lucide/svelte/icons/trash-2";
-    import Accordion from "flowbite-svelte/Accordion.svelte";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Checkbox from "flowbite-svelte/Checkbox.svelte";
-    import Helper from "flowbite-svelte/Helper.svelte";
+    import DatesEditor from "./DatesEditor.svelte";
+    import OptionPanel from "./OptionPanel.svelte";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
-    import Textarea from "flowbite-svelte/Textarea.svelte";
     import Toast from "flowbite-svelte/Toast.svelte";
-    import { beforeNavigate, goto } from "$app/navigation";
-    import { resolve } from "$app/paths";
-    import type { ResolvedPathname } from "$app/types";
-    import { untrack } from "svelte";
-    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { PAIRED_ACTION } from "#lib/config/forms.ts";
-    import { motionDuration } from "#lib/config/motion.ts";
-    import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
-    import type { Entry, EntryDate, EntryStatus, InfoboxField } from "#lib/types.ts";
-    import { countWords } from "#lib/utilities/markdown.ts";
-    import { pluralize } from "#lib/utilities/plural.ts";
-    import { slugify, uniqueSlug } from "#lib/utilities/slug.ts";
-    import CategoryPicker from "./CategoryPicker.svelte";
-    import ChipsInput from "./ChipsInput.svelte";
-    import DatesEditor from "./DatesEditor.svelte";
-    import EntryImageFields from "./EntryImageFields.svelte";
-    import InfoboxEditor from "./InfoboxEditor.svelte";
-    import MarkdownEditor from "./MarkdownEditor.svelte";
-    import OptionPanel from "./OptionPanel.svelte";
     import StatusPicker from "./StatusPicker.svelte";
+    import Trash2 from "@lucide/svelte/icons/trash-2";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Helper from "flowbite-svelte/Helper.svelte";
+    import type { ResolvedPathname } from "$app/types";
+    import InfoboxEditor from "./InfoboxEditor.svelte";
+    import { PAIRED_ACTION } from "#lib/config/forms.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import CategoryPicker from "./CategoryPicker.svelte";
+    import MarkdownEditor from "./MarkdownEditor.svelte";
+    import Checkbox from "flowbite-svelte/Checkbox.svelte";
+    import Textarea from "flowbite-svelte/Textarea.svelte";
+    import { beforeNavigate, goto } from "$app/navigation";
+    import { motionDuration } from "#lib/config/motion.ts";
+    import Accordion from "flowbite-svelte/Accordion.svelte";
+    import EntryImageFields from "./EntryImageFields.svelte";
+    import { slugify, uniqueSlug } from "#lib/utilities/slug.ts";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { countWords, describeLength } from "#lib/utilities/markdown.ts";
+    import type { Entry, EntryDate, EntryStatus, InfoboxField } from "#lib/types.ts";
 
     /** How long the confirmation of a save stays on screen, in milliseconds. */
     const CONFIRMATION_DELAY = 2500;
@@ -47,9 +47,6 @@
      * guide rather than a limit: nothing stops a longer one from being saved.
      */
     const SUMMARY_LENGTH = 160;
-
-    /** Words a minute, the usual figure for prose read on a screen. */
-    const READING_SPEED = 200;
 
     interface Props {
         /** Page being edited, absent when creating one. */
@@ -195,8 +192,7 @@
     const canSave = $derived( title.trim().length > 0 );
 
     const words = $derived( countWords( body ) );
-    const wordCount = $derived( pluralize( words, { one: m.common_count_mot_one, other: m.common_count_mot_other } ) );
-    const readingTime = $derived( m.entry_form_reading_time( { minutes: Math.max( 1, Math.round( words / READING_SPEED ) ) } ) );
+    const extent = $derived( describeLength( words ) );
 
     /**
      * Tells whether an infobox row carries anything at all.
@@ -495,11 +491,10 @@
                flex items-center gap-2 border-b px-4 py-3 backdrop-blur sm:-mx-6 sm:gap-3 sm:px-6"
     >
         <div class="hidden min-w-0 flex-1 sm:block">
-            <p class="text-muted text-xs tracking-wide uppercase">
-                {current ? m.entry_form_edit_heading() : m.entry_form_create_heading()}
+            <p class="truncate text-sm">
+                <span class="text-muted">{current ? m.entry_form_edit_heading() : m.entry_form_create_heading()} · </span>
+                <span class="font-medium">{title.trim() || m.entry_form_untitled()}</span>
             </p>
-
-            <p class="truncate text-sm font-medium">{title.trim() || m.entry_form_untitled()}</p>
         </div>
 
         <div class="ml-auto flex w-full shrink-0 items-center gap-2 sm:w-auto">
@@ -609,13 +604,13 @@
         </div>
     </div>
 
-    <div class="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div class="mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="min-w-0">
             <p class="field-label">{m.entry_form_body_label()}</p>
 
             <MarkdownEditor value={body} onchange={( markdown ) => ( body = markdown )} />
 
-            <p class="text-muted mt-2 text-xs">{wordCount} · {readingTime}</p>
+            <p class="text-muted mt-2 text-xs">{extent}</p>
         </div>
 
         <aside>

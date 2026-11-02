@@ -23,16 +23,18 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
+    import { goto } from "$app/navigation";
+    import Plus from "@lucide/svelte/icons/plus";
+    import * as m from "#lib/locales/messages.js";
     import Input from "flowbite-svelte/Input.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
-    import { goto } from "$app/navigation";
-    import { resolve } from "$app/paths";
-    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
-    import { staggerRank } from "#lib/config/motion.ts";
-    import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { slugify } from "#lib/utilities/slug.ts";
+    import { staggerRank } from "#lib/config/motion.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
     import { searchEntries } from "#lib/utilities/search.ts";
+    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
 
     interface Props {
         open: boolean;
@@ -46,11 +48,30 @@
     let query = $state( "" );
     let selected = $state( 0 );
 
+    /** Pages offered before anything is typed, so the palette is never an empty box. */
+    const RECENT_COUNT = 5;
+
+    const searching = $derived( query.trim().length > 0 );
+
     // Drafts are searchable too: there is no audience to hide them from.
-    const hits = $derived( query.trim().length > 0 ? searchEntries( wiki.entries, query, 8 ) : [] );
+    const hits = $derived( searching ? searchEntries( wiki.entries, query, 8 ) : [] );
+
+    /**
+     * What the arrows move through: the hits of a query, or the pages edited last
+     * while nothing is typed yet. A query matching nothing offers to create the page
+     * instead, as its one option.
+     */
+    const options = $derived(
+        searching ? hits.map( ( hit ) => hit.entry ) : wiki.recentlyUpdated.slice( 0, RECENT_COUNT )
+    );
+
+    const offersCreation = $derived( searching && hits.length === 0 );
+
+    /** Number of options the arrows can land on, the creation one included. */
+    const optionCount = $derived( offersCreation ? 1 : options.length );
 
     /** Identifier of the option the arrows are currently on, empty when there is none. */
-    const activeId = $derived( hits[ selected ] ? `recherche-resultat-${ selected }` : undefined );
+    const activeId = $derived( selected < optionCount ? `recherche-resultat-${ selected }` : undefined );
 
     /** Sentence announced to assistive technology whenever the hits change. */
     const announcement = $derived.by( () =>
@@ -110,6 +131,20 @@
     };
 
     /**
+     * Opens the editor on a new page titled after the query, and closes the palette.
+     *
+     * @author Claude
+     */
+    const createEntry = (): void =>
+    {
+        const title = query.trim();
+
+        open = false;
+        query = "";
+        void goto( resolve( `new/?slug=${ encodeURIComponent( slugify( title ) ) }&titre=${ encodeURIComponent( title ) }` ) );
+    };
+
+    /**
      * Handles arrow navigation and validation inside the palette.
      *
      * @param event Keyboard event from the input.
@@ -120,7 +155,7 @@
         if ( event.key === "ArrowDown" )
         {
             event.preventDefault();
-            selected = Math.min( selected + 1, hits.length - 1 );
+            selected = Math.min( selected + 1, optionCount - 1 );
         }
         else if ( event.key === "ArrowUp" )
         {
@@ -129,12 +164,17 @@
         }
         else if ( event.key === "Enter" )
         {
-            const hit = hits[ selected ];
+            const option = options[ selected ];
 
-            if ( hit )
+            if ( offersCreation )
             {
                 event.preventDefault();
-                openEntry( hit.entry.slug );
+                createEntry();
+            }
+            else if ( option )
+            {
+                event.preventDefault();
+                openEntry( option.slug );
             }
         }
     };
@@ -162,7 +202,7 @@
                 onkeydown={onKeydown}
                 type="text"
                 role="combobox"
-                aria-expanded={hits.length > 0}
+                aria-expanded={optionCount > 0}
                 aria-controls={LIST_ID}
                 aria-activedescendant={activeId}
                 aria-autocomplete="list"
@@ -177,42 +217,63 @@
 
     <p class="sr-only" role="status" aria-live="polite">{announcement}</p>
 
-    {#if query.trim().length === 0}
-        <p class="text-muted px-3 py-6 text-center text-sm">
-            {m.search_dialog_all_hint( { count: wiki.entries.length } )}
-        </p>
-    {:else if hits.length === 0}
-        <p class="text-muted px-3 py-6 text-center text-sm">
-            {m.search_dialog_empty( { query } )}
-        </p>
+    {#if offersCreation}
+        <p class="text-muted px-3 pt-3 pb-1 text-sm">{m.search_dialog_empty( { query } )}</p>
+    {:else if !searching && options.length > 0}
+        <p class="text-muted px-3 pt-2 pb-1 text-xs">{m.search_dialog_recent_heading()}</p>
     {/if}
 
     <ul id={LIST_ID} role="listbox" aria-label={m.search_dialog_results_aria()}>
-        {#each hits as hit, index ( hit.entry.id )}
+        {#if offersCreation}
             <li role="none">
                 <button
-                    id="recherche-resultat-{index}"
+                    id="recherche-resultat-0"
                     type="button"
                     role="option"
                     tabindex="-1"
-                    aria-selected={index === selected}
-                    class="rise-in hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full items-center
-                           gap-3 rounded-xl px-3 py-2.5 text-left transition {index === selected
-                               ? "bg-paper-100 dark:bg-ink-800"
-                               : ""}"
-                    style="--rank: {staggerRank( index )}"
-                    onclick={() => openEntry( hit.entry.slug )}
-                    onmouseenter={() => ( selected = index )}
+                    aria-selected={selected === 0}
+                    class="text-accent-600 dark:text-accent-400 hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full
+                           items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors
+                           {selected === 0 ? "bg-paper-100 dark:bg-ink-800" : ""}"
+                    onclick={createEntry}
                 >
-                    <span class="min-w-0 flex-1">
-                        <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
-
-                        {#if hit.entry.summary}
-                            <span class="text-muted block truncate text-xs">{hit.entry.summary}</span>
-                        {/if}
-                    </span>
+                    <Plus class="h-4 w-4 shrink-0" />
+                    {m.search_dialog_create( { query: query.trim() } )}
                 </button>
             </li>
-        {/each}
+        {:else}
+            {#each options as entry, index ( entry.id )}
+                <li role="none">
+                    <button
+                        id="recherche-resultat-{index}"
+                        type="button"
+                        role="option"
+                        tabindex="-1"
+                        aria-selected={index === selected}
+                        class="rise-in hover:bg-paper-100 dark:hover:bg-ink-800 flex w-full items-center gap-3 rounded-lg
+                               px-3 py-2.5 text-left transition-colors {index === selected
+                                   ? "bg-paper-100 dark:bg-ink-800"
+                                   : ""}"
+                        style="--rank: {staggerRank( index )}"
+                        onclick={() => openEntry( entry.slug )}
+                        onmouseenter={() => ( selected = index )}
+                    >
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate text-sm font-medium">{entry.title}</span>
+
+                            {#if entry.summary}
+                                <span class="text-muted block truncate text-xs">{entry.summary}</span>
+                            {/if}
+                        </span>
+                    </button>
+                </li>
+            {/each}
+        {/if}
     </ul>
+
+    {#if !searching}
+        <p class="text-muted border-paper-200 dark:border-ink-800 mt-2 border-t px-3 pt-3 pb-1 text-xs">
+            {m.search_dialog_all_hint( { count: wiki.entries.length } )}
+        </p>
+    {/if}
 </Modal>

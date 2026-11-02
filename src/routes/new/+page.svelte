@@ -8,10 +8,10 @@
      * @author Claude
      */
     import { page } from "$app/state";
-    import EntryForm from "#lib/components/editor/EntryForm.svelte";
-    import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import EntryForm from "#lib/components/editor/EntryForm.svelte";
 
     const initialSlug = $derived( page.url.searchParams.get( "slug" ) ?? "" );
     const initialTitle = $derived( page.url.searchParams.get( "titre" ) ?? "" );

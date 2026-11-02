@@ -4,8 +4,8 @@
  * @author Claude
  */
 
-import type { LiveSeverity } from "#lib/types.ts";
 import * as m from "#lib/locales/messages.js";
+import type { LiveSeverity } from "#lib/types.ts";
 
 export interface SeverityConfig {
     id: LiveSeverity;
@@ -29,8 +29,8 @@ export const SEVERITIES: readonly SeverityConfig[] = [
     {
         id: "important",
         label: m.severities_important(),
-        badge: "bg-accent-100 text-accent-700 dark:bg-accent-900/60 dark:text-accent-200",
-        dot: "bg-accent-500",
+        badge: "bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200",
+        dot: "bg-blue-600",
         weight: 1
     },
     {
@@ -43,8 +43,8 @@ export const SEVERITIES: readonly SeverityConfig[] = [
     {
         id: "breaking",
         label: m.severities_breaking(),
-        badge: "bg-alert-500 text-white",
-        dot: "bg-alert-500",
+        badge: "bg-alert-600 text-white",
+        dot: "bg-alert-600",
         weight: 3
     }
 ];

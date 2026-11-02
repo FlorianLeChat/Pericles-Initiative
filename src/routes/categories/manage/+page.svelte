@@ -4,32 +4,35 @@
      *
      * @author Claude
      */
-    import ChevronRight from "@lucide/svelte/icons/chevron-right";
-    import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
-    import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Helper from "flowbite-svelte/Helper.svelte";
+    import { resolve } from "$app/paths";
+    import * as m from "#lib/locales/messages.js";
+    import type { Category } from "#lib/types.ts";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import Radio from "flowbite-svelte/Radio.svelte";
-    import Textarea from "flowbite-svelte/Textarea.svelte";
-    import { resolve } from "$app/paths";
-    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import PageHeader from "#lib/components/PageHeader.svelte";
-    import PageMeta from "#lib/components/layout/PageMeta.svelte";
-    import { colorPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
-    import * as m from "#lib/locales/messages.js";
-    import { PALETTE, paletteColor } from "#lib/config/palette.ts";
     import { wiki } from "#lib/state/wiki.svelte.ts";
-    import type { Category } from "#lib/types.ts";
-    import { pluralize } from "#lib/utilities/plural.ts";
     import { slugify } from "#lib/utilities/slug.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Helper from "flowbite-svelte/Helper.svelte";
+    import Select from "flowbite-svelte/Select.svelte";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import Textarea from "flowbite-svelte/Textarea.svelte";
+    import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
+    import PageHeader from "#lib/components/PageHeader.svelte";
+    import ChevronRight from "@lucide/svelte/icons/chevron-right";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import { PALETTE, paletteColor } from "#lib/config/palette.ts";
+    import { colorPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
+    import { categoryChildren, categoryDescendants } from "#lib/utilities/categories.ts";
 
     let editing = $state<Category | null>( null );
     let name = $state( "" );
     let slug = $state( "" );
     let description = $state( "" );
     let color = $state( "bleu" );
+    let parent = $state( "" );
     let slugLocked = $state( false );
 
     let pendingDeletion = $state<Category | null>( null );
@@ -37,6 +40,25 @@
 
     const isEditing = $derived( editing !== null );
     const canSave = $derived( name.trim().length > 0 );
+
+    const tree = $derived( categoryChildren( wiki.categories ) );
+
+    /**
+     * Categories the one in the form may be filed under: never itself, nor anything already filed
+     * beneath it, which would close a loop with no root left to list it from.
+     */
+    const parentOptions = $derived.by( () =>
+    {
+        if ( !editing )
+        {
+            return wiki.categories;
+        }
+
+        const excluded = categoryDescendants( editing.slug, tree );
+        excluded.add( editing.slug );
+
+        return wiki.categories.filter( ( category ) => !excluded.has( category.slug ) );
+    } );
 
     const slugTaken = $derived.by( () =>
     {
@@ -70,6 +92,7 @@
         slug = "";
         description = "";
         color = "bleu";
+        parent = "";
         slugLocked = false;
     };
 
@@ -86,6 +109,7 @@
         slug = category.slug;
         description = category.description;
         color = category.color;
+        parent = category.parent ?? "";
         slugLocked = true;
     };
 
@@ -101,15 +125,16 @@
             return;
         }
 
+        const previousSlug = editing?.slug;
         wiki.saveCategory(
             {
                 slug: slugify( slug || name ),
                 name: name.trim(),
                 description: description.trim(),
                 color,
-                parent: null
+                parent: parent || null
             },
-            editing?.slug
+            previousSlug
         );
 
         reset();
@@ -163,20 +188,33 @@
         </PageHeader>
     </div>
 
-    <div class="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <div class="space-y-3">
+    <div class="mt-10 grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div
+            class={wiki.categories.length === 0
+                ? ""
+                : "divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 divide-y border-y"}
+        >
             {#each wiki.categories as category ( category.slug )}
                 {@const count = wiki.entriesInCategory( category.slug, true ).length}
+                {@const parentCategory = category.parent ? wiki.categoriesBySlug.get( category.parent ) : undefined}
 
-                <article class="surface flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+                <article class="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:gap-4">
                     <div class="flex min-w-0 flex-1 items-start gap-3">
-                        <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full {paletteColor( category.color ).dot}"
+                        <span
+                            class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full {paletteColor( category.color ).dot}"
+                            aria-hidden="true"
                         ></span>
 
                         <div class="min-w-0">
                             <p class="text-sm font-medium">{category.name}</p>
 
                             <p class="text-muted truncate font-mono text-xs">/categories/{category.slug}</p>
+
+                            {#if parentCategory}
+                                <p class="text-muted mt-1 text-xs">
+                                    {m.categories_manage_parent_note( { name: parentCategory.name } )}
+                                </p>
+                            {/if}
 
                             {#if category.description}
                                 <p class="text-muted mt-1 line-clamp-2 text-xs leading-relaxed">
@@ -219,15 +257,13 @@
                         </Button>
                     </div>
                 </article>
-            {/each}
-
-            {#if wiki.categories.length === 0}
+            {:else}
                 <p
                     class="border-paper-300 dark:border-ink-800 text-muted rounded-2xl border border-dashed px-6 py-10 text-center text-sm"
                 >
                     {m.categories_manage_empty_list()}
                 </p>
-            {/if}
+            {/each}
         </div>
 
         <form
@@ -238,11 +274,11 @@
                 submit();
             }}
         >
-            <p class="text-muted text-xs tracking-wide uppercase">
+            <h2 class="section-heading">
                 {isEditing
                     ? m.categories_manage_form_editing_title( { name: editing?.name ?? "" } )
                     : m.categories_manage_form_new_title()}
-            </p>
+            </h2>
 
             <div>
                 <Label for="category-name" class="field-label">{m.categories_manage_field_name_label()}</Label>
@@ -290,6 +326,18 @@
                     class="w-full resize-y"
                     placeholder={m.categories_manage_field_description_placeholder()}
                 />
+            </div>
+
+            <div>
+                <Label for="category-parent" class="field-label">{m.categories_manage_field_parent_label()}</Label>
+
+                <Select id="category-parent" bind:value={parent} placeholder="">
+                    <option value="">{m.categories_manage_field_parent_none()}</option>
+
+                    {#each parentOptions as option ( option.slug )}
+                        <option value={option.slug}>{option.name}</option>
+                    {/each}
+                </Select>
             </div>
 
             <fieldset>

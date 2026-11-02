@@ -13,15 +13,16 @@
      * @author Claude
      */
     import "@milkdown/crepe/theme/common/style.css";
-    import Link from "@lucide/svelte/icons/link";
-    import Sparkles from "@lucide/svelte/icons/sparkles";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Kbd from "flowbite-svelte/Kbd.svelte";
-    import type { Crepe as CrepeEditor } from "@milkdown/crepe";
     import { onMount } from "svelte";
+    import Link from "@lucide/svelte/icons/link";
+    import Kbd from "flowbite-svelte/Kbd.svelte";
     import * as m from "#lib/locales/messages.js";
     import EntryPicker from "./EntryPicker.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Sparkles from "@lucide/svelte/icons/sparkles";
     import GeneratorDialog from "./GeneratorDialog.svelte";
+    import { platform } from "#lib/state/platform.svelte.ts";
+    import type { Crepe as CrepeEditor } from "@milkdown/crepe";
 
     interface Props {
         /** Initial Markdown. */
@@ -201,7 +202,7 @@
         >
             <Link class="h-3.5 w-3.5" />
             {m.markdown_editor_link_button()}
-            <Kbd class="ml-1 px-1 py-0.5 text-[10px] font-normal">{m.markdown_editor_link_shortcut()}</Kbd>
+            <Kbd class="ml-1 px-1 py-0.5 text-xs font-normal">{platform.apple ? m.markdown_editor_link_shortcut_apple() : m.markdown_editor_link_shortcut()}</Kbd>
         </Button>
 
         <Button

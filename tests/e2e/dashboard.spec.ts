@@ -7,9 +7,9 @@
  * @author Claude
  */
 
+import { expect, test } from "./utilities/fixtures";
 import type { Locator, Page } from "@playwright/test";
 import { CATEGORIES, COUNTS, MISSING_SLUG, PAGES } from "./utilities/dataset";
-import { expect, test } from "./utilities/fixtures";
 
 /** How many months the activity chart draws, as `buildActivity` counts them. */
 const ACTIVITY_MONTHS = 12;
@@ -32,15 +32,18 @@ const panel = ( page: Page, heading: string ): Locator =>
     page.locator( "section" ).filter( { has: page.getByRole( "heading", { name: heading, exact: true } ) } );
 
 /**
- * Locates one figure of the dashboard, by its label.
+ * Locates one figure of the summary row, by its label.
  *
  * @param page Page under test.
  * @param label Label of the figure.
- * @returns The card holding it.
+ * @returns The cell holding the label, the figure and its hint.
  * @author Claude
  */
 const figure = ( page: Page, label: string ): Locator =>
-    page.getByRole( "main" ).locator( "div" ).filter( { has: page.locator( `p:text-is("${ label }")` ) } ).last();
+    page.getByRole( "main" ).locator( "dl > div" ).filter( { has: page.locator( `dt:text-is("${ label }")` ) } );
+
+/** How the dashboard titles a page nobody wrote yet: its slug, spaced, with a capital. */
+const MISSING_TITLE = "Conseil des parties";
 
 test.describe( "dashboard", () =>
 {
@@ -70,12 +73,15 @@ test.describe( "dashboard", () =>
 
         const missing = panel( page, "Pages à écrire" );
 
-        await expect( missing ).toContainText( MISSING_SLUG );
+        const redLink = missing.getByRole( "link", { name: MISSING_TITLE, exact: true } );
+
+        await expect( redLink ).toHaveClass( /wiki-link-missing/ );
+        await expect( redLink ).toHaveAttribute( "href", `/wiki/${ MISSING_SLUG }/` );
         await expect( missing ).toContainText( "citée 1 fois" );
 
-        await missing.getByRole( "link", { name: "Créer" } ).click();
+        await missing.getByRole( "link", { name: `Créer la fiche « ${ MISSING_TITLE } »` } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/new/\\?slug=${ MISSING_SLUG }$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/new/\\?slug=${ MISSING_SLUG }&titre=` ) );
     } );
 
     test( "spreads the edition activity over the last twelve months", async ( { page, wiki } ) =>

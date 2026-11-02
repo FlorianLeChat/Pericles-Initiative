@@ -13,9 +13,9 @@
  * @author Claude
  */
 
-import { expect, test as base, type Locator, type Page } from "@playwright/test";
-import type { Dataset, Entry, Overlay } from "#lib/types.ts";
 import { sampleDataset, toOverlay } from "./dataset";
+import type { Dataset, Entry, Overlay } from "#lib/types.ts";
+import { expect, test as base, type Page } from "@playwright/test";
 
 /** Where the application keeps the content written from this browser. */
 const OVERLAY_KEY = "pericles:overlay";
@@ -105,17 +105,6 @@ export const waitForDrawer = async ( page: Page ): Promise<void> =>
 {
     await expect( page.getByRole( "dialog", { name: "Navigation du site" } ) ).toBeHidden();
 };
-
-/**
- * Locates one figure of the home page hero, by its label.
- *
- * @param page Page under test.
- * @param label Label of the figure, such as `Fiches`.
- * @returns The element holding the number.
- * @author Claude
- */
-export const heroFigure = ( page: Page, label: string ): Locator =>
-    page.locator( `main dl > div:has(dt:text-is("${ label }")) dd` );
 
 /**
  * Builds the helper handed to every spec.

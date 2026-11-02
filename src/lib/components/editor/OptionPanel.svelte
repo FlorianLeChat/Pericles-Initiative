@@ -25,11 +25,11 @@
      *
      * @author Claude
      */
-    import ChevronDown from "@lucide/svelte/icons/chevron-down";
-    import ChevronUp from "@lucide/svelte/icons/chevron-up";
-    import AccordionItem from "flowbite-svelte/AccordionItem.svelte";
     import type { Snippet } from "svelte";
     import { motionDuration } from "#lib/config/motion.ts";
+    import ChevronUp from "@lucide/svelte/icons/chevron-up";
+    import ChevronDown from "@lucide/svelte/icons/chevron-down";
+    import AccordionItem from "flowbite-svelte/AccordionItem.svelte";
 
     interface Props {
         /** Name of the group, worn by the header. */

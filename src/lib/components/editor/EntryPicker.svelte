@@ -12,13 +12,13 @@
      *
      * @author Claude
      */
+    import * as m from "#lib/locales/messages.js";
     import Input from "flowbite-svelte/Input.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
-    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
-    import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
-    import { searchEntries } from "#lib/utilities/search.ts";
     import { slugify } from "#lib/utilities/slug.ts";
+    import { searchEntries } from "#lib/utilities/search.ts";
+    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
 
     interface Props {
         open: boolean;

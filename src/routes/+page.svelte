@@ -1,233 +1,318 @@
 <script lang="ts">
     /**
-     * Home page: an editorial entry point into the encyclopedia.
+     * Home page: the front page of the universe.
+     *
+     * Opens on the universe itself, its name, its description and a way to
+     * search it, then puts the chosen pages forward, and beside each other the
+     * latest edits and the latest dispatches. Figures belong to the dashboard,
+     * not to a reader's first screen.
      *
      * @author Claude
      */
-    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
-    import CategoryChip from "#lib/components/wiki/CategoryChip.svelte";
-    import EmptyState from "#lib/components/EmptyState.svelte";
-    import EntryCard from "#lib/components/wiki/EntryCard.svelte";
-    import PageMeta from "#lib/components/layout/PageMeta.svelte";
-    import SeverityBadge from "#lib/components/live/SeverityBadge.svelte";
-    import { ACTION_ROW } from "#lib/config/forms.ts";
-    import { staggerRank } from "#lib/config/motion.ts";
-    import * as m from "#lib/locales/messages.js";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Pin from "@lucide/svelte/icons/pin";
     import type { Entry } from "#lib/types.ts";
-    import { relativeTime } from "#lib/utilities/date.ts";
+    import Kbd from "flowbite-svelte/Kbd.svelte";
+    import * as m from "#lib/locales/messages.js";
+    import Search from "@lucide/svelte/icons/search";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { search } from "#lib/state/search.svelte.ts";
     import { excerpt } from "#lib/utilities/markdown.ts";
+    import { relativeTime } from "#lib/utilities/date.ts";
+    import { platform } from "#lib/state/platform.svelte.ts";
+    import { callNumber } from "#lib/utilities/catalogue.ts";
+    import EmptyState from "#lib/components/EmptyState.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import CategoryChip from "#lib/components/wiki/CategoryChip.svelte";
+    import SeverityBadge from "#lib/components/live/SeverityBadge.svelte";
+
+    /** Pages listed beside the lead one, under «À la une». */
+    const FEATURED_LIST_LENGTH = 3;
+
+    /** Pages listed under the latest edits. */
+    const LATEST_LENGTH = 6;
+
+    /** Dispatches shown from the live feed. */
+    const LIVE_LENGTH = 4;
+
+    /** Hairlines between the rows of every list on this page, and around them. */
+    const HAIRLINE_LIST = "divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 divide-y";
+
+    const isEmpty = $derived( wiki.entries.length === 0 );
 
     const featured = $derived(
-        wiki.meta.featured.map( ( slug ) => wiki.bySlug( slug ) ).filter( ( entry ): entry is Entry => entry !== undefined )
+        wiki.meta.featured
+            .map( ( slug ) => wiki.bySlug( slug ) )
+            .filter( ( entry ): entry is Entry => entry !== undefined )
     );
 
-    const headline = $derived( featured[ 0 ] );
-    const secondary = $derived( featured.slice( 1, 3 ) );
+    const lead = $derived( featured[ 0 ] );
+    const featuredList = $derived( featured.slice( 1, 1 + FEATURED_LIST_LENGTH ) );
 
-    const headlineCategories = $derived(
-        ( headline?.categories ?? [] )
-            .map( ( slug ) => wiki.categoriesBySlug.get( slug ) )
-            .filter( ( category ) => category !== undefined )
+    // A page already put forward would otherwise appear twice on the same screen.
+    const featuredIds = $derived( new Set( featured.map( ( entry ) => entry.id ) ) );
+
+    const latest = $derived(
+        wiki.recentlyUpdated
+            .filter( ( entry ) => entry.status === "publie" && !featuredIds.has( entry.id ) )
+            .slice( 0, LATEST_LENGTH )
     );
 
-    const latest = $derived( wiki.recentlyUpdated.filter( ( entry ) => entry.status === "publie" ).slice( 0, 6 ) );
+    const latestLive = $derived( wiki.live.slice( 0, LIVE_LENGTH ) );
 
-    const latestLive = $derived( wiki.live.slice( 0, 4 ) );
+    const hasBothColumns = $derived( latest.length > 0 && latestLive.length > 0 );
+
+    const columns = $derived( hasBothColumns ? "lg:grid-cols-2" : "" );
 
     const categoryCounts = $derived(
         wiki.categories
             .map( ( category ) => ( { category, count: wiki.entriesInCategory( category.slug ).length } ) )
             .sort( ( a, b ) => b.count - a.count )
     );
+
+    const shortcut = $derived( platform.apple ? m.site_header_shortcut_label_apple() : m.site_header_shortcut_label() );
+
+    /**
+     * Call number of a page, from its first category.
+     *
+     * @param entry The page.
+     * @returns Its call number.
+     * @author Claude
+     */
+    const referenceOf = ( entry: Entry ): string =>
+    {
+        const firstCategory = wiki.categoriesBySlug.get( entry.categories[ 0 ] ?? "" );
+
+        return callNumber( entry, firstCategory );
+    };
+
+    /**
+     * What a listing says of a page: its summary, or the start of its body.
+     *
+     * @param entry The page.
+     * @param length Longest excerpt taken from the body.
+     * @returns A sentence or two.
+     * @author Claude
+     */
+    const leadOf = ( entry: Entry, length: number ): string => entry.summary || excerpt( entry.body, length );
 </script>
 
 <PageMeta title={wiki.meta.universe} />
 
-<section class="border-paper-200 dark:border-ink-800 border-b">
-    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <p
-            class="text-accent-600 dark:text-accent-400 rise-in text-xs font-medium tracking-[0.2em] uppercase"
-            style="--rank: 0"
-        >
-            {m.home_hero_eyebrow()}
-        </p>
-
+<section class="border-paper-200 dark:border-ink-800 border-b" aria-labelledby="home-title">
+    <div class="mx-auto max-w-6xl px-4 pt-8 pb-8 sm:px-6 sm:pt-14 sm:pb-12">
         <h1
-            class="rise-in mt-4 max-w-3xl font-serif text-4xl leading-[1.05] font-semibold tracking-tight sm:text-6xl"
-            style="--rank: 1"
+            id="home-title"
+            class="text-ink-900 dark:text-paper-100 rise-in max-w-3xl font-serif text-4xl leading-tight font-semibold
+                   tracking-tight sm:text-5xl"
+            style="--rank: 0"
         >
             {wiki.meta.universe}
         </h1>
 
-        <p
-            class="text-ink-600 dark:text-paper-300 rise-in mt-6 max-w-2xl text-lg leading-relaxed sm:text-xl"
-            style="--rank: 2"
-        >
-            {wiki.meta.description}
-        </p>
+        <span class="title-rule" aria-hidden="true"></span>
 
-        <div class="rise-in mt-9 {ACTION_ROW}" style="--rank: 3">
-            <Button href={resolve( "/wiki" )} color="primary" size="lg">{m.home_hero_browse_button()}</Button>
-            <Button href={resolve( "/categories" )} color="alternative" size="lg">
-                {m.home_hero_categories_button()}
-            </Button>
-        </div>
+        {#if wiki.meta.description}
+            <p
+                class="text-ink-600 dark:text-paper-300 rise-in mt-4 max-w-2xl text-lg leading-relaxed text-pretty"
+                style="--rank: 1"
+            >
+                {wiki.meta.description}
+            </p>
+        {/if}
 
-        <dl
-            class="border-paper-200 dark:border-ink-800 rise-in mt-14 grid grid-cols-2 gap-6 border-t pt-8 sm:grid-cols-4"
-            style="--rank: 4"
-        >
-            <div>
-                <dt class="text-muted text-xs tracking-wide uppercase">{m.common_entries_label()}</dt>
-                <dd class="font-serif text-3xl font-semibold">{wiki.publishedEntries.length}</dd>
+        {#if !isEmpty}
+            <div class="rise-in mt-6 max-w-xl" style="--rank: 2">
+                <button
+                    type="button"
+                    class="border-paper-300 text-muted hover:border-paper-400 dark:border-ink-700 dark:bg-ink-900
+                           dark:hover:border-ink-600 flex h-12 w-full items-center gap-3 rounded-full border bg-white
+                           px-5 text-left transition-colors"
+                    onclick={() => ( search.open = true )}
+                >
+                    <Search class="h-5 w-5 shrink-0" aria-hidden="true" />
+
+                    <span class="flex-1 truncate">{m.home_search_label()}</span>
+
+                    <Kbd
+                        class="dark:bg-ink-800 dark:border-ink-700 bg-paper-100 hidden px-1.5 py-1 font-sans text-xs
+                               leading-none font-normal sm:inline-flex"
+                    >
+                        {shortcut}
+                    </Kbd>
+                </button>
+
+                <p class="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                    <a href={resolve( "/wiki" )} class="wiki-link">{m.home_hero_browse_button()}</a>
+                    <a href={resolve( "/categories" )} class="wiki-link">{m.home_hero_categories_button()}</a>
+                </p>
             </div>
-
-            <div>
-                <dt class="text-muted text-xs tracking-wide uppercase">{m.common_categories_label()}</dt>
-                <dd class="font-serif text-3xl font-semibold">{wiki.categories.length}</dd>
-            </div>
-
-            <div>
-                <dt class="text-muted text-xs tracking-wide uppercase">{m.home_stat_dated()}</dt>
-                <dd class="font-serif text-3xl font-semibold">{wiki.datedEntries.length}</dd>
-            </div>
-
-            <div>
-                <dt class="text-muted text-xs tracking-wide uppercase">{m.home_stat_drafts()}</dt>
-                <dd class="font-serif text-3xl font-semibold">{wiki.drafts.length}</dd>
-            </div>
-        </dl>
+        {/if}
     </div>
 </section>
 
-{#if headline}
-    <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h2 class="font-serif text-2xl font-semibold tracking-tight">{m.home_featured_heading()}</h2>
+{#if isEmpty}
+    <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <EmptyState title={m.common_empty_wiki_title()} description={m.common_empty_wiki_description()}>
+            <Button href={resolve( "/new" )} color="primary">{m.common_create_entry()}</Button>
+            <a href={resolve( "/settings" )} class="wiki-link text-sm">{m.home_empty_demo_link()}</a>
+        </EmptyState>
+    </div>
+{:else}
+    <div class="pb-16">
+        {#if lead}
+            <section class="mx-auto max-w-6xl px-4 pt-8 sm:px-6 sm:pt-12" aria-labelledby="home-featured">
+                <h2 id="home-featured" class="section-heading">{m.home_featured_heading()}</h2>
 
-        <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-            <article class="surface surface-lift rise-in group relative overflow-hidden">
-                {#if headline.image}
-                    <img
-                        src={headline.image.src}
-                        alt={headline.image.alt}
-                        class="aspect-[16/7] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                        loading="lazy"
-                        decoding="async"
-                    />
+                <div class="mt-5 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-10">
+                    <article class="group relative">
+                        {#if lead.image}
+                            <img
+                                src={lead.image.src}
+                                alt={lead.image.alt}
+                                class="border-paper-200 dark:border-ink-800 mb-5 aspect-[16/8] w-full rounded-xl border
+                                       object-cover"
+                                loading="lazy"
+                                decoding="async"
+                            />
+                        {/if}
+
+                        <h3 class="text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
+                            <a
+                                href={resolve( `wiki/${ lead.slug }/` )}
+                                class="group-hover:text-accent-600 dark:group-hover:text-accent-400 stretched-link"
+                            >
+                                {lead.title}
+                            </a>
+                        </h3>
+
+                        <p class="text-ink-600 dark:text-paper-300 mt-3 max-w-2xl leading-relaxed text-pretty">
+                            {leadOf( lead, 280 )}
+                        </p>
+
+                        <p class="call-number mt-3">{referenceOf( lead )}</p>
+                    </article>
+
+                    {#if featuredList.length > 0}
+                        <ul class="border-t lg:border-t-0 {HAIRLINE_LIST}">
+                            {#each featuredList as entry ( entry.id )}
+                                <li class="group relative py-4 first:pt-4 lg:first:pt-0">
+                                    <h3 class="text-lg leading-snug font-semibold tracking-tight">
+                                        <a
+                                            href={resolve( `wiki/${ entry.slug }/` )}
+                                            class="group-hover:text-accent-600 dark:group-hover:text-accent-400
+                                                   stretched-link"
+                                        >
+                                            {entry.title}
+                                        </a>
+                                    </h3>
+
+                                    <p class="text-muted mt-1 line-clamp-2 text-sm leading-relaxed">
+                                        {leadOf( entry, 160 )}
+                                    </p>
+
+                                    <p class="call-number mt-2">{referenceOf( entry )}</p>
+                                </li>
+                            {/each}
+                        </ul>
+                    {/if}
+                </div>
+            </section>
+        {/if}
+
+        {#if latest.length > 0 || latestLive.length > 0}
+            <div
+                class="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 pt-12 sm:px-6 {columns}
+                       lg:gap-16"
+            >
+                {#if latest.length > 0}
+                    <section aria-labelledby="home-latest">
+                        <div class="flex items-baseline justify-between gap-4">
+                            <h2 id="home-latest" class="section-heading">{m.common_recent_changes_heading()}</h2>
+
+                            <a href="{resolve( "wiki/" )}?tri=recent" class="wiki-link text-sm">{m.home_recent_see_all()}</a>
+                        </div>
+
+                        <ul class="mt-4 border-y {HAIRLINE_LIST}">
+                            {#each latest as entry ( entry.id )}
+                                <li class="group relative flex items-baseline gap-4 py-3">
+                                    <div class="min-w-0 flex-1">
+                                        <h3 class="leading-snug font-medium">
+                                            <a
+                                                href={resolve( `wiki/${ entry.slug }/` )}
+                                                class="group-hover:text-accent-600 dark:group-hover:text-accent-400
+                                                       stretched-link"
+                                            >
+                                                {entry.title}
+                                            </a>
+                                        </h3>
+
+                                        <p class="text-muted mt-0.5 truncate text-sm">{leadOf( entry, 120 )}</p>
+                                    </div>
+
+                                    <time datetime={entry.updatedAt} class="text-muted shrink-0 text-xs">
+                                        {relativeTime( entry.updatedAt )}
+                                    </time>
+                                </li>
+                            {/each}
+                        </ul>
+                    </section>
                 {/if}
 
-                <div class="space-y-4 p-6 sm:p-8">
-                    {#if headlineCategories.length > 0}
-                        <div class="flex flex-wrap items-center gap-2">
-                            {#each headlineCategories as category ( category.slug )}
-                                <CategoryChip {category} />
-                            {/each}
+                {#if latestLive.length > 0}
+                    <section aria-labelledby="home-live">
+                        <div class="flex items-baseline justify-between gap-4">
+                            <h2 id="home-live" class="section-heading">{m.common_live_label()}</h2>
+
+                            <a href={resolve( "/live" )} class="wiki-link text-sm">{m.home_live_see_all()}</a>
                         </div>
-                    {/if}
 
-                    <h3 class="font-serif text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
-                        <a
-                            href={resolve( `wiki/${ headline.slug }/` )}
-                            class="hover:text-accent-600 dark:hover:text-accent-400 stretched-link"
-                        >
-                            {headline.title}
-                        </a>
-                    </h3>
+                        <ul class="mt-4 border-y {HAIRLINE_LIST}">
+                            {#each latestLive as item ( item.id )}
+                                <li class="group relative py-3">
+                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                        <SeverityBadge severity={item.severity} />
 
-                    <p class="text-ink-500 dark:text-paper-300/80 leading-relaxed">
-                        {headline.summary || excerpt( headline.body, 240 )}
-                    </p>
+                                        {#if item.pinned}
+                                            <span class="text-muted inline-flex items-center gap-1 text-xs">
+                                                <Pin class="h-3.5 w-3.5" aria-hidden="true" />
+                                                {m.live_item_pinned_badge()}
+                                            </span>
+                                        {/if}
 
-                    <a
-                        href={resolve( `wiki/${ headline.slug }/` )}
-                        class="wiki-link relative inline-block text-sm font-medium"
-                    >
-                        {m.home_read_entry()}
-                    </a>
+                                        <time datetime={item.publishedAt} class="text-muted ml-auto text-xs">
+                                            {relativeTime( item.publishedAt )}
+                                        </time>
+                                    </div>
+
+                                    <a
+                                        href={item.entrySlug
+                                            ? resolve( `wiki/${ item.entrySlug }/` )
+                                            : resolve( "/live" )}
+                                        class="group-hover:text-accent-600 dark:group-hover:text-accent-400
+                                               stretched-link mt-1.5 block leading-snug font-medium"
+                                    >
+                                        {item.title}
+                                    </a>
+                                </li>
+                            {/each}
+                        </ul>
+                    </section>
+                {/if}
+            </div>
+        {/if}
+
+        {#if categoryCounts.length > 0}
+            <section class="mx-auto max-w-6xl px-4 pt-12 sm:px-6" aria-labelledby="home-categories">
+                <h2 id="home-categories" class="section-heading">{m.home_explore_categories_heading()}</h2>
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                    {#each categoryCounts as item ( item.category.slug )}
+                        <CategoryChip category={item.category} count={item.count} />
+                    {/each}
                 </div>
-            </article>
-
-            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-                {#each secondary as entry, index ( entry.id )}
-                    <EntryCard {entry} {index} />
-                {/each}
-            </div>
-        </div>
-    </section>
-{/if}
-
-{#if latestLive.length > 0}
-    <section class="border-paper-200 dark:border-ink-800 border-y">
-        <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-            <div class="flex items-baseline justify-between gap-4">
-                <h2 class="flex items-center gap-2 font-serif text-2xl font-semibold tracking-tight">
-                    <span class="bg-alert-500 h-2 w-2 animate-pulse rounded-full" aria-hidden="true"></span>
-                    {m.common_live_label()}
-                </h2>
-
-                <a href={resolve( "/live" )} class="wiki-link text-sm">{m.home_live_see_all()}</a>
-            </div>
-
-            <ul class="mt-6 space-y-4">
-                {#each latestLive as item, index ( item.id )}
-                    <li
-                        class="rise-in flex flex-wrap items-baseline gap-x-3 gap-y-1"
-                        style="--rank: {staggerRank( index )}"
-                    >
-                        <SeverityBadge severity={item.severity} />
-
-                        <span class="min-w-0 flex-1">
-                            {#if item.entrySlug}
-                                <a href={resolve( `wiki/${ item.entrySlug }/` )} class="font-medium hover:underline"
-                                    >{item.title}</a
-                                >
-                            {:else}
-                                <a href={resolve( "/live" )} class="font-medium hover:underline">{item.title}</a>
-                            {/if}
-                        </span>
-
-                        <time datetime={item.publishedAt} class="text-muted shrink-0 text-xs">
-                            {relativeTime( item.publishedAt )}
-                        </time>
-                    </li>
-                {/each}
-            </ul>
-        </div>
-    </section>
-{/if}
-
-<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-    <div class="flex items-baseline justify-between gap-4">
-        <h2 class="font-serif text-2xl font-semibold tracking-tight">{m.common_recent_changes_heading()}</h2>
-
-        <a href={resolve( "/wiki" )} class="wiki-link text-sm">{m.home_recent_see_all()}</a>
+            </section>
+        {/if}
     </div>
-
-    {#if latest.length === 0}
-        <div class="mt-6">
-            <EmptyState title={m.common_empty_wiki_title()} description={m.common_empty_wiki_description()}>
-                <Button href={resolve( "/new" )} color="alternative">{m.common_create_entry()}</Button>
-            </EmptyState>
-        </div>
-    {:else}
-        <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {#each latest as entry, index ( entry.id )}
-                <EntryCard {entry} {index} />
-            {/each}
-        </div>
-    {/if}
-</section>
-
-{#if categoryCounts.length > 0}
-    <section class="mx-auto max-w-6xl px-4 pb-8 sm:px-6">
-        <h2 class="font-serif text-2xl font-semibold tracking-tight">{m.home_explore_categories_heading()}</h2>
-
-        <div class="mt-6 flex flex-wrap gap-2">
-            {#each categoryCounts as item ( item.category.slug )}
-                <CategoryChip category={item.category} count={item.count} />
-            {/each}
-        </div>
-    </section>
 {/if}

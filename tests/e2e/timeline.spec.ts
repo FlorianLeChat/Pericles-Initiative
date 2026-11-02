@@ -9,9 +9,9 @@
  * @author Claude
  */
 
-import type { Locator, Page } from "@playwright/test";
-import { COUNTS, DATES, PAGES } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
+import type { Locator, Page } from "@playwright/test";
+import { COUNTS, DATES, PAGES, sampleDataset } from "./utilities/dataset";
 
 /**
  * Locates one point of the chronology, by the intitulé of its date.
@@ -53,13 +53,19 @@ test.describe( "timeline", () =>
         await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeHidden();
     } );
 
-    test( "groups the dates by year and reads every shape of date", async ( { page, wiki } ) =>
+    test( "groups the dates by decade and reads every shape of date", async ( { page, wiki } ) =>
     {
         await wiki.open( "/timeline" );
 
-        // The years the fixture dates fall into, ascending, the free text one last.
+        // The decades the fixture dates fall into, ascending, the free text one last.
+        // The fixture spans a few decades only, well short of the switch to centuries.
         await expect( page.getByRole( "heading", { level: 2 } ) )
-            .toHaveText( [ "2018", "2020", "2043", "2044", "Sans année" ] );
+            .toHaveText( [ "2010 à 2019", "2020 à 2029", "2040 à 2049", "Sans année" ] );
+
+        const forties = page.getByRole( "region", { name: "2040 à 2049" } );
+
+        await expect( forties.getByRole( "listitem" ) ).toHaveCount( 3 );
+        await expect( forties.getByText( PAGES.traite.summary ) ).toBeVisible();
 
         await expect( point( page, DATES.fondation.label ) ).toContainText( "2018" );
         await expect( point( page, DATES.deces.label ) ).toContainText( "12 juin 2043" );
@@ -81,5 +87,28 @@ test.describe( "timeline", () =>
         await death.getByRole( "link", { name: PAGES.athena.title } ).click();
 
         await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
+    } );
+
+    test( "gives a page's summary once per group, however many of its dates fall in it", async ( { page, wiki } ) =>
+    {
+        // Moving the birth of the sample into the decade of the death puts two dates
+        // of the same page under one heading, which the sample alone never does.
+        const dataset = sampleDataset();
+        const athena = dataset.entries.find( ( entry ) => entry.id === PAGES.athena.id );
+        const birth = athena?.dates.find( ( date ) => date.id === DATES.naissance.id );
+
+        if ( birth )
+        {
+            birth.value = "2041-05-14";
+        }
+
+        await wiki.openWith( dataset, "/timeline" );
+
+        const forties = page.getByRole( "region", { name: "2040 à 2049" } );
+
+        await expect( forties.getByRole( "link", { name: PAGES.athena.title } ) ).toHaveCount( 2 );
+        await expect( forties.getByText( PAGES.athena.summary ) ).toHaveCount( 1 );
+        await expect( point( page, DATES.naissance.label ) ).toContainText( PAGES.athena.summary );
+        await expect( point( page, DATES.deces.label ) ).not.toContainText( PAGES.athena.summary );
     } );
 } );

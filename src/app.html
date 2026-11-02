@@ -4,8 +4,8 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#fdfcfa" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#121218" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#141619" media="(prefers-color-scheme: dark)" />
         <meta name="text-scale" content="scale" />
         <meta name="keywords" content="npm,encyclopedia,wiki,timeline,typescript,eslint,a11y,prettier,svelte,husky,tailwindcss,vite,sveltekit,inlang" />
 
@@ -38,6 +38,25 @@
             const system = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
             element.classList.add(chosen ? stored : system);
+
+            /*
+             * The accent chosen in the settings, read before the first paint like the
+             * theme, so a reload no longer flashes the default blue and animates to the
+             * real colour once the layout has hydrated. Only a key the stylesheet knows
+             * is written, so a damaged overlay leaves the default in place. The list is
+             * kept in step with `ACCENTS` in `src/lib/config/accents.ts`: this script
+             * runs before any module can be imported.
+             */
+            try {
+                const accent = JSON.parse(localStorage.getItem("pericles:overlay") ?? "null")?.meta?.accent;
+                const known = ["bleu", "vert", "ambre", "violet", "rose", "cyan"];
+
+                if (known.includes(accent)) {
+                    element.dataset.accent = accent;
+                }
+            } catch {
+                /* unreadable overlay, the default accent stays until the layout reads it */
+            }
         </script>
 
         %sveltekit.head%

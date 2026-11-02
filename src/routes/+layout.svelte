@@ -5,20 +5,23 @@
      * @author Claude
      */
     import "../app.css";
-    import * as env from "$app/env/public";
-    import Alert from "flowbite-svelte/Alert.svelte";
     import { asset } from "$app/paths";
-    import { untrack, type Snippet } from "svelte";
+    import * as env from "$app/env/public";
+    import type { LayoutData } from "./$types";
     import { onNavigate } from "$app/navigation";
-    import BackupReminder from "#lib/components/layout/BackupReminder.svelte";
-    import ConnectionStatus from "#lib/components/layout/ConnectionStatus.svelte";
-    import BreakingBanner from "#lib/components/live/BreakingBanner.svelte";
-    import SearchDialog from "#lib/components/layout/SearchDialog.svelte";
+    import * as m from "#lib/locales/messages.js";
+    import { untrack, type Snippet } from "svelte";
+    import Alert from "flowbite-svelte/Alert.svelte";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { search } from "#lib/state/search.svelte.ts";
+    import { platform } from "#lib/state/platform.svelte.ts";
     import SiteHeader from "#lib/components/layout/SiteHeader.svelte";
     import SyncPrompt from "#lib/components/layout/SyncPrompt.svelte";
-    import * as m from "#lib/locales/messages.js";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
-    import type { LayoutData } from "./$types";
+    import PageSkeleton from "#lib/components/layout/PageSkeleton.svelte";
+    import SearchDialog from "#lib/components/layout/SearchDialog.svelte";
+    import BreakingBanner from "#lib/components/live/BreakingBanner.svelte";
+    import BackupReminder from "#lib/components/layout/BackupReminder.svelte";
+    import ConnectionStatus from "#lib/components/layout/ConnectionStatus.svelte";
 
     interface Props {
         data: LayoutData;
@@ -90,8 +93,6 @@
     // well: this is what puts the content into the static HTML.
     untrack( () => wiki.hydrate( data.dataset ) );
 
-    let searchOpen = $state( false );
-
     // Keeps the store in sync when the loaded data changes, and does nothing
     // on mount since `hydrate` ignores an unchanged source.
     $effect.pre( () =>
@@ -102,6 +103,7 @@
     $effect( () =>
     {
         wiki.loadOverlay();
+        platform.detect();
     } );
 
     /*
@@ -110,8 +112,9 @@
      * The key is written on the root element rather than resolved into colours
      * here: `app.css` holds the six ramps, so this stays out of the way of the
      * dark theme, which retouches a stop of its own. Running in an effect is what
-     * keeps the prerendered HTML free of overlay data, at the cost of a first
-     * paint in the default accent, the same moment where the wiki is still empty.
+     * keeps the prerendered HTML free of overlay data; the first paint already
+     * carries the stored accent, written by the script of `app.html`, so this only
+     * ever changes the colour when the settings do.
      */
     $effect( () =>
     {
@@ -129,7 +132,7 @@
         if ( ( event.ctrlKey || event.metaKey ) && event.key.toLowerCase() === "k" )
         {
             event.preventDefault();
-            searchOpen = true;
+            search.open = true;
         }
     };
 </script>
@@ -169,13 +172,17 @@
 
 <BreakingBanner />
 
-<SiteHeader onsearch={() => ( searchOpen = true )} />
+<SiteHeader onsearch={() => ( search.open = true )} />
 
 <main id="main-content" tabindex="-1" class="flex-1 focus:outline-none">
-    {@render children()}
+    {#if wiki.ready}
+        {@render children()}
+    {:else}
+        <PageSkeleton />
+    {/if}
 </main>
 
-<SearchDialog bind:open={searchOpen} />
+<SearchDialog bind:open={search.open} />
 
 <div class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col items-start gap-2 sm:inset-x-6">
     {#if wiki.storageError}

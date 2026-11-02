@@ -33,12 +33,12 @@
      *
      * @author Claude
      */
-    import Settings2 from "@lucide/svelte/icons/settings-2";
-    import Dropdown from "flowbite-svelte/Dropdown.svelte";
     import { resolve } from "$app/paths";
     import type { Path } from "$app/types";
-    import type { NavLink } from "#lib/config/navigation.ts";
     import * as m from "#lib/locales/messages.js";
+    import Dropdown from "flowbite-svelte/Dropdown.svelte";
+    import Settings2 from "@lucide/svelte/icons/settings-2";
+    import type { NavLink } from "#lib/config/navigation.ts";
 
     interface Props {
         /** Links shown in the dropdown. */

@@ -96,3 +96,20 @@ export const uniqueSlug = ( value: string, taken: Iterable<string> ): string =>
 
     return `${ base }-${ counter }`;
 };
+
+/**
+ * Turns a slug back into a readable title, for a page that does not exist yet.
+ *
+ * Only the dashes and the first letter are restored: accents and apostrophes
+ * were dropped by `slugify` and cannot be guessed back.
+ *
+ * @param slug Slug of the missing page.
+ * @returns The slug with spaces for dashes and an upper case first letter.
+ * @author Claude
+ */
+export const humanizeSlug = ( slug: string ): string =>
+{
+    const spaced = slug.replaceAll( "-", " " );
+
+    return spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 );
+};

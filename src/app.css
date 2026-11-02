@@ -45,51 +45,51 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Self hosted faces: Newsreader for titles, IBM Plex Sans for everything the
- * reader types or clicks, IBM Plex Mono for slugs, paths and code.
+ * Self hosted faces: Public Sans for everything the reader reads, types or
+ * clicks, section headings included; Source Serif 4 for the title of a page
+ * and nothing else, the one serif moment of the site; IBM Plex Mono for call
+ * numbers, slugs, paths and code.
  *
- * The files live in `static/assets/fonts/`, beside the licence they ship
- * under, rather than in a package: the site owns its typography the way it
- * already owns its icons, so painting a page never reaches a third party font
- * host.
+ * The files live in `static/assets/fonts/` rather than in a package: the site
+ * owns its typography the way it already owns its icons, so painting a page
+ * never reaches a third party font host.
  *
- * Only the `latin` subset is kept, and only one axis per face, since the
- * whole set is downloaded on the first visit: `wght` alone for Plex Sans, whose
- * width axis nothing here asks for, and `wght` plus `opsz` for Newsreader,
- * the optical size being what makes a title at sixty pixels read tighter
- * than a heading at twenty rather than the same drawing blown up.
+ * Only the `latin` subset is kept, and only the axes the site asks for, since
+ * the whole set is downloaded on the first visit: `wght` for Public Sans, and
+ * `wght` plus `opsz` for Source Serif 4, the optical size being what makes a
+ * title at fifty pixels read tighter than the same drawing blown up.
  *
  * The `latin` subset covers French whole: accented letters and « » live in
  * U+0000-00FF, the œ ligature at U+0152-0153, the typographic apostrophe in
  * U+2000-206F.
  */
 @font-face {
-    font-family: 'Newsreader';
+    font-family: 'Source Serif 4';
     font-style: normal;
     font-display: swap;
-    font-weight: 200 800;
-    src: url('/assets/fonts/newsreader-latin-variable.woff2') format('woff2');
+    font-weight: 200 900;
+    src: url('/assets/fonts/source-serif-4-latin-variable.woff2') format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
         U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
-    font-family: 'IBM Plex Sans';
+    font-family: 'Public Sans';
     font-style: normal;
     font-display: swap;
-    font-weight: 100 700;
-    src: url('/assets/fonts/ibm-plex-sans-latin-variable.woff2') format('woff2');
+    font-weight: 100 900;
+    src: url('/assets/fonts/public-sans-latin-variable.woff2') format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
         U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 /* Markdown emphasis is the common case in a body, so the italics are real, not slanted by the browser. */
 @font-face {
-    font-family: 'IBM Plex Sans';
+    font-family: 'Public Sans';
     font-style: italic;
     font-display: swap;
-    font-weight: 100 700;
-    src: url('/assets/fonts/ibm-plex-sans-latin-variable-italic.woff2') format('woff2');
+    font-weight: 100 900;
+    src: url('/assets/fonts/public-sans-latin-variable-italic.woff2') format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
         U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
@@ -122,24 +122,30 @@
      * to whatever the system considers a serif, which is a different page on
      * every machine and the reason the site read as generic before.
      */
-    --font-sans: 'IBM Plex Sans', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-serif: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+    --font-sans: 'Public Sans', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-serif: 'Source Serif 4', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
     --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
 
-    /* Editorial palette: warm paper, warm ink, one cold accent. */
-    --color-paper-50: #f8f5ef;
-    --color-paper-100: #f3efe7;
-    --color-paper-200: #e7e2d7;
-    --color-paper-300: #d3ccbd;
-    --color-paper-400: #a89f8d;
+    /*
+     * Neutral palette: white ground, cool greys, hairlines rather than shadows.
+     * The names are historical: `paper` runs from the lightest surface to the
+     * quiet greys, `ink` from muted text to the darkest ground, and the dark
+     * theme retouches both below. `ink-400` is muted text, and holds four and a
+     * half to one on every light surface of the scale.
+     */
+    --color-paper-50: #f7f8f9;
+    --color-paper-100: #f1f2f4;
+    --color-paper-200: #e3e5e8;
+    --color-paper-300: #cfd3d8;
+    --color-paper-400: #9aa1aa;
 
-    --color-ink-400: #6f6860;
-    --color-ink-500: #5b544b;
-    --color-ink-600: #453e35;
-    --color-ink-700: #3b352d;
-    --color-ink-800: #34302a;
-    --color-ink-900: #262320;
-    --color-ink-950: #1a1714;
+    --color-ink-400: #5b6168;
+    --color-ink-500: #4a5057;
+    --color-ink-600: #3a3f45;
+    --color-ink-700: #2c3035;
+    --color-ink-800: #202326;
+    --color-ink-900: #17191c;
+    --color-ink-950: #101214;
 
     /*
      * The accent is the one colour of the palette the author chooses, so its
@@ -166,17 +172,22 @@
     --color-accent-800: var(--accent-800);
     --color-accent-900: var(--accent-900);
 
+    /*
+     * Amber of a draft and of a warning. 500 is only ever a dot or a tint; 700 is
+     * the stop that carries text, and clears four and a half to one on white.
+     */
     --color-signal-500: #d97706;
+    --color-signal-700: #a14a06;
 
     /*
      * The red carries text as often as it carries a surface: a red link, the
-     * «En direct» eyebrow, the count of the pages an import would replace. It
-     * has to clear four and a half to one against the paper above, at the twelve
-     * pixels the eyebrow is set in, which is what keeps it off the usual
-     * `#dc2626`. The `.dark` block holds the brighter red a dark ground needs.
+     * count of the pages an import would replace, the rule under a title. It has
+     * to clear four and a half to one against white at twelve pixels, which is
+     * what keeps it off the usual `#dc2626`. The `.dark` block holds the lighter
+     * red a dark ground needs for the same ratio.
      */
-    --color-alert-500: #cf2222;
-    --color-alert-600: #b91c1c;
+    --color-alert-500: #c42b22;
+    --color-alert-600: #a8231c;
 
     /*
      * The two scales Flowbite paints its components with, aliased onto the
@@ -395,21 +406,22 @@
      * themes and simply picks up whichever stop is in force around it.
      */
     :is(.dark) {
-        --color-ink-700: #343440;
-        --color-ink-800: #26262f;
-        --color-ink-900: #1a1a22;
-        --color-ink-950: #121218;
+        --color-ink-700: #2a2e34;
+        --color-ink-800: #1f2328;
+        --color-ink-900: #1b1e22;
+        --color-ink-950: #141619;
 
-        --color-paper-100: #f4f0e9;
-        --color-paper-200: #f0ece4;
-        --color-paper-300: #ddd7cb;
-        --color-paper-400: #c9c2b3;
+        --color-paper-100: #eef0f2;
+        --color-paper-200: #e4e6ea;
+        --color-paper-300: #c9cdd3;
+        --color-paper-400: #a2a8b1;
 
         /*
-         * As bright as it can go while «Alerte» and the banner keep white text
-         * on it, and the darker red the paper asks for would sink into the ink.
+         * Light enough to clear four and a half to one as text on the darkest
+         * ground. A banner painted with it carries dark text rather than white.
          */
-        --color-alert-500: #dc2626;
+        --color-alert-500: #f07a6e;
+        --color-signal-700: #f0b45e;
     }
 
     html {
@@ -423,11 +435,23 @@
     }
 
     body {
-        @apply bg-paper-50 text-ink-800 dark:bg-ink-950 dark:text-paper-200 font-sans antialiased;
+        @apply text-ink-800 dark:bg-ink-950 dark:text-paper-200 bg-white font-sans antialiased;
+        font-variant-numeric: tabular-nums;
     }
 
     ::selection {
         @apply bg-accent-200 text-ink-900;
+    }
+
+    /* The browser's own scrollbars and caret, painted from the palette rather than left grey and black. */
+    html {
+        scrollbar-color: var(--color-paper-300) transparent;
+        caret-color: var(--color-accent-600);
+    }
+
+    :is(.dark) {
+        scrollbar-color: var(--color-ink-700) transparent;
+        caret-color: var(--color-accent-400);
     }
 
     :focus-visible {
@@ -437,12 +461,29 @@
 
 @layer components {
     /*
-     * A card is solid white and the page under it is not: `paper-50` is a shade
-     * off white so that the gap between the two, rather than the border alone,
-     * is what draws the card.
+     * A card is drawn by its hairline, not by a shadow: the page and the card
+     * are both white, and the dark theme lifts the card one step off the ground.
      */
     .surface {
-        @apply border-paper-200 dark:border-ink-800 dark:bg-ink-900/60 rounded-2xl border bg-white shadow-sm;
+        @apply border-paper-200 dark:border-ink-700 dark:bg-ink-900 rounded-xl border bg-white;
+    }
+
+    /* Heading of a section inside a page. The serif is kept for the title of the page alone. */
+    .section-heading {
+        @apply text-ink-900 dark:text-paper-100 text-xl font-semibold tracking-tight;
+    }
+
+    /*
+     * Call number of a page, the catalogue card's heading line: a type code, a
+     * year and three letters of the title, set in the mono face and nowhere else.
+     */
+    .call-number {
+        @apply text-ink-400 dark:text-paper-400/80 font-mono text-xs tracking-wide;
+    }
+
+    /* The short red rule a catalogue card draws under its heading, under the title of a page. */
+    .title-rule {
+        @apply bg-alert-500 mt-4 block h-0.5 w-8;
     }
 
     /*
@@ -486,7 +527,7 @@
     }
 
     /*
-     * Muted captions, hints, timestamps and uppercase eyebrow labels. `ink-400`
+     * Muted captions, hints, timestamps and group labels. `ink-400`
      * is tuned for a light background: left unstyled in the dark variant it
      * renders as dark grey on near black, which is why every one of its call
      * sites also carries the `dark:` override.
@@ -507,10 +548,15 @@
      * The four tokens neither block declares, the lead, the captions and the two
      * of the keycap, belong to elements Markdown does not produce.
      */
+    /*
+     * The quotation marks of a blockquote are the author's own, typed into the
+     * text as the content rules ask: the plugin's generated pair would double them.
+     */
     .article-body {
-        @apply prose prose-lg max-w-none;
-        @apply prose-headings:font-semibold prose-headings:tracking-tight;
-        @apply prose-a:font-normal prose-img:rounded-2xl prose-blockquote:not-italic;
+        @apply prose prose-lg max-w-[70ch];
+        @apply prose-headings:font-semibold prose-headings:tracking-tight prose-h2:text-[1.5rem] prose-h2:mt-12;
+        @apply prose-a:font-normal prose-img:rounded-xl prose-blockquote:not-italic;
+        @apply prose-blockquote:font-normal prose-blockquote:border-l;
 
         --tw-prose-body: var(--color-ink-700);
         --tw-prose-headings: var(--color-ink-900);
@@ -544,6 +590,15 @@
         --tw-prose-pre-bg: var(--color-ink-900);
         --tw-prose-th-borders: var(--color-ink-700);
         --tw-prose-td-borders: var(--color-ink-800);
+    }
+
+    /*
+     * The plugin hangs its quotation marks on the first and last paragraph of a
+     * blockquote, not on the blockquote itself, which is why they are cleared here.
+     */
+    .article-body blockquote p:first-of-type::before,
+    .article-body blockquote p:last-of-type::after {
+        content: none;
     }
 
     .article-body :is(h2, h3, h4) {
@@ -586,7 +641,7 @@
     }
 
     .surface-lift {
-        @apply transition duration-200 hover:-translate-y-1 hover:shadow-lg;
+        @apply hover:border-paper-300 dark:hover:border-ink-700 dark:hover:bg-ink-800 transition-colors duration-200;
     }
 
     /*

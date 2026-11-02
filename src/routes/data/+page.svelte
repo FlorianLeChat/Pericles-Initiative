@@ -8,16 +8,16 @@
      *
      * @author Claude
      */
-    import Alert from "flowbite-svelte/Alert.svelte";
     import { resolve } from "$app/paths";
-    import FileBackup from "#lib/components/data/FileBackup.svelte";
-    import LocalContent from "#lib/components/data/LocalContent.svelte";
-    import RemoteBackup from "#lib/components/data/RemoteBackup.svelte";
+    import * as m from "#lib/locales/messages.js";
+    import Alert from "flowbite-svelte/Alert.svelte";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
     import PageHeader from "#lib/components/PageHeader.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import FileBackup from "#lib/components/data/FileBackup.svelte";
     import ResetPanel from "#lib/components/data/ResetPanel.svelte";
-    import * as m from "#lib/locales/messages.js";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import LocalContent from "#lib/components/data/LocalContent.svelte";
+    import RemoteBackup from "#lib/components/data/RemoteBackup.svelte";
 
     let feedback = $state<string | null>( null );
 </script>

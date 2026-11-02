@@ -14,14 +14,14 @@
      *
      * @author Claude
      */
-    import Alert from "flowbite-svelte/Alert.svelte";
-    import Button from "flowbite-svelte/Button.svelte";
-    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON } from "#lib/config/forms.ts";
     import * as m from "#lib/locales/messages.js";
-    import { setLocale } from "#lib/locales/runtime.js";
+    import Alert from "flowbite-svelte/Alert.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { setLocale } from "#lib/locales/runtime.js";
+    import { ACTION_BUTTON } from "#lib/config/forms.ts";
     import { normalizeDataset } from "#lib/utilities/dataset.ts";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
 
     let confirmOpen = $state( false );
     let loading = $state( false );
@@ -69,7 +69,7 @@
 </script>
 
 <section class="surface mt-6 space-y-3 p-6" aria-labelledby="demo-heading">
-    <h2 id="demo-heading" class="font-serif text-xl font-semibold tracking-tight">{m.demo_heading()}</h2>
+    <h2 id="demo-heading" class="section-heading">{m.demo_heading()}</h2>
 
     <p class="text-muted text-sm leading-relaxed">{m.demo_description()}</p>
 

@@ -8,8 +8,8 @@
  */
 
 import type { Locator, Page } from "@playwright/test";
-import { ACCENTS, DEFAULT_ACCENT, type Accent } from "#lib/config/accents.ts";
 import { COUNTS, PAGES, UNIVERSE } from "./utilities/dataset";
+import { ACCENTS, DEFAULT_ACCENT, type Accent } from "#lib/config/accents.ts";
 import { expect, isNarrow, LOCALE_KEY, test, waitForDrawer, type WikiHelper } from "./utilities/fixtures";
 
 /**

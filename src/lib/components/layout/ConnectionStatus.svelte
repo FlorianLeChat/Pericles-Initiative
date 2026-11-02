@@ -17,18 +17,18 @@
      *
      * @author Claude
      */
-    import CloudOff from "@lucide/svelte/icons/cloud-off";
-    import CloudUpload from "@lucide/svelte/icons/cloud-upload";
-    import TriangleAlert from "@lucide/svelte/icons/triangle-alert";
-    import X from "@lucide/svelte/icons/x";
-    import Toast from "flowbite-svelte/Toast.svelte";
     import { resolve } from "$app/paths";
-    import { motionDuration } from "#lib/config/motion.ts";
+    import X from "@lucide/svelte/icons/x";
     import * as m from "#lib/locales/messages.js";
-    import { remote } from "#lib/state/remote.svelte.ts";
+    import Toast from "flowbite-svelte/Toast.svelte";
     import { sync } from "#lib/state/sync.svelte.ts";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import type { RemoteFailure } from "#lib/types.ts";
+    import { remote } from "#lib/state/remote.svelte.ts";
+    import CloudOff from "@lucide/svelte/icons/cloud-off";
+    import { motionDuration } from "#lib/config/motion.ts";
+    import CloudUpload from "@lucide/svelte/icons/cloud-upload";
+    import TriangleAlert from "@lucide/svelte/icons/triangle-alert";
 
     /**
      * How long the content has to stop changing before it is sent.

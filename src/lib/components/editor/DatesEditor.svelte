@@ -12,18 +12,17 @@
      *
      * @author Claude
      */
-    import ArrowDown from "@lucide/svelte/icons/arrow-down";
-    import ArrowUp from "@lucide/svelte/icons/arrow-up";
+    import { tick } from "svelte";
     import X from "@lucide/svelte/icons/x";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Input from "flowbite-svelte/Input.svelte";
-    import { DATE_LABELS } from "#lib/config/dates.ts";
-    import { SMALL_FIELD } from "#lib/config/forms.ts";
     import * as m from "#lib/locales/messages.js";
     import type { EntryDate } from "#lib/types.ts";
+    import Input from "flowbite-svelte/Input.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { DATE_LABELS } from "#lib/config/dates.ts";
+    import { SMALL_FIELD } from "#lib/config/forms.ts";
+    import ArrowUp from "@lucide/svelte/icons/arrow-up";
     import { createId } from "#lib/utilities/dataset.ts";
-
-    import { tick } from "svelte";
+    import ArrowDown from "@lucide/svelte/icons/arrow-down";
 
     interface Props {
         dates: EntryDate[];

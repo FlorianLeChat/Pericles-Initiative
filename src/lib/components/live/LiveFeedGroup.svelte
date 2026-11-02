@@ -9,14 +9,17 @@
      */
     import { flip } from "svelte/animate";
     import { cubicOut } from "svelte/easing";
-    import { fly, slide } from "svelte/transition";
-    import { staggerDelay } from "#lib/config/motion.ts";
-    import type { LiveEntry } from "#lib/types.ts";
     import LiveItem from "./LiveItem.svelte";
+    import Pin from "@lucide/svelte/icons/pin";
+    import { fly, slide } from "svelte/transition";
+    import type { LiveEntry } from "#lib/types.ts";
+    import { staggerDelay } from "#lib/config/motion.ts";
 
     interface Props {
         /** Section title, shown above the items. */
         heading: string;
+        /** Marks the group of pinned items with a pin beside its heading. */
+        pinned?: boolean;
         /** Items of this group, most recent first. */
         items: LiveEntry[];
         /** Loads an item into the composer. */
@@ -25,13 +28,18 @@
         ondelete: ( item: LiveEntry ) => void;
     }
 
-    let { heading, items, onedit, ondelete }: Props = $props();
+    let { heading, pinned = false, items, onedit, ondelete }: Props = $props();
 </script>
 
 <section class="mt-10">
-    <h2 class="text-muted mb-4 text-xs tracking-[0.15em] uppercase">{heading}</h2>
+    <h2 class="section-heading border-paper-200 dark:border-ink-800 flex items-center gap-2 border-b pb-2">
+        {#if pinned}
+            <Pin class="text-ink-500 dark:text-paper-400 h-4.5 w-4.5" aria-hidden="true" />
+        {/if}
+        {heading}
+    </h2>
 
-    <div class="border-paper-200 dark:border-ink-800 space-y-8 border-l">
+    <div class="divide-paper-200 dark:divide-ink-800 divide-y">
         {#each items as item, index ( item.id )}
             <div
                 animate:flip={{ duration: 260, easing: cubicOut }}

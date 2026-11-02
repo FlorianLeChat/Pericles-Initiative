@@ -12,11 +12,12 @@
  * @author Claude
  */
 
-import { marked, type Token, type Tokens } from "marked";
-import * as m from "#lib/locales/messages.js";
-import type { Heading, RenderedArticle } from "#lib/types.ts";
 import { slugify } from "./slug";
 import { isSafeUrl } from "./url";
+import { pluralize } from "./plural";
+import * as m from "#lib/locales/messages.js";
+import { marked, type Token, type Tokens } from "marked";
+import type { Heading, RenderedArticle } from "#lib/types.ts";
 
 marked.use( { gfm: true, breaks: false } );
 
@@ -529,3 +530,30 @@ export const countWords = memoize( ( markdown: string ): number =>
     const text = markdownToPlainText( markdown );
     return text ? text.split( WHITESPACE ).length : 0;
 } );
+
+/** Words read in a minute, the usual figure for prose on a screen. */
+const READING_SPEED = 200;
+
+/**
+ * Describes the length of a body, in words then in minutes of reading.
+ *
+ * The minutes are left out of an empty body rather than rounded up to one: an
+ * editor showing «0 mots · environ 1 min de lecture» promised a read that was not
+ * there.
+ *
+ * @param words Number of words of the body.
+ * @returns «412 mots · environ 2 min de lecture», or the word count alone.
+ * @author Claude
+ */
+export const describeLength = ( words: number ): string =>
+{
+    const count = pluralize( words, { one: m.common_count_mot_one, other: m.common_count_mot_other } );
+
+    if ( words === 0 )
+    {
+        return count;
+    }
+
+    const minutes = Math.max( 1, Math.round( words / READING_SPEED ) );
+    return `${ count } · ${ m.common_reading_time( { minutes } ) }`;
+};

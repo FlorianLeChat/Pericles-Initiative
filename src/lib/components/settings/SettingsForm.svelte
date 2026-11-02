@@ -16,23 +16,23 @@
      *
      * @author Claude
      */
+    import { untrack } from "svelte";
+    import { resolve } from "$app/paths";
+    import * as m from "#lib/locales/messages.js";
+    import DemoContent from "./DemoContent.svelte";
     import Alert from "flowbite-svelte/Alert.svelte";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Helper from "flowbite-svelte/Helper.svelte";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import Radio from "flowbite-svelte/Radio.svelte";
-    import Textarea from "flowbite-svelte/Textarea.svelte";
-    import { resolve } from "$app/paths";
     import { PUBLIC_VERSION } from "$app/env/public";
-    import { untrack } from "svelte";
-    import DemoContent from "./DemoContent.svelte";
-    import FeaturedPagesEditor from "./FeaturedPagesEditor.svelte";
     import { ACCENTS } from "#lib/config/accents.ts";
-    import { ACTION_BUTTON, colorPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
-    import * as m from "#lib/locales/messages.js";
-    import { getLocale, locales, setLocale } from "#lib/locales/runtime.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Helper from "flowbite-svelte/Helper.svelte";
+    import Textarea from "flowbite-svelte/Textarea.svelte";
+    import FeaturedPagesEditor from "./FeaturedPagesEditor.svelte";
+    import { getLocale, locales, setLocale } from "#lib/locales/runtime.js";
+    import { ACTION_BUTTON, colorPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
 
     /** Reader facing name of each locale the catalogue supports. */
     const LANGUAGE_LABEL: Record<( typeof locales )[ number ], () => string> = {
@@ -264,7 +264,7 @@
 <DemoContent />
 
 <section class="surface mt-6 space-y-3 p-6" aria-labelledby="about-heading">
-    <h2 id="about-heading" class="font-serif text-xl font-semibold tracking-tight">{m.settings_form_about_heading()}</h2>
+    <h2 id="about-heading" class="section-heading">{m.settings_form_about_heading()}</h2>
 
     <dl class="text-muted space-y-1.5 text-sm">
         <div class="flex flex-wrap gap-2">

@@ -13,22 +13,22 @@
      *
      * @author Claude
      */
+    import * as m from "#lib/locales/messages.js";
     import Alert from "flowbite-svelte/Alert.svelte";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Checkbox from "flowbite-svelte/Checkbox.svelte";
-    import Helper from "flowbite-svelte/Helper.svelte";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
-    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON, ACTION_ROW } from "#lib/config/forms.ts";
-    import * as m from "#lib/locales/messages.js";
-    import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
-    import { remote } from "#lib/state/remote.svelte.ts";
     import { sync } from "#lib/state/sync.svelte.ts";
     import { wiki } from "#lib/state/wiki.svelte.ts";
-    import { formatDateTime } from "#lib/utilities/date.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Helper from "flowbite-svelte/Helper.svelte";
+    import { remote } from "#lib/state/remote.svelte.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
+    import Checkbox from "flowbite-svelte/Checkbox.svelte";
+    import { formatDateTime } from "#lib/utilities/date.ts";
     import { isUsableBaseUrl } from "#lib/utilities/remote.ts";
+    import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { ACTION_BUTTON, ACTION_ROW } from "#lib/config/forms.ts";
 
     let baseUrl = $state( "" );
     let secret = $state( "" );
@@ -167,12 +167,18 @@
     };
 </script>
 
-<section class="surface mt-6 p-6">
-    <h2 class="font-serif text-xl font-semibold tracking-tight">{m.remote_backup_heading()}</h2>
+<section class="surface mt-6 p-6" aria-labelledby="remote-backup-heading">
+    <h2 id="remote-backup-heading" class="section-heading">{m.remote_backup_heading()}</h2>
 
-    <p class="text-muted mt-2 text-sm leading-relaxed">
-        {m.remote_backup_intro()}
-    </p>
+    <p class="text-muted mt-1.5 text-sm">{m.remote_backup_intro()}</p>
+
+    <details class="mt-2 text-sm">
+        <summary class="text-accent-700 dark:text-accent-300 w-fit cursor-pointer py-1 font-medium">
+            {m.common_learn_more()}
+        </summary>
+
+        <p class="text-ink-600 dark:text-paper-300 mt-1 leading-relaxed">{m.remote_backup_more()}</p>
+    </details>
 
     {#if feedback}
         <Alert color={feedback.kind === "success" ? "primary" : "red"} class="mt-5 rounded-xl text-sm" role="status">
@@ -236,7 +242,7 @@
             </Button>
 
             {#if dirty && canConnect}
-                <span class="text-signal-500 text-xs">{m.remote_backup_unsaved_url()}</span>
+                <span class="text-signal-700 text-xs">{m.remote_backup_unsaved_url()}</span>
             {/if}
         </div>
     </form>
@@ -301,7 +307,7 @@
             </div>
 
             <dl class="text-muted mt-6 grid gap-x-6 gap-y-1.5 text-xs sm:grid-cols-[auto_1fr]">
-                <dt class="tracking-wide uppercase">{m.remote_backup_last_push_label()}</dt>
+                <dt class="text-ink-700 dark:text-paper-200 font-medium">{m.remote_backup_last_push_label()}</dt>
                 <dd>
                     {#if remote.config.lastPushedAt}
                         <time datetime={remote.config.lastPushedAt}>{formatDateTime( remote.config.lastPushedAt )}</time>
@@ -310,7 +316,7 @@
                     {/if}
                 </dd>
 
-                <dt class="tracking-wide uppercase">{m.remote_backup_last_pull_label()}</dt>
+                <dt class="text-ink-700 dark:text-paper-200 font-medium">{m.remote_backup_last_pull_label()}</dt>
                 <dd>
                     {#if remote.config.lastPulledAt}
                         <time datetime={remote.config.lastPulledAt}>{formatDateTime( remote.config.lastPulledAt )}</time>

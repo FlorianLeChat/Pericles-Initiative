@@ -4,14 +4,14 @@
      *
      * @author Claude
      */
-    import Button from "flowbite-svelte/Button.svelte";
-    import { resolve } from "$app/paths";
     import { page } from "$app/state";
-    import EmptyState from "#lib/components/EmptyState.svelte";
-    import EntryForm from "#lib/components/editor/EntryForm.svelte";
-    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import { resolve } from "$app/paths";
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import EmptyState from "#lib/components/EmptyState.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import EntryForm from "#lib/components/editor/EntryForm.svelte";
 
     const slug = $derived( page.params.slug ?? "" );
     const entry = $derived( wiki.bySlug( slug ) );

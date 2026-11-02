@@ -7,8 +7,8 @@
  * @author Claude
  */
 
+import { expect, isNarrow, test } from "./utilities/fixtures";
 import { CATEGORIES, DATES, MISSING_SLUG, PAGES, UNIVERSE } from "./utilities/dataset";
-import { expect, test } from "./utilities/fixtures";
 
 test.describe( "article page", () =>
 {
@@ -33,6 +33,22 @@ test.describe( "article page", () =>
 
         await expect( infobox.getByRole( "link", { name: CATEGORIES.institutions.name } ) ).toBeVisible();
         await expect( infobox.getByText( "Autres noms : La Vance" ) ).toBeVisible();
+
+        // A catalogue call number: three letters of the first category, the earliest year, three of the title.
+        const callNumber = [
+            CATEGORIES.institutions.name.slice( 0, 3 ),
+            DATES.naissance.value.slice( 0, 4 ),
+            PAGES.athena.title.slice( 0, 3 )
+        ].join( " " ).toUpperCase();
+
+        await expect( page.getByText( callNumber, { exact: true } ) ).toBeVisible();
+
+        // On a phone the contents fold away above the body, and open on demand.
+        if ( isNarrow( page ) )
+        {
+            await expect( page.getByRole( "navigation", { name: "Sommaire" } ) ).toBeHidden();
+            await page.locator( "summary" ).filter( { hasText: "Sommaire", visible: true } ).click();
+        }
 
         await expect( page.getByRole( "navigation", { name: "Sommaire" } ).getByRole( "link" ) )
             .toHaveText( [ "Origines", "Le traité", "Postérité" ] );
