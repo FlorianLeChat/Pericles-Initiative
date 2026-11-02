@@ -42,7 +42,7 @@
      *
      * Every link already ends in a slash, since the layout asks for one, so a
      * prefix test is enough to light «Encyclopédie» up on an article and needs no
-     * separator of its own. Appending one here would look for `/wiki//`. The
+     * separator of its own. Appending one here would look for `/entries//`. The
      * link is a path relative to the base, while the page url is absolute, so
      * the test runs against its resolved form.
      *

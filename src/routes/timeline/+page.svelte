@@ -109,7 +109,7 @@
     {#if periods.length === 0}
         <div class="mt-10">
             <EmptyState title={m.timeline_empty_title()} description={m.timeline_empty_description()}>
-                <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
+                <Button href={resolve( "/entries" )} color="alternative">{m.common_browse_wiki()}</Button>
             </EmptyState>
         </div>
     {:else}
@@ -134,7 +134,7 @@
 
                                 <div class="min-w-0 pt-1 pb-3 sm:py-4 sm:pl-5">
                                     <p class="leading-snug break-words">
-                                        <a href={resolve( `wiki/${ point.entry.slug }/` )} class="wiki-link font-medium">
+                                        <a href={resolve( `entries/${ point.entry.slug }/` )} class="wiki-link font-medium">
                                             {point.entry.title}
                                         </a>
                                         {#if point.date.label}

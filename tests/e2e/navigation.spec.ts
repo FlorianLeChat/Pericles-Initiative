@@ -18,7 +18,7 @@ test.describe( "site frame", () =>
         await wiki.open();
 
         await wiki.navigate( "Encyclopédie" );
-        await expect( page ).toHaveURL( /\/wiki\/$/ );
+        await expect( page ).toHaveURL( /\/entries\/$/ );
 
         await wiki.navigate( "Catégories" );
         await expect( page ).toHaveURL( /\/categories\/$/ );
@@ -76,7 +76,7 @@ test.describe( "site frame", () =>
 
         await page.keyboard.press( "Enter" );
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.athena.slug }/$` ) );
     } );
 
     test( "offers the pages edited last, and the creation of a page nothing matches", async ( { page, wiki } ) =>

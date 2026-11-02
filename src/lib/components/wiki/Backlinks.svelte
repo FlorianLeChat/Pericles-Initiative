@@ -32,7 +32,7 @@
         <ul class="mt-3 flex flex-wrap gap-x-5 gap-y-2">
             {#each entries as entry ( entry.id )}
                 <li>
-                    <a href={resolve( `wiki/${ entry.slug }/` )} class="wiki-link">{entry.title}</a>
+                    <a href={resolve( `entries/${ entry.slug }/` )} class="wiki-link">{entry.title}</a>
                 </li>
             {/each}
         </ul>

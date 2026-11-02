@@ -46,7 +46,7 @@ test.describe( "entry editor", () =>
         await page.getByRole( "checkbox", { name: CATEGORIES.sites.name } ).check();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
-        await expect( page ).toHaveURL( /\/wiki\/digue-de-sainte-roque\/$/ );
+        await expect( page ).toHaveURL( /\/entries\/digue-de-sainte-roque\/$/ );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( "Digue de Sainte Roque" );
 
         const stored = await wiki.storedEntry( "digue-de-sainte-roque" );
@@ -71,7 +71,7 @@ test.describe( "entry editor", () =>
 
         await page.getByRole( "button", { name: "Lier une fiche" } ).click();
         await page.getByPlaceholder( "Titre de la fiche à lier" ).fill( PAGES.port.title );
-        await page.getByRole( "button", { name: `${ PAGES.port.title } /wiki/${ PAGES.port.slug }` } ).click();
+        await page.getByRole( "button", { name: `${ PAGES.port.title } /entries/${ PAGES.port.slug }` } ).click();
 
         await expect( page.locator( BODY ).getByRole( "link", { name: PAGES.port.title } ) ).toBeVisible();
 
@@ -82,9 +82,9 @@ test.describe( "entry editor", () =>
 
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
-        await expect( page ).toHaveURL( /\/wiki\/releve-des-vents\/$/ );
+        await expect( page ).toHaveURL( /\/entries\/releve-des-vents\/$/ );
         await expect( page.getByRole( "article" ).getByRole( "link", { name: PAGES.port.title } ) )
-            .toHaveAttribute( "href", `/wiki/${ PAGES.port.slug }` );
+            .toHaveAttribute( "href", `/entries/${ PAGES.port.slug }` );
     } );
 
     test( "dates a page, which puts it in the infobox and in the chronology", async ( { page, wiki } ) =>
@@ -107,7 +107,7 @@ test.describe( "entry editor", () =>
 
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
-        await expect( page ).toHaveURL( /\/wiki\/fanal-de-sainte-roque\/$/ );
+        await expect( page ).toHaveURL( /\/entries\/fanal-de-sainte-roque\/$/ );
         await expect( page.getByRole( "complementary", { name: "Fiche signalétique" } ) )
             .toContainText( "9 janvier 2045" );
 
@@ -130,7 +130,7 @@ test.describe( "entry editor", () =>
 
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ MISSING_SLUG }/$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ MISSING_SLUG }/$` ) );
         await expect( page.getByRole( "region", { name: "Pages qui mènent ici" } )
             .getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
     } );
@@ -148,7 +148,7 @@ test.describe( "entry editor", () =>
         await page.getByRole( "radio", { name: "Brouillon", exact: true } ).check();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
-        await expect( page ).toHaveURL( /\/wiki\/bureau-des-marees\/$/ );
+        await expect( page ).toHaveURL( /\/entries\/bureau-des-marees\/$/ );
         await expect( page.getByText( "Brouillon : le contenu est encore incomplet" ) ).toBeVisible();
 
         const stored = await wiki.storedEntry( "bureau-des-marees" );
@@ -172,8 +172,8 @@ test.describe( "entry editor", () =>
 
         const citing = await wiki.storedEntry( PAGES.port.slug );
 
-        expect( citing?.body ).toContain( "(/wiki/bureau-des-marees)" );
-        expect( citing?.body ).not.toContain( `(/wiki/${ PAGES.bureau.slug })` );
+        expect( citing?.body ).toContain( "(/entries/bureau-des-marees)" );
+        expect( citing?.body ).not.toContain( `(/entries/${ PAGES.bureau.slug })` );
     } );
 
     test( "leaves the citing pages alone when the reader declines", async ( { page, wiki } ) =>
@@ -186,7 +186,7 @@ test.describe( "entry editor", () =>
 
         const citing = await wiki.storedEntry( PAGES.port.slug );
 
-        expect( citing?.body ).toContain( `(/wiki/${ PAGES.bureau.slug })` );
+        expect( citing?.body ).toContain( `(/entries/${ PAGES.bureau.slug })` );
     } );
 
     test( "declares a missing category without leaving the form", async ( { page, wiki } ) =>
@@ -353,7 +353,7 @@ test.describe( "entry editor", () =>
         await page.getByRole( "button", { name: "Supprimer la fiche" } ).click();
         await wiki.confirm( "Supprimer cette fiche ?", "Supprimer" );
 
-        await expect( page ).toHaveURL( /\/wiki\/$/ );
+        await expect( page ).toHaveURL( /\/entries\/$/ );
         await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeHidden();
         expect( await wiki.storedEntry( PAGES.sceau.slug ) ).toBeUndefined();
     } );
@@ -382,7 +382,7 @@ test.describe( "entry editor", () =>
 
         await page.getByRole( "link", { name: "Annuler" } ).click();
 
-        await expect( page ).toHaveURL( /\/wiki\/digue-de-sainte-roque\/$/ );
+        await expect( page ).toHaveURL( /\/entries\/digue-de-sainte-roque\/$/ );
     } );
 
     test( "keeps the editor open when the reader refuses to leave", async ( { page, wiki } ) =>
@@ -409,7 +409,7 @@ test.describe( "entry editor", () =>
 
         await wiki.confirm( UNSAVED_DIALOG, "Quitter sans enregistrer" );
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.traite.slug }/$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.traite.slug }/$` ) );
         expect( ( await wiki.storedEntry( PAGES.traite.slug ) )?.summary ).toBe( PAGES.traite.summary );
     } );
 } );

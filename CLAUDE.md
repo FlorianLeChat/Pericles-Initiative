@@ -259,7 +259,7 @@ Two rules with no exception, because both hide the very thing these questions lo
   back to returning its input untouched. A page written before that field existed carries a single
   `timelineDate`, adopted by `normalizeDates` on the first read of the overlay and never written
   again.
-- Every listing (`/wiki`, `/categories`, `/timeline`, the home page) must handle having zero entries
+- Every listing (`/entries`, `/categories`, `/timeline`, the home page) must handle having zero entries
   gracefully: a fresh browser starts from an empty wiki, so this is the default state, not an edge
   case. Show an inviting message with a link to create content, never a silent empty grid.
 
@@ -267,7 +267,7 @@ Two rules with no exception, because both hide the very thing these questions lo
 
 - Page bodies are Markdown, stored in `Entry.body`. Milkdown authors that Markdown, `marked` renders
   it. Milkdown is never used to display an article.
-- Internal links use plain Markdown pointing at an internal path: `[Athéna Vance](/wiki/athena-vance)`.
+- Internal links use plain Markdown pointing at an internal path: `[Athéna Vance](/entries/athena-vance)`.
   There is deliberately **no** `[[wiki]]` syntax: standard links round trip through the editor
   untouched and still give us the link graph, the backlinks and the red links.
 - A link to a slug with no page becomes a red link, and its target renders a page inviting creation.
@@ -295,9 +295,9 @@ Two rules with no exception, because both hide the very thing these questions lo
 ## Static build constraints
 
 - Every page is prerendered by crawling links from `/`. A page that no rendered `<a href>` points at
-  will not exist as static HTML. This is why `/wiki` lists every page, drafts included: it is the
+  will not exist as static HTML. This is why `/entries` lists every page, drafts included: it is the
   crawler's entry point into the corpus. With an empty seed, that listing is empty at build time, so
-  `/wiki/[slug]` and `/categories/[slug]` are never prerendered: every page of actual content is
+  `/entries/[slug]` and `/categories/[slug]` are never prerendered: every page of actual content is
   served through the SPA fallback instead. This is expected, not a regression to fix.
 - Editor routes cannot be prerendered. They export `prerender = false` and `ssr = false`, and the
   SPA fallback `404.html` serves them, along with every page that only exists in the local overlay,
@@ -311,9 +311,9 @@ Two rules with no exception, because both hide the very thing these questions lo
   an `index.html`. Without it, `/categories` is both a page and the parent of `/categories/manage`,
   the build writes `categories.html` beside a `categories/` directory, and the host has to guess which
   one the path means: GitLab Pages picks the directory, redirects to `/categories/`, finds no index
-  and answers 404 for a page that prerendered perfectly well. `/wiki` collides the same way the day a
+  and answers 404 for a page that prerendered perfectly well. `/entries` collides the same way the day a
   backend feeds the seed. The cost is that every url carries a trailing slash, which the client router
-  appends on its own, so links written without one still work and specs assert `\/wiki\/$`.
+  appends on its own, so links written without one still work and specs assert `\/entries\/$`.
   `Path` values, such as the ones in `src/lib/config/navigation.ts`, must carry it explicitly.
 - `app.html` declares no title and no description, in any of their forms. Its head is injected
   **before** `%sveltekit.head%`, so a value written there sits ahead of the one the page renders and
@@ -429,7 +429,7 @@ commit**:
 
 - `tests/e2e/home.spec.ts` — home page (hero figures, featured pages, live excerpt, category counts,
   empty wiki).
-- `tests/e2e/wiki.spec.ts` — encyclopedia index (keyword, nature, category and status filters,
+- `tests/e2e/entries.spec.ts` — encyclopedia index (keyword, nature, category and status filters,
   sorting, empty states).
 - `tests/e2e/article.spec.ts` — a single page (infobox, table of contents, backlinks, related reads,
   draft marker, red links).
@@ -554,7 +554,7 @@ src/
     routes/
         +layout.ts              installs an always empty seed, sets prerender
         +layout.svelte          installs the dataset, frames the site
-        wiki/                   index and article pages
+        entries/                index and article pages
         categories/             overview, per category pages, management
         live/                   live feed
         timeline/               dated pages, by year

@@ -49,7 +49,7 @@ test.describe( "encyclopedia index", () =>
 {
     test( "invites writing the first page when the corpus is empty", async ( { page, wiki } ) =>
     {
-        await wiki.openEmpty( "/wiki" );
+        await wiki.openEmpty( "/entries" );
 
         await expect( page.getByText( "Aucune fiche pour le moment" ) ).toBeVisible();
         await expect( page.getByRole( "region", { name: "Filtres" } ) ).toBeHidden();
@@ -61,7 +61,7 @@ test.describe( "encyclopedia index", () =>
 
     test( "lists every page, drafts included", async ( { page, wiki } ) =>
     {
-        await wiki.open( "/wiki" );
+        await wiki.open( "/entries" );
 
         await expect( page.getByText( `${ COUNTS.entries } fiches, dont ${ COUNTS.drafts } en brouillon.` ) ).toBeVisible();
         await expect( rows( page ) ).toHaveCount( COUNTS.entries );
@@ -74,7 +74,7 @@ test.describe( "encyclopedia index", () =>
 
     test( "gives each row a single link, its call number and its categories as plain text", async ( { page, wiki } ) =>
     {
-        await wiki.open( "/wiki" );
+        await wiki.open( "/entries" );
 
         const row = rows( page ).filter( { has: page.getByRole( "link", { name: PAGES.athena.title } ) } );
 
@@ -93,7 +93,7 @@ test.describe( "encyclopedia index", () =>
 
     test( "gathers the alphabetical ordering under letter headings", async ( { page, wiki } ) =>
     {
-        await wiki.open( "/wiki" );
+        await wiki.open( "/entries" );
 
         const initial = PAGES.athena.title.charAt( 0 );
 
@@ -108,7 +108,7 @@ test.describe( "encyclopedia index", () =>
 
     test( "opens on the ordering the address asks for", async ( { page, wiki } ) =>
     {
-        await wiki.open( "/wiki/?tri=recent" );
+        await wiki.open( "/entries/?tri=recent" );
 
         await expect( rows( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.athena.title );
         await expect( rows( page ).last().getByRole( "heading" ) ).toHaveText( PAGES.doctrine.title );
@@ -120,7 +120,7 @@ test.describe( "encyclopedia index", () =>
 
     test( "filters by keyword, by category and by status", async ( { page, wiki } ) =>
     {
-        await wiki.open( "/wiki" );
+        await wiki.open( "/entries" );
         await page.getByLabel( "Filtrer les fiches" ).fill( "athena" );
 
         await expect( rows( page ) ).toHaveCount( 1 );
@@ -141,7 +141,7 @@ test.describe( "encyclopedia index", () =>
 
     test( "explains a combination of filters matching nothing, and clears it", async ( { page, wiki } ) =>
     {
-        await wiki.open( "/wiki" );
+        await wiki.open( "/entries" );
 
         await page.getByLabel( "Filtrer les fiches" ).fill( "une requête qui ne mène nulle part" );
 
@@ -154,7 +154,7 @@ test.describe( "encyclopedia index", () =>
 
     test( "sorts by in universe date", async ( { page, wiki } ) =>
     {
-        await wiki.open( "/wiki" );
+        await wiki.open( "/entries" );
         await showFilters( page );
 
         await page.getByLabel( "Tri" ).selectOption( "chronologique" );
@@ -168,7 +168,7 @@ test.describe( "encyclopedia index", () =>
 
     test( "counts what the filters keep, and clears them from the panel", async ( { page, wiki } ) =>
     {
-        await wiki.open( "/wiki" );
+        await wiki.open( "/entries" );
 
         const count = page.getByRole( "status" ).filter( { hasText: "fiche" } );
 

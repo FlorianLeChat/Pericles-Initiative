@@ -25,11 +25,11 @@
     {/key}
 {:else if wiki.overlayLoaded}
     <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-        <p class="text-muted font-mono text-sm">/wiki/{slug}</p>
+        <p class="text-muted font-mono text-sm">/entries/{slug}</p>
 
         <EmptyState title={m.edit_empty_title()} description={m.edit_empty_description()}>
             <Button href={resolve( `new/?slug=${ slug }` )} color="primary">{m.common_create_this_entry()}</Button>
-            <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
+            <Button href={resolve( "/entries" )} color="alternative">{m.common_browse_wiki()}</Button>
         </EmptyState>
     </div>
 {:else}

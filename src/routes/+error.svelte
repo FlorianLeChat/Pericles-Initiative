@@ -26,6 +26,6 @@
 
     <div class="mt-8 flex justify-center gap-3">
         <Button href={resolve( "/" )} color="primary">{m.error_home_button()}</Button>
-        <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
+        <Button href={resolve( "/entries" )} color="alternative">{m.common_browse_wiki()}</Button>
     </div>
 </section>

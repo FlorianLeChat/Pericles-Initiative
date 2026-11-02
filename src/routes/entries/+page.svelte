@@ -5,7 +5,7 @@
      * This listing is what the prerenderer crawls, so it must link to every
      * page of the dataset, drafts included.
      *
-     * The ordering can be asked for in the address, `/wiki/?tri=recent`, so
+     * The ordering can be asked for in the address, `/entries/?tri=recent`, so
      * another page can link straight to the pages most recently changed. The
      * values are the ones of the sort menu: `alphabetique`, `recent`,
      * `chronologique`.

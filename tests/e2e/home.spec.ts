@@ -84,7 +84,7 @@ test.describe( "home page", () =>
 
         await highlight.getByRole( "link", { name: PAGES.athena.title } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.athena.slug }/$` ) );
     } );
 
     test( "picks up the live feed, marks what is pinned, and counts every category", async ( { page, wiki } ) =>

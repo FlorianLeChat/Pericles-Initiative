@@ -82,7 +82,7 @@
                         class="text-muted text-sm"
                         classes={{ list: "flex-wrap space-x-0 md:space-x-0" }}
                     >
-                        <BreadcrumbItem home href={resolve( "/wiki" )} homeClass={CRUMB}>
+                        <BreadcrumbItem home href={resolve( "/entries" )} homeClass={CRUMB}>
                             {#snippet icon()}{/snippet}
 
                             {m.common_encyclopedia_label()}
@@ -165,7 +165,7 @@
                             <ul class="divide-paper-200 dark:divide-ink-800 mt-4 divide-y">
                                 {#each related as item ( item.id )}
                                     <li class="py-3">
-                                        <a href={resolve( `wiki/${ item.slug }/` )} class="wiki-link font-medium">
+                                        <a href={resolve( `entries/${ item.slug }/` )} class="wiki-link font-medium">
                                             {item.title}
                                         </a>
 
@@ -193,7 +193,7 @@
 
         <span class="title-rule" aria-hidden="true"></span>
 
-        <p class="call-number mt-4">/wiki/{slug}</p>
+        <p class="call-number mt-4">/entries/{slug}</p>
 
         <EmptyState title={m.wiki_slug_unwritten_title()} description={m.wiki_slug_unwritten_description()}>
             <Button
@@ -203,7 +203,7 @@
                 {m.common_create_this_entry()}
             </Button>
 
-            <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
+            <Button href={resolve( "/entries" )} color="alternative">{m.common_browse_wiki()}</Button>
         </EmptyState>
 
         {#if backlinks.length > 0}

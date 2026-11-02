@@ -134,7 +134,7 @@
                             <span class="block truncate text-sm font-medium">{hit.entry.title}</span>
 
                             <span class="text-muted block truncate font-mono text-xs">
-                                /wiki/{hit.entry.slug}
+                                /entries/{hit.entry.slug}
                             </span>
                         </span>
                     </button>
@@ -163,7 +163,7 @@
                             </span>
 
                             <span class="text-muted block truncate font-mono text-xs">
-                                /wiki/{plannedSlug}
+                                /entries/{plannedSlug}
                             </span>
                         </span>
                     </button>

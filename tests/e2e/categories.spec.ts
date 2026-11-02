@@ -180,7 +180,7 @@ test.describe( "categories", () =>
 
         await expect( page.getByText( `/categories/${ CATEGORIES.doctrines.slug }` ) ).toBeHidden();
 
-        await page.goto( `/wiki/${ PAGES.doctrine.slug }` );
+        await page.goto( `/entries/${ PAGES.doctrine.slug }` );
 
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( PAGES.doctrine.title );
         expect( ( await wiki.storedEntry( PAGES.doctrine.slug ) )?.categories ).toEqual( [] );

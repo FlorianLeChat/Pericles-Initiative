@@ -76,7 +76,7 @@ test.describe( "dashboard", () =>
         const redLink = missing.getByRole( "link", { name: MISSING_TITLE, exact: true } );
 
         await expect( redLink ).toHaveClass( /wiki-link-missing/ );
-        await expect( redLink ).toHaveAttribute( "href", `/wiki/${ MISSING_SLUG }/` );
+        await expect( redLink ).toHaveAttribute( "href", `/entries/${ MISSING_SLUG }/` );
         await expect( missing ).toContainText( "citée 1 fois" );
 
         await missing.getByRole( "link", { name: `Créer la fiche « ${ MISSING_TITLE } »` } ).click();
