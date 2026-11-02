@@ -148,7 +148,7 @@ test.describe( "data page", () =>
         await expect( page.getByText( "Sauvegarde restaurée : 1 fiche, 0 catégorie et 0 entrée du fil." ) ).toBeVisible();
         await expect( page.locator( "html" ) ).toHaveAttribute( "data-accent", IMPORTED.meta.accent );
 
-        await page.goto( "/wiki" );
+        await page.goto( "/entries" );
 
         await expect( page.getByRole( "link", { name: "Vigie du nord" } ) ).toBeVisible();
         await expect( page.getByRole( "link", { name: PAGES.athena.title } ) ).toBeHidden();

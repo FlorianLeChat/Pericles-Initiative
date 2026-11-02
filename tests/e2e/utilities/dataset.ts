@@ -83,13 +83,13 @@ const ENTRY_LIST: Entry[] = [
         body: [
             "## Origines",
             "",
-            "Née sur les pontons de [Port Méridien](/wiki/port-meridien), elle apprend à lire les courants bien",
+            "Née sur les pontons de [Port Méridien](/entries/port-meridien), elle apprend à lire les courants bien",
             "avant d’apprendre à écrire.",
             "",
             "## Le traité",
             "",
-            "Son nom reste attaché au [traité des marées](/wiki/traite-des-marees), qu’elle défend seule devant",
-            `le [Conseil des parties](/wiki/${ MISSING_SLUG }) pendant soixante douze heures.`,
+            "Son nom reste attaché au [traité des marées](/entries/traite-des-marees), qu’elle défend seule devant",
+            `le [Conseil des parties](/entries/${ MISSING_SLUG }) pendant soixante douze heures.`,
             "",
             "### Postérité",
             "",
@@ -121,8 +121,8 @@ const ENTRY_LIST: Entry[] = [
             "",
             "Trois digues, quatre sas, et une population qui change avec la marée.",
             "",
-            "La cité est administrée par le [Bureau des courants](/wiki/bureau-des-courants), sous l’autorité",
-            "d’[Athéna Vance](/wiki/athena-vance)."
+            "La cité est administrée par le [Bureau des courants](/entries/bureau-des-courants), sous l’autorité",
+            "d’[Athéna Vance](/entries/athena-vance)."
         ].join( "\n" ),
         categories: [ "sites" ],
         infobox: [ { label: "Population", value: "12 400" } ],
@@ -140,7 +140,7 @@ const ENTRY_LIST: Entry[] = [
         body: [
             "## Signature",
             "",
-            "Signé sur le pont de [Port Méridien](/wiki/port-meridien) après deux hivers de négociation, il fixe",
+            "Signé sur le pont de [Port Méridien](/entries/port-meridien) après deux hivers de négociation, il fixe",
             "pour la première fois des routes qui ne dépendent plus de la force."
         ].join( "\n" ),
         categories: [ "institutions" ],
@@ -160,7 +160,7 @@ const ENTRY_LIST: Entry[] = [
             "## Mandat",
             "",
             "Le bureau relève les courants, publie les cartes et arbitre les litiges d’amarrage. Il a été fondé",
-            "à la demande d’[Athéna Vance](/wiki/athena-vance)."
+            "à la demande d’[Athéna Vance](/entries/athena-vance)."
         ].join( "\n" ),
         categories: [ "institutions" ],
         infobox: [],
@@ -192,7 +192,7 @@ const ENTRY_LIST: Entry[] = [
         body: [
             "## Principe",
             "",
-            "Née dans les marges du [traité des marées](/wiki/traite-des-marees), la doctrine tient en une",
+            "Née dans les marges du [traité des marées](/entries/traite-des-marees), la doctrine tient en une",
             "phrase : ce qui s’amarre doit pouvoir partir."
         ].join( "\n" ),
         categories: [ "doctrines" ],

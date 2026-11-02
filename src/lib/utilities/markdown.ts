@@ -5,7 +5,7 @@
  * runs both in Node during prerendering and in the browser after hydration.
  * Milkdown is only used to author that Markdown, never to display it.
  *
- * Internal links use the plain Markdown syntax `[Label](/wiki/slug)`, which
+ * Internal links use the plain Markdown syntax `[Label](/entries/slug)`, which
  * lets the editor round trip them without any custom syntax while still
  * giving us a link graph, backlinks and red links.
  *
@@ -22,7 +22,7 @@ import type { Heading, RenderedArticle } from "#lib/types.ts";
 marked.use( { gfm: true, breaks: false } );
 
 /** Matches the slug of an internal page url, ignoring any anchor or query. */
-const INTERNAL_HREF = /^\/wiki\/([^#?/]+)/;
+const INTERNAL_HREF = /^\/entries\/([^#?/]+)/;
 
 /**
  * What may follow a slug inside the target of an internal link: the closing
@@ -340,7 +340,7 @@ export const extractInternalLinks = ( markdown: string ): string[] => analyzeBod
  */
 export const retargetInternalLinks = ( markdown: string, from: string, to: string ): string =>
 {
-    const links = new RegExp( `(\\]\\(/wiki/)${ from }${ SLUG_END }`, "g" );
+    const links = new RegExp( `(\\]\\(/entries/)${ from }${ SLUG_END }`, "g" );
 
     return markdown.replace( links, ( _match, opening: string ) => `${ opening }${ to }` );
 };

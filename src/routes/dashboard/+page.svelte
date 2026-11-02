@@ -86,7 +86,7 @@
                     >
                         {#each missing as item ( item.slug )}
                             <li class="flex items-center gap-3 py-2.5">
-                                <a href={resolve( `wiki/${ item.slug }/` )} class="wiki-link-missing min-w-0 truncate">
+                                <a href={resolve( `entries/${ item.slug }/` )} class="wiki-link-missing min-w-0 truncate">
                                     {item.title}
                                 </a>
 
@@ -132,7 +132,7 @@
                                     {#each issue.entries.slice( 0, ISSUE_PREVIEW ) as entry ( entry.id )}
                                         <li>
                                             <a
-                                                href={resolve( `wiki/${ entry.slug }/` )}
+                                                href={resolve( `entries/${ entry.slug }/` )}
                                                 class="border-paper-300 dark:border-ink-700 hover:border-accent-400 rounded-full border
                                                        px-2.5 py-0.5 text-xs transition"
                                             >
@@ -167,7 +167,7 @@
                     >
                         {#each stats.mostLinked as item ( item.entry.id )}
                             <li class="flex items-center gap-3 py-2.5">
-                                <a href={resolve( `wiki/${ item.entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate">
+                                <a href={resolve( `entries/${ item.entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate">
                                     {item.entry.title}
                                 </a>
 
@@ -221,7 +221,7 @@
                     >
                         {#each recent as entry ( entry.id )}
                             <li class="flex items-center gap-3 py-2.5">
-                                <a href={resolve( `wiki/${ entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate">
+                                <a href={resolve( `entries/${ entry.slug }/` )} class="wiki-link min-w-0 flex-1 truncate">
                                     {entry.title}
                                 </a>
 

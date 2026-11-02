@@ -56,7 +56,7 @@
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
             <h3 class="text-ink-900 dark:text-paper-100 text-base leading-snug font-semibold">
                 <a
-                    href={resolve( `wiki/${ entry.slug }/` )}
+                    href={resolve( `entries/${ entry.slug }/` )}
                     class="group-hover:text-accent-700 dark:group-hover:text-accent-300 stretched-link
                            group-hover:underline group-hover:underline-offset-2"
                 >

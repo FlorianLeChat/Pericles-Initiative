@@ -14,7 +14,7 @@ test.describe( "article page", () =>
 {
     test( "shows the title, the lead, the infobox and the table of contents", async ( { page, wiki } ) =>
     {
-        await wiki.open( `/wiki/${ PAGES.athena.slug }` );
+        await wiki.open( `/entries/${ PAGES.athena.slug }` );
 
         await expect( page ).toHaveTitle( `${ PAGES.athena.title } - ${ UNIVERSE }` );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( PAGES.athena.title );
@@ -56,7 +56,7 @@ test.describe( "article page", () =>
 
     test( "wires the page into the link graph, both ways", async ( { page, wiki } ) =>
     {
-        await wiki.open( `/wiki/${ PAGES.athena.slug }` );
+        await wiki.open( `/entries/${ PAGES.athena.slug }` );
 
         await expect( page.getByRole( "region", { name: "Pages qui mènent ici" } ).getByRole( "link" ) )
             .toHaveText( [ PAGES.bureau.title, PAGES.port.title ] );
@@ -67,20 +67,20 @@ test.describe( "article page", () =>
 
         await page.getByRole( "article" ).getByRole( "link", { name: PAGES.port.title } ).first().click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.port.slug }/$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.port.slug }/$` ) );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( PAGES.port.title );
     } );
 
     test( "marks a draft as incomplete", async ( { page, wiki } ) =>
     {
-        await wiki.open( `/wiki/${ PAGES.sceau.slug }` );
+        await wiki.open( `/entries/${ PAGES.sceau.slug }` );
 
         await expect( page.getByText( "Brouillon : le contenu est encore incomplet" ) ).toBeVisible();
     } );
 
     test( "turns a red link into an invitation to write the page", async ( { page, wiki } ) =>
     {
-        await wiki.open( `/wiki/${ PAGES.athena.slug }` );
+        await wiki.open( `/entries/${ PAGES.athena.slug }` );
 
         const redLink = page.getByRole( "link", { name: "Conseil des parties" } );
 
@@ -88,7 +88,7 @@ test.describe( "article page", () =>
 
         await redLink.click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ MISSING_SLUG }/$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ MISSING_SLUG }/$` ) );
         await expect( page.getByText( "Cette fiche n'existe pas encore" ) ).toBeVisible();
         await expect( page.getByRole( "region", { name: "Fiches qui attendent cette page" } )
             .getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();

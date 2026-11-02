@@ -126,7 +126,7 @@
                     title={m.categories_slug_empty_title()}
                     description={m.categories_slug_empty_description()}
                 >
-                    <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
+                    <Button href={resolve( "/entries" )} color="alternative">{m.common_browse_wiki()}</Button>
                 </EmptyState>
             </div>
         {:else}
@@ -143,7 +143,7 @@
                                 <span class="call-number">{reference}</span>
 
                                 <a
-                                    href={resolve( `wiki/${ entry.slug }/` )}
+                                    href={resolve( `entries/${ entry.slug }/` )}
                                     class="text-ink-900 dark:text-paper-100 hover:text-accent-600 dark:hover:text-accent-400 stretched-link font-semibold"
                                 >
                                     {entry.title}

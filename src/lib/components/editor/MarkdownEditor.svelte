@@ -133,7 +133,7 @@
             const view = ctx.get( editorViewCtx );
             const { state, dispatch } = view;
             const { from, to, empty } = state.selection;
-            const mark = linkSchema.type( ctx ).create( { href: `/wiki/${ slug }` } );
+            const mark = linkSchema.type( ctx ).create( { href: `/entries/${ slug }` } );
 
             if ( empty )
             {

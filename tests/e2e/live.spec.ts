@@ -43,7 +43,7 @@ test.describe( "live feed", () =>
 
         await item( page, LIVE.recent.title ).getByRole( "link", { name: "Lire la fiche complète" } ).click();
 
-        await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.athena.slug }/$` ) );
     } );
 
     test( "dates the latest dispatch from the newest item, not from the pinned one", async ( { page, wiki } ) =>

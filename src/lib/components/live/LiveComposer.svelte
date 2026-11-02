@@ -73,7 +73,7 @@
      */
     const insertLink = ( slug: string, label: string ): void =>
     {
-        const markdown = `[${ label }](/wiki/${ slug })`;
+        const markdown = `[${ label }](/entries/${ slug })`;
 
         if ( !bodyInput )
         {

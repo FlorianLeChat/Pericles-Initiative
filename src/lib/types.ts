@@ -47,7 +47,7 @@ export interface EntryImage {
 export interface Entry {
     /** Stable identifier, kept across slug renames. */
     id: string;
-    /** Unique url segment, used as `/wiki/{slug}`. */
+    /** Unique url segment, used as `/entries/{slug}`. */
     slug: string;
     title: string;
     /** Plain text lead paragraph, reused in listings and meta descriptions. */

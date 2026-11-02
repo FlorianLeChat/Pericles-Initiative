@@ -113,7 +113,7 @@
                 {#each uncategorized as entry ( entry.id )}
                     <li>
                         <a
-                            href={resolve( `wiki/${ entry.slug }/` )}
+                            href={resolve( `entries/${ entry.slug }/` )}
                             class="border-paper-300 dark:border-ink-700 hover:border-accent-400 rounded-full border px-3 py-1.5 text-sm transition"
                         >
                             {entry.title}

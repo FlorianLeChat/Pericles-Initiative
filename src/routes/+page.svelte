@@ -144,7 +144,7 @@
                 </button>
 
                 <p class="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
-                    <a href={resolve( "/wiki" )} class="wiki-link">{m.home_hero_browse_button()}</a>
+                    <a href={resolve( "/entries" )} class="wiki-link">{m.home_hero_browse_button()}</a>
                     <a href={resolve( "/categories" )} class="wiki-link">{m.home_hero_categories_button()}</a>
                 </p>
             </div>
@@ -180,7 +180,7 @@
 
                         <h3 class="text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
                             <a
-                                href={resolve( `wiki/${ lead.slug }/` )}
+                                href={resolve( `entries/${ lead.slug }/` )}
                                 class="group-hover:text-accent-600 dark:group-hover:text-accent-400 stretched-link"
                             >
                                 {lead.title}
@@ -200,7 +200,7 @@
                                 <li class="group relative py-4 first:pt-4 lg:first:pt-0">
                                     <h3 class="text-lg leading-snug font-semibold tracking-tight">
                                         <a
-                                            href={resolve( `wiki/${ entry.slug }/` )}
+                                            href={resolve( `entries/${ entry.slug }/` )}
                                             class="group-hover:text-accent-600 dark:group-hover:text-accent-400
                                                    stretched-link"
                                         >
@@ -231,7 +231,7 @@
                         <div class="flex items-baseline justify-between gap-4">
                             <h2 id="home-latest" class="section-heading">{m.common_recent_changes_heading()}</h2>
 
-                            <a href="{resolve( "wiki/" )}?tri=recent" class="wiki-link text-sm">{m.home_recent_see_all()}</a>
+                            <a href="{resolve( "entries/" )}?tri=recent" class="wiki-link text-sm">{m.home_recent_see_all()}</a>
                         </div>
 
                         <ul class="mt-4 border-y {HAIRLINE_LIST}">
@@ -240,7 +240,7 @@
                                     <div class="min-w-0 flex-1">
                                         <h3 class="leading-snug font-medium">
                                             <a
-                                                href={resolve( `wiki/${ entry.slug }/` )}
+                                                href={resolve( `entries/${ entry.slug }/` )}
                                                 class="group-hover:text-accent-600 dark:group-hover:text-accent-400
                                                        stretched-link"
                                             >
@@ -288,7 +288,7 @@
 
                                     <a
                                         href={item.entrySlug
-                                            ? resolve( `wiki/${ item.entrySlug }/` )
+                                            ? resolve( `entries/${ item.entrySlug }/` )
                                             : resolve( "/live" )}
                                         class="group-hover:text-accent-600 dark:group-hover:text-accent-400
                                                stretched-link mt-1.5 block leading-snug font-medium"

@@ -19,7 +19,7 @@ export interface NavLink {
 // asks for a trailing slash, so these carry one. Dropping it would type check
 // nowhere and route nowhere.
 export const NAV_LINKS: readonly NavLink[] = [
-    { href: "wiki/", label: m.nav_wiki() },
+    { href: "entries/", label: m.nav_wiki() },
     { href: "categories/", label: m.nav_categories() },
     { href: "live/", label: m.nav_live() },
     { href: "timeline/", label: m.nav_timeline() }

@@ -65,9 +65,9 @@ const audit = async ( page: Page ): Promise<void> =>
 /** Every page reachable by url, with the fixture wiki behind it. */
 const ROUTES: readonly { name: string; path: string }[] = [
     { name: "accueil", path: "/" },
-    { name: "encyclopédie", path: "/wiki" },
-    { name: "fiche", path: `/wiki/${ PAGES.athena.slug }` },
-    { name: "fiche à écrire", path: "/wiki/une-fiche-absente" },
+    { name: "encyclopédie", path: "/entries" },
+    { name: "fiche", path: `/entries/${ PAGES.athena.slug }` },
+    { name: "fiche à écrire", path: "/entries/une-fiche-absente" },
     { name: "catégories", path: "/categories" },
     { name: "catégorie", path: `/categories/${ CATEGORIES.institutions.slug }` },
     { name: "gestion des catégories", path: "/categories/manage" },
@@ -103,7 +103,7 @@ test.describe( "accessibility", () =>
     test( "empty wiki has no violation", async ( { page, wiki } ) =>
     {
         await still( page );
-        await wiki.openEmpty( "/wiki" );
+        await wiki.openEmpty( "/entries" );
         await audit( page );
     } );
 

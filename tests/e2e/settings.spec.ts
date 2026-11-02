@@ -95,7 +95,7 @@ test.describe( "settings", () =>
 
         await featured.getByRole( "button", { name: "Ajouter une fiche" } ).click();
         await page.getByPlaceholder( "Titre de la fiche à lier" ).fill( PAGES.doctrine.title );
-        await page.getByRole( "button", { name: `${ PAGES.doctrine.title } /wiki/${ PAGES.doctrine.slug }` } ).click();
+        await page.getByRole( "button", { name: `${ PAGES.doctrine.title } /entries/${ PAGES.doctrine.slug }` } ).click();
 
         await expect( featured.getByRole( "listitem" ) ).toHaveCount( 3 );
 

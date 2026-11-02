@@ -403,7 +403,7 @@
         const stored = store();
 
         leaving = true;
-        void goto( resolve( `wiki/${ stored.slug }/` ) );
+        void goto( resolve( `entries/${ stored.slug }/` ) );
     };
 
     /**
@@ -471,7 +471,7 @@
 
         wiki.deleteEntry( current.id );
         leaving = true;
-        void goto( resolve( "/wiki" ) );
+        void goto( resolve( "/entries" ) );
     };
 
 </script>
@@ -513,7 +513,7 @@
             {/if}
 
             <Button
-                href={current ? resolve( `wiki/${ current.slug }/` ) : resolve( "/wiki" )}
+                href={current ? resolve( `entries/${ current.slug }/` ) : resolve( "/entries" )}
                 color="alternative"
                 size="sm"
                 class="h-9 {PAIRED_ACTION}"
@@ -550,7 +550,7 @@
             </Label>
 
             <div class="flex items-center gap-2">
-                <span class="text-muted shrink-0 font-mono text-sm">/wiki/</span>
+                <span class="text-muted shrink-0 font-mono text-sm">/entries/</span>
 
                 <Input
                     id="entry-slug"
