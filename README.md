@@ -46,7 +46,7 @@ sequenceDiagram
     Utilisateur->>Interface: J'ouvre le site
     Interface->>Stockage local: Lit la surcouche, une fois la page hydratée
     Stockage local-->>Interface: Mes fiches, catégories et événements
-    Interface-->>Utilisateur: L'accueil, ou une invitation à créer si le wiki est vide
+    Interface-->>Utilisateur: Un squelette neutre le temps de cette lecture, puis l'accueil, ou une invitation à créer si le wiki est vide
 
     Utilisateur->>Interface: Je parcours le wiki, les catégories, la chronologie
     Interface-->>Utilisateur: Les fiches, leurs rétroliens et leurs lectures liées
@@ -68,6 +68,8 @@ sequenceDiagram
     Utilisateur->>Fichier JSON: J'exporte mes données
     Fichier JSON-->>Utilisateur: Une sauvegarde que je peux versionner
     Utilisateur->>Interface: J'importe un fichier
+    Interface-->>Utilisateur: Ce que contient le fichier face à ce que contient le navigateur
+    Utilisateur->>Interface: Je confirme le remplacement, après une copie si je le souhaite
     Interface->>Stockage local: Remplace intégralement le contenu du navigateur
 
     Utilisateur->>Sauvegarde en ligne: J'envoie un instantané, si j'en ai configuré une
@@ -132,7 +134,7 @@ sequenceDiagram
     User->>Interface: I open the website
     Interface->>Local storage: Reads the overlay, once the page is hydrated
     Local storage-->>Interface: My entries, categories and events
-    Interface-->>User: The home page, or an invitation to create if the wiki is empty
+    Interface-->>User: A neutral skeleton during that read, then the home page, or an invitation to create if the wiki is empty
 
     User->>Interface: I browse the wiki, the categories, the timeline
     Interface-->>User: The entries, their backlinks and their related reads
@@ -154,6 +156,8 @@ sequenceDiagram
     User->>JSON file: I export my data
     JSON file-->>User: A backup I can keep under version control
     User->>Interface: I import a file
+    Interface-->>User: What the file holds against what the browser holds
+    User->>Interface: I confirm the replacement, after a copy if I want one
     Interface->>Local storage: Replaces the whole content of the browser
 
     Interface->>Online backup: Reads the snapshot on arrival, then at most once a minute, if I configured one

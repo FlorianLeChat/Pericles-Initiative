@@ -10,17 +10,16 @@
      *
      * @author Claude
      */
-    import ArrowDown from "@lucide/svelte/icons/arrow-down";
-    import ArrowUp from "@lucide/svelte/icons/arrow-up";
+    import { tick } from "svelte";
     import X from "@lucide/svelte/icons/x";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Input from "flowbite-svelte/Input.svelte";
-    import { SMALL_FIELD } from "#lib/config/forms.ts";
     import * as m from "#lib/locales/messages.js";
+    import Input from "flowbite-svelte/Input.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import type { InfoboxField } from "#lib/types.ts";
-
-    import { tick } from "svelte";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { SMALL_FIELD } from "#lib/config/forms.ts";
+    import ArrowUp from "@lucide/svelte/icons/arrow-up";
+    import ArrowDown from "@lucide/svelte/icons/arrow-down";
 
     interface Props {
         fields: InfoboxField[];

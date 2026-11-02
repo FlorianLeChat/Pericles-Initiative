@@ -10,8 +10,8 @@
 
 import { readFile } from "node:fs/promises";
 import type { Dataset } from "#lib/types.ts";
-import { COUNTS, PAGES, UNIVERSE } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
+import { COUNTS, PAGES, UNIVERSE } from "./utilities/dataset";
 
 /**
  * A minimal wiki, pasted into the import area to replace everything.
@@ -82,19 +82,68 @@ test.describe( "data page", () =>
         await expect( page.getByText( "Sauvegarde téléchargée." ) ).toBeVisible();
     } );
 
-    test( "replaces everything with a pasted file, and refuses an unreadable one", async ( { page, wiki } ) =>
+    test( "refuses an unreadable file before asking anything, and leaves the wiki alone", async ( { page, wiki } ) =>
     {
         await wiki.open( "/data" );
 
-        await page.getByLabel( "Ou coller le contenu d'une sauvegarde" ).fill( "{ ceci n’est pas du JSON" );
+        await page.getByLabel( "Votre fichier de sauvegarde" ).setInputFiles( {
+            name: "wiki.json",
+            mimeType: "application/json",
+            buffer: Buffer.from( "{ ceci n’est pas du JSON" )
+        } );
         await page.getByRole( "button", { name: "Restaurer cette sauvegarde" } ).click();
-        await wiki.confirm( "Remplacer votre wiki ?", "Restaurer" );
 
-        await expect( page.getByText( "Ce contenu n'est pas une sauvegarde valide." ) ).toBeVisible();
+        await expect( page.getByRole( "alert" ) ).toContainText( "Impossible de lire cette sauvegarde" );
+        await expect( page.getByRole( "alert" ) ).toContainText( "Choisissez le fichier wiki.json" );
+        await expect( page.getByRole( "dialog" ) ).toBeHidden();
+
+        await page.getByLabel( "Ou coller le contenu d'une sauvegarde" ).fill( "[ 1, 2, 3 ]" );
+        await page.getByRole( "button", { name: "Restaurer cette sauvegarde" } ).click();
+
+        await expect( page.getByRole( "alert" ) ).toContainText( "Impossible de lire cette sauvegarde" );
+        await expect( page.getByRole( "dialog" ) ).toBeHidden();
+
+        const overlay = await wiki.storedOverlay();
+
+        expect( Object.keys( overlay?.entries ?? {} ) ).toHaveLength( COUNTS.entries );
+    } );
+
+    test( "compares the wiki with the file, offers a copy first, then replaces everything", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/data" );
 
         await page.getByLabel( "Ou coller le contenu d'une sauvegarde" ).fill( JSON.stringify( IMPORTED ) );
         await page.getByRole( "button", { name: "Restaurer cette sauvegarde" } ).click();
-        await wiki.confirm( "Remplacer votre wiki ?", "Restaurer" );
+
+        const dialog = page.getByRole( "dialog", { name: "Remplacer votre wiki ?" } );
+        const current
+            = `${ COUNTS.entries } fiches, ${ COUNTS.categories } catégories et ${ COUNTS.live } entrées du fil`;
+
+        const values = dialog.getByRole( "definition" );
+
+        await expect( dialog.getByRole( "term" ) ).toHaveText( [ "Sur cet appareil", "Dans le fichier" ] );
+        await expect( values.nth( 0 ) ).toHaveText( current );
+        await expect( values.nth( 1 ) ).toHaveText( "1 fiche, 0 catégorie et 0 entrée du fil" );
+        const universes = `« ${ IMPORTED.meta.universe } » remplacera « ${ UNIVERSE } »`;
+
+        await expect( values.nth( 2 ) ).toContainText( universes );
+        await expect( dialog.getByRole( "button", { name: "Remplacer", exact: true } ) ).toHaveClass( /bg-red-/ );
+
+        const download = page.waitForEvent( "download" );
+
+        await dialog.getByRole( "button", { name: "Télécharger la version actuelle d'abord" } ).click();
+
+        const file = await download;
+        const exported = JSON.parse( await readFile( await file.path(), "utf8" ) ) as Dataset;
+
+        expect( file.suggestedFilename() ).toBe( "wiki.json" );
+        expect( exported.entries ).toHaveLength( COUNTS.entries );
+        await expect( dialog ).toBeVisible();
+        const downloaded = dialog.getByRole( "status" );
+
+        await expect( downloaded ).toHaveText( "Version actuelle téléchargée dans le fichier wiki.json." );
+
+        await wiki.confirm( "Remplacer votre wiki ?", "Remplacer" );
 
         await expect( page.getByText( "Sauvegarde restaurée : 1 fiche, 0 catégorie et 0 entrée du fil." ) ).toBeVisible();
         await expect( page.locator( "html" ) ).toHaveAttribute( "data-accent", IMPORTED.meta.accent );

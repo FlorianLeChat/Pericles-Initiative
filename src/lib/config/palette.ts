@@ -4,6 +4,10 @@
  * Categories store a colour key rather than raw classes, so the dataset stays
  * free of styling details and the palette can be restyled in one place.
  *
+ * Every hue is fixed rather than read from the accent: with an amber accent, a
+ * «Bleu» category drawn in `accent-*` came out amber, and two categories of
+ * different colours became the same chip.
+ *
  * @author Claude
  */
 
@@ -22,8 +26,8 @@ export const PALETTE: readonly PaletteColor[] = [
     {
         key: "bleu",
         label: m.palette_blue(),
-        chip: "bg-accent-100 text-accent-700 dark:bg-accent-900/60 dark:text-accent-200",
-        dot: "bg-accent-500"
+        chip: "bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200",
+        dot: "bg-blue-600"
     },
     {
         key: "vert",
@@ -58,8 +62,8 @@ export const PALETTE: readonly PaletteColor[] = [
     {
         key: "pierre",
         label: m.palette_stone(),
-        chip: "bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-200",
-        dot: "bg-stone-500"
+        chip: "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
+        dot: "bg-slate-500"
     }
 ];
 

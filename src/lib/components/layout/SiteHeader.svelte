@@ -10,20 +10,21 @@
      *
      * @author Claude
      */
+    import { page } from "$app/state";
+    import { resolve } from "$app/paths";
+    import X from "@lucide/svelte/icons/x";
+    import type { Path } from "$app/types";
+    import ToolsMenu from "./ToolsMenu.svelte";
     import Menu from "@lucide/svelte/icons/menu";
     import Plus from "@lucide/svelte/icons/plus";
-    import Search from "@lucide/svelte/icons/search";
-    import X from "@lucide/svelte/icons/x";
-    import Drawer from "flowbite-svelte/Drawer.svelte";
     import Kbd from "flowbite-svelte/Kbd.svelte";
-    import { resolve } from "$app/paths";
-    import { page } from "$app/state";
-    import type { Path } from "$app/types";
-    import { NAV_LINKS, TOOL_LINKS } from "#lib/config/navigation.ts";
     import * as m from "#lib/locales/messages.js";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
     import ThemeToggle from "./ThemeToggle.svelte";
-    import ToolsMenu from "./ToolsMenu.svelte";
+    import Search from "@lucide/svelte/icons/search";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Drawer from "flowbite-svelte/Drawer.svelte";
+    import { platform } from "#lib/state/platform.svelte.ts";
+    import { NAV_LINKS, TOOL_LINKS } from "#lib/config/navigation.ts";
 
     interface Props {
         /** Opens the search palette. */
@@ -34,7 +35,7 @@
 
     let menuOpen = $state( false );
 
-    const monogram = $derived( wiki.meta.universe.trim().charAt( 0 ).toUpperCase() || "Π" );
+    const shortcut = $derived( platform.apple ? m.site_header_shortcut_label_apple() : m.site_header_shortcut_label() );
 
     /**
      * Tells whether a navigation link matches the current page.
@@ -54,29 +55,19 @@
 
 <header
     id="site-header"
-    class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/80 sticky top-0 z-40 border-b bg-white/85 backdrop-blur"
+    class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/90 sticky top-0 z-40 border-b bg-white/90 backdrop-blur"
 >
-    <div class="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-6">
-        <a href={resolve( "/" )} class="group flex min-w-0 items-center gap-2.5">
+    <div class="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
+        <a href={resolve( "/" )} class="group flex min-w-0 shrink-0 items-center gap-2.5">
             {#if wiki.meta.logo}
-                <img
-                    src={wiki.meta.logo}
-                    alt=""
-                    class="h-9 w-9 shrink-0 rounded-xl object-cover transition duration-200 group-hover:scale-105"
-                    width="36"
-                    height="36"
-                />
-            {:else}
-                <span
-                    class="bg-accent-600 grid h-9 w-9 shrink-0 place-items-center rounded-xl font-serif text-lg font-semibold text-white transition duration-200 group-hover:scale-105"
-                    aria-hidden="true"
-                >
-                    {monogram}
-                </span>
+                <img src={wiki.meta.logo} alt="" class="h-8 w-8 shrink-0 rounded-lg object-cover" width="32" height="32" />
             {/if}
 
             <span class="min-w-0">
-                <span class="block truncate text-sm leading-tight font-semibold tracking-tight">
+                <span
+                    class="text-ink-900 dark:text-paper-100 group-hover:text-accent-600 dark:group-hover:text-accent-400
+                           block truncate font-serif text-lg leading-tight font-semibold transition-colors"
+                >
                     {wiki.meta.universe}
                 </span>
 
@@ -84,34 +75,35 @@
             </span>
         </a>
 
-        <nav class="ml-4 hidden items-center gap-1 lg:flex" aria-label={m.site_header_nav_main_aria()}>
-            {#each NAV_LINKS as link ( link.href )}
-                <a
-                    href={resolve( link.href )}
-                    class="rounded-full px-3 py-1.5 text-sm font-medium transition {isActive( link.href )
-                        ? "bg-paper-200 text-ink-900 dark:bg-ink-800 dark:text-paper-100"
-                        : "text-ink-500 hover:bg-paper-100 dark:text-paper-300 dark:hover:bg-ink-800/60"}"
-                    aria-current={isActive( link.href ) ? "page" : undefined}
-                >
-                    {link.label}
-                </a>
-            {/each}
-        </nav>
+        <button
+            type="button"
+            class="bg-paper-100 text-muted hover:bg-paper-200 dark:bg-ink-900 dark:hover:bg-ink-800 mx-auto hidden h-10
+                   w-full max-w-sm items-center gap-2.5 rounded-full px-4 text-sm leading-none transition-colors lg:flex"
+            onclick={onsearch}
+        >
+            <Search class="h-4 w-4 shrink-0" />
 
-        <div class="ml-auto flex items-center gap-1.5">
-            <button
-                type="button"
-                class="border-paper-300 text-muted hover:border-accent-400 hover:text-accent-600 dark:border-ink-800
-                       dark:hover:text-accent-400 hidden h-9 items-center gap-2 rounded-full border px-3
-                       text-sm leading-none transition lg:flex"
-                onclick={onsearch}
-            >
-                <Search class="h-4 w-4" />
+            <span class="flex-1 text-left">{m.common_search()}</span>
 
-                <span>{m.common_search()}</span>
+            <Kbd class="dark:bg-ink-800 dark:border-ink-700 bg-white px-1.5 py-1 font-sans text-xs leading-none font-normal">
+                {shortcut}
+            </Kbd>
+        </button>
 
-                <Kbd class="ml-2 px-1.5 py-0.5 font-sans text-[10px] leading-none font-normal">{m.site_header_shortcut_label()}</Kbd>
-            </button>
+        <div class="ml-auto flex items-center gap-1 lg:ml-0">
+            <nav class="mr-2 hidden items-center gap-1 lg:flex" aria-label={m.site_header_nav_main_aria()}>
+                {#each NAV_LINKS as link ( link.href )}
+                    <a
+                        href={resolve( link.href )}
+                        class="rounded-md px-2.5 py-2 text-sm transition-colors {isActive( link.href )
+                            ? "text-ink-900 dark:text-paper-100 dark:decoration-paper-100 decoration-ink-900 font-semibold underline decoration-2 underline-offset-8"
+                            : "text-ink-500 hover:text-ink-900 dark:text-paper-300 dark:hover:text-paper-100"}"
+                        aria-current={isActive( link.href ) ? "page" : undefined}
+                    >
+                        {link.label}
+                    </a>
+                {/each}
+            </nav>
 
             <button
                 type="button"
@@ -125,8 +117,8 @@
 
             <a
                 href={resolve( "/new" )}
-                class="bg-accent-600 hover:bg-accent-700 hidden h-9 items-center gap-2 rounded-full px-3.5 text-sm
-                       leading-none font-medium text-white shadow-sm transition lg:inline-flex"
+                class="bg-accent-700 hover:bg-accent-800 hidden h-9 items-center gap-2 rounded-lg px-3.5 text-sm
+                       leading-none font-medium text-white transition-colors lg:inline-flex"
             >
                 <Plus class="h-4 w-4" />
                 {m.common_new_entry()}
@@ -182,8 +174,9 @@
                 <li>
                     <a
                         href={resolve( link.href )}
-                        class="hover:bg-paper-100 dark:hover:bg-ink-800 flex min-h-11 items-center rounded-xl px-3
-                               text-sm font-medium"
+                        class="flex min-h-11 items-center rounded-lg px-3 text-sm transition-colors {isActive( link.href )
+                            ? "bg-paper-100 text-ink-900 dark:bg-ink-800 dark:text-paper-100 font-semibold"
+                            : "hover:bg-paper-100 dark:hover:bg-ink-800 font-medium"}"
                         aria-current={isActive( link.href ) ? "page" : undefined}
                         onclick={() => ( menuOpen = false )}
                     >
@@ -200,8 +193,9 @@
                 <li>
                     <a
                         href={resolve( link.href )}
-                        class="hover:bg-paper-100 dark:hover:bg-ink-800 text-ink-500 dark:text-paper-300 flex min-h-11
-                               items-center rounded-xl px-3 text-sm"
+                        class="flex min-h-11 items-center rounded-lg px-3 text-sm transition-colors {isActive( link.href )
+                            ? "bg-paper-100 text-ink-900 dark:bg-ink-800 dark:text-paper-100 font-semibold"
+                            : "hover:bg-paper-100 dark:hover:bg-ink-800 text-ink-500 dark:text-paper-300"}"
                         aria-current={isActive( link.href ) ? "page" : undefined}
                         onclick={() => ( menuOpen = false )}
                     >
@@ -213,8 +207,8 @@
             <li class="pt-2">
                 <a
                     href={resolve( "/new" )}
-                    class="bg-accent-600 hover:bg-accent-700 flex min-h-11 w-full items-center justify-center gap-2
-                           rounded-full px-4 text-sm font-medium text-white shadow-sm transition"
+                    class="bg-accent-700 hover:bg-accent-800 flex min-h-11 w-full items-center justify-center gap-2
+                           rounded-lg px-4 text-sm font-medium text-white transition-colors"
                     onclick={() => ( menuOpen = false )}
                 >
                     <Plus class="h-4 w-4" />

@@ -13,16 +13,16 @@
      *
      * @author Claude
      */
-    import CloudUpload from "@lucide/svelte/icons/cloud-upload";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Toast from "flowbite-svelte/Toast.svelte";
     import { resolve } from "$app/paths";
-    import { motionDuration } from "#lib/config/motion.ts";
-    import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
     import * as m from "#lib/locales/messages.js";
-    import { remote } from "#lib/state/remote.svelte.ts";
+    import Toast from "flowbite-svelte/Toast.svelte";
     import { sync } from "#lib/state/sync.svelte.ts";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { remote } from "#lib/state/remote.svelte.ts";
+    import { motionDuration } from "#lib/config/motion.ts";
+    import CloudUpload from "@lucide/svelte/icons/cloud-upload";
+    import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
 
     let online = $state( true );
     let failure = $state<string | null>( null );
@@ -89,7 +89,7 @@
                 <p class="leading-relaxed">{m.backup_reminder_message()}</p>
 
                 {#if failure}
-                    <p class="text-alert-600 dark:text-alert-400 mt-2 text-xs leading-relaxed">
+                    <p class="text-alert-600 dark:text-alert-500 mt-2 text-xs leading-relaxed">
                         {failure}
                         <a class="underline" href={resolve( "/data" )}>{m.connection_status_open_backups()}</a>
                     </p>

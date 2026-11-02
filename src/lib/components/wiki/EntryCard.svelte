@@ -1,66 +1,106 @@
 <script lang="ts">
     /**
-     * Card used in every listing of pages.
+     * One page of a listing, laid out as a row of the index rather than a card.
+     *
+     * The title is the only link, spread over the whole row by `.stretched-link`,
+     * so a row costs a single tab stop. The categories are therefore plain text
+     * with their dot: a chip linking to its category would be a second stop, and
+     * the overlay of the title would swallow its click anyway.
+     *
+     * The draft marker is a dashed tag with a word in it, never a colour alone.
      *
      * @author Claude
      */
     import { resolve } from "$app/paths";
-    import { staggerRank } from "#lib/config/motion.ts";
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
-    import type { Entry } from "#lib/types.ts";
-    import { formatShortDate } from "#lib/utilities/date.ts";
+    import { staggerRank } from "#lib/config/motion.ts";
     import { excerpt } from "#lib/utilities/markdown.ts";
-    import CategoryChip from "./CategoryChip.svelte";
+    import { paletteColor } from "#lib/config/palette.ts";
+    import type { Entry, EntryDate } from "#lib/types.ts";
+    import { callNumber } from "#lib/utilities/catalogue.ts";
+    import { formatShortDate, formatUniverseDate, timelineSortKey } from "#lib/utilities/date.ts";
 
     interface Props {
         entry: Entry;
-        /** Compact variant, without the excerpt. */
-        dense?: boolean;
         /** Position in the listing, which offsets the entrance animation. */
         index?: number;
     }
 
-    let { entry, dense = false, index = 0 }: Props = $props();
+    let { entry, index = 0 }: Props = $props();
 
     const lead = $derived( entry.summary || excerpt( entry.body, 150 ) );
     const categories = $derived(
         entry.categories.map( ( slug ) => wiki.categoriesBySlug.get( slug ) ).filter( ( category ) => category !== undefined )
     );
+    const reference = $derived( callNumber( entry, categories.at( 0 ) ) );
+    const isDraft = $derived( entry.status === "brouillon" );
+
+    /** The date the page starts from, the same one the chronological sort orders it by. */
+    const firstDate = $derived(
+        entry.dates.reduce<EntryDate | undefined>( ( earliest, date ) =>
+        {
+            const isEarlier = earliest === undefined || timelineSortKey( date.value ) < timelineSortKey( earliest.value );
+            return isEarlier ? date : earliest;
+        }, undefined )
+    );
 </script>
 
 <article
-    class="surface surface-lift rise-in hover:border-accent-300 dark:hover:border-accent-700 group relative flex flex-col gap-3 p-5"
+    class="rise-in group relative grid gap-x-6 gap-y-0.5 py-2.5 sm:grid-cols-[9rem_minmax(0,1fr)]"
     style="--rank: {staggerRank( index )}"
 >
-    <div class="flex flex-wrap items-center gap-2">
-        {#each categories as category ( category.slug )}
-            <CategoryChip {category} />
-        {/each}
+    <p class="call-number max-sm:order-last sm:pt-1">{reference}</p>
 
-        {#if entry.status === "brouillon"}
-            <span
-                class="border-paper-300 text-muted dark:border-ink-700 rounded-full border border-dashed px-2 py-0.5 text-xs"
-            >
-                {m.entry_card_draft_badge()}
-            </span>
+    <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h3 class="text-ink-900 dark:text-paper-100 text-base leading-snug font-semibold">
+                <a
+                    href={resolve( `wiki/${ entry.slug }/` )}
+                    class="group-hover:text-accent-700 dark:group-hover:text-accent-300 stretched-link
+                           group-hover:underline group-hover:underline-offset-2"
+                >
+                    {entry.title}
+                </a>
+            </h3>
+
+            {#if isDraft}
+                <span
+                    class="border-paper-400 text-ink-600 dark:border-ink-600 dark:text-paper-300 rounded-full border
+                           border-dashed px-2 py-px text-xs"
+                >
+                    {m.entry_card_draft_badge()}
+                </span>
+            {/if}
+        </div>
+
+        {#if lead}
+            <p class="text-ink-600 dark:text-paper-300 mt-0.5 line-clamp-2 text-sm leading-relaxed sm:line-clamp-1">{lead}</p>
         {/if}
+
+        <div class="text-muted mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+            {#if categories.length > 0}
+                <ul class="flex flex-wrap items-center gap-x-3 gap-y-1" aria-label={m.common_categories_label()}>
+                    {#each categories as category ( category.slug )}
+                        <li class="flex items-center gap-1.5">
+                            <span
+                                class="h-2 w-2 shrink-0 rounded-full {paletteColor( category.color ).dot}"
+                                aria-hidden="true"
+                            ></span>
+                            {category.name}
+                        </li>
+                    {/each}
+                </ul>
+            {/if}
+
+            {#if firstDate}
+                <span>{firstDate.label || m.infobox_unlabelled_date()} {formatUniverseDate( firstDate.value )}</span>
+            {/if}
+
+            <span>
+                {m.entry_card_updated_label()}
+                <time datetime={entry.updatedAt}>{formatShortDate( entry.updatedAt )}</time>
+            </span>
+        </div>
     </div>
-
-    <h3 class="text-lg leading-snug font-semibold tracking-tight">
-        <a
-            href={resolve( `wiki/${ entry.slug }/` )}
-            class="group-hover:text-accent-600 dark:group-hover:text-accent-400 stretched-link"
-        >
-            {entry.title}
-        </a>
-    </h3>
-
-    {#if !dense && lead}
-        <p class="text-ink-500 dark:text-paper-300/80 line-clamp-3 text-sm leading-relaxed">{lead}</p>
-    {/if}
-
-    <p class="text-muted mt-auto text-xs">
-        {m.entry_card_updated_label()} <time datetime={entry.updatedAt}>{formatShortDate( entry.updatedAt )}</time>
-    </p>
 </article>

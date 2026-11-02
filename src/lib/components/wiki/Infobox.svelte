@@ -4,11 +4,11 @@
      *
      * @author Claude
      */
+    import type { Entry } from "#lib/types.ts";
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
-    import type { Entry } from "#lib/types.ts";
-    import { formatUniverseDate } from "#lib/utilities/date.ts";
     import CategoryChip from "./CategoryChip.svelte";
+    import { formatUniverseDate } from "#lib/utilities/date.ts";
 
     interface Props {
         entry: Entry;
@@ -29,7 +29,7 @@
 
 {#snippet row( label: string, value: string )}
     <div class="gap-x-3 py-2 sm:grid sm:grid-cols-5">
-        <dt class="text-muted leading-snug sm:col-span-2">{label}</dt>
+        <dt class="text-muted leading-snug sm:col-span-2 lg:col-span-2">{label}</dt>
         <dd class="leading-snug font-medium sm:col-span-3">{value}</dd>
     </div>
 {/snippet}
@@ -54,7 +54,7 @@
     {/if}
 
     <div class="space-y-4 p-5">
-        <p class="font-serif text-lg leading-snug font-semibold">{entry.title}</p>
+        <p class="text-ink-900 dark:text-paper-100 font-serif text-lg leading-snug font-semibold">{entry.title}</p>
 
         {#if hasRows}
             <dl class="divide-paper-200 dark:divide-ink-800 divide-y text-sm">
@@ -76,7 +76,7 @@
 
         {#if categories.length > 0}
             <div class="border-paper-200 dark:border-ink-800 space-y-2 border-t pt-4">
-                <p class="text-muted text-xs tracking-wide uppercase">{m.common_categories_label()}</p>
+                <p class="text-muted text-xs">{m.common_categories_label()}</p>
 
                 <div class="flex flex-wrap gap-1.5">
                     {#each categories as category ( category.slug )}

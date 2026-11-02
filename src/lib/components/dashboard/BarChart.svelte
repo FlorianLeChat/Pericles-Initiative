@@ -18,9 +18,14 @@
         items: CountByKey[];
         /** Optional link target per item. */
         href?: ( item: CountByKey ) => Path;
+        /** Optional background class per bar, such as the fixed hue of a category. */
+        tint?: ( item: CountByKey ) => string;
     }
 
-    let { items, href }: Props = $props();
+    /** Bars carry no meaning of their own colour, so they are drawn in ink rather than in the accent. */
+    const NEUTRAL_BAR = "bg-ink-400 dark:bg-paper-400";
+
+    let { items, href, tint }: Props = $props();
 
     const largest = $derived( Math.max( 1, ...items.map( ( item ) => item.count ) ) );
 </script>
@@ -33,7 +38,7 @@
         >
             <span class="truncate">
                 {#if href}
-                    <a href={resolve( href( item ) )} class="hover:text-accent-600 dark:hover:text-accent-400">
+                    <a href={resolve( href( item ) )} class="wiki-link">
                         {item.label}
                     </a>
                 {:else}
@@ -43,12 +48,12 @@
 
             <span class="bg-paper-200 dark:bg-ink-800 h-2.5 overflow-hidden rounded-full">
                 <span
-                    class="bg-accent-500 grow-x block h-full rounded-full"
+                    class="grow-x block h-full rounded-full {tint?.( item ) ?? NEUTRAL_BAR}"
                     style="width: {( item.count / largest ) * 100}%; --rank: {staggerRank( index )}"
                 ></span>
             </span>
 
-            <span class="text-muted text-right font-mono text-xs">{item.count}</span>
+            <span class="text-muted text-right text-xs tabular-nums">{item.count}</span>
         </li>
     {/each}
 </ul>

@@ -7,9 +7,9 @@
  * @author Claude
  */
 
+import { deburr } from "./slug";
 import type { Entry } from "#lib/types.ts";
 import { markdownToPlainText } from "./markdown";
-import { deburr } from "./slug";
 
 export interface SearchHit {
     entry: Entry;

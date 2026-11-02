@@ -11,13 +11,18 @@
      * overridden through the component. The dialog is dismissed by `Échap`, by a
      * click outside, or by «Annuler», all of which stay available.
      *
+     * A caller with more to show than one sentence, such as what an import is
+     * about to replace, passes it as `children`: it renders under the message,
+     * inside the dialog, so a control placed there acts without closing it.
+     *
      * @author Claude
      */
-    import Button from "flowbite-svelte/Button.svelte";
-    import Modal from "flowbite-svelte/Modal.svelte";
-    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
-    import { PAIRED_ACTION } from "#lib/config/forms.ts";
+    import type { Snippet } from "svelte";
     import * as m from "#lib/locales/messages.js";
+    import Modal from "flowbite-svelte/Modal.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { PAIRED_ACTION } from "#lib/config/forms.ts";
+    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
 
     interface Props {
         open: boolean;
@@ -28,6 +33,8 @@
         /** Styles the confirm button as destructive. */
         danger?: boolean;
         onconfirm: () => void;
+        /** Optional detail rendered under the message, inside the dialog. */
+        children?: Snippet;
     }
 
     let {
@@ -37,7 +44,8 @@
         confirmLabel = m.common_confirm(),
         cancelLabel = m.common_cancel(),
         danger = false,
-        onconfirm
+        onconfirm,
+        children
     }: Props = $props();
 
     /**
@@ -67,6 +75,8 @@
     aria-label={title}
 >
     <p>{message}</p>
+
+    {@render children?.()}
 
     {#snippet footer()}
         <Button color="alternative" class={PAIRED_ACTION} onclick={() => ( open = false )}>{cancelLabel}</Button>

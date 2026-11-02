@@ -7,23 +7,23 @@
      *
      * @author Claude
      */
-    import Button from "flowbite-svelte/Button.svelte";
-    import Radio from "flowbite-svelte/Radio.svelte";
-    import Select from "flowbite-svelte/Select.svelte";
-    import { cubicOut } from "svelte/easing";
     import { fly } from "svelte/transition";
-    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { cubicOut } from "svelte/easing";
+    import * as m from "#lib/locales/messages.js";
+    import Radio from "flowbite-svelte/Radio.svelte";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import Select from "flowbite-svelte/Select.svelte";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import { SEVERITIES } from "#lib/config/severities.ts";
     import EmptyState from "#lib/components/EmptyState.svelte";
+    import PageHeader from "#lib/components/PageHeader.svelte";
+    import type { LiveEntry, LiveSeverity } from "#lib/types.ts";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { filterPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
     import LiveComposer from "#lib/components/live/LiveComposer.svelte";
     import LiveFeedGroup from "#lib/components/live/LiveFeedGroup.svelte";
-    import PageHeader from "#lib/components/PageHeader.svelte";
-    import PageMeta from "#lib/components/layout/PageMeta.svelte";
-    import { filterPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
-    import { SEVERITIES } from "#lib/config/severities.ts";
-    import * as m from "#lib/locales/messages.js";
-    import { pluralize } from "#lib/utilities/plural.ts";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
-    import type { LiveEntry, LiveSeverity } from "#lib/types.ts";
     import { formatLongDate, relativeTime } from "#lib/utilities/date.ts";
 
     let severity = $state<LiveSeverity | "toutes">( "toutes" );
@@ -65,7 +65,16 @@
             } ) );
     } );
 
-    const latest = $derived( wiki.live[ 0 ] );
+    /**
+     * Most recent item by publication time. Read from the whole feed rather than
+     * its first row, which is a pinned item whenever one exists.
+     */
+    const latest = $derived(
+        wiki.live.reduce<LiveEntry | undefined>(
+            ( newest, item ) => ( !newest || item.publishedAt > newest.publishedAt ? item : newest ),
+            undefined
+        )
+    );
 
     /**
      * Loads an item into the composer.
@@ -87,13 +96,6 @@
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
     <PageHeader title={m.live_heading()}>
-        {#snippet eyebrow()}
-            <p class="text-alert-500 flex items-center gap-2 text-xs font-medium tracking-[0.2em] uppercase">
-                <span class="bg-alert-500 h-2 w-2 animate-pulse rounded-full" aria-hidden="true"></span>
-                {m.common_live_label()}
-            </p>
-        {/snippet}
-
         {#snippet description()}
             {pluralize( wiki.live.length, { one: m.live_count_one, other: m.live_count_other } )}
             {#if latest}
@@ -117,7 +119,7 @@
         {/snippet}
     </PageHeader>
 
-    <div class="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <div class="mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
                 <fieldset class="contents">
@@ -152,6 +154,7 @@
                         size="sm"
                         placeholder=""
                         class="w-auto"
+                        classes={{ select: "h-10 rounded-full py-1.5 ps-3.5 pe-8 text-xs font-medium" }}
                         aria-label={m.live_filter_tag_aria()}
                     >
                         <option value="toutes">{m.live_filter_all_tags()}</option>
@@ -182,6 +185,7 @@
                 {#if pinned.length > 0}
                     <LiveFeedGroup
                         heading={m.live_pinned_heading()}
+                        pinned
                         items={pinned}
                         onedit={startEdit}
                         ondelete={( target ) =>
@@ -220,22 +224,24 @@
                 {/key}
             {:else}
                 <div class="surface p-5">
-                    <p class="text-muted text-xs tracking-wide uppercase">{m.live_how_it_works_heading()}</p>
+                    <h2 class="text-ink-900 dark:text-paper-100 text-base font-semibold">
+                        {m.live_how_it_works_heading()}
+                    </h2>
 
-                    <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">
+                    <p class="text-ink-600 dark:text-paper-300 mt-2 text-sm leading-relaxed">
                         {m.live_how_it_works_p1()}
                     </p>
 
-                    <p class="text-muted mt-3 text-sm leading-relaxed">
+                    <p class="text-muted mt-2 text-sm leading-relaxed">
                         {m.live_how_it_works_p2()}
                     </p>
                 </div>
             {/if}
 
             <div class="surface p-5">
-                <p class="text-muted text-xs tracking-wide uppercase">{m.live_storage_heading()}</p>
+                <h2 class="text-ink-900 dark:text-paper-100 text-base font-semibold">{m.live_storage_heading()}</h2>
 
-                <p class="text-ink-500 dark:text-paper-300/80 mt-3 text-sm leading-relaxed">
+                <p class="text-ink-600 dark:text-paper-300 mt-2 text-sm leading-relaxed">
                     {m.live_storage_description()}
                 </p>
             </div>

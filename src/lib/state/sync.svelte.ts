@@ -16,9 +16,9 @@
  * @author Claude
  */
 
-import { remote } from "#lib/state/remote.svelte.ts";
 import { wiki } from "#lib/state/wiki.svelte.ts";
 import type { RemoteSnapshot } from "#lib/types.ts";
+import { remote } from "#lib/state/remote.svelte.ts";
 
 /** Where the backup stands against the content of this browser, as far as this browser knows. */
 type LocalSyncState = "unknown" | "synced" | "stale";

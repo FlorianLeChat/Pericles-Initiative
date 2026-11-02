@@ -1,49 +1,89 @@
 <script lang="ts">
     /**
-     * Chronology of the dated pages, grouped by year.
+     * Chronology of the dated pages, grouped by decade or by century.
      *
      * @author Claude
      */
-    import Button from "flowbite-svelte/Button.svelte";
     import { resolve } from "$app/paths";
+    import * as m from "#lib/locales/messages.js";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { staggerRank } from "#lib/config/motion.ts";
+    import { excerpt } from "#lib/utilities/markdown.ts";
+    import { pluralize } from "#lib/utilities/plural.ts";
     import EmptyState from "#lib/components/EmptyState.svelte";
     import PageHeader from "#lib/components/PageHeader.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
-    import { staggerRank } from "#lib/config/motion.ts";
-    import * as m from "#lib/locales/messages.js";
     import { wiki, type ChronologyPoint } from "#lib/state/wiki.svelte.ts";
     import { extractYear, formatUniverseDate } from "#lib/utilities/date.ts";
-    import { excerpt } from "#lib/utilities/markdown.ts";
-    import { pluralize } from "#lib/utilities/plural.ts";
 
-    /** Heading gathering the dates no year can be read out of, such as «Le troisième hiver». */
-    const UNDATED_GROUP = $derived( m.timeline_undated_group() );
+    /** One heading of the chronology, and the dates standing under it. */
+    interface Period {
+        heading: string;
+        points: ChronologyPoint[];
+    }
 
-    /** Every date of the corpus, grouped by year, oldest first. */
-    const years = $derived.by( () =>
+    /**
+     * Span of years past which the chronology groups by century rather than by decade.
+     *
+     * A decade per heading keeps neighbouring dates together without giving each year
+     * a heading of its own. Over two centuries that would already mean twenty headings
+     * or more, most of them over a single date, so a wider corpus reads by century.
+     */
+    const CENTURY_THRESHOLD = 200;
+
+    const DECADE = 10;
+    const CENTURY = 100;
+
+    /** Sort position of the dates no year can be read out of, after every dated period. */
+    const UNDATED_START = Number.MAX_SAFE_INTEGER;
+
+    /** Every date of the corpus, grouped by period, oldest first, the undated ones last. */
+    const periods = $derived.by( (): Period[] =>
     {
-        const groups: Record<string, ChronologyPoint[]> = {};
+        const years = wiki.chronology
+            .map( ( point ) => extractYear( point.date.value ) )
+            .filter( ( year ) => year !== null );
+        const span = years.length === 0 ? 0 : Math.max( ...years ) - Math.min( ...years );
+        const width = span > CENTURY_THRESHOLD ? CENTURY : DECADE;
+        const groups: Record<number, ChronologyPoint[]> = {};
 
         for ( const point of wiki.chronology )
         {
             const year = extractYear( point.date.value );
-            const key = year === null ? UNDATED_GROUP : String( year );
-            groups[ key ] = [ ...( groups[ key ] ?? [] ), point ];
+            const start = year === null ? UNDATED_START : Math.floor( year / width ) * width;
+            groups[ start ] = [ ...( groups[ start ] ?? [] ), point ];
         }
 
-        return Object.entries( groups ).sort( ( [ a ], [ b ] ) =>
-        {
-            if ( a === UNDATED_GROUP )
+        return Object.entries( groups )
+            .map( ( [ key, points ] ) => ( { start: Number( key ), points } ) )
+            .sort( ( a, b ) => a.start - b.start )
+            .map( ( { start, points } ) =>
             {
-                return 1;
-            }
-            if ( b === UNDATED_GROUP )
-            {
-                return -1;
-            }
-            return Number( a ) - Number( b );
-        } );
+                const isUndated = start === UNDATED_START;
+                const heading = isUndated
+                    ? m.timeline_undated_group()
+                    : m.timeline_period( { start, end: start + width - 1 } );
+                return { heading, points };
+            } );
     } );
+
+    /**
+     * Tells whether a point is the first of its page within its period.
+     *
+     * A page dated twice in the same decade would otherwise repeat its summary on
+     * each row, so only its first row carries it.
+     *
+     * @param points Dates of the period, in order.
+     * @param index Position of the point among them.
+     * @returns Whether the summary belongs on this row.
+     * @author Claude
+     */
+    const opensItsPage = ( points: ChronologyPoint[], index: number ): boolean =>
+    {
+        const entryId = points[ index ].entry.id;
+        const earlier = points.slice( 0, index );
+        return !earlier.some( ( point ) => point.entry.id === entryId );
+    };
 </script>
 
 <PageMeta
@@ -66,7 +106,7 @@
         {/snippet}
     </PageHeader>
 
-    {#if years.length === 0}
+    {#if periods.length === 0}
         <div class="mt-10">
             <EmptyState title={m.timeline_empty_title()} description={m.timeline_empty_description()}>
                 <Button href={resolve( "/wiki" )} color="alternative">{m.common_browse_wiki()}</Button>
@@ -74,46 +114,40 @@
         </div>
     {:else}
         <div class="mt-12 space-y-12">
-            {#each years as [ year, points ] ( year )}
-                <section>
-                    <h2 class="border-paper-200 dark:border-ink-800 font-serif text-2xl font-semibold tracking-tight">
-                        {year}
-                    </h2>
+            {#each periods as period, periodIndex ( period.heading )}
+                <section aria-labelledby="timeline-period-{periodIndex}">
+                    <h2 id="timeline-period-{periodIndex}" class="section-heading">{period.heading}</h2>
 
-                    <ol class="border-paper-200 dark:border-ink-800 mt-5 space-y-7 border-l">
-                        {#each points as point, index ( `${ point.entry.id }-${ point.date.id }` )}
-                            <li class="rise-in relative pl-6" style="--rank: {staggerRank( index )}">
-                                <span
-                                    class="bg-accent-500 border-paper-50 dark:border-ink-950 absolute top-2 left-[-5px] h-2.5 w-2.5 rounded-full border-2"
-                                    aria-hidden="true"
-                                ></span>
-
-                                <p class="text-muted font-mono text-xs">
+                    <!-- The hairline of the date column runs unbroken from row to row, which is
+                         why the rows carry their spacing as padding rather than as a gap. -->
+                    <ol class="border-paper-200 dark:border-ink-800 mt-4 border-l sm:border-l-0">
+                        {#each period.points as point, index ( `${ point.entry.id }-${ point.date.id }` )}
+                            <li
+                                class="rise-in grid pl-4 sm:grid-cols-[10rem_minmax(0,1fr)] sm:pl-0"
+                                style="--rank: {staggerRank( index )}"
+                            >
+                                <p
+                                    class="text-muted border-paper-200 dark:border-ink-800 pt-3 text-sm sm:border-r sm:pt-4 sm:pr-5 sm:pb-4 sm:text-right"
+                                >
                                     {formatUniverseDate( point.date.value )}
                                 </p>
 
-                                <div class="mt-1.5 flex flex-wrap items-baseline gap-2">
-                                    <h3 class="text-lg leading-snug font-semibold tracking-tight">
-                                        <a
-                                            href={resolve( `wiki/${ point.entry.slug }/` )}
-                                            class="hover:text-accent-600 dark:hover:text-accent-400"
-                                        >
+                                <div class="min-w-0 pt-1 pb-3 sm:py-4 sm:pl-5">
+                                    <p class="leading-snug break-words">
+                                        <a href={resolve( `wiki/${ point.entry.slug }/` )} class="wiki-link font-medium">
                                             {point.entry.title}
                                         </a>
-                                    </h3>
+                                        {#if point.date.label}
+                                            <span class="text-muted text-sm">· {point.date.label}</span>
+                                        {/if}
+                                    </p>
 
-                                    {#if point.date.label}
-                                        <span
-                                            class="border-paper-200 dark:border-ink-800 text-muted rounded-full border px-2 py-0.5 text-xs"
-                                        >
-                                            {point.date.label}
-                                        </span>
+                                    {#if opensItsPage( period.points, index )}
+                                        <p class="text-ink-600 dark:text-paper-300 mt-1 max-w-2xl text-sm leading-relaxed">
+                                            {point.entry.summary || excerpt( point.entry.body, 160 )}
+                                        </p>
                                     {/if}
                                 </div>
-
-                                <p class="text-ink-500 dark:text-paper-300/80 mt-2 max-w-2xl text-sm leading-relaxed">
-                                    {point.entry.summary || excerpt( point.entry.body, 160 )}
-                                </p>
                             </li>
                         {/each}
                     </ol>

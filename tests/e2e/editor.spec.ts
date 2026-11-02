@@ -8,8 +8,8 @@
  * @author Claude
  */
 
-import { CATEGORIES, crowdedDataset, ILLUSTRATION, illustratedDataset, MISSING_SLUG, PAGES } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
+import { CATEGORIES, crowdedDataset, ILLUSTRATION, illustratedDataset, MISSING_SLUG, PAGES } from "./utilities/dataset";
 
 /** Where the Milkdown editor writes, once it has finished booting. */
 const BODY = "[contenteditable=\"true\"]";
@@ -118,7 +118,7 @@ test.describe( "entry editor", () =>
 
         await wiki.navigate( "Chronologie" );
 
-        await expect( page.getByRole( "heading", { level: 2, name: "2045" } ) ).toBeVisible();
+        await expect( page.getByRole( "heading", { level: 2, name: "2040 à 2049" } ) ).toBeVisible();
     } );
 
     test( "prefills the form from a red link and closes the gap", async ( { page, wiki } ) =>

@@ -1,11 +1,14 @@
 /**
- * Home page: the editorial entry point into the encyclopedia.
+ * Home page: the front page of the universe.
  *
  * @author Claude
  */
 
+import { expect, test } from "./utilities/fixtures";
 import { CATEGORIES, COUNTS, DESCRIPTION, LIVE, PAGES, UNIVERSE } from "./utilities/dataset";
-import { expect, heroFigure, test } from "./utilities/fixtures";
+
+/** The pages the fixture puts forward, in the order its settings list them. */
+const FEATURED = [ PAGES.athena, PAGES.port, PAGES.traite ];
 
 test.describe( "home page", () =>
 {
@@ -13,16 +16,16 @@ test.describe( "home page", () =>
     {
         await wiki.openEmpty();
 
-        await expect( heroFigure( page, "Fiches" ) ).toHaveText( "0" );
         await expect( page.getByText( "Aucune fiche pour le moment" ) ).toBeVisible();
         await expect( page.getByRole( "heading", { name: "À la une" } ) ).toBeHidden();
+        await expect( page.getByRole( "link", { name: "Essayer le contenu de démonstration" } ) ).toBeVisible();
 
         await page.getByRole( "link", { name: "Créer une fiche" } ).click();
 
         await expect( page ).toHaveURL( /\/new\/$/ );
     } );
 
-    test( "presents the universe and counts what the corpus holds", async ( { page, wiki } ) =>
+    test( "opens on the universe itself, and searches it", async ( { page, wiki } ) =>
     {
         await wiki.open();
 
@@ -30,10 +33,15 @@ test.describe( "home page", () =>
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( UNIVERSE );
         await expect( page.getByRole( "main" ).getByText( DESCRIPTION ) ).toBeVisible();
 
-        await expect( heroFigure( page, "Fiches" ) ).toHaveText( String( COUNTS.published ) );
-        await expect( heroFigure( page, "Catégories" ) ).toHaveText( String( COUNTS.categories ) );
-        await expect( heroFigure( page, "Fiches datées" ) ).toHaveText( String( COUNTS.dated ) );
-        await expect( heroFigure( page, "Brouillons" ) ).toHaveText( String( COUNTS.drafts ) );
+        /*
+         * Figures belong to the dashboard: the front page used to open on a strip
+         * of them, which told a reader how big the wiki was rather than what it was about.
+         */
+        await expect( page.getByRole( "main" ).locator( "dl" ) ).toHaveCount( 0 );
+
+        await page.getByRole( "button", { name: "Trouver une fiche, un lieu, un personnage" } ).click();
+
+        await expect( page.getByRole( "dialog", { name: "Rechercher une fiche" } ) ).toBeVisible();
     } );
 
     test( "describes itself once, for the reader as for whoever receives the link", async ( { page, wiki } ) =>
@@ -55,33 +63,43 @@ test.describe( "home page", () =>
         await expect( page.locator( "meta[name=\"twitter:description\"]" ) ).toHaveAttribute( "content", DESCRIPTION );
     } );
 
-    test( "highlights the chosen pages and the latest edits, never a draft", async ( { page, wiki } ) =>
+    test( "puts the chosen pages forward, and lists the latest edits without repeating them", async ( { page, wiki } ) =>
     {
         await wiki.open();
 
-        const highlight = page.locator( "section" ).filter( { hasText: "À la une" } );
+        const highlight = page.getByRole( "region", { name: "À la une" } );
 
-        await expect( highlight.getByRole( "heading", { name: PAGES.athena.title } ) ).toBeVisible();
-        await expect( highlight.getByRole( "heading", { name: PAGES.port.title } ) ).toBeVisible();
+        for ( const entry of FEATURED )
+        {
+            await expect( highlight.getByRole( "heading", { name: entry.title } ) ).toBeVisible();
+        }
 
-        const latest = page.locator( "section" ).filter( { hasText: "Dernières modifications" } );
+        const latest = page.getByRole( "region", { name: "Dernières modifications" } );
 
-        await expect( latest.getByRole( "heading", { level: 3 } ) ).toHaveCount( COUNTS.published );
+        await expect( latest.getByRole( "heading", { name: PAGES.bureau.title } ) ).toBeVisible();
+        await expect( latest.getByRole( "heading", { name: PAGES.doctrine.title } ) ).toBeVisible();
+        await expect( latest.getByRole( "heading", { name: PAGES.athena.title } ) ).toBeHidden();
+        await expect( latest.getByRole( "heading", { level: 3 } ) ).toHaveCount( COUNTS.published - FEATURED.length );
         await expect( page.getByText( PAGES.sceau.title ) ).toBeHidden();
 
-        await highlight.getByRole( "link", { name: "Lire la fiche" } ).click();
+        await highlight.getByRole( "link", { name: PAGES.athena.title } ).click();
 
         await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
     } );
 
-    test( "picks up the live feed and counts every category", async ( { page, wiki } ) =>
+    test( "picks up the live feed, marks what is pinned, and counts every category", async ( { page, wiki } ) =>
     {
         await wiki.open();
 
-        const feed = page.locator( "section" ).filter( { hasText: "En direct" } );
+        const feed = page.getByRole( "region", { name: "En direct" } );
 
         await expect( feed.getByRole( "link", { name: LIVE.recent.title } ) ).toBeVisible();
-        await expect( feed.getByRole( "link", { name: LIVE.pinned.title } ) ).toBeVisible();
+
+        const pinned = feed.getByRole( "listitem" ).filter( { hasText: LIVE.pinned.title } );
+        const recent = feed.getByRole( "listitem" ).filter( { hasText: LIVE.recent.title } );
+
+        await expect( pinned.getByText( "Épinglée" ) ).toBeVisible();
+        await expect( recent.getByText( "Épinglée" ) ).toBeHidden();
 
         await expect( page.getByRole( "link", {
             name: `${ CATEGORIES.institutions.name } ${ COUNTS.institutions }`

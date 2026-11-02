@@ -7,25 +7,25 @@
      *
      * @author Claude
      */
-    import ChevronRight from "@lucide/svelte/icons/chevron-right";
-    import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
-    import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
-    import Button from "flowbite-svelte/Button.svelte";
-    import { resolve } from "$app/paths";
     import { page } from "$app/state";
-    import ArticleBody from "#lib/components/wiki/ArticleBody.svelte";
-    import Backlinks from "#lib/components/wiki/Backlinks.svelte";
-    import CategoryChip from "#lib/components/wiki/CategoryChip.svelte";
-    import EmptyState from "#lib/components/EmptyState.svelte";
-    import Infobox from "#lib/components/wiki/Infobox.svelte";
-    import PageMeta from "#lib/components/layout/PageMeta.svelte";
-    import TableOfContents from "#lib/components/wiki/TableOfContents.svelte";
-    import { staggerRank } from "#lib/config/motion.ts";
+    import { resolve } from "$app/paths";
     import * as m from "#lib/locales/messages.js";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
     import type { Category } from "#lib/types.ts";
-    import { formatDateTime } from "#lib/utilities/date.ts";
-    import { excerpt, renderArticle } from "#lib/utilities/markdown.ts";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { humanizeSlug } from "#lib/utilities/slug.ts";
+    import { formatLongDate } from "#lib/utilities/date.ts";
+    import { callNumber } from "#lib/utilities/catalogue.ts";
+    import Infobox from "#lib/components/wiki/Infobox.svelte";
+    import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
+    import EmptyState from "#lib/components/EmptyState.svelte";
+    import ChevronRight from "@lucide/svelte/icons/chevron-right";
+    import Backlinks from "#lib/components/wiki/Backlinks.svelte";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import ArticleBody from "#lib/components/wiki/ArticleBody.svelte";
+    import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
+    import TableOfContents from "#lib/components/wiki/TableOfContents.svelte";
+    import { countWords, describeLength, excerpt, renderArticle } from "#lib/utilities/markdown.ts";
 
     const slug = $derived( page.params.slug ?? "" );
     const entry = $derived( wiki.bySlug( slug ) );
@@ -35,14 +35,21 @@
     const related = $derived( entry ? wiki.relatedTo( entry ) : [] );
 
     /** Humanised slug, used to prefill the title of a page that does not exist yet. */
-    const spaced = $derived( slug.replaceAll( "-", " " ) );
-    const plannedTitle = $derived( spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 ) );
+    const plannedTitle = $derived( humanizeSlug( slug ) );
 
     const categories = $derived(
         ( entry?.categories ?? [] )
             .map( ( item ) => wiki.categoriesBySlug.get( item ) )
             .filter( ( item ): item is Category => item !== undefined )
     );
+
+    /** Breadcrumb steps, set flush with the title rather than with Flowbite's own inset. */
+    const CRUMB = "ms-0 md:ms-0 text-sm font-normal text-ink-500 hover:text-ink-900 dark:text-paper-300 dark:hover:text-paper-100";
+
+    const reference = $derived( entry ? callNumber( entry, categories[ 0 ] ) : "" );
+
+    const words = $derived( entry ? countWords( entry.body ) : 0 );
+    const extent = $derived( describeLength( words ) );
 
     const metaTitle = $derived(
         entry
@@ -57,105 +64,136 @@
 <PageMeta title={metaTitle} description={metaDescription} />
 
 {#if entry && rendered}
-    <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm">
-                <BreadcrumbItem href={resolve( "/wiki" )}>
-                    {#snippet icon()}{/snippet}
+    <!--
+        Two columns from `lg`: the page, and a narrow rail holding only its contents,
+        sticky, so the section being read stays in sight. The infobox belongs to the
+        page rather than to the rail: it floats beside the body from `lg`, and on a
+        phone it comes straight after the lede, before the folded contents.
+    -->
+    <article
+        class="mx-auto grid max-w-7xl grid-cols-1 gap-x-12 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_13rem] lg:py-12
+               xl:gap-x-16"
+    >
+        <div class="min-w-0">
+            <header class="rise-in">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <Breadcrumb
+                        ariaLabel={m.common_breadcrumb_aria()}
+                        class="text-muted text-sm"
+                        classes={{ list: "flex-wrap space-x-0 md:space-x-0" }}
+                    >
+                        <BreadcrumbItem home href={resolve( "/wiki" )} homeClass={CRUMB}>
+                            {#snippet icon()}{/snippet}
 
-                    {m.common_encyclopedia_label()}
-                </BreadcrumbItem>
+                            {m.common_encyclopedia_label()}
+                        </BreadcrumbItem>
 
-                <BreadcrumbItem aria-current="page">
-                    {#snippet icon()}
-                        <ChevronRight class="text-muted mx-1 h-4 w-4" />
-                    {/snippet}
+                        {#if categories[ 0 ]}
+                            <BreadcrumbItem href={resolve( `categories/${ categories[ 0 ].slug }/` )} linkClass={CRUMB}>
+                                {#snippet icon()}
+                                    <ChevronRight class="text-muted mx-1 h-4 w-4" />
+                                {/snippet}
 
-                    {entry.title}
-                </BreadcrumbItem>
-            </Breadcrumb>
+                                {categories[ 0 ].name}
+                            </BreadcrumbItem>
+                        {/if}
 
-            <Button href={resolve( `edit/${ entry.slug }/` )} color="alternative" size="xs" class="rounded-full">
-                {m.common_edit_action()}
-            </Button>
-        </div>
+                        <BreadcrumbItem aria-current="page" spanClass={CRUMB}>
+                            {#snippet icon()}
+                                <ChevronRight class="text-muted mx-1 h-4 w-4" />
+                            {/snippet}
 
-        <header class="border-paper-200 dark:border-ink-800 rise-in mt-4 border-b pb-8">
-            {#if entry.status === "brouillon"}
-                <p
-                    class="border-signal-500/40 bg-signal-500/10 text-signal-500 mb-4 inline-block rounded-full border px-3 py-1 text-xs font-medium"
+                            {entry.title}
+                        </BreadcrumbItem>
+                    </Breadcrumb>
+
+                    <Button href={resolve( `edit/${ entry.slug }/` )} color="alternative" size="xs" class="rounded-full">
+                        {m.common_edit_action()}
+                    </Button>
+                </div>
+
+                {#if entry.status === "brouillon"}
+                    <p
+                        class="border-signal-700/60 text-signal-700 mt-6 inline-block rounded-md border border-dashed px-3
+                               py-1 text-xs font-medium"
+                    >
+                        {m.wiki_slug_draft_label()}
+                    </p>
+                {/if}
+
+                <h1
+                    class="text-ink-900 dark:text-paper-100 mt-6 font-serif text-4xl leading-[1.1] font-semibold
+                           tracking-tight text-balance sm:text-5xl"
                 >
-                    {m.wiki_slug_draft_label()}
+                    {entry.title}
+                </h1>
+
+                <span class="title-rule" aria-hidden="true"></span>
+
+                <p class="text-muted mt-4 text-xs">
+                    <span class="call-number">{reference}</span>
+                    · {m.wiki_slug_updated_prefix()}
+                    <time datetime={entry.updatedAt}>{formatLongDate( entry.updatedAt )}</time>
+                    · {extent}
                 </p>
-            {/if}
 
-            <h1 class="font-serif text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">
-                {entry.title}
-            </h1>
+                {#if entry.summary}
+                    <p class="text-ink-700 dark:text-paper-200 mt-6 max-w-[62ch] text-lg leading-relaxed text-pretty sm:text-xl">
+                        {entry.summary}
+                    </p>
+                {/if}
+            </header>
 
-            {#if entry.summary}
-                <p class="text-ink-600 dark:text-paper-300 mt-5 max-w-3xl text-lg leading-relaxed">
-                    {entry.summary}
-                </p>
-            {/if}
+            <div class="rise-in mt-8 lg:mt-10" style="--rank: 1">
+                <div class="mb-8 lg:float-right lg:mb-6 lg:ml-10 lg:w-80">
+                    <Infobox {entry} />
+                </div>
 
-            <div class="mt-6 flex flex-wrap items-center gap-2">
-                {#each categories as category ( category.slug )}
-                    <CategoryChip {category} />
-                {/each}
-            </div>
+                <div class="mb-8 lg:hidden">
+                    <TableOfContents headings={rendered.headings} />
+                </div>
 
-            <p class="text-muted mt-5 text-xs">
-                {m.wiki_slug_updated_prefix()}
-                <time datetime={entry.updatedAt}>{formatDateTime( entry.updatedAt )}</time>
-            </p>
-        </header>
-
-        <div class="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            <div class="rise-in min-w-0" style="--rank: 1">
                 <ArticleBody html={rendered.html} />
 
-                {#if related.length > 0}
-                    <section class="border-paper-200 dark:border-ink-800 mt-14 border-t pt-8">
-                        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.wiki_slug_related_heading()}</h2>
+                <div class="clear-both">
+                    <Backlinks entries={backlinks} />
 
-                        <ul class="mt-4 grid gap-3 sm:grid-cols-2">
-                            {#each related as item, index ( item.id )}
-                                <li
-                                    class="surface surface-lift rise-in relative p-4"
-                                    style="--rank: {staggerRank( index )}"
-                                >
-                                    <div class="flex items-center gap-2">
-                                        <a
-                                            href={resolve( `wiki/${ item.slug }/` )}
-                                            class="stretched-link text-sm font-medium"
-                                        >
+                    {#if related.length > 0}
+                        <section class="border-paper-200 dark:border-ink-800 mt-12 max-w-[70ch] border-t pt-8">
+                            <h2 class="section-heading">{m.wiki_slug_related_heading()}</h2>
+
+                            <ul class="divide-paper-200 dark:divide-ink-800 mt-4 divide-y">
+                                {#each related as item ( item.id )}
+                                    <li class="py-3">
+                                        <a href={resolve( `wiki/${ item.slug }/` )} class="wiki-link font-medium">
                                             {item.title}
                                         </a>
-                                    </div>
 
-                                    {#if item.summary}
-                                        <p class="text-muted mt-2 line-clamp-2 text-xs leading-relaxed">
-                                            {item.summary}
-                                        </p>
-                                    {/if}
-                                </li>
-                            {/each}
-                        </ul>
-                    </section>
-                {/if}
+                                        {#if item.summary}
+                                            <p class="text-muted mt-1 line-clamp-2 text-sm leading-relaxed">{item.summary}</p>
+                                        {/if}
+                                    </li>
+                                {/each}
+                            </ul>
+                        </section>
+                    {/if}
+                </div>
             </div>
+        </div>
 
-            <aside class="rise-in space-y-5 lg:sticky lg:top-20" style="--rank: 2">
-                <Infobox {entry} />
-                <TableOfContents headings={rendered.headings} />
-                <Backlinks entries={backlinks} />
-            </aside>
+        <div class="hidden lg:block">
+            <TableOfContents headings={rendered.headings} />
         </div>
     </article>
 {:else}
-    <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-        <p class="text-muted font-mono text-sm">/wiki/{slug}</p>
+    <div class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:py-16">
+        <h1 class="text-ink-900 dark:text-paper-100 font-serif text-4xl leading-tight font-semibold tracking-tight">
+            {plannedTitle}
+        </h1>
+
+        <span class="title-rule" aria-hidden="true"></span>
+
+        <p class="call-number mt-4">/wiki/{slug}</p>
 
         <EmptyState title={m.wiki_slug_unwritten_title()} description={m.wiki_slug_unwritten_description()}>
             <Button

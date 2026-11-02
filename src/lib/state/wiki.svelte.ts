@@ -17,8 +17,10 @@
 
 import { browser } from "$app/env";
 import * as m from "#lib/locales/messages.js";
-import type { Category, Dataset, Entry, EntryDate, LiveEntry, Overlay, WikiMeta } from "#lib/types.ts";
+import { uniqueSlug } from "#lib/utilities/slug.ts";
 import { timelineSortKey } from "#lib/utilities/date.ts";
+import { extractInternalLinks, retargetInternalLinks } from "#lib/utilities/markdown.ts";
+import type { Category, Dataset, Entry, EntryDate, LiveEntry, Overlay, WikiMeta } from "#lib/types.ts";
 import { buildImportOverlay,
     countOverlayContent,
     emptyDataset,
@@ -31,8 +33,6 @@ import { buildImportOverlay,
     normalizeMetaPatch,
     normalizeOverlay,
     withoutKey } from "#lib/utilities/dataset.ts";
-import { extractInternalLinks, retargetInternalLinks } from "#lib/utilities/markdown.ts";
-import { uniqueSlug } from "#lib/utilities/slug.ts";
 
 /** `localStorage` key holding the unpublished changes. */
 const OVERLAY_KEY = "pericles:overlay";
@@ -73,6 +73,18 @@ class WikiStore
 
     /** True once the overlay has been read from `localStorage`. */
     overlayLoaded = $state( false );
+
+    /**
+     * True once what the site shows is final: the overlay has been read, or the
+     * seed already carries pages of its own.
+     *
+     * Before that point an empty listing would be a lie. The seed is empty today,
+     * so every page would first claim the wiki holds nothing, and `/data` that this
+     * browser stores nothing, until an effect read the overlay a moment later. The
+     * layout shows a neutral skeleton instead. A seed fed by a future backend still
+     * reaches the static HTML, since its pages make this true from the start.
+     */
+    ready = $derived( this.overlayLoaded || this.seed.entries.length > 0 );
 
     /** Set when the browser refused to persist, typically a full storage quota. */
     storageError = $state<string | null>( null );
@@ -545,6 +557,16 @@ class WikiStore
                 return;
             }
 
+            // The categories filed under the old address follow it, or they would fall
+            // back to the top of the tree with a parent that no longer exists.
+            for ( const child of this.categories )
+            {
+                if ( child.parent === previousSlug )
+                {
+                    this.overlay.categories[ child.slug ] = { ...child, parent: category.slug };
+                }
+            }
+
             for ( const entry of this.entries )
             {
                 if ( entry.categories.includes( previousSlug ) )
@@ -721,10 +743,9 @@ class WikiStore
     /**
      * Replaces all of the content with an already normalised dataset.
      *
-     * The shared entry point of every import, whatever it came from: a pasted
-     * file, or a snapshot read from the remote backup service. A caller holding a
-     * `Dataset` uses this rather than re-serialising it for `importJson`, which
-     * would parse a payload of several megabytes for nothing.
+     * The shared entry point of every import, whatever it came from: a file the
+     * data page has already read and checked, a snapshot read from the remote
+     * backup service, or the demonstration wiki of the settings.
      *
      * An import is complete: anything this browser held and the import does not
      * mention is dropped, the identity of the wiki included. Callers are expected
@@ -744,19 +765,6 @@ class WikiStore
             categories: imported.categories.length,
             live: imported.live.length
         };
-    }
-
-    /**
-     * Replaces all of the content with an imported JSON file.
-     *
-     * @param text Raw JSON.
-     * @returns Counts of imported items.
-     * @throws When the text is not valid JSON.
-     * @author Claude
-     */
-    importJson( text: string ): { entries: number; categories: number; live: number }
-    {
-        return this.importDataset( normalizeDataset( JSON.parse( text ) ) );
     }
 
     /**

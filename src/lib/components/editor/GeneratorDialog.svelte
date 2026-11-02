@@ -14,14 +14,14 @@
      *
      * @author Claude
      */
-    import RefreshCw from "@lucide/svelte/icons/refresh-cw";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Modal from "flowbite-svelte/Modal.svelte";
     import type { Faker } from "@faker-js/faker";
-    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
-    import { filterPill } from "#lib/config/forms.ts";
     import * as m from "#lib/locales/messages.js";
+    import Modal from "flowbite-svelte/Modal.svelte";
+    import { filterPill } from "#lib/config/forms.ts";
+    import Button from "flowbite-svelte/Button.svelte";
     import { getLocale } from "#lib/locales/runtime.js";
+    import RefreshCw from "@lucide/svelte/icons/refresh-cw";
+    import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
 
     interface Props {
         open: boolean;

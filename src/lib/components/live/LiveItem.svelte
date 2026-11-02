@@ -1,17 +1,24 @@
 <script lang="ts">
     /**
-     * One item of the live feed.
+     * One item of the live feed, laid out as a wire dispatch: a dateline, a title,
+     * a sentence or two, then the link to the full page.
+     *
+     * Editing and deleting stay one tab stop each, but as quiet icon buttons after
+     * the link, so the destructive one is never the most prominent thing on a row.
      *
      * @author Claude
      */
     import { resolve } from "$app/paths";
-    import { severityConfig } from "#lib/config/severities.ts";
+    import Pin from "@lucide/svelte/icons/pin";
     import * as m from "#lib/locales/messages.js";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
     import type { LiveEntry } from "#lib/types.ts";
-    import { formatDateTime, formatTime, relativeTime } from "#lib/utilities/date.ts";
-    import { renderInline } from "#lib/utilities/markdown.ts";
+    import Pencil from "@lucide/svelte/icons/pencil";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Trash2 from "@lucide/svelte/icons/trash-2";
     import SeverityBadge from "./SeverityBadge.svelte";
+    import { renderInline } from "#lib/utilities/markdown.ts";
+    import { severityConfig } from "#lib/config/severities.ts";
+    import { formatDateTime, formatTime, relativeTime } from "#lib/utilities/date.ts";
 
     interface Props {
         item: LiveEntry;
@@ -26,39 +33,46 @@
     const config = $derived( severityConfig( item.severity ) );
     const body = $derived( renderInline( item.body, wiki.slugs ) );
     const target = $derived( item.entrySlug ? wiki.bySlug( item.entrySlug ) : undefined );
+
+    // Pinned items sit outside the day groups, so their dateline has to carry the day itself.
+    const dateline = $derived( item.pinned ? formatDateTime( item.publishedAt ) : formatTime( item.publishedAt ) );
 </script>
 
-<article class="relative pl-8">
-    <span
-        class="border-paper-50 dark:border-ink-950 absolute top-1.5 left-[9px] h-3 w-3 rounded-full border-2 {config.dot}"
-        aria-hidden="true"
-    ></span>
+<article class="py-6">
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
+        <span class="h-2 w-2 shrink-0 rounded-full {config.dot}" aria-hidden="true"></span>
 
-    <div class="flex flex-wrap items-center gap-2">
-        <time datetime={item.publishedAt} class="text-muted font-mono text-xs" title={formatDateTime( item.publishedAt )}>
-            {formatTime( item.publishedAt )}
+        <time
+            datetime={item.publishedAt}
+            class="text-ink-600 dark:text-paper-300 tabular-nums"
+            title={formatDateTime( item.publishedAt )}
+        >
+            {dateline}
         </time>
 
-        <span class="text-muted text-xs">· {relativeTime( item.publishedAt )}</span>
+        <span class="text-muted">{relativeTime( item.publishedAt )}</span>
 
         <SeverityBadge severity={item.severity} />
 
         {#if item.pinned}
-            <span class="border-paper-300 text-muted dark:border-ink-700 rounded-full border px-2 py-0.5 text-xs">
+            <span class="text-ink-600 dark:text-paper-300 inline-flex items-center gap-1 font-medium">
+                <Pin class="h-3.5 w-3.5" aria-hidden="true" />
                 {m.live_item_pinned_badge()}
             </span>
         {/if}
     </div>
 
-    <h3 class="mt-2 text-lg leading-snug font-semibold tracking-tight">{item.title}</h3>
+    <h3 class="text-ink-900 dark:text-paper-100 mt-2 text-lg leading-snug font-semibold tracking-tight">
+        {item.title}
+    </h3>
 
     {#if item.body}
-        <div class="article-body prose-sm mt-2 max-w-2xl">
+        <div class="article-body prose-sm mt-1.5 max-w-2xl">
             {@html body}
         </div>
     {/if}
 
-    <div class="text-muted mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+    <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
         {#if target}
             <a href={resolve( `wiki/${ target.slug }/` )} class="wiki-link font-medium">{m.live_item_read_entry()}</a>
         {:else if item.entrySlug}
@@ -68,38 +82,41 @@
         {/if}
 
         {#if item.source}
-            <span>{m.live_item_source( { source: item.source } )}</span>
+            <span class="text-muted text-xs">{m.live_item_source( { source: item.source } )}</span>
         {/if}
 
         {#each item.tags as tag ( tag )}
-            <span class="bg-paper-200 text-ink-600 dark:bg-ink-800 dark:text-paper-200 rounded-full px-2 py-0.5">
+            <span class="bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-200 rounded-full px-2 py-0.5 text-xs">
                 {tag}
             </span>
         {/each}
 
         {#if onedit || ondelete}
-            <span class="ml-auto flex gap-1">
+            <span class="ml-auto flex gap-0.5">
                 {#if onedit}
                     <button
                         type="button"
-                        class="hover:text-accent-600 dark:hover:text-accent-400 inline-flex min-h-9
-                               items-center rounded-full px-2 underline"
+                        class="text-ink-500 dark:text-paper-400 hover:bg-paper-100 dark:hover:bg-ink-800 hover:text-accent-600
+                               dark:hover:text-accent-400 inline-flex h-9 w-9 items-center justify-center rounded-full
+                               transition"
                         onclick={() => onedit( item )}
                         aria-label={m.live_item_edit_aria( { title: item.title } )}
+                        title={m.common_edit()}
                     >
-                        {m.common_edit()}
+                        <Pencil class="h-4 w-4" aria-hidden="true" />
                     </button>
                 {/if}
 
                 {#if ondelete}
                     <button
                         type="button"
-                        class="hover:text-alert-500 inline-flex min-h-9 items-center rounded-full px-2
-                               underline"
+                        class="text-ink-500 dark:text-paper-400 hover:bg-paper-100 dark:hover:bg-ink-800 hover:text-alert-500
+                               inline-flex h-9 w-9 items-center justify-center rounded-full transition"
                         onclick={() => ondelete( item )}
                         aria-label={m.live_item_delete_aria( { title: item.title } )}
+                        title={m.common_delete()}
                     >
-                        {m.common_delete()}
+                        <Trash2 class="h-4 w-4" aria-hidden="true" />
                     </button>
                 {/if}
             </span>

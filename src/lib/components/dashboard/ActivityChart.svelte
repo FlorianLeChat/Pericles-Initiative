@@ -43,7 +43,7 @@
 <ul class="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-1.5">
     {#each points as point, index ( point.month )}
         <li class="flex items-center gap-3 sm:flex-1 sm:flex-col sm:gap-1.5">
-            <span class="text-muted w-12 shrink-0 text-[10px] whitespace-nowrap sm:order-last sm:w-auto">
+            <span class="text-muted w-12 shrink-0 text-xs whitespace-nowrap sm:order-last sm:w-auto">
                 {point.label}
             </span>
 
@@ -52,12 +52,12 @@
                        sm:h-[4.5rem] sm:w-full sm:flex-none sm:items-end"
             >
                 <span
-                    class="bg-accent-500 chart-column rounded-md"
+                    class="bg-ink-400 dark:bg-paper-400 chart-column rounded-md"
                     style="--length: {barLength( point.count )}; --rank: {staggerRank( index )}"
                 ></span>
             </span>
 
-            <span class="text-muted w-5 shrink-0 text-right font-mono text-[10px] sm:order-first sm:w-auto">
+            <span class="text-muted w-6 shrink-0 text-right text-xs sm:order-first sm:w-auto">
                 {#if point.count > 0}
                     {point.count}
                 {:else}

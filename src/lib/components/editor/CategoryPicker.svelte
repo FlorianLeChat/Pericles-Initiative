@@ -14,20 +14,20 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import Plus from "@lucide/svelte/icons/plus";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Checkbox from "flowbite-svelte/Checkbox.svelte";
+    import * as m from "#lib/locales/messages.js";
+    import OptionPanel from "./OptionPanel.svelte";
+    import { deburr } from "#lib/utilities/slug.ts";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
-    import { resolve } from "$app/paths";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { pluralize } from "#lib/utilities/plural.ts";
+    import Checkbox from "flowbite-svelte/Checkbox.svelte";
     import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
     import { PAIRED_ACTION, SMALL_FIELD } from "#lib/config/forms.ts";
-    import * as m from "#lib/locales/messages.js";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
-    import { pluralize } from "#lib/utilities/plural.ts";
-    import { deburr } from "#lib/utilities/slug.ts";
-    import OptionPanel from "./OptionPanel.svelte";
 
     interface Props {
         /** Slugs of the categories the page carries. */

@@ -7,23 +7,23 @@
  * @author Claude
  */
 
-import type { Locator, Page } from "@playwright/test";
-import { CATEGORIES, COUNTS, PAGES } from "./utilities/dataset";
 import { expect, test } from "./utilities/fixtures";
+import type { Locator, Page } from "@playwright/test";
+import { CATEGORIES, COUNTS, DATES, PAGES } from "./utilities/dataset";
 
 /**
- * Locates the cards of the listing, one per page shown.
+ * Locates the rows of the listing, one per page shown.
  *
  * @param page Page under test.
- * @returns Every card currently displayed.
+ * @returns Every row currently displayed.
  * @author Claude
  */
-const cards = ( page: Page ): Locator => page.getByRole( "main" ).locator( "article" );
+const rows = ( page: Page ): Locator => page.getByRole( "main" ).locator( "article" );
 
 /**
  * Unfolds the filter panel when the viewport keeps it folded.
  *
- * The pills and the three menus are `hidden` below `sm`, behind a «Filtres»
+ * The three menus are `hidden` below `sm`, behind a «Filtres»
  * button, so on the phone project every spec touching them has to open the panel
  * first. The button's own visibility is what decides, rather than a width: it is
  * the very condition being worked around, and it answers for whichever project
@@ -42,7 +42,7 @@ const showFilters = async ( page: Page ): Promise<void> =>
         await toggle.click();
     }
 
-    await expect( page.getByLabel( "Catégorie" ) ).toBeVisible();
+    await expect( page.getByLabel( "Catégorie", { exact: true } ) ).toBeVisible();
 };
 
 test.describe( "encyclopedia index", () =>
@@ -64,9 +64,58 @@ test.describe( "encyclopedia index", () =>
         await wiki.open( "/wiki" );
 
         await expect( page.getByText( `${ COUNTS.entries } fiches, dont ${ COUNTS.drafts } en brouillon.` ) ).toBeVisible();
-        await expect( cards( page ) ).toHaveCount( COUNTS.entries );
+        await expect( rows( page ) ).toHaveCount( COUNTS.entries );
         await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeVisible();
-        await expect( page.getByText( "Brouillon", { exact: true } ) ).toBeVisible();
+
+        const draft = rows( page ).filter( { has: page.getByRole( "link", { name: PAGES.sceau.title } ) } );
+
+        await expect( draft.getByText( "Brouillon", { exact: true } ) ).toBeVisible();
+    } );
+
+    test( "gives each row a single link, its call number and its categories as plain text", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/wiki" );
+
+        const row = rows( page ).filter( { has: page.getByRole( "link", { name: PAGES.athena.title } ) } );
+
+        // Three letters of the first category, the earliest year, three of the title.
+        const callNumber = [
+            CATEGORIES.institutions.name.slice( 0, 3 ),
+            DATES.naissance.value.slice( 0, 4 ),
+            PAGES.athena.title.slice( 0, 3 )
+        ].join( " " ).toUpperCase();
+
+        await expect( row.getByRole( "link" ) ).toHaveCount( 1 );
+        await expect( row.getByText( callNumber, { exact: true } ) ).toBeVisible();
+        await expect( row.getByRole( "list", { name: "Catégories" } ) ).toHaveText( CATEGORIES.institutions.name );
+        await expect( row.getByText( "Brouillon", { exact: true } ) ).toHaveCount( 0 );
+    } );
+
+    test( "gathers the alphabetical ordering under letter headings", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/wiki" );
+
+        const initial = PAGES.athena.title.charAt( 0 );
+
+        await expect( page.getByRole( "heading", { level: 2, name: initial, exact: true } ) ).toBeVisible();
+
+        await showFilters( page );
+        await page.getByLabel( "Tri" ).selectOption( "recent" );
+
+        await expect( page.getByRole( "heading", { level: 2, name: initial, exact: true } ) ).toHaveCount( 0 );
+        await expect( page.getByRole( "heading", { level: 2, name: "Les plus récemment modifiées" } ) ).toBeVisible();
+    } );
+
+    test( "opens on the ordering the address asks for", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/wiki/?tri=recent" );
+
+        await expect( rows( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.athena.title );
+        await expect( rows( page ).last().getByRole( "heading" ) ).toHaveText( PAGES.doctrine.title );
+
+        await showFilters( page );
+
+        await expect( page.getByLabel( "Tri" ) ).toHaveValue( "recent" );
     } );
 
     test( "filters by keyword, by category and by status", async ( { page, wiki } ) =>
@@ -74,19 +123,19 @@ test.describe( "encyclopedia index", () =>
         await wiki.open( "/wiki" );
         await page.getByLabel( "Filtrer les fiches" ).fill( "athena" );
 
-        await expect( cards( page ) ).toHaveCount( 1 );
+        await expect( rows( page ) ).toHaveCount( 1 );
         await expect( page.getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
 
         await page.getByLabel( "Filtrer les fiches" ).fill( "" );
         await showFilters( page );
-        await page.getByLabel( "Catégorie" ).selectOption( CATEGORIES.institutions.slug );
+        await page.getByLabel( "Catégorie", { exact: true } ).selectOption( CATEGORIES.institutions.slug );
 
-        await expect( cards( page ) ).toHaveCount( COUNTS.institutions );
+        await expect( rows( page ) ).toHaveCount( COUNTS.institutions );
 
-        await page.getByLabel( "Catégorie" ).selectOption( "toutes" );
+        await page.getByLabel( "Catégorie", { exact: true } ).selectOption( "toutes" );
         await page.getByLabel( "Statut" ).selectOption( "brouillon" );
 
-        await expect( cards( page ) ).toHaveCount( COUNTS.drafts );
+        await expect( rows( page ) ).toHaveCount( COUNTS.drafts );
         await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeVisible();
     } );
 
@@ -100,7 +149,7 @@ test.describe( "encyclopedia index", () =>
 
         await page.getByRole( "button", { name: "Réinitialiser les filtres" } ).click();
 
-        await expect( cards( page ) ).toHaveCount( COUNTS.entries );
+        await expect( rows( page ) ).toHaveCount( COUNTS.entries );
     } );
 
     test( "sorts by in universe date", async ( { page, wiki } ) =>
@@ -110,11 +159,11 @@ test.describe( "encyclopedia index", () =>
 
         await page.getByLabel( "Tri" ).selectOption( "chronologique" );
 
-        await expect( cards( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.port.title );
+        await expect( rows( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.port.title );
 
         await page.getByLabel( "Tri" ).selectOption( "alphabetique" );
 
-        await expect( cards( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.athena.title );
+        await expect( rows( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.athena.title );
     } );
 
     test( "counts what the filters keep, and clears them from the panel", async ( { page, wiki } ) =>
@@ -132,7 +181,7 @@ test.describe( "encyclopedia index", () =>
 
         await page.getByRole( "button", { name: "Réinitialiser les filtres" } ).click();
 
-        await expect( cards( page ) ).toHaveCount( COUNTS.entries );
+        await expect( rows( page ) ).toHaveCount( COUNTS.entries );
         await expect( page.getByLabel( "Filtrer les fiches" ) ).toHaveValue( "" );
     } );
 } );

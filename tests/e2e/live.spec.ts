@@ -7,9 +7,9 @@
  * @author Claude
  */
 
+import { expect, test } from "./utilities/fixtures";
 import type { Locator, Page } from "@playwright/test";
 import { breakingDataset, COUNTS, LIVE, PAGES } from "./utilities/dataset";
-import { expect, test } from "./utilities/fixtures";
 
 /**
  * Locates one item of the feed, by its title.
@@ -38,11 +38,22 @@ test.describe( "live feed", () =>
         await expect( page.getByText( `${ COUNTS.live } entrées.` ) ).toBeVisible();
         await expect( page.getByRole( "heading", { level: 2 } ).first() ).toHaveText( "Épinglées" );
         await expect( item( page, LIVE.pinned.title ) ).toContainText( "Épinglée" );
+        await expect( item( page, LIVE.recent.title ) ).not.toContainText( "Épinglée" );
         await expect( item( page, LIVE.older.title ) ).toContainText( "Source : Conseil des parties" );
 
         await item( page, LIVE.recent.title ).getByRole( "link", { name: "Lire la fiche complète" } ).click();
 
         await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
+    } );
+
+    test( "dates the latest dispatch from the newest item, not from the pinned one", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/live" );
+
+        // The fixture pins an older item, which the sentence used to read since it heads the feed.
+        const sentence = page.getByText( "Dernière dépêche" );
+
+        await expect( sentence.locator( "time" ) ).toHaveAttribute( "datetime", LIVE.recent.publishedAt );
     } );
 
     test( "filters by severity and by tag, and clears an empty result", async ( { page, wiki } ) =>
@@ -95,7 +106,8 @@ test.describe( "live feed", () =>
     {
         await wiki.open( "/live" );
 
-        await item( page, LIVE.older.title ).getByRole( "button", { name: "Modifier" } ).click();
+        await item( page, LIVE.older.title )
+            .getByRole( "button", { name: `Modifier l'entrée « ${ LIVE.older.title } »` } ).click();
 
         await expect( page.getByLabel( "Titre" ) ).toHaveValue( LIVE.older.title );
 
@@ -104,7 +116,8 @@ test.describe( "live feed", () =>
 
         await expect( item( page, "Le traité des marées est suspendu" ) ).toBeVisible();
 
-        await item( page, "Le traité des marées est suspendu" ).getByRole( "button", { name: "Supprimer" } ).click();
+        await item( page, "Le traité des marées est suspendu" )
+            .getByRole( "button", { name: "Supprimer l'entrée « Le traité des marées est suspendu »" } ).click();
         await wiki.confirm( "Supprimer cette entrée ?", "Supprimer" );
 
         await expect( page.getByRole( "article" ) ).toHaveCount( COUNTS.live - 1 );

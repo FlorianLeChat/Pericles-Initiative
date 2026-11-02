@@ -79,6 +79,29 @@ test.describe( "site frame", () =>
         await expect( page ).toHaveURL( new RegExp( `/wiki/${ PAGES.athena.slug }/$` ) );
     } );
 
+    test( "offers the pages edited last, and the creation of a page nothing matches", async ( { page, wiki } ) =>
+    {
+        await wiki.open();
+
+        await page.keyboard.press( "Control+k" );
+
+        const palette = page.getByRole( "dialog", { name: "Rechercher une fiche" } );
+
+        await expect( palette.getByText( "Modifiées récemment" ) ).toBeVisible();
+        await expect( palette.getByRole( "option" ).first() ).toHaveAttribute( "aria-selected", "true" );
+
+        await page.keyboard.type( "Phare du Nord" );
+
+        const create = palette.getByRole( "option", { name: "Créer la fiche « Phare du Nord »" } );
+
+        await expect( create ).toHaveAttribute( "aria-selected", "true" );
+
+        await page.keyboard.press( "Enter" );
+
+        await expect( page ).toHaveURL( /\/new\/\?slug=phare-du-nord&titre=Phare%20du%20Nord$/ );
+        await expect( page.getByLabel( "Titre", { exact: true } ) ).toHaveValue( "Phare du Nord" );
+    } );
+
     test( "flips the theme and remembers the choice", async ( { page, wiki } ) =>
     {
         await wiki.open();

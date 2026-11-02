@@ -5,7 +5,7 @@
     "short_name": "Périclès Initiative",
     "description": "🌄 An alternative wiki-style website to create an encyclopedia about your own custom universe.",
     "theme_color": "#1f5fbd",
-    "background_color": "#fdfcfa",
+    "background_color": "#ffffff",
     "icons": [
         {
             "src": "assets/favicon.svg",

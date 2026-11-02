@@ -130,6 +130,11 @@ with a comment, never inline inside a call.
   array brackets, `[ "a", "b" ]`, inside computed properties, `record[ key ]`, and inside template
   expressions, `${ value }`. Braces follow Allman style, on their own line. No trailing comma, ever.
   Semicolons always.
+- **Imports form a staircase**: one block with no blank line inside, ordered from the shortest
+  statement to the longest, whatever the module they come from, type imports included. A
+  side effect import, `import "../app.css";`, stays at the top of the block, since its position is
+  what decides when it runs, and an import spanning several lines comes last. Two statements of the
+  same length keep the order they had. Nothing enforces it, so keep it by hand when adding one.
 - Before considering work finished, run:
 
 ```bash
@@ -558,7 +563,7 @@ src/
         data/                   export, import, remote backup
         settings/               identity of the wiki, language
 static/
-    assets/fonts/               self hosted Newsreader and IBM Plex, latin subset, with their OFL notice
+    assets/fonts/               self hosted Public Sans, Source Serif 4 and IBM Plex Mono, latin subset
     media/                      illustrations referenced by pages, installable icons
     manifest.webmanifest        name, icons and shortcuts of the installed site
 tests/

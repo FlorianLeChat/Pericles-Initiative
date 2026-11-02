@@ -11,13 +11,13 @@
      * @author Claude
      */
     import { resolve } from "$app/paths";
+    import * as m from "#lib/locales/messages.js";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { localStorageKey } from "#lib/locales/runtime.js";
     import PageHeader from "#lib/components/PageHeader.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import ResetPanel from "#lib/components/data/ResetPanel.svelte";
     import SettingsForm from "#lib/components/settings/SettingsForm.svelte";
-    import * as m from "#lib/locales/messages.js";
-    import { localStorageKey } from "#lib/locales/runtime.js";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
 
     /**
      * Puts every setting this page offers back to its default.

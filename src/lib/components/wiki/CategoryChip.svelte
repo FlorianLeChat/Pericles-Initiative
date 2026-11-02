@@ -4,10 +4,10 @@
      *
      * @author Claude
      */
-    import Badge from "flowbite-svelte/Badge.svelte";
     import { resolve } from "$app/paths";
-    import { paletteColor } from "#lib/config/palette.ts";
     import type { Category } from "#lib/types.ts";
+    import Badge from "flowbite-svelte/Badge.svelte";
+    import { paletteColor } from "#lib/config/palette.ts";
 
     interface Props {
         category: Category;
@@ -30,6 +30,6 @@
     {category.name}
 
     {#if count !== undefined}
-        <span class="font-mono">{count}</span>
+        <span class="tabular-nums">{count}</span>
     {/if}
 </Badge>

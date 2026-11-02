@@ -12,8 +12,11 @@
     import { resolve } from "$app/paths";
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
-    import { formatDateTime } from "#lib/utilities/date.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
+    import { formatDateTime } from "#lib/utilities/date.ts";
+
+    /** Shared by the headings of each kind of stored item. */
+    const SUBHEADING = "text-ink-900 dark:text-paper-100 mb-2 text-sm font-semibold";
 
     /** Above this size the browser is close to refusing to store the overlay. */
     const STORAGE_WARNING = 3_500_000;
@@ -48,14 +51,16 @@
                 : `${ ( bytes / 1_048_576 ).toFixed( 2 ) } ${ m.local_content_unit_megabytes() }`;
 </script>
 
-<section class="surface p-6">
-    <div class="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.local_content_heading()}</h2>
+<section class="surface p-6" aria-labelledby="local-content-heading">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <h2 id="local-content-heading" class="section-heading">{m.local_content_heading()}</h2>
 
         <p class="text-muted text-xs">
             {m.local_content_size_used( { size: formatSize( overlaySize ) } )}
         </p>
     </div>
+
+    <p class="text-muted mt-1.5 text-sm">{m.local_content_description()}</p>
 
     {#if !wiki.hasStoredItems}
         <p class="text-muted mt-4 text-sm leading-relaxed">
@@ -77,7 +82,7 @@
         {/if}
 
         {#if overlaySize > STORAGE_WARNING}
-            <p class="bg-signal-500/15 text-signal-500 mt-4 rounded-xl px-4 py-3 text-sm">
+            <p class="bg-signal-500/15 text-signal-700 mt-4 rounded-xl px-4 py-3 text-sm">
                 {m.local_content_storage_warning()}
             </p>
         {/if}
@@ -85,7 +90,7 @@
         <div class="mt-5 space-y-5 text-sm">
             {#if storedEntries.length > 0}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.local_content_entries_heading()}</p>
+                    <h3 class={SUBHEADING}>{m.local_content_entries_heading()}</h3>
 
                     <ul class="space-y-1.5">
                         {#each storedEntries as entry ( entry.id )}
@@ -103,7 +108,7 @@
 
             {#if deletedEntries.length > 0}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.local_content_deleted_heading()}</p>
+                    <h3 class={SUBHEADING}>{m.local_content_deleted_heading()}</h3>
 
                     <ul class="space-y-1.5">
                         {#each deletedEntries as item ( item.id )}
@@ -123,7 +128,7 @@
 
             {#if storedCategories.length > 0}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.common_categories_label()}</p>
+                    <h3 class={SUBHEADING}>{m.common_categories_label()}</h3>
 
                     <ul class="flex flex-wrap gap-1.5">
                         {#each storedCategories as category ( category.slug )}
@@ -137,7 +142,7 @@
 
             {#if storedLive.length > 0}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.local_content_live_heading()}</p>
+                    <h3 class={SUBHEADING}>{m.local_content_live_heading()}</h3>
 
                     <p class="text-ink-500 dark:text-paper-300/80">
                         {storedLive.length}
@@ -148,7 +153,7 @@
 
             {#if wiki.overlay.meta}
                 <div>
-                    <p class="text-muted mb-2 text-xs tracking-wide uppercase">{m.local_content_identity_heading()}</p>
+                    <h3 class={SUBHEADING}>{m.local_content_identity_heading()}</h3>
 
                     <p class="text-ink-500 dark:text-paper-300/80">
                         {m.local_content_identity_intro()}

@@ -7,10 +7,10 @@
  * @author Claude
  */
 
+import { countWords } from "./markdown";
 import * as m from "#lib/locales/messages.js";
 import { getLocale } from "#lib/locales/runtime.js";
 import type { Category, Entry, LiveEntry } from "#lib/types.ts";
-import { countWords } from "./markdown";
 
 export interface CountByKey {
     key: string;

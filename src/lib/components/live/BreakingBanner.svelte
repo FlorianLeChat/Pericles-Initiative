@@ -4,14 +4,14 @@
      *
      * @author Claude
      */
+    import { resolve } from "$app/paths";
     import X from "@lucide/svelte/icons/x";
     import { cubicOut } from "svelte/easing";
     import { slide } from "svelte/transition";
-    import { resolve } from "$app/paths";
-    import { motionDuration } from "#lib/config/motion.ts";
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import { relativeTime } from "#lib/utilities/date.ts";
+    import { motionDuration } from "#lib/config/motion.ts";
 
     let dismissed = $state( false );
 
@@ -21,7 +21,7 @@
 {#if item && !dismissed}
     <aside
         id="breaking-banner"
-        class="bg-alert-500 text-white"
+        class="bg-alert-600 text-white"
         aria-label={m.breaking_banner_aria()}
         transition:slide={{ duration: motionDuration( 260 ), easing: cubicOut }}
     >

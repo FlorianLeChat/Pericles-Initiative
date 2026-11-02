@@ -1,28 +1,27 @@
 <script lang="ts">
     /**
-     * Single figure of the dashboard.
+     * One cell of the dashboard summary row: a muted label, a figure, an optional hint.
+     *
+     * It renders a `div` grouping a `dt` and its `dd`, so it belongs directly inside a `<dl>`.
      *
      * @author Claude
      */
-    import { staggerRank } from "#lib/config/motion.ts";
-
     interface Props {
         label: string;
         value: string | number;
-        /** Short clarification shown under the figure. */
+        /** Short clarification shown beside the figure. */
         hint?: string;
-        /** Position in the row of figures, which offsets the entrance animation. */
-        index?: number;
     }
 
-    let { label, value, hint, index = 0 }: Props = $props();
+    let { label, value, hint }: Props = $props();
 </script>
 
-<div class="surface rise-in p-5" style="--rank: {staggerRank( index )}">
-    <p class="text-muted text-xs tracking-wide uppercase">{label}</p>
-    <p class="mt-2 font-serif text-3xl font-semibold tracking-tight">{value}</p>
+<div class="dark:bg-ink-950 bg-white px-4 py-3">
+    <dt class="text-muted text-sm">{label}</dt>
+
+    <dd class="text-ink-900 dark:text-paper-100 mt-0.5 text-lg font-semibold">{value}</dd>
 
     {#if hint}
-        <p class="text-muted mt-1 text-xs leading-relaxed">{hint}</p>
+        <dd class="text-muted text-xs">{hint}</dd>
     {/if}
 </div>

@@ -16,27 +16,25 @@
 
     interface Props {
         title: string;
-        /** Line above the title, such as the pulsing marker of the live feed. */
-        eyebrow?: Snippet;
         /** A sentence or two under the title. */
         description?: Snippet;
         /** Actions of the page, laid out by `ACTION_ROW`. */
         action?: Snippet;
     }
 
-    let { title, eyebrow, description, action }: Props = $props();
+    let { title, description, action }: Props = $props();
 </script>
 
-<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
     <div class="max-w-2xl">
-        {#if eyebrow}
-            <div class="mb-3">{@render eyebrow()}</div>
-        {/if}
+        <h1 class="text-ink-900 dark:text-paper-100 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+            {title}
+        </h1>
 
-        <h1 class="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
+        <span class="title-rule" aria-hidden="true"></span>
 
         {#if description}
-            <p class="text-muted mt-3 leading-relaxed">{@render description()}</p>
+            <p class="text-muted mt-4 leading-relaxed text-pretty">{@render description()}</p>
         {/if}
     </div>
 

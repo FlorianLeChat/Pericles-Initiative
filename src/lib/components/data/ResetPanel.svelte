@@ -12,10 +12,10 @@
      *
      * @author Claude
      */
-    import Button from "flowbite-svelte/Button.svelte";
     import type { Snippet } from "svelte";
-    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import Button from "flowbite-svelte/Button.svelte";
     import { ACTION_BUTTON } from "#lib/config/forms.ts";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
 
     interface Props {
         /** Names what this card resets. */
@@ -52,10 +52,10 @@
     let confirmOpen = $state( false );
 </script>
 
-<section class="border-alert-500/30 mt-6 rounded-2xl border p-6" aria-labelledby={headingId}>
-    <h2 id={headingId} class="font-serif text-xl font-semibold tracking-tight">{heading}</h2>
+<section class="surface mt-6 p-6" aria-labelledby={headingId}>
+    <h2 id={headingId} class="section-heading">{heading}</h2>
 
-    <p class="text-muted mt-2 text-sm leading-relaxed">{description}</p>
+    <p class="text-muted mt-1.5 text-sm">{description}</p>
 
     <p class="text-ink-600 dark:text-paper-300 mt-3 text-sm leading-relaxed">{@render spares()}</p>
 

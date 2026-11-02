@@ -7,13 +7,13 @@
      *
      * @author Claude
      */
-    import Moon from "@lucide/svelte/icons/moon";
-    import Sun from "@lucide/svelte/icons/sun";
     import { onMount } from "svelte";
     import { cubicOut } from "svelte/easing";
     import { scale } from "svelte/transition";
-    import { motionDuration } from "#lib/config/motion.ts";
+    import Sun from "@lucide/svelte/icons/sun";
+    import Moon from "@lucide/svelte/icons/moon";
     import * as m from "#lib/locales/messages.js";
+    import { motionDuration } from "#lib/config/motion.ts";
 
     let dark = $state( false );
 

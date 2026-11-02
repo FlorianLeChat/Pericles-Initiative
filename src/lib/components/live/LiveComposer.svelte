@@ -8,21 +8,21 @@
      *
      * @author Claude
      */
-    import Button from "flowbite-svelte/Button.svelte";
-    import Checkbox from "flowbite-svelte/Checkbox.svelte";
+    import { untrack } from "svelte";
+    import * as m from "#lib/locales/messages.js";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import Radio from "flowbite-svelte/Radio.svelte";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
     import Select from "flowbite-svelte/Select.svelte";
+    import Checkbox from "flowbite-svelte/Checkbox.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
-    import { untrack } from "svelte";
-    import EntryPicker from "#lib/components/editor/EntryPicker.svelte";
+    import { SEVERITIES } from "#lib/config/severities.ts";
+    import type { LiveEntry, LiveSeverity } from "#lib/types.ts";
     import ChipsInput from "#lib/components/editor/ChipsInput.svelte";
     import { RADIO_OVERLAY, SMALL_FIELD } from "#lib/config/forms.ts";
-    import { SEVERITIES } from "#lib/config/severities.ts";
-    import * as m from "#lib/locales/messages.js";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
-    import type { LiveEntry, LiveSeverity } from "#lib/types.ts";
+    import EntryPicker from "#lib/components/editor/EntryPicker.svelte";
     import { fromDateTimeInput, toDateTimeInput } from "#lib/utilities/date.ts";
 
     interface Props {
@@ -141,13 +141,18 @@
         publish();
     }}
 >
-    <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <p class="text-muted text-xs tracking-wide uppercase">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-ink-900 dark:text-paper-100 text-base font-semibold">
             {editing ? m.live_composer_edit_heading() : m.live_composer_publish_heading()}
-        </p>
+        </h2>
 
         {#if editing}
-            <button type="button" class="text-muted hover:text-accent-600 text-xs underline" onclick={oncancel}>
+            <button
+                type="button"
+                class="text-muted hover:text-accent-600 dark:hover:text-accent-400 inline-flex min-h-9 items-center
+                       text-xs underline"
+                onclick={oncancel}
+            >
                 {m.live_composer_cancel_edit()}
             </button>
         {/if}

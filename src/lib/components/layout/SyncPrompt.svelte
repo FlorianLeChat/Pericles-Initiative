@@ -13,18 +13,18 @@
      *
      * @author Claude
      */
-    import CloudDownload from "@lucide/svelte/icons/cloud-download";
-    import Button from "flowbite-svelte/Button.svelte";
-    import Toast from "flowbite-svelte/Toast.svelte";
-    import { afterNavigate } from "$app/navigation";
-    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { motionDuration } from "#lib/config/motion.ts";
-    import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
     import * as m from "#lib/locales/messages.js";
-    import { remote } from "#lib/state/remote.svelte.ts";
+    import { afterNavigate } from "$app/navigation";
+    import Toast from "flowbite-svelte/Toast.svelte";
     import { sync } from "#lib/state/sync.svelte.ts";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import { remote } from "#lib/state/remote.svelte.ts";
+    import { motionDuration } from "#lib/config/motion.ts";
     import { formatDateTime } from "#lib/utilities/date.ts";
+    import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
+    import CloudDownload from "@lucide/svelte/icons/cloud-download";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
 
     let restoreOpen = $state( false );
     let sendOpen = $state( false );
@@ -139,7 +139,7 @@
                 <p class="leading-relaxed">{message}</p>
 
                 {#if failure}
-                    <p class="text-alert-600 dark:text-alert-400 mt-2 text-xs leading-relaxed">{failure}</p>
+                    <p class="text-alert-600 dark:text-alert-500 mt-2 text-xs leading-relaxed">{failure}</p>
                 {/if}
 
                 <div class="mt-3 flex flex-wrap gap-2">

@@ -7,15 +7,15 @@
      *
      * @author Claude
      */
-    import ArrowDown from "@lucide/svelte/icons/arrow-down";
-    import ArrowUp from "@lucide/svelte/icons/arrow-up";
-    import X from "@lucide/svelte/icons/x";
-    import Button from "flowbite-svelte/Button.svelte";
-    import type { Snippet } from "svelte";
     import { resolve } from "$app/paths";
+    import type { Snippet } from "svelte";
+    import X from "@lucide/svelte/icons/x";
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Button from "flowbite-svelte/Button.svelte";
+    import ArrowUp from "@lucide/svelte/icons/arrow-up";
     import EntryPicker from "../editor/EntryPicker.svelte";
+    import ArrowDown from "@lucide/svelte/icons/arrow-down";
 
     interface Props {
         /** Slugs of the featured pages, most prominent first. */
@@ -31,7 +31,7 @@
 
 <section class="surface p-6">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 class="font-serif text-xl font-semibold tracking-tight">{m.featured_pages_heading()}</h2>
+        <h2 class="section-heading">{m.featured_pages_heading()}</h2>
 
         <button
             type="button"
@@ -54,7 +54,7 @@
                 {@const entry = wiki.bySlug( slug )}
 
                 <li class="border-paper-200 dark:border-ink-800 flex items-center gap-3 rounded-xl border p-3">
-                    <span class="text-muted font-mono text-xs">{index + 1}</span>
+                    <span class="text-muted text-xs tabular-nums">{index + 1}</span>
 
                     <span class="min-w-0 flex-1">
                         {#if entry}

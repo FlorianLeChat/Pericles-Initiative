@@ -16,4 +16,4 @@
     const config = $derived( severityConfig( severity ) );
 </script>
 
-<Badge class="rounded-full px-2.5 py-1 text-xs {config.badge}">{config.label}</Badge>
+<Badge class="rounded px-1.5 py-0.5 text-xs font-semibold {config.badge}">{config.label}</Badge>
