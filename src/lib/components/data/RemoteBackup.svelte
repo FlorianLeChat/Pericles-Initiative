@@ -11,12 +11,18 @@
      * that the wiki works from this browser alone and fires no request at all.
      * The contract is described in `README.md`.
      *
+     * The destination row above the form announces S3 compatible storage, the
+     * second kind of destination planned, without implementing it: its tile is
+     * disabled and the snapshot server stays the one choice, so nothing reads
+     * the row yet and no state stands behind it.
+     *
      * @author Claude
      */
     import * as m from "#lib/locales/messages.js";
     import Alert from "flowbite-svelte/Alert.svelte";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
+    import Radio from "flowbite-svelte/Radio.svelte";
     import { sync } from "#lib/state/sync.svelte.ts";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
@@ -28,7 +34,12 @@
     import { isUsableBaseUrl } from "#lib/utilities/remote.ts";
     import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON, ACTION_ROW } from "#lib/config/forms.ts";
+    import { ACTION_BUTTON, ACTION_ROW, RADIO_OVERLAY } from "#lib/config/forms.ts";
+
+    /** Shape shared by the two destination tiles, the radio stretched over each. */
+    const DESTINATION_TILE = `relative flex flex-col items-start gap-0.5 rounded-xl border p-3 text-sm transition
+                              has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2
+                              has-[:focus-visible]:outline-accent-500`;
 
     let baseUrl = $state( "" );
     let secret = $state( "" );
@@ -200,6 +211,54 @@
             void test();
         }}
     >
+        <fieldset>
+            <legend class="field-label">{m.remote_backup_destination_legend()}</legend>
+
+            <div class="grid gap-2 sm:grid-cols-2">
+                <Radio
+                    name="remote-destination"
+                    value="server"
+                    group="server"
+                    class={RADIO_OVERLAY}
+                    classes={{
+                        label: `${ DESTINATION_TILE } border-ink-800 dark:border-paper-200 cursor-pointer`
+                    }}
+                >
+                    <span class="text-ink-900 dark:text-paper-100 font-medium">
+                        {m.remote_backup_destination_server()}
+                    </span>
+
+                    <span class="text-muted text-xs leading-relaxed">{m.remote_backup_destination_server_hint()}</span>
+                </Radio>
+
+                <Radio
+                    name="remote-destination"
+                    value="s3"
+                    group="server"
+                    disabled
+                    class="{RADIO_OVERLAY} cursor-not-allowed"
+                    classes={{
+                        label: `${ DESTINATION_TILE } border-paper-300 dark:border-ink-600 border-dashed`
+                    }}
+                >
+                    <span class="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                        <span class="text-ink-600 dark:text-paper-300 font-medium">
+                            {m.remote_backup_destination_s3()}
+                        </span>
+
+                        <span
+                            class="bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300 rounded-full px-2 py-0.5
+                                   text-xs font-medium"
+                        >
+                            {m.remote_backup_destination_soon()}
+                        </span>
+                    </span>
+
+                    <span class="text-muted text-xs leading-relaxed">{m.remote_backup_destination_s3_hint()}</span>
+                </Radio>
+            </div>
+        </fieldset>
+
         <div>
             <Label for="remote-base-url" class="field-label">{m.remote_backup_url_label()}</Label>
 

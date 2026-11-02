@@ -24,11 +24,9 @@
     import { callNumber } from "#lib/utilities/catalogue.ts";
     import EmptyState from "#lib/components/EmptyState.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import { FEATURED_LIST_LENGTH } from "#lib/config/featured.ts";
     import CategoryChip from "#lib/components/wiki/CategoryChip.svelte";
     import SeverityBadge from "#lib/components/live/SeverityBadge.svelte";
-
-    /** Pages listed beside the lead one, under «À la une». */
-    const FEATURED_LIST_LENGTH = 3;
 
     /** Pages listed under the latest edits. */
     const LATEST_LENGTH = 6;
@@ -156,7 +154,7 @@
     <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <EmptyState title={m.common_empty_wiki_title()} description={m.common_empty_wiki_description()}>
             <Button href={resolve( "/new" )} color="primary">{m.common_create_entry()}</Button>
-            <a href={resolve( "/settings" )} class="wiki-link text-sm">{m.home_empty_demo_link()}</a>
+            <a href={resolve( "/data" )} class="wiki-link text-sm">{m.home_empty_demo_link()}</a>
         </EmptyState>
     </div>
 {:else}

@@ -10,12 +10,17 @@
      * card, each stating in the same place what it leaves alone and where the
      * other half is handled.
      *
+     * The frame is the one thing the two pages draw differently: a card among the
+     * cards of `/data`, a group among the groups of `/settings`. The content is
+     * split in two blocks either way, which a card stacks and a settings group sets
+     * side by side.
+     *
      * @author Claude
      */
     import type { Snippet } from "svelte";
     import Button from "flowbite-svelte/Button.svelte";
-    import { ACTION_BUTTON } from "#lib/config/forms.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import { ACTION_BUTTON, DANGER_OUTLINE } from "#lib/config/forms.ts";
 
     interface Props {
         /** Names what this card resets. */
@@ -28,6 +33,8 @@
         action: string;
         /** True when there is nothing left to reset. */
         disabled?: boolean;
+        /** Classes drawing the section around it, a card unless told otherwise. */
+        frame?: string;
         confirmTitle: string;
         confirmMessage: string;
         confirmLabel: string;
@@ -40,6 +47,7 @@
         spares,
         action,
         disabled = false,
+        frame = "surface mt-6 space-y-3 p-6",
         confirmTitle,
         confirmMessage,
         confirmLabel,
@@ -52,16 +60,25 @@
     let confirmOpen = $state( false );
 </script>
 
-<section class="surface mt-6 p-6" aria-labelledby={headingId}>
-    <h2 id={headingId} class="section-heading">{heading}</h2>
+<section class={frame} aria-labelledby={headingId}>
+    <div>
+        <h2 id={headingId} class="section-heading">{heading}</h2>
 
-    <p class="text-muted mt-1.5 text-sm">{description}</p>
+        <p class="text-muted mt-1.5 text-sm leading-relaxed text-pretty">{description}</p>
+    </div>
 
-    <p class="text-ink-600 dark:text-paper-300 mt-3 text-sm leading-relaxed">{@render spares()}</p>
+    <div class="min-w-0">
+        <p class="text-ink-600 dark:text-paper-300 text-sm leading-relaxed">{@render spares()}</p>
 
-    <Button color="red" class="mt-5 {ACTION_BUTTON}" {disabled} onclick={() => ( confirmOpen = true )}>
-        {action}
-    </Button>
+        <Button
+            color="alternative"
+            class="mt-5 {ACTION_BUTTON} {DANGER_OUTLINE}"
+            {disabled}
+            onclick={() => ( confirmOpen = true )}
+        >
+            {action}
+        </Button>
+    </div>
 </section>
 
 <ConfirmDialog

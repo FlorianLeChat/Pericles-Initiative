@@ -30,6 +30,26 @@ test.describe( "site frame", () =>
         await expect( page ).toHaveURL( /\/timeline\/$/ );
     } );
 
+    test( "moves between the tools through their tabs, marking the current one", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/dashboard/" );
+
+        const tabs = page.getByRole( "navigation", { name: "Outils" } );
+
+        await expect( tabs.getByRole( "link", { name: "Tableau de bord" } ) ).toHaveAttribute( "aria-current", "page" );
+
+        await tabs.getByRole( "link", { name: "Sauvegardes" } ).click();
+
+        await expect( page ).toHaveURL( /\/data\/$/ );
+        await expect( tabs.getByRole( "link", { name: "Sauvegardes" } ) ).toHaveAttribute( "aria-current", "page" );
+        await expect( tabs.getByRole( "link", { name: "Tableau de bord" } ) ).not.toHaveAttribute( "aria-current" );
+
+        await tabs.getByRole( "link", { name: "Paramètres" } ).click();
+
+        await expect( page ).toHaveURL( /\/settings\/$/ );
+        await expect( page.getByRole( "heading", { name: "Paramètres", level: 1 } ) ).toBeVisible();
+    } );
+
     test( "reaches the authoring tools", async ( { page, wiki } ) =>
     {
         await wiki.open();

@@ -89,6 +89,8 @@ test.describe( "settings", () =>
         const featured = page.locator( "section" ).filter( { hasText: "Fiches à la une" } );
 
         await expect( featured.getByRole( "listitem" ) ).toHaveCount( 3 );
+        await expect( featured.getByRole( "listitem" ).first() ).toContainText( "Grande carte" );
+        await expect( featured.getByRole( "listitem" ).last() ).toContainText( "Liste de l'accueil" );
 
         await featured.getByRole( "listitem" ).filter( { hasText: PAGES.athena.title } )
             .getByRole( "button", { name: "Retirer" } ).click();
@@ -99,7 +101,12 @@ test.describe( "settings", () =>
 
         await expect( featured.getByRole( "listitem" ) ).toHaveCount( 3 );
 
-        await featured.getByRole( "button", { name: "Confirmer" } ).click();
+        await expect( page.getByText( "Modifications non enregistrées." ) ).toBeVisible();
+
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        await expect( page.getByText( "Enregistré." ) ).toBeVisible();
+
         await page.goto( "/" );
 
         const highlight = page.locator( "section" ).filter( { hasText: "À la une" } );
@@ -168,5 +175,35 @@ test.describe( "settings", () =>
 
         await page.getByRole( "radio", { name: "French" } ).click();
         await expect( page.getByRole( "heading", { name: "Paramètres", level: 1 } ) ).toBeVisible();
+    } );
+
+    test( "saves the identity being edited before switching the language", async ( { page, wiki } ) =>
+    {
+        await openSettings( page, wiki );
+
+        await page.getByLabel( "Nom de l'univers" ).fill( "Périclès, troisième cycle" );
+        await page.getByRole( "radio", { name: "Anglais" } ).click();
+
+        await expect( page.getByRole( "radio", { name: "Français" } ) ).toBeChecked();
+
+        await wiki.confirm( "Enregistrer avant de changer de langue ?", "Enregistrer et changer" );
+
+        await expect( page.getByRole( "heading", { name: "Settings", level: 1 } ) ).toBeVisible();
+        await expect( page.getByLabel( "Universe name" ) ).toHaveValue( "Périclès, troisième cycle" );
+        expect( ( await wiki.storedOverlay() )?.meta?.universe ).toBe( "Périclès, troisième cycle" );
+    } );
+
+    test( "stays in the same language when the switch is cancelled over unsaved edits", async ( { page, wiki } ) =>
+    {
+        await openSettings( page, wiki );
+
+        await page.getByLabel( "Nom de l'univers" ).fill( "" );
+        await page.getByRole( "radio", { name: "Anglais" } ).click();
+
+        await wiki.confirm( "Changer de langue sans enregistrer ?", "Annuler" );
+
+        await expect( page.getByRole( "radio", { name: "Français" } ) ).toBeChecked();
+        await expect( page.getByText( "Donnez un nom à l'univers pour pouvoir enregistrer." ) ).toBeVisible();
+        await expect( page.getByLabel( "Nom de l'univers" ) ).toHaveValue( "" );
     } );
 } );
