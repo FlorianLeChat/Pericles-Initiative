@@ -40,7 +40,7 @@ test.describe( "timeline", () =>
         await expect( page ).toHaveURL( /\/entries\/$/ );
     } );
 
-    test( "counts dates rather than pages, and leaves the drafts out", async ( { page, wiki } ) =>
+    test( "groups every published date by decade, a page standing at each of its own", async ( { page, wiki } ) =>
     {
         await wiki.open( "/timeline" );
 
@@ -51,11 +51,6 @@ test.describe( "timeline", () =>
         // it, and neither may reach the frise.
         await expect( point( page, DATES.brouillon.label ) ).toBeHidden();
         await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeHidden();
-    } );
-
-    test( "groups the dates by decade and reads every shape of date", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/timeline" );
 
         // The decades the fixture dates fall into, ascending, the free text one last.
         // The fixture spans a few decades only, well short of the switch to centuries.
@@ -71,11 +66,6 @@ test.describe( "timeline", () =>
         await expect( point( page, DATES.deces.label ) ).toContainText( "12 juin 2043" );
         await expect( point( page, DATES.formulation.label ) ).toContainText( "mars 2044" );
         await expect( point( page, DATES.application.label ) ).toContainText( DATES.application.value );
-    } );
-
-    test( "stands a page at each of its dates", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/timeline" );
 
         const birth = point( page, DATES.naissance.label );
         const death = point( page, DATES.deces.label );

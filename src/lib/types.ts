@@ -142,17 +142,49 @@ export interface Overlay {
 }
 
 /**
+ * Kind of destination a snapshot is sent to.
+ *
+ * `api` is any server implementing the two endpoints of `README.md`, `s3` an
+ * object of an S3 compatible bucket, reached with requests the browser signs.
+ */
+export type RemoteKind = "api" | "s3";
+
+/**
+ * Location of the snapshot in an S3 compatible bucket, and the key allowed to reach it.
+ *
+ * The key is stored in clear in this browser, like the secret of a server, which
+ * is why the interface asks for one restricted to this single object.
+ */
+export interface S3Config {
+    /** Origin of the service, empty to use Amazon S3 in `region`. */
+    endpoint: string;
+    /** Region the requests are signed for, `auto` for providers that ignore it. */
+    region: string;
+    bucket: string;
+    /** Key of the object holding the snapshot, inside the bucket. */
+    key: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    /** Whether the bucket is named in the path rather than in the host name. */
+    pathStyle: boolean;
+}
+
+/**
  * Connection to the optional remote snapshot service.
  *
- * Absent from `localStorage` until the user configures one, and an empty
- * `baseUrl` means the site works from the overlay alone, which stays a first
+ * Absent from `localStorage` until the user configures one, and an unusable
+ * destination means the site works from the overlay alone, which stays a first
  * class mode. See `README.md` for the contract this describes.
  */
 export interface RemoteConfig {
+    /** Destination in use. Only its own fields are read; the other one's are kept, unused. */
+    kind: RemoteKind;
     /** Absolute http or https origin and path prefix, empty when unconfigured. */
     baseUrl: string;
     /** Shared secret sent as `X-Pericles-Secret`, empty to send no header. */
     secret: string;
+    /** Object of an S3 compatible bucket, read when `kind` is `s3`. */
+    s3: S3Config;
     /** Last `ETag` seen, replayed as `If-Match` on the next write. */
     revision: string | null;
     /**

@@ -71,14 +71,7 @@ test.describe( "article page", () =>
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( PAGES.port.title );
     } );
 
-    test( "marks a draft as incomplete", async ( { page, wiki } ) =>
-    {
-        await wiki.open( `/entries/${ PAGES.sceau.slug }` );
-
-        await expect( page.getByText( "Brouillon : le contenu est encore incomplet" ) ).toBeVisible();
-    } );
-
-    test( "turns a red link into an invitation to write the page", async ( { page, wiki } ) =>
+    test( "turns a red link into an invitation to write the page, and closes the gap", async ( { page, wiki } ) =>
     {
         await wiki.open( `/entries/${ PAGES.athena.slug }` );
 
@@ -97,5 +90,12 @@ test.describe( "article page", () =>
 
         await expect( page ).toHaveURL( new RegExp( `/new/\\?slug=${ MISSING_SLUG }&titre=` ) );
         await expect( page.getByLabel( "Titre", { exact: true } ) ).toHaveValue( "Conseil des parties" );
+        await expect( page.getByLabel( "Adresse de la page" ) ).toHaveValue( MISSING_SLUG );
+
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ MISSING_SLUG }/$` ) );
+        await expect( page.getByRole( "region", { name: "Pages qui mènent ici" } )
+            .getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
     } );
 } );

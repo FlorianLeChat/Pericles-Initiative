@@ -3,7 +3,7 @@
      * File backup: writing the wiki to a `wiki.json`, and reading one back.
      *
      * Export and import are two directions of the same thing, so they share one
-     * panel, told apart from the online backup by the medium: a file on this
+     * body, the one `BackupPanel` shows under its file tile: a file on this
      * device, no server involved, no request fired.
      *
      * A restore replaces everything and keeps no undo, since a second copy of the
@@ -235,22 +235,18 @@
     };
 </script>
 
-<section class="surface mt-6 p-6" aria-labelledby="file-backup-heading">
-    <h2 id="file-backup-heading" class="section-heading">{m.file_backup_heading()}</h2>
-
-    <p class="text-muted mt-1.5 text-sm">{m.file_backup_intro()}</p>
-
+<div>
     {#if feedback}
         <Alert
             color={feedback.kind === "success" ? "primary" : "red"}
-            class="mt-5 rounded-xl text-sm"
+            class="mb-6 rounded-xl text-sm"
             role={feedback.kind === "success" ? "status" : "alert"}
         >
             {feedback.text}
         </Alert>
     {/if}
 
-    <div class="mt-6">
+    <div>
         <h3 class="font-semibold">{m.file_backup_download_heading()}</h3>
 
         <p class="text-muted mt-1 text-sm">{m.file_backup_download_description()}</p>
@@ -300,7 +296,7 @@
             </Button>
         </div>
     </div>
-</section>
+</div>
 
 <ConfirmDialog
     bind:open={importOpen}

@@ -16,7 +16,7 @@
 import type { Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { CATEGORIES, PAGES } from "./utilities/dataset";
-import { expect, isNarrow, test, waitForDrawer } from "./utilities/fixtures";
+import { expect, isNarrow, test } from "./utilities/fixtures";
 
 /**
  * The rule sets checked, which are the levels the site claims to meet.
@@ -114,21 +114,7 @@ test.describe( "accessibility", () =>
         // overlay has been read, and would leave every field empty.
         await still( page );
         await wiki.open( "/" );
-
-        if ( isNarrow( page ) )
-        {
-            await page.getByRole( "button", { name: "Ouvrir la navigation" } ).click();
-            await page
-                .getByRole( "navigation", { name: "Navigation mobile" } )
-                .getByRole( "link", { name: "Paramètres" } )
-                .click();
-            await waitForDrawer( page );
-        }
-        else
-        {
-            await page.getByRole( "button", { name: "Outils" } ).click();
-            await page.getByRole( "menuitem", { name: "Paramètres" } ).click();
-        }
+        await wiki.openTool( "Paramètres" );
 
         await expect( page ).toHaveURL( /\/settings\/$/ );
         await audit( page );

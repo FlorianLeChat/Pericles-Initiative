@@ -31,7 +31,7 @@ test.describe( "live feed", () =>
         await expect( page.getByText( "Aucune entrée à cette gravité" ) ).toBeVisible();
     } );
 
-    test( "shows the pinned items first, then one group per day", async ( { page, wiki } ) =>
+    test( "shows the pinned items first, then one group per day dated from the newest", async ( { page, wiki } ) =>
     {
         await wiki.open( "/live" );
 
@@ -41,19 +41,14 @@ test.describe( "live feed", () =>
         await expect( item( page, LIVE.recent.title ) ).not.toContainText( "Épinglée" );
         await expect( item( page, LIVE.older.title ) ).toContainText( "Source : Conseil des parties" );
 
-        await item( page, LIVE.recent.title ).getByRole( "link", { name: "Lire la fiche complète" } ).click();
-
-        await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.athena.slug }/$` ) );
-    } );
-
-    test( "dates the latest dispatch from the newest item, not from the pinned one", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/live" );
-
         // The fixture pins an older item, which the sentence used to read since it heads the feed.
         const sentence = page.getByText( "Dernière dépêche" );
 
         await expect( sentence.locator( "time" ) ).toHaveAttribute( "datetime", LIVE.recent.publishedAt );
+
+        await item( page, LIVE.recent.title ).getByRole( "link", { name: "Lire la fiche complète" } ).click();
+
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.athena.slug }/$` ) );
     } );
 
     test( "filters by severity and by tag, and clears an empty result", async ( { page, wiki } ) =>

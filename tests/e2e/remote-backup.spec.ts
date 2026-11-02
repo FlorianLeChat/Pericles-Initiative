@@ -3,11 +3,13 @@
  *
  * The service is answered by `page.route` and never by a real host: the wiki has
  * no server of its own, and a test that needed one would be testing the network
- * rather than the site. Every response here follows the contract in `README.md`.
+ * rather than the site. Every response here follows the contract in `README.md`,
+ * and a bucket is answered the way the CORS rule handed by the form makes it answer.
  *
  * @author Claude
  */
 
+import { createHash } from "node:crypto";
 import type { Dataset } from "#lib/types.ts";
 import type { Page, Route } from "@playwright/test";
 import { COUNTS, LIVE, PAGES, sampleDataset } from "./utilities/dataset";
@@ -35,7 +37,43 @@ const CORS = {
  */
 const connect = async ( page: Page ): Promise<void> =>
 {
-    await page.getByLabel( "Adresse du serveur" ).fill( BASE_URL );
+    await page.getByRole( "radio", { name: /API de sauvegarde/ } ).check();
+    await page.getByLabel( "Adresse de l'API" ).fill( BASE_URL );
+    await page.getByRole( "button", { name: "Tester la connexion" } ).click();
+};
+
+/** Bucket, object and key of the S3 destination, in a region nothing ever reaches. */
+const S3_BUCKET = "wiki-pericles";
+
+const S3_KEY = "sauvegardes/wiki.json";
+
+const S3_ACCESS_KEY = "AKIDPERICLESEXAMPLE";
+
+/** Url of the object, the bucket named in the path as the form does by default. */
+const S3_OBJECT = `https://s3.eu-west-3.amazonaws.com/${ S3_BUCKET }/${ S3_KEY }`;
+
+/** What the CORS rule handed by the form makes a bucket answer. */
+const S3_CORS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, PUT",
+    "Access-Control-Allow-Headers": "authorization, content-type, if-match, x-amz-content-sha256, x-amz-date",
+    "Access-Control-Expose-Headers": "ETag"
+};
+
+/**
+ * Chooses the S3 destination, fills it in and tests it, which stores it.
+ *
+ * @param page Page under test.
+ * @author Claude
+ */
+const connectBucket = async ( page: Page ): Promise<void> =>
+{
+    await page.getByRole( "radio", { name: /Stockage compatible S3/ } ).check();
+    await page.getByLabel( "Région" ).fill( "eu-west-3" );
+    await page.getByLabel( "Compartiment", { exact: true } ).fill( S3_BUCKET );
+    await page.getByLabel( "Nom du fichier" ).fill( S3_KEY );
+    await page.getByLabel( "Identifiant de clé d'accès" ).fill( S3_ACCESS_KEY );
+    await page.getByLabel( "Clé secrète" ).fill( "secret-de-test" );
     await page.getByRole( "button", { name: "Tester la connexion" } ).click();
 };
 
@@ -121,7 +159,7 @@ const arriveSynced = async ( page: Page, wiki: WikiHelper, remoteStamp: string )
 
 test.describe( "remote backup", () =>
 {
-    test( "fires no request at all while no service is configured", async ( { page, wiki } ) =>
+    test( "fires no request while unconfigured, and shows what the server must answer", async ( { page, wiki } ) =>
     {
         const calls: string[] = [];
 
@@ -134,20 +172,120 @@ test.describe( "remote backup", () =>
 
         await wiki.open( "/data" );
 
-        await expect( page.getByRole( "heading", { name: "Sauvegarde en ligne" } ) ).toBeVisible();
+        await expect( page.getByRole( "heading", { name: "Garder une copie" } ) ).toBeVisible();
         await expect( page.getByRole( "button", { name: "Envoyer mes pages" } ) ).toBeHidden();
+
+        const destination = page.getByRole( "group", { name: "Où garder votre copie ?" } );
+        const contract = page.getByRole( "complementary", { name: "Pour la personne qui installe l'API" } );
+
+        // With nothing stored online, the file is offered first and the online fields stay out of the way.
+        await expect( destination.getByRole( "radio", { name: /Fichier sur cet appareil/ } ) ).toBeChecked();
+        await expect( page.getByLabel( "Adresse de l'API" ) ).toBeHidden();
+
+        await destination.getByRole( "radio", { name: /API de sauvegarde/ } ).check();
+
+        await page.getByLabel( "Adresse de l'API" ).fill( `${ BASE_URL }/` );
+
+        // The contract is for whoever installs the API, so it stays folded until asked for.
+        await expect( contract.getByRole( "button", { name: /Copier les instructions/ } ) ).toBeVisible();
+        await expect( contract.getByRole( "figure" ) ).toBeHidden();
+        await contract.getByText( "Voir le détail" ).click();
+
+        await expect( contract.getByText( DATASET_ROUTE ) ).toHaveCount( 2 );
+        await expect( contract.getByRole( "figure" ) ).toContainText(
+            `Access-Control-Allow-Origin: ${ new URL( page.url() ).origin }`
+        );
+        await expect( contract.getByRole( "figure" ) ).toContainText( CORS[ "Access-Control-Allow-Headers" ] );
+
+        // Typing an address is not testing it: only the button reaches the service.
         expect( calls ).toHaveLength( 0 );
     } );
 
-    test( "keeps the snapshot server as the one destination, S3 being announced only", async ( { page, wiki } ) =>
+    test( "reaches an empty bucket, and sends a signed copy of the browser", async ( { page, wiki } ) =>
     {
+        const writes: { body: string; headers: Record<string, string> }[] = [];
+
+        await page.route( S3_OBJECT, ( route: Route ) =>
+        {
+            if ( route.request().method() === "PUT" )
+            {
+                writes.push( { body: route.request().postData() ?? "", headers: route.request().headers() } );
+
+                return route.fulfill( { status: 200, headers: { ...S3_CORS, ETag: "\"obj-1\"" } } );
+            }
+
+            return route.fulfill( { status: 404, headers: S3_CORS, body: "<Error><Code>NoSuchKey</Code></Error>" } );
+        } );
+
         await wiki.open( "/data" );
+        await connectBucket( page );
 
-        const destination = page.getByRole( "group", { name: "Destination" } );
+        await expect( page.getByText( "Ça fonctionne. Le stockage est prêt et attend votre premier envoi." ) )
+            .toBeVisible();
+        await expect( page.getByRole( "complementary", { name: "Pour configurer le stockage" } ) )
+            .toContainText( `arn:aws:s3:::${ S3_BUCKET }/${ S3_KEY }` );
 
-        await expect( destination.getByRole( "radio", { name: /Serveur de sauvegarde/ } ) ).toBeChecked();
-        await expect( destination.getByRole( "radio", { name: /Stockage compatible S3/ } ) ).toBeDisabled();
-        await expect( destination ).toContainText( "Bientôt" );
+        await page.getByRole( "button", { name: "Envoyer mes pages" } ).click();
+        await wiki.confirm( "Envoyer mes pages ?", "Envoyer" );
+
+        await expect( page.getByText( "C'est envoyé : la sauvegarde en ligne est à jour." ) ).toBeVisible();
+        expect( writes ).toHaveLength( 1 );
+
+        const { body, headers } = writes[ 0 ];
+        const digest = createHash( "sha256" ).update( body ).digest( "hex" );
+
+        expect( headers.authorization ).toMatch( new RegExp( `^AWS4-HMAC-SHA256 Credential=${ S3_ACCESS_KEY }/\\d{8}/` ) );
+        expect( headers[ "x-amz-content-sha256" ] ).toBe( digest );
+        expect( headers ).not.toHaveProperty( "x-pericles-secret" );
+        expect( ( JSON.parse( body ) as Dataset ).entries.map( ( entry ) => entry.slug ) ).toContain( PAGES.athena.slug );
+
+        const config = JSON.parse( await page.evaluate( ( key ) => window.localStorage.getItem( key ), REMOTE_KEY ) ?? "{}" );
+
+        expect( config ).toMatchObject( { kind: "s3", revision: "\"obj-1\"", s3: { bucket: S3_BUCKET } } );
+    } );
+
+    test( "offers no transfer to a destination other than the one on screen", async ( { page, wiki } ) =>
+    {
+        await page.route( DATASET_ROUTE, ( route: Route ) => route.fulfill( { status: 404, headers: CORS } ) );
+
+        await wiki.open( "/data" );
+        await connect( page );
+
+        const success = page.getByRole( "status" ).filter( { hasText: "Ça fonctionne" } );
+        const send = page.getByRole( "button", { name: "Envoyer mes pages" } );
+
+        await expect( success ).toBeVisible();
+        await expect( send ).toBeVisible();
+
+        await page.getByRole( "radio", { name: /Stockage compatible S3/ } ).check();
+
+        await expect( success ).toBeHidden();
+        await expect( send ).toBeHidden();
+
+        await page.getByRole( "radio", { name: /API de sauvegarde/ } ).check();
+
+        await expect( send ).toBeVisible();
+
+        // Once a destination is stored, the page comes back to it rather than to the file.
+        await page.reload();
+
+        await expect( page.getByRole( "radio", { name: /API de sauvegarde/ } ) ).toBeChecked();
+        await expect( send ).toBeVisible();
+    } );
+
+    test( "tells a missing bucket from a missing backup", async ( { page, wiki } ) =>
+    {
+        await page.route( S3_OBJECT, ( route: Route ) => route.fulfill( {
+            status: 404,
+            headers: S3_CORS,
+            body: "<Error><Code>NoSuchBucket</Code></Error>"
+        } ) );
+
+        await wiki.open( "/data" );
+        await connectBucket( page );
+
+        await expect( page.getByText( "Compartiment introuvable" ) ).toBeVisible();
+        await expect( page.getByRole( "button", { name: "Oublier ce compartiment" } ) ).toBeVisible();
     } );
 
     test( "reports what the service holds, and why it could not be read", async ( { page, wiki } ) =>
@@ -167,7 +305,7 @@ test.describe( "remote backup", () =>
         await page.unroute( DATASET_ROUTE );
         await page.route( DATASET_ROUTE, ( route: Route ) => route.fulfill( { status: 401, headers: CORS } ) );
 
-        await page.getByLabel( "Mot de passe, facultatif" ).fill( "un secret périmé" );
+        await page.getByLabel( "Mot de passe, si l'API en demande un" ).fill( "un secret périmé" );
         await connect( page );
 
         await expect( page.getByText( "Le mot de passe a été refusé." ) ).toBeVisible();
@@ -201,7 +339,7 @@ test.describe( "remote backup", () =>
         await page.getByRole( "button", { name: "Envoyer mes pages" } ).click();
         await wiki.confirm( "Envoyer mes pages ?", "Envoyer" );
 
-        await expect( page.getByText( "Sauvegarde en ligne mise à jour." ) ).toBeVisible();
+        await expect( page.getByText( "C'est envoyé : la sauvegarde en ligne est à jour." ) ).toBeVisible();
         expect( sent[ 0 ]?.entries.map( ( entry ) => entry.slug ) ).toContain( PAGES.athena.slug );
 
         conflict = true;
@@ -209,8 +347,8 @@ test.describe( "remote backup", () =>
         await page.getByRole( "button", { name: "Envoyer mes pages" } ).click();
         await wiki.confirm( "Envoyer mes pages ?", "Envoyer" );
 
-        await expect( page.getByText( "La sauvegarde en ligne a changé depuis votre dernière lecture" ) ).toBeVisible();
-        await expect( page.getByRole( "button", { name: "Écraser quand même" } ) ).toBeVisible();
+        await expect( page.getByText( "La sauvegarde a été modifiée depuis un autre appareil" ) ).toBeVisible();
+        await expect( page.getByRole( "button", { name: "Remplacer quand même" } ) ).toBeVisible();
     } );
 
     test( "restores the snapshot into the browser, replacing everything", async ( { page, wiki } ) =>
@@ -229,10 +367,10 @@ test.describe( "remote backup", () =>
         await wiki.open( "/data" );
         await connect( page );
 
-        await page.getByRole( "button", { name: "Restaurer depuis le serveur" } ).click();
-        await wiki.confirm( "Restaurer depuis le serveur ?", "Restaurer" );
+        await page.getByRole( "button", { name: "Récupérer la sauvegarde" } ).click();
+        await wiki.confirm( "Récupérer la sauvegarde en ligne ?", "Récupérer" );
 
-        await expect( page.getByText( "Wiki restauré : 1 fiche" ) ).toBeVisible();
+        await expect( page.getByText( "Sauvegarde récupérée : 1 fiche" ) ).toBeVisible();
         await expect( page.getByRole( "banner" ) ).toContainText( "Périclès, sauvegardé" );
     } );
 
@@ -289,7 +427,7 @@ test.describe( "remote backup", () =>
         await arriveSynced( page, wiki, SYNCED_STAMP );
 
         await page.getByRole( "button", { name: "Récupérer la sauvegarde" } ).click();
-        await wiki.confirm( "Restaurer depuis le serveur ?", "Restaurer" );
+        await wiki.confirm( "Récupérer la sauvegarde en ligne ?", "Récupérer" );
 
         await expect( page.getByRole( "banner" ) ).toContainText( "Périclès, venu d'ailleurs" );
         await expect( page.getByText( NEWER_OFFER ) ).toBeHidden();

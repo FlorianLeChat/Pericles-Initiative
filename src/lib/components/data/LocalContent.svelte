@@ -5,7 +5,7 @@
      * Deliberately not phrased as pending changes: with an empty seed the overlay
      * is the whole content of the wiki, and no backup ever empties it. So this
      * panel answers «what does this browser hold, and how much room does it take»,
-     * while «is my backup up to date» belongs to the two backup panels.
+     * while «is my backup up to date» belongs to the backup panel.
      *
      * @author Claude
      */

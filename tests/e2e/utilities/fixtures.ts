@@ -68,6 +68,8 @@ export interface WikiHelper {
     openWith: ( dataset: Dataset, path?: string ) => Promise<void>;
     /** Follows a link of the main navigation, through the burger menu on a narrow screen. */
     navigate: ( label: string ) => Promise<void>;
+    /** Follows a link of the authoring tools, through the burger menu on a narrow screen. */
+    openTool: ( label: string ) => Promise<void>;
     /** Answers a confirmation dialog, and waits for it to be gone. */
     confirm: ( title: string, label: string ) => Promise<void>;
     /** Reads back what this browser stored, or null when it stored nothing. */
@@ -224,6 +226,21 @@ const createHelper = ( page: Page ): WikiHelper =>
         }
     };
 
+    const openTool = async ( label: string ): Promise<void> =>
+    {
+        if ( isNarrow( page ) )
+        {
+            await page.getByRole( "button", { name: "Ouvrir la navigation" } ).click();
+            await page.getByRole( "navigation", { name: "Navigation mobile" } ).getByRole( "link", { name: label } ).click();
+            await waitForDrawer( page );
+        }
+        else
+        {
+            await page.getByRole( "button", { name: "Outils" } ).click();
+            await page.getByRole( "menuitem", { name: label } ).click();
+        }
+    };
+
     /**
      * Presses a button of a confirmation dialog, then waits for the dialog to go.
      *
@@ -260,7 +277,7 @@ const createHelper = ( page: Page ): WikiHelper =>
         return Object.values( overlay?.entries ?? {} ).find( ( entry ) => entry.slug === slug );
     };
 
-    return { open, openEmpty, openWith, navigate, confirm, storedOverlay, storedEntry };
+    return { open, openEmpty, openWith, navigate, openTool, confirm, storedOverlay, storedEntry };
 };
 
 export const test = base.extend<{ wiki: WikiHelper }>( {
