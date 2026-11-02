@@ -139,6 +139,17 @@ test.describe( "remote backup", () =>
         expect( calls ).toHaveLength( 0 );
     } );
 
+    test( "keeps the snapshot server as the one destination, S3 being announced only", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/data" );
+
+        const destination = page.getByRole( "group", { name: "Destination" } );
+
+        await expect( destination.getByRole( "radio", { name: /Serveur de sauvegarde/ } ) ).toBeChecked();
+        await expect( destination.getByRole( "radio", { name: /Stockage compatible S3/ } ) ).toBeDisabled();
+        await expect( destination ).toContainText( "Bientôt" );
+    } );
+
     test( "reports what the service holds, and why it could not be read", async ( { page, wiki } ) =>
     {
         await page.route( DATASET_ROUTE, ( route: Route ) => route.fulfill( {

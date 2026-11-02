@@ -1,6 +1,6 @@
 <script lang="ts">
     /**
-     * Identity of the wiki: name, description, logo, highlighted pages.
+     * Identity of the wiki and the pages it puts forward, then the preferences of this device.
      *
      * Mounted only once the overlay has been read, so its draft starts from the
      * actual local content rather than from the always empty seed. Mounting it
@@ -8,34 +8,41 @@
      * the fields were seeded before `localStorage` had been read, and nothing
      * afterwards told them to catch up.
      *
-     * Both cards of the form carry their own submit button, and the two write the
-     * same draft: a single one under the last card floated between panels that
-     * have nothing to do with it, and read as the end of the page rather than as
-     * the end of the fields it saves. The demonstration content and the about
-     * panel follow the form rather than sit in it, for the same reason.
+     * The two groups of the draft share one save bar, sticky at the foot of the
+     * form, which also carries the status of the draft. A button per group wrote
+     * the same draft under two names, and the confirmation rendered above the
+     * first group, a screen away from the second one.
+     *
+     * The language is not part of that draft. It belongs to this browser rather
+     * than to the wiki, never leaves with an export, and applies at once through a
+     * reload, so it stands in a group of its own after the form. That reload would
+     * throw a pending draft away, which is why a change of language with unsaved
+     * edits asks first.
      *
      * @author Claude
      */
     import { untrack } from "svelte";
     import { resolve } from "$app/paths";
     import * as m from "#lib/locales/messages.js";
-    import DemoContent from "./DemoContent.svelte";
-    import Alert from "flowbite-svelte/Alert.svelte";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import Radio from "flowbite-svelte/Radio.svelte";
-    import { PUBLIC_VERSION } from "$app/env/public";
     import { ACCENTS } from "#lib/config/accents.ts";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
     import Helper from "flowbite-svelte/Helper.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import FeaturedPagesEditor from "./FeaturedPagesEditor.svelte";
+    import HeaderPreview from "./HeaderPreview.svelte";
+    import SettingsSection from "./SettingsSection.svelte";
+    import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
     import { getLocale, locales, setLocale } from "#lib/locales/runtime.js";
-    import { ACTION_BUTTON, colorPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
+    import { ACTION_BUTTON, colorPill, filterPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
+
+    type Locale = ( typeof locales )[ number ];
 
     /** Reader facing name of each locale the catalogue supports. */
-    const LANGUAGE_LABEL: Record<( typeof locales )[ number ], () => string> = {
+    const LANGUAGE_LABEL: Record<Locale, () => string> = {
         en: m.settings_form_language_en,
         fr: m.settings_form_language_fr
     };
@@ -44,14 +51,15 @@
      * Locale the language radios show as picked.
      *
      * `Radio` tracks the checked one of a group through `bind:group`, the same
-     * two-way binding the accent picker uses just below, not through a `checked`
+     * two-way binding the accent picker uses just above, not through a `checked`
      * prop: passing one instead left every click inert, since it fought the
      * binding's own management of the input rather than driving it.
      */
-    let selectedLocale = $state<( typeof locales )[ number ]>( getLocale() );
+    let selectedLocale = $state<Locale>( getLocale() );
 
-    /** Repository the application is built from, not part of the fiction. */
-    const REPOSITORY_URL = "https://github.com/FlorianLeChat/Pericles-Initiative";
+    /** Locale waiting on the answer to the unsaved draft question, if any. */
+    let pendingLocale = $state<Locale | null>( null );
+    let languageDialogOpen = $state( false );
 
     /**
      * Tint of an accent pill.
@@ -86,6 +94,7 @@
 
     const dirty = $derived( snapshot() !== baseline );
     const canSave = $derived( universe.trim().length > 0 );
+    const blocked = $derived( dirty && !canSave );
 
     /**
      * Applies the form to the dataset.
@@ -110,175 +119,187 @@
         baseline = snapshot();
         saved = true;
     };
+
+    /**
+     * Switches the interface language, or asks first when a draft would be lost.
+     *
+     * The radio is put back on the current language while the question is open,
+     * so it never shows a language the page is not in yet.
+     *
+     * @param code Locale the reader picked.
+     * @author Claude
+     */
+    const chooseLocale = ( code: Locale ): void =>
+    {
+        if ( !dirty )
+        {
+            void setLocale( code );
+            return;
+        }
+
+        selectedLocale = getLocale();
+        pendingLocale = code;
+        languageDialogOpen = true;
+    };
+
+    /**
+     * Answers the question in favour of the new language, saving the draft when it can be saved.
+     *
+     * @author Claude
+     */
+    const confirmLocale = (): void =>
+    {
+        if ( pendingLocale === null )
+        {
+            return;
+        }
+
+        save();
+        void setLocale( pendingLocale );
+    };
 </script>
 
-{#if saved && !dirty}
-    <Alert color="primary" class="mt-6 rounded-xl text-sm" role="status">
-        {m.settings_form_saved_intro()}
-        <a href={resolve( "/data" )} class="underline">{m.common_backups_link()}</a> {m.settings_form_saved_outro()}
-    </Alert>
-{/if}
-
 <form
-    class="mt-8 space-y-6"
     onsubmit={( event ) =>
     {
         event.preventDefault();
         save();
     }}
 >
-    <section class="surface space-y-4 p-6">
-        <div>
-            <Label for="meta-universe" class="field-label">{m.settings_form_universe_label()}</Label>
+    <SettingsSection
+        heading={m.settings_identity_heading()}
+        description={m.settings_identity_description()}
+        class="border-t-0"
+    >
+        <div class="space-y-5">
+            <HeaderPreview {universe} {logo} {accent} />
 
-            <Input
-                id="meta-universe"
-                bind:value={universe}
-                oninput={() => ( saved = false )}
-                type="text"
-                class="font-serif text-lg"
-                required
-            />
-        </div>
+            <div>
+                <Label for="meta-universe" class="field-label">{m.settings_form_universe_label()}</Label>
 
-        <div>
-            <Label for="meta-description" class="field-label">{m.settings_form_description_label()}</Label>
-
-            <Textarea
-                id="meta-description"
-                bind:value={description}
-                oninput={() => ( saved = false )}
-                rows={3}
-                class="w-full resize-y"
-                placeholder={m.settings_form_description_placeholder()}
-            />
-        </div>
-
-        <div>
-            <Label for="meta-logo" class="field-label">{m.settings_form_logo_label()}</Label>
-
-            <Input
-                id="meta-logo"
-                bind:value={logo}
-                oninput={() => ( saved = false )}
-                type="text"
-                class="font-mono text-xs"
-                aria-describedby="meta-logo-hint"
-                placeholder={m.settings_form_logo_placeholder()}
-            />
-
-            <Helper id="meta-logo-hint" class="mt-1.5 text-xs leading-relaxed">
-                {m.settings_form_logo_hint()}
-            </Helper>
-        </div>
-
-        <fieldset aria-describedby="meta-accent-hint">
-            <legend class="field-label">{m.settings_form_accent_legend()}</legend>
-
-            <div class="flex flex-wrap gap-1.5">
-                {#each ACCENTS as option ( option.key )}
-                    <div data-accent={option.key} class="contents">
-                        <Radio
-                            name="meta-accent"
-                            value={option.key}
-                            bind:group={accent}
-                            onchange={() => ( saved = false )}
-                            class={RADIO_OVERLAY}
-                            classes={{ label: `${ colorPill( accent === option.key ) } ${ ACCENT_TINT }` }}
-                        >
-                            <span class="bg-accent-500 h-1.5 w-1.5 rounded-full"></span>
-                            {option.label}
-                        </Radio>
-                    </div>
-                {/each}
+                <Input
+                    id="meta-universe"
+                    bind:value={universe}
+                    oninput={() => ( saved = false )}
+                    type="text"
+                    class="font-serif text-lg"
+                    required
+                />
             </div>
 
-            <Helper id="meta-accent-hint" class="mt-1.5 text-xs leading-relaxed">
-                {m.settings_form_accent_hint()}
-            </Helper>
-        </fieldset>
+            <div>
+                <Label for="meta-description" class="field-label">{m.settings_form_description_label()}</Label>
 
-        <fieldset aria-describedby="meta-language-hint">
-            <legend class="field-label">{m.settings_form_language_legend()}</legend>
-
-            <div class="flex flex-wrap gap-1.5">
-                {#each locales as code ( code )}
-                    <Radio
-                        name="meta-language"
-                        value={code}
-                        bind:group={selectedLocale}
-                        onchange={() => setLocale( code )}
-                        class={RADIO_OVERLAY}
-                        classes={{ label: colorPill( selectedLocale === code ) }}
-                    >
-                        {LANGUAGE_LABEL[ code ]()}
-                    </Radio>
-                {/each}
+                <Textarea
+                    id="meta-description"
+                    bind:value={description}
+                    oninput={() => ( saved = false )}
+                    rows={3}
+                    class="w-full resize-y"
+                    placeholder={m.settings_form_description_placeholder()}
+                />
             </div>
 
-            <Helper id="meta-language-hint" class="mt-1.5 text-xs leading-relaxed">
-                {m.settings_form_language_hint()}
-            </Helper>
-        </fieldset>
+            <div>
+                <Label for="meta-logo" class="field-label">{m.settings_form_logo_label()}</Label>
 
-        <div>
-            <p class="field-label">{m.settings_form_preview_label()}</p>
+                <Input
+                    id="meta-logo"
+                    bind:value={logo}
+                    oninput={() => ( saved = false )}
+                    type="text"
+                    class="font-mono text-xs"
+                    aria-describedby="meta-logo-hint"
+                    placeholder={m.settings_form_logo_placeholder()}
+                />
 
-            <div
-                data-accent={accent}
-                class="border-paper-200 dark:border-ink-800 flex items-center gap-2.5 rounded-xl border p-3"
-            >
-                {#if logo.trim()}
-                    <img src={logo} alt="" class="h-9 w-9 rounded-xl object-cover" loading="lazy" decoding="async" />
-                {:else}
-                    <span
-                        class="bg-accent-600 grid h-9 w-9 place-items-center rounded-xl font-serif text-lg font-semibold text-white"
-                        aria-hidden="true"
-                    >
-                        {universe.trim().charAt( 0 ).toUpperCase() || "Π"}
-                    </span>
-                {/if}
-
-                <span>
-                    <span class="block text-sm leading-tight font-semibold tracking-tight">
-                        {universe.trim() || m.settings_form_unnamed_universe()}
-                    </span>
-
-                    <span class="text-muted block text-xs leading-tight">{m.common_encyclopedia_tagline()}</span>
-                </span>
+                <Helper id="meta-logo-hint" class="mt-1.5 text-xs leading-relaxed">
+                    {m.settings_form_logo_hint()}
+                </Helper>
             </div>
+
+            <fieldset aria-describedby="meta-accent-hint">
+                <legend class="field-label">{m.settings_form_accent_legend()}</legend>
+
+                <div class="flex flex-wrap gap-1.5">
+                    {#each ACCENTS as option ( option.key )}
+                        <div data-accent={option.key} class="contents">
+                            <Radio
+                                name="meta-accent"
+                                value={option.key}
+                                bind:group={accent}
+                                onchange={() => ( saved = false )}
+                                class={RADIO_OVERLAY}
+                                classes={{ label: `${ colorPill( accent === option.key ) } ${ ACCENT_TINT }` }}
+                            >
+                                <span class="bg-accent-500 h-1.5 w-1.5 rounded-full"></span>
+                                {option.label}
+                            </Radio>
+                        </div>
+                    {/each}
+                </div>
+
+                <Helper id="meta-accent-hint" class="mt-1.5 text-xs leading-relaxed">
+                    {m.settings_form_accent_hint()}
+                </Helper>
+            </fieldset>
         </div>
+    </SettingsSection>
 
-        <Button type="submit" color="primary" class={ACTION_BUTTON} disabled={!canSave || !dirty}>{m.common_save()}</Button>
-    </section>
+    <FeaturedPagesEditor bind:slugs={featured} />
 
-    <FeaturedPagesEditor bind:slugs={featured}>
-        {#snippet actions()}
-            <Button type="submit" color="primary" class={ACTION_BUTTON} disabled={!canSave || !dirty}>
-                {m.common_confirm()}
-            </Button>
-        {/snippet}
-    </FeaturedPagesEditor>
+    <div
+        class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/95 sticky bottom-4 z-10 mb-2 flex flex-col gap-3
+               rounded-xl border bg-white/95 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between"
+    >
+        <p class="text-muted min-h-5 text-sm" role="status">
+            {#if blocked}
+                {m.settings_form_name_required()}
+            {:else if dirty}
+                {m.settings_form_unsaved()}
+            {:else if saved}
+                {m.settings_form_saved_intro()}
+                <a href={resolve( "/data" )} class="wiki-link">{m.common_backups_link()}</a>
+                {m.settings_form_saved_outro()}
+            {/if}
+        </p>
+
+        <Button type="submit" color="primary" class="shrink-0 {ACTION_BUTTON}" disabled={!canSave || !dirty}>
+            {m.common_save()}
+        </Button>
+    </div>
 </form>
 
-<DemoContent />
+<SettingsSection heading={m.settings_preferences_heading()} description={m.settings_preferences_description()}>
+    <fieldset aria-describedby="meta-language-hint">
+        <legend class="field-label">{m.settings_form_language_legend()}</legend>
 
-<section class="surface mt-6 space-y-3 p-6" aria-labelledby="about-heading">
-    <h2 id="about-heading" class="section-heading">{m.settings_form_about_heading()}</h2>
-
-    <dl class="text-muted space-y-1.5 text-sm">
-        <div class="flex flex-wrap gap-2">
-            <dt>{m.settings_form_version_label()}</dt>
-
-            <dd class="text-ink-600 dark:text-paper-300 font-medium">{PUBLIC_VERSION}</dd>
+        <div class="flex flex-wrap gap-1.5">
+            {#each locales as code ( code )}
+                <Radio
+                    name="meta-language"
+                    value={code}
+                    bind:group={selectedLocale}
+                    onchange={() => chooseLocale( code )}
+                    class={RADIO_OVERLAY}
+                    classes={{ label: filterPill( selectedLocale === code ) }}
+                >
+                    {LANGUAGE_LABEL[ code ]()}
+                </Radio>
+            {/each}
         </div>
 
-        <div class="flex flex-wrap gap-2">
-            <dt>{m.settings_form_source_label()}</dt>
+        <Helper id="meta-language-hint" class="mt-1.5 text-xs leading-relaxed">
+            {m.settings_form_language_hint()}
+        </Helper>
+    </fieldset>
+</SettingsSection>
 
-            <dd class="text-ink-600 dark:text-paper-300 min-w-0 font-medium break-all">
-                <a href={REPOSITORY_URL} class="wiki-link" target="_blank" rel="noreferrer">{REPOSITORY_URL}</a>
-            </dd>
-        </div>
-    </dl>
-</section>
+<ConfirmDialog
+    bind:open={languageDialogOpen}
+    title={canSave ? m.settings_language_save_title() : m.settings_language_discard_title()}
+    message={canSave ? m.settings_language_save_message() : m.settings_language_discard_message()}
+    confirmLabel={canSave ? m.settings_language_save_label() : m.settings_language_discard_label()}
+    danger={!canSave}
+    onconfirm={confirmLocale}
+/>

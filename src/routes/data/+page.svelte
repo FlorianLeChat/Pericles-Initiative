@@ -1,6 +1,7 @@
 <script lang="ts">
     /**
-     * Data management: what this browser holds, and the two ways of backing it up.
+     * Data management: what this browser holds, the ways of backing it up, and the
+     * demonstration wiki that can fill it instead.
      *
      * The page only assembles the panels. Each one owns its own state and its own
      * feedback, since a file backup and an online backup fail for unrelated
@@ -14,8 +15,10 @@
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import PageHeader from "#lib/components/PageHeader.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import ToolsNav from "#lib/components/layout/ToolsNav.svelte";
     import FileBackup from "#lib/components/data/FileBackup.svelte";
     import ResetPanel from "#lib/components/data/ResetPanel.svelte";
+    import DemoContent from "#lib/components/data/DemoContent.svelte";
     import LocalContent from "#lib/components/data/LocalContent.svelte";
     import RemoteBackup from "#lib/components/data/RemoteBackup.svelte";
 
@@ -31,6 +34,8 @@
         {/snippet}
     </PageHeader>
 
+    <ToolsNav />
+
     {#if feedback}
         <Alert color="primary" class="mt-6 rounded-xl text-sm" role="status">{feedback}</Alert>
     {/if}
@@ -40,6 +45,8 @@
     </div>
 
     <FileBackup />
+
+    <DemoContent />
 
     <RemoteBackup />
 

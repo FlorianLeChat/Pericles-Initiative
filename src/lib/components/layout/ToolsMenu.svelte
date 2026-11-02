@@ -50,13 +50,18 @@
     let { links, isActive }: Props = $props();
 
     let open = $state( false );
+
+    /** True on one of the tool pages, which the main navigation has no link for. */
+    const onTool = $derived( links.some( ( link ) => isActive( link.href ) ) );
 </script>
 
 <div class="hidden lg:block">
     <button
         type="button"
-        class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-9 w-9
-               items-center justify-center rounded-full transition"
+        class="hover:bg-paper-200 dark:hover:bg-ink-800 inline-flex h-9 w-9 items-center justify-center rounded-full
+               transition {onTool
+                   ? "bg-paper-100 text-ink-900 dark:bg-ink-800 dark:text-paper-100"
+                   : "text-ink-600 dark:text-paper-300"}"
         aria-expanded={open}
         aria-label={m.common_tools_label()}
     >

@@ -468,6 +468,16 @@
         @apply border-paper-200 dark:border-ink-700 dark:bg-ink-900 rounded-xl border bg-white;
     }
 
+    /*
+     * One group of the settings page, its heading column beside its controls from
+     * `md`. Groups are divided by a hairline rather than drawn as cards, so the
+     * headings line up into a column the eye can run down.
+     */
+    .settings-section {
+        @apply border-paper-200 dark:border-ink-800 grid gap-5 border-t py-8 md:grid-cols-[14rem_minmax(0,1fr)]
+            md:gap-10;
+    }
+
     /* Heading of a section inside a page. The serif is kept for the title of the page alone. */
     .section-heading {
         @apply text-ink-900 dark:text-paper-100 text-xl font-semibold tracking-tight;

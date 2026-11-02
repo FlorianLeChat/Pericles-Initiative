@@ -1,5 +1,5 @@
 /**
- * The demonstration wiki offered from the settings page.
+ * The demonstration wiki offered from the backups page, `/data`.
  *
  * A fresh browser holds nothing, which is the honest first impression of a site
  * whose only storage is the reader's own, and a poor one for anyone wanting to see

@@ -17,6 +17,7 @@
     import { formatShortDate } from "#lib/utilities/date.ts";
     import PageHeader from "#lib/components/PageHeader.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
+    import ToolsNav from "#lib/components/layout/ToolsNav.svelte";
     import BarChart from "#lib/components/dashboard/BarChart.svelte";
     import StatCard from "#lib/components/dashboard/StatCard.svelte";
     import ActivityChart from "#lib/components/dashboard/ActivityChart.svelte";
@@ -50,6 +51,8 @@
             {m.dashboard_description()}
         {/snippet}
     </PageHeader>
+
+    <ToolsNav />
 
     <dl
         class="border-paper-200 dark:border-ink-800 bg-paper-200 dark:bg-ink-800 mt-8 grid grid-cols-2 gap-px

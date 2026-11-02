@@ -34,7 +34,7 @@ from inside the fiction. Entirely client side, with no account, no server and no
   quick lookups, often on a phone at the table).
 - Content lives in the browser's `localStorage`; it moves between browsers through a JSON export/import or an
   optional, user-provided snapshot server.
-- A fresh browser starts from an empty wiki; a hand-written demonstration wiki can be loaded from settings.
+- A fresh browser starts from an empty wiki; a hand-written demonstration wiki can be loaded from the backups page.
 
 ## Capabilities and Constraints
 

@@ -276,7 +276,8 @@ Gently rounded and consistent per role: 6px for nav items, 8px for buttons and t
 - **Shape:** 8px radius for the primary, full pill for secondary.
 - **Primary:** accent 700 surface, white text, 14px medium, 36px tall in the header (Flowbite `color="primary"` resolves to the same stops); hover to accent 800. One per view where possible, «Nouvelle fiche» in the header.
 - **Alternative:** Flowbite `color="alternative"`, white with a paper hairline, ink text, used for «Modifier» and every secondary action.
-- **Destructive:** Flowbite `color="red"`, only inside confirmations.
+- **Destructive:** at rest, an alternative button with catalogue red text (`DANGER_OUTLINE` in `src/lib/config/forms.ts`), for every action that removes or replaces content: the two resets and the demonstration import. The red fill, Flowbite `color="red"`, belongs only to the confirm button of the dialog that follows.
+- **Save bar:** a form spread over several cards has one sticky bar at its foot, a muted `role="status"` line on the left saying whether the draft is unsaved, blocked or saved, and the single primary button on the right. Never one submit button per card.
 - **Focus:** a 2px accent 500 outline at a 2px offset, site wide.
 
 ### Chips
@@ -300,6 +301,7 @@ Gently rounded and consistent per role: 6px for nav items, 8px for buttons and t
 - **Header nav:** 14px text in `ink-500`, hover to `ink-900`; the current page is `ink-900`, semibold, with a 2px underline at an 8px offset. No accent in the nav.
 - **Mobile:** a 288px right hand drawer `<dialog>` sliding in by CSS, 44px rows, the primary action at the bottom.
 - **Table of contents:** a sticky rail with a left hairline; the current section takes an ink border and ink text.
+- **Tools tabs:** `ToolsNav`, under the title of the dashboard, the backups and the settings, the three pages behind the header's tools menu. 14px links on a hairline, 44px tall, the current one `ink-900`, semibold, with a 2px bottom border; real links, never in-page tabs. On those pages the tools trigger of the header takes a `paper-100` fill.
 
 ### Call number
 The heading line of a catalogue card, derived on the fly by `callNumber` in `src/lib/utilities/catalogue.ts`: three letters of the first category, the earliest year among the page's dates, three letters of the title («PEO 1826 MIR»), parts omitted when missing, never stored. Set as `.call-number` in the meta line under an article title and as the first column of a listing row.
@@ -311,7 +313,13 @@ The heading line of a catalogue card, derived on the fly by `callNumber` in `src
 `.wiki-link`: accent 600 text, 1px accent 300 underline at a 2px offset, thickening to 2px on hover. `.wiki-link-missing`: catalogue red with a dotted underline; it leads to a page inviting creation, never an error. Both must stay after `.article-body` in the components layer so prose does not repaint them.
 
 ### Listing row
-`EntryCard`: a hairline divided row, call number column, sans title with a stretched link, a two line clamped lead and a muted meta line with category dots. Enters with `.rise-in`, staggered by `--rank` (45ms, capped at rank 10).
+`EntryCard`: a hairline divided row, call number column, sans title with a stretched link, a lead clamped to one line from `sm` and two on a phone, and a muted meta line with category dots. Enters with `.rise-in`, staggered by `--rank` (45ms, capped at rank 10). In the alphabetical index, each letter stands in a 2rem serif gutter beside its rows, sticky from `sm`, rather than on a line of its own.
+
+### Settings groups
+`/settings` is not a stack of cards. Each group is a `.settings-section` (`SettingsSection`): a hairline above it, the `.section-heading` and a muted sentence in a 14rem column on the left, sticky at 6rem from `md`, the controls on the right; below `md` the two stack. The first group drops its hairline under the tools tabs. The reset uses the same frame through `ResetPanel`'s `frame` prop, while `/data` keeps it as a card. The identity group opens with `HeaderPreview`, a faithful miniature of the real header (serif wordmark, logo only when set, search pill, the primary action in the accent being picked), never a badge the header does not render. Featured pages are one hairline divided list, each row naming the place it takes on the home page; a row past the last place says so in signal amber.
+
+### Destination tiles
+The online backup on `/data` opens with a «Destination» row of two tiles over invisible radios (`RADIO_OVERLAY`): 12px radius, 1px border, title and a muted hint. The chosen tile takes an ink border (`ink-800`, `paper-200` in dark), not the accent. A destination announced but not built, today S3 compatible storage, is a disabled tile with a dashed `paper-300` border and a «Bientôt» `paper-100` pill; it carries no state until it ships.
 
 ### Infobox
 A `.surface` aside: optional 16:9 image with caption under a hairline, serif title, a `dl` of label/value rows divided by hairlines, categories at the foot.

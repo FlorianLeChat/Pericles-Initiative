@@ -19,6 +19,21 @@ Three constraints shape every decision in this repository:
 When a proposed feature conflicts with one of these three, say so instead of quietly introducing a
 backend, a build step that writes into `static/`, or an authentication shim.
 
+## Product and design records
+
+Two documents describe what the code alone cannot, and both are read before any change to what a
+reader sees or does:
+
+- [`docs/PRODUCT.md`](docs/PRODUCT.md): who the wiki is for, what it is for, its principles and its
+  brand commitments.
+- [`docs/DESIGN.md`](docs/DESIGN.md): the visual system as it ships, palette, type, components and
+  the rules each of them follows.
+
+A change that contradicts one of them updates it in the same commit, like the architecture diagram
+below. A new colour role, font, shared component class, layout pattern or control style belongs in
+`DESIGN.md`; a new audience, capability, constraint or principle in `PRODUCT.md`. A record that
+drifts from the code is worse than none, for the same reason as a stale comment.
+
 ## Stack
 
 SvelteKit 3 with Svelte 5 runes, TypeScript, `adapter-static`, Tailwind CSS 4, `flowbite-svelte` for
@@ -210,7 +225,7 @@ Two rules with no exception, because both hide the very thing these questions lo
   not know; it is not a precedent.
 - **No test mode in `src/`.** Nothing in the application knows the suite exists: no seed file, no
   build flag, no branch taken only under test. `src/lib/demo.ts` is not that: it is content a reader
-  asks for by pressing a button in the settings, never something the application installs on its own,
+  asks for by pressing a button on `/data`, never something the application installs on its own,
   and the suite keeps its own separate wiki in `tests/e2e/utilities/dataset.ts`. The two never share a
   dataset, and neither knows the other exists.
 
@@ -221,14 +236,14 @@ Two rules with no exception, because both hide the very thing these questions lo
   feeds one, but that seed is always empty today: nothing ships a JSON file to seed the wiki from,
   the end to end suite included, which writes the overlay itself. Application code never writes
   anywhere else. Import and export from `/data` are how content moves between browsers or gets
-  backed up, until a backend replaces that, and the demonstration content of `/settings` is a third
+  backed up, until a backend replaces that, and the demonstration content of `/data` is a third
   caller of that same import.
 - Everything installed into the store, seed or overlay, goes through `normalizeDataset` /
   `normalizeOverlay` in `src/lib/utilities/dataset.ts`. Both a missing seed and a missing overlay key
   must degrade into an empty, valid dataset, never throw. When you add a field to a type in
   `src/lib/types.ts`, add its normalisation in the same commit.
 - **The demonstration dataset follows the shape of the data.** `src/lib/demo.ts` is a complete
-  `Dataset` written by hand, offered from `/settings` and installed through `importDataset`, the same
+  `Dataset` written by hand, offered from `/data` and installed through `importDataset`, the same
   path a restored backup takes. It is not a seed: `WikiStore` still merges an always empty one, and
   nothing is installed until a reader presses the button. Its fiction is written in English, so the
   panel switches the interface to English with it rather than framing English pages in French labels;
@@ -443,10 +458,11 @@ commit**:
 - `tests/e2e/dashboard.spec.ts` — figures, breakdowns, the activity chart, most cited pages, red
   links, points of attention.
 - `tests/e2e/data.spec.ts` — inventory of the browser, export to `wiki.json`, import, reset.
-- `tests/e2e/settings.spec.ts` — identity of the wiki, the pages put forward on the home page, and the
-  language switch. These reach `/settings` by clicking, never by `goto`: the form snapshots the
-  identity when it initialises, which on a cold load happens before the overlay has been read. The
-  demonstration content is deliberately not covered here, see the data rules.
+- `tests/e2e/settings.spec.ts` — identity of the wiki, the pages put forward on the home page, the save
+  bar, and the language switch with its guard on unsaved changes. These reach `/settings` by clicking,
+  never by `goto`: the form snapshots the identity when it initialises, which on a cold load happens
+  before the overlay has been read. The demonstration content of `/data` is deliberately not covered,
+  see the data rules.
 - `tests/e2e/navigation.spec.ts` — header, tools menu, search palette, theme, on both viewports.
 - `tests/e2e/remote-backup.spec.ts` — the optional snapshot service, entirely mocked.
 - `tests/e2e/accessibility.spec.ts` — axe over every page, both viewports. It asks for reduced motion
@@ -525,6 +541,9 @@ pages and back out through the export. Update it in the same commit as any chang
 ## Structure
 
 ```
+docs/
+    PRODUCT.md                  audiences, purpose, principles, brand commitments
+    DESIGN.md                   the visual system as shipped
 locales/
     .inlang/                    inlang project settings, message-format and m-function-matcher plugins
     en.json                     message catalogue, base locale
@@ -537,14 +556,14 @@ src/
     lib/
         components/             the three controls every section shares, then one folder per domain
             dashboard/          figures and charts
-            data/               file backup, remote backup, local content, the two resets
+            data/               file backup, remote backup, local content, demonstration content, the two resets
             editor/             Milkdown editor, page form, link picker, category picker, name generator
-            layout/             header, tools menu, search palette, theme, connection status, page meta
+            layout/             header, tools menu, tools tabs, search palette, theme, connection status, page meta
             live/               live feed, composer, alert banner
-            settings/           identity of the wiki, featured pages, demonstration content
+            settings/           identity of the wiki, featured pages, preferences of this device
             wiki/               article body, infobox, table of contents, backlinks, cards, filters
         config/                 page types, palette, severities, navigation, motion, forms, remote failures
-        demo.ts                 the demonstration wiki, imported on demand from /settings
+        demo.ts                 the demonstration wiki, imported on demand from /data
         locales/                generated by the Paraglide vite plugin, gitignored, never hand edited
         state/wiki.svelte.ts    seed plus overlay, link graph, mutations, export and import
         state/remote.svelte.ts  connection to the optional snapshot service
@@ -560,8 +579,8 @@ src/
         timeline/               dated pages, by year
         dashboard/              dashboard
         new/, edit/             editor, outside prerendering
-        data/                   export, import, remote backup
-        settings/               identity of the wiki, language
+        data/                   export, import, remote backup, demonstration content
+        settings/               identity of the wiki, featured pages, language
 static/
     assets/fonts/               self hosted Public Sans, Source Serif 4 and IBM Plex Mono, latin subset
     media/                      illustrations referenced by pages, installable icons
