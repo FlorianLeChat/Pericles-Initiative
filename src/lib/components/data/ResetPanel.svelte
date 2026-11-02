@@ -19,8 +19,8 @@
      */
     import type { Snippet } from "svelte";
     import Button from "flowbite-svelte/Button.svelte";
+    import { ACTION_BUTTON } from "#lib/config/forms.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON, DANGER_OUTLINE } from "#lib/config/forms.ts";
 
     interface Props {
         /** Names what this card resets. */
@@ -70,12 +70,7 @@
     <div class="min-w-0">
         <p class="text-ink-600 dark:text-paper-300 text-sm leading-relaxed">{@render spares()}</p>
 
-        <Button
-            color="alternative"
-            class="mt-5 {ACTION_BUTTON} {DANGER_OUTLINE}"
-            {disabled}
-            onclick={() => ( confirmOpen = true )}
-        >
+        <Button color="red" class="mt-5 {ACTION_BUTTON}" {disabled} onclick={() => ( confirmOpen = true )}>
             {action}
         </Button>
     </div>

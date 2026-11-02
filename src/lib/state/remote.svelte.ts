@@ -21,10 +21,11 @@ import { browser } from "$app/env";
 import * as m from "#lib/locales/messages.js";
 import type { RemoteConfig, RemoteFailure, RemoteSnapshot, RemoteStatus } from "#lib/types.ts";
 import { emptyRemoteConfig,
-    isUsableBaseUrl,
+    isUsableRemoteConfig,
     normalizeRemoteConfig,
     readRemoteSnapshot,
     RemoteError,
+    remoteTarget,
     writeRemoteSnapshot } from "#lib/utilities/remote.ts";
 
 /** `localStorage` key holding the connection to the service. */
@@ -47,8 +48,8 @@ class RemoteStore
     /** Set when the browser refused to store the connection, and shown by the panel. */
     storageError = $state<string | null>( null );
 
-    /** True when an endpoint is configured. False means the site runs on the overlay alone. */
-    configured = $derived( isUsableBaseUrl( this.config.baseUrl ) );
+    /** True when a destination is configured. False means the site runs on the overlay alone. */
+    configured = $derived( isUsableRemoteConfig( this.config ) );
 
     /** True while a request is in flight, so the panel can disable its buttons. */
     busy = $derived( this.status === "loading" );
@@ -115,24 +116,23 @@ class RemoteStore
     /**
      * Updates the connection.
      *
-     * Changing the endpoint clears the known revision: a revision identifies a
-     * snapshot on one service, and replaying it against another would either be
-     * refused or, worse, match something unrelated. The synchronisation marker
-     * goes with it, for the same reason: another service holds another snapshot,
-     * so nothing is known to match it yet.
+     * Changing the destination, the endpoint or the object clears the known
+     * revision: a revision identifies a snapshot on one service, and replaying it
+     * against another would either be refused or, worse, match something
+     * unrelated. The synchronisation marker goes with it, for the same reason:
+     * another service holds another snapshot, so nothing is known to match it yet.
      *
      * @param patch Fields to change.
      * @author Claude
      */
     save( patch: Partial<RemoteConfig> ): void
     {
-        const movedEndpoint = patch.baseUrl !== undefined && patch.baseUrl.trim() !== this.config.baseUrl;
+        const next = normalizeRemoteConfig( { ...this.config, ...patch } );
+        const moved = remoteTarget( next ) !== remoteTarget( this.config );
 
         this.config = {
-            ...this.config,
-            ...patch,
-            baseUrl: patch.baseUrl === undefined ? this.config.baseUrl : patch.baseUrl.trim(),
-            ...( movedEndpoint ? { revision: null, syncedChange: null, syncedRemote: null } : {} )
+            ...next,
+            ...( moved ? { revision: null, syncedChange: null, syncedRemote: null } : {} )
         };
 
         this.status = "idle";

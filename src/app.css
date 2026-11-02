@@ -885,6 +885,25 @@ dialog[open]::backdrop {
 }
 
 /*
+ * Edge of an unticked checkbox, which has to stand 3:1 against its card.
+ *
+ * Flowbite draws it in `gray-300` on white, a hairline too pale to find, and in
+ * the dark theme fills it with `gray-700` edged in `gray-600`, which the aliases
+ * resolve to the colour of the card itself and a near black line: the box was
+ * simply not there. The muted text colour of each theme clears the ratio in both.
+ *
+ * Unlayered for the same reason as the rule above: the classes it overrides are
+ * utilities, and a layered rule loses to them whatever its specificity.
+ */
+input[type='checkbox']:not(:checked) {
+    border-color: var(--color-ink-400);
+}
+
+.dark input[type='checkbox']:not(:checked) {
+    border-color: var(--color-paper-400);
+}
+
+/*
  * Milkdown editor.
  *
  * Only the structural stylesheet of Crepe is imported, by the editor component.

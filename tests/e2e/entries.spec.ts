@@ -59,22 +59,16 @@ test.describe( "encyclopedia index", () =>
         await expect( page ).toHaveURL( /\/new\/$/ );
     } );
 
-    test( "lists every page, drafts included", async ( { page, wiki } ) =>
+    test( "lists every page, drafts included, each row a single link with its call number", async ( { page, wiki } ) =>
     {
         await wiki.open( "/entries" );
 
         await expect( page.getByText( `${ COUNTS.entries } fiches, dont ${ COUNTS.drafts } en brouillon.` ) ).toBeVisible();
         await expect( rows( page ) ).toHaveCount( COUNTS.entries );
-        await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeVisible();
 
         const draft = rows( page ).filter( { has: page.getByRole( "link", { name: PAGES.sceau.title } ) } );
 
         await expect( draft.getByText( "Brouillon", { exact: true } ) ).toBeVisible();
-    } );
-
-    test( "gives each row a single link, its call number and its categories as plain text", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/entries" );
 
         const row = rows( page ).filter( { has: page.getByRole( "link", { name: PAGES.athena.title } ) } );
 
@@ -91,7 +85,7 @@ test.describe( "encyclopedia index", () =>
         await expect( row.getByText( "Brouillon", { exact: true } ) ).toHaveCount( 0 );
     } );
 
-    test( "gathers the alphabetical ordering under letter headings", async ( { page, wiki } ) =>
+    test( "sorts by title under letter headings, by in universe date and by last edit", async ( { page, wiki } ) =>
     {
         await wiki.open( "/entries" );
 
@@ -100,10 +94,18 @@ test.describe( "encyclopedia index", () =>
         await expect( page.getByRole( "heading", { level: 2, name: initial, exact: true } ) ).toBeVisible();
 
         await showFilters( page );
+        await page.getByLabel( "Tri" ).selectOption( "chronologique" );
+
+        await expect( rows( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.port.title );
+
         await page.getByLabel( "Tri" ).selectOption( "recent" );
 
         await expect( page.getByRole( "heading", { level: 2, name: initial, exact: true } ) ).toHaveCount( 0 );
         await expect( page.getByRole( "heading", { level: 2, name: "Les plus récemment modifiées" } ) ).toBeVisible();
+
+        await page.getByLabel( "Tri" ).selectOption( "alphabetique" );
+
+        await expect( rows( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.athena.title );
     } );
 
     test( "opens on the ordering the address asks for", async ( { page, wiki } ) =>
@@ -139,34 +141,7 @@ test.describe( "encyclopedia index", () =>
         await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeVisible();
     } );
 
-    test( "explains a combination of filters matching nothing, and clears it", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/entries" );
-
-        await page.getByLabel( "Filtrer les fiches" ).fill( "une requête qui ne mène nulle part" );
-
-        await expect( page.getByText( "Aucune fiche ne correspond" ) ).toBeVisible();
-
-        await page.getByRole( "button", { name: "Réinitialiser les filtres" } ).click();
-
-        await expect( rows( page ) ).toHaveCount( COUNTS.entries );
-    } );
-
-    test( "sorts by in universe date", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/entries" );
-        await showFilters( page );
-
-        await page.getByLabel( "Tri" ).selectOption( "chronologique" );
-
-        await expect( rows( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.port.title );
-
-        await page.getByLabel( "Tri" ).selectOption( "alphabetique" );
-
-        await expect( rows( page ).first().getByRole( "heading" ) ).toHaveText( PAGES.athena.title );
-    } );
-
-    test( "counts what the filters keep, and clears them from the panel", async ( { page, wiki } ) =>
+    test( "counts what the filters keep, explains when it is nothing, and clears them", async ( { page, wiki } ) =>
     {
         await wiki.open( "/entries" );
 
@@ -178,6 +153,10 @@ test.describe( "encyclopedia index", () =>
         await page.getByLabel( "Filtrer les fiches" ).fill( PAGES.athena.title );
 
         await expect( count ).toHaveText( `1 fiche sur ${ COUNTS.entries }` );
+
+        await page.getByLabel( "Filtrer les fiches" ).fill( "une requête qui ne mène nulle part" );
+
+        await expect( page.getByText( "Aucune fiche ne correspond" ) ).toBeVisible();
 
         await page.getByRole( "button", { name: "Réinitialiser les filtres" } ).click();
 

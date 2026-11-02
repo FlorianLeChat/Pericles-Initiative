@@ -94,17 +94,6 @@ export const ACTION_ROW = "flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items
 export const ACTION_BUTTON = "w-full sm:w-auto";
 
 /**
- * Class drawing a destructive action at rest, on a Flowbite `alternative` button.
- *
- * The red fill belongs to the confirmation that follows, never to the button
- * opening it: painted solid on the page, the reset of the settings was the
- * loudest thing on it, while the import replacing the whole wiki looked
- * harmless. Both now read as dangerous to the same degree, and only the dialog
- * answering them is red.
- */
-export const DANGER_OUTLINE = "text-alert-500 dark:text-alert-500 hover:text-alert-600 dark:hover:text-alert-500";
-
-/**
  * Class splitting two actions evenly over one line on a phone.
  *
  * The exception to `ACTION_ROW`, for the two pairs whose labels are short and

@@ -10,15 +10,14 @@
 import type { Locator, Page } from "@playwright/test";
 import { COUNTS, PAGES, UNIVERSE } from "./utilities/dataset";
 import { ACCENTS, DEFAULT_ACCENT, type Accent } from "#lib/config/accents.ts";
-import { expect, isNarrow, LOCALE_KEY, test, waitForDrawer, type WikiHelper } from "./utilities/fixtures";
+import { expect, LOCALE_KEY, test, type WikiHelper } from "./utilities/fixtures";
 
 /**
  * Reaches the settings the way a reader does, from a page already open.
  *
  * Deliberately not a direct `goto`: the form only mounts once `wiki.overlayLoaded`
  * is true, like `/edit/[slug]` does for the entry it edits, and by the time this
- * link is clicked the overlay was already read on the app's first load. The link
- * lives in the authoring tools, hidden behind a burger below the `lg` breakpoint.
+ * link is clicked the overlay was already read on the app's first load.
  *
  * @param page Page under test.
  * @param wiki Fixture helper.
@@ -27,19 +26,7 @@ import { expect, isNarrow, LOCALE_KEY, test, waitForDrawer, type WikiHelper } fr
 const openSettings = async ( page: Page, wiki: WikiHelper ): Promise<void> =>
 {
     await wiki.open( "/" );
-
-    if ( isNarrow( page ) )
-    {
-        await page.getByRole( "button", { name: "Ouvrir la navigation" } ).click();
-        await page.getByRole( "navigation", { name: "Navigation mobile" } )
-            .getByRole( "link", { name: "Paramètres" } ).click();
-        await waitForDrawer( page );
-    }
-    else
-    {
-        await page.getByRole( "button", { name: "Outils" } ).click();
-        await page.getByRole( "menuitem", { name: "Paramètres" } ).click();
-    }
+    await wiki.openTool( "Paramètres" );
 
     await expect( page ).toHaveURL( /\/settings\/$/ );
 };
@@ -177,9 +164,19 @@ test.describe( "settings", () =>
         await expect( page.getByRole( "heading", { name: "Paramètres", level: 1 } ) ).toBeVisible();
     } );
 
-    test( "saves the identity being edited before switching the language", async ( { page, wiki } ) =>
+    test( "guards a language switch over unsaved edits, then saves them before switching", async ( { page, wiki } ) =>
     {
         await openSettings( page, wiki );
+
+        // An empty name cannot be saved, so the guard can only offer to switch without it.
+        await page.getByLabel( "Nom de l'univers" ).fill( "" );
+        await page.getByRole( "radio", { name: "Anglais" } ).click();
+
+        await wiki.confirm( "Changer de langue sans enregistrer ?", "Annuler" );
+
+        await expect( page.getByRole( "radio", { name: "Français" } ) ).toBeChecked();
+        await expect( page.getByText( "Donnez un nom à l'univers pour pouvoir enregistrer." ) ).toBeVisible();
+        await expect( page.getByLabel( "Nom de l'univers" ) ).toHaveValue( "" );
 
         await page.getByLabel( "Nom de l'univers" ).fill( "Périclès, troisième cycle" );
         await page.getByRole( "radio", { name: "Anglais" } ).click();
@@ -191,19 +188,5 @@ test.describe( "settings", () =>
         await expect( page.getByRole( "heading", { name: "Settings", level: 1 } ) ).toBeVisible();
         await expect( page.getByLabel( "Universe name" ) ).toHaveValue( "Périclès, troisième cycle" );
         expect( ( await wiki.storedOverlay() )?.meta?.universe ).toBe( "Périclès, troisième cycle" );
-    } );
-
-    test( "stays in the same language when the switch is cancelled over unsaved edits", async ( { page, wiki } ) =>
-    {
-        await openSettings( page, wiki );
-
-        await page.getByLabel( "Nom de l'univers" ).fill( "" );
-        await page.getByRole( "radio", { name: "Anglais" } ).click();
-
-        await wiki.confirm( "Changer de langue sans enregistrer ?", "Annuler" );
-
-        await expect( page.getByRole( "radio", { name: "Français" } ) ).toBeChecked();
-        await expect( page.getByText( "Donnez un nom à l'univers pour pouvoir enregistrer." ) ).toBeVisible();
-        await expect( page.getByLabel( "Nom de l'univers" ) ).toHaveValue( "" );
     } );
 } );

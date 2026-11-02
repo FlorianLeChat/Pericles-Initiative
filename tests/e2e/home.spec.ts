@@ -25,28 +25,11 @@ test.describe( "home page", () =>
         await expect( page ).toHaveURL( /\/new\/$/ );
     } );
 
-    test( "opens on the universe itself, and searches it", async ( { page, wiki } ) =>
+    test( "opens on the universe, describes it once in its head, and searches it", async ( { page, wiki } ) =>
     {
         await wiki.open();
 
         await expect( page ).toHaveTitle( UNIVERSE );
-        await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( UNIVERSE );
-        await expect( page.getByRole( "main" ).getByText( DESCRIPTION ) ).toBeVisible();
-
-        /*
-         * Figures belong to the dashboard: the front page used to open on a strip
-         * of them, which told a reader how big the wiki was rather than what it was about.
-         */
-        await expect( page.getByRole( "main" ).locator( "dl" ) ).toHaveCount( 0 );
-
-        await page.getByRole( "button", { name: "Trouver une fiche, un lieu, un personnage" } ).click();
-
-        await expect( page.getByRole( "dialog", { name: "Rechercher une fiche" } ) ).toBeVisible();
-    } );
-
-    test( "describes itself once, for the reader as for whoever receives the link", async ( { page, wiki } ) =>
-    {
-        await wiki.open();
 
         /*
          * Counts as much as it reads: the shell used to carry a description of its
@@ -61,6 +44,14 @@ test.describe( "home page", () =>
 
         await expect( page.locator( "meta[property=\"og:title\"]" ) ).toHaveAttribute( "content", UNIVERSE );
         await expect( page.locator( "meta[name=\"twitter:description\"]" ) ).toHaveAttribute( "content", DESCRIPTION );
+
+        await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( UNIVERSE );
+        await expect( page.getByRole( "main" ).getByText( DESCRIPTION ) ).toBeVisible();
+        await expect( page.getByRole( "main" ).locator( "dl" ) ).toHaveCount( 0 );
+
+        await page.getByRole( "button", { name: "Trouver une fiche, un lieu, un personnage" } ).click();
+
+        await expect( page.getByRole( "dialog", { name: "Rechercher une fiche" } ) ).toBeVisible();
     } );
 
     test( "puts the chosen pages forward, and lists the latest edits without repeating them", async ( { page, wiki } ) =>

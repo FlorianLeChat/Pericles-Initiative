@@ -95,7 +95,7 @@
 
         if ( !counts && remote.failure )
         {
-            failure = REMOTE_FAILURE_MESSAGE[ remote.failure ]();
+            failure = REMOTE_FAILURE_MESSAGE[ remote.config.kind ][ remote.failure ]();
         }
     };
 
@@ -115,7 +115,7 @@
 
         if ( !stored && remote.failure )
         {
-            failure = REMOTE_FAILURE_MESSAGE[ remote.failure ]();
+            failure = REMOTE_FAILURE_MESSAGE[ remote.config.kind ][ remote.failure ]();
         }
     };
 </script>
@@ -178,7 +178,7 @@
     bind:open={restoreOpen}
     title={m.remote_backup_restore_confirm_title()}
     message={m.remote_backup_restore_confirm_message()}
-    confirmLabel={m.common_restore()}
+    confirmLabel={m.remote_backup_restore_confirm_label()}
     onconfirm={() => void restore()}
 />
 

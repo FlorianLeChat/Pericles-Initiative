@@ -47,21 +47,6 @@ const MISSING_TITLE = "Conseil des parties";
 
 test.describe( "dashboard", () =>
 {
-    test( "counts the corpus and breaks it down", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/dashboard" );
-
-        await expect( figure( page, "Fiches" ) ).toContainText( String( COUNTS.entries ) );
-        await expect( figure( page, "Fiches" ) )
-            .toContainText( `${ COUNTS.published } publiées, ${ COUNTS.drafts } en brouillon` );
-        await expect( figure( page, "Catégories" ) ).toContainText( String( COUNTS.categories ) );
-        await expect( figure( page, "Fil en direct" ) ).toContainText( String( COUNTS.live ) );
-
-        await panel( page, "Par catégorie" ).getByRole( "link", { name: CATEGORIES.institutions.name } ).click();
-
-        await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }/$` ) );
-    } );
-
     test( "ranks the most cited pages and lists the ones the corpus is asking for", async ( { page, wiki } ) =>
     {
         await wiki.open( "/dashboard" );
@@ -101,9 +86,15 @@ test.describe( "dashboard", () =>
         expect( counted ).toBe( COUNTS.entries );
     } );
 
-    test( "points at what the corpus is missing", async ( { page, wiki } ) =>
+    test( "counts the corpus, points at what it lacks, and breaks it down", async ( { page, wiki } ) =>
     {
         await wiki.open( "/dashboard" );
+
+        await expect( figure( page, "Fiches" ) ).toContainText( String( COUNTS.entries ) );
+        await expect( figure( page, "Fiches" ) )
+            .toContainText( `${ COUNTS.published } publiées, ${ COUNTS.drafts } en brouillon` );
+        await expect( figure( page, "Catégories" ) ).toContainText( String( COUNTS.categories ) );
+        await expect( figure( page, "Fil en direct" ) ).toContainText( String( COUNTS.live ) );
 
         const issues = panel( page, "Points d'attention" );
 
@@ -114,5 +105,9 @@ test.describe( "dashboard", () =>
 
         await expect( panel( page, "Dernières modifications" ).getByRole( "listitem" ).first() )
             .toContainText( PAGES.athena.title );
+
+        await panel( page, "Par catégorie" ).getByRole( "link", { name: CATEGORIES.institutions.name } ).click();
+
+        await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }/$` ) );
     } );
 } );

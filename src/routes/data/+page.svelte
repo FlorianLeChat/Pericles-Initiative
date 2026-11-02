@@ -16,11 +16,10 @@
     import PageHeader from "#lib/components/PageHeader.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import ToolsNav from "#lib/components/layout/ToolsNav.svelte";
-    import FileBackup from "#lib/components/data/FileBackup.svelte";
     import ResetPanel from "#lib/components/data/ResetPanel.svelte";
+    import BackupPanel from "#lib/components/data/BackupPanel.svelte";
     import DemoContent from "#lib/components/data/DemoContent.svelte";
     import LocalContent from "#lib/components/data/LocalContent.svelte";
-    import RemoteBackup from "#lib/components/data/RemoteBackup.svelte";
 
     let feedback = $state<string | null>( null );
 </script>
@@ -44,11 +43,9 @@
         <LocalContent />
     </div>
 
-    <FileBackup />
+    <BackupPanel />
 
     <DemoContent />
-
-    <RemoteBackup />
 
     <ResetPanel
         heading={m.data_clear_heading()}

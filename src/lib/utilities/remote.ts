@@ -5,7 +5,9 @@
  * repository: two endpoints, a whole dataset per transfer, and a server that
  * stores bytes rather than understanding them. Node-RED is only one possible
  * implementation, so nothing in this module assumes anything about the server
- * beyond that document.
+ * beyond that document. An object of an S3 compatible bucket honours the same
+ * contract on its own once `./s3` has signed the request: `GET` and `PUT` on one
+ * url, an `ETag`, and `If-Match` turning a concurrent write into a `412`.
  *
  * This is the only module in the project that performs network requests, and it
  * holds no state: the configuration is passed in, the caller decides when to
@@ -15,14 +17,15 @@
  * @author Claude
  */
 
-import type { RemoteConfig, RemoteFailure, RemoteSnapshot } from "#lib/types.ts";
 import { asBoolean, asNullableString, asRecord, asTrimmed, normalizeDataset } from "./dataset";
+import type { RemoteConfig, RemoteFailure, RemoteKind, RemoteSnapshot, S3Config } from "#lib/types.ts";
+import { DEFAULT_S3_KEY, isUsableS3Config, s3ObjectUrl, signS3Request, type SignedRequest } from "./s3";
 
 /** Path appended to the configured base url, per the contract. */
 const DATASET_PATH = "dataset";
 
 /** Header carrying the shared secret. Never sent when the secret is empty. */
-const SECRET_HEADER = "X-Pericles-Secret";
+export const SECRET_HEADER = "X-Pericles-Secret";
 
 /** How long a request may take before it is abandoned, in milliseconds. */
 const REQUEST_TIMEOUT = 15_000;
@@ -40,8 +43,17 @@ const FAILURE_BY_STATUS: ReadonlyMap<number, RemoteFailure> = new Map( [
     [ 401, "refused" ],
     [ 403, "refused" ],
     [ 405, "unsupported" ],
-    [ 412, "conflict" ]
+    [ 412, "conflict" ],
+    [ 501, "unsupported" ]
 ] );
+
+/**
+ * Code S3 puts in the body of a `404` when the bucket itself is missing.
+ *
+ * On a read, the same status otherwise means the object is not there yet, which
+ * is a legitimate state, while a missing bucket is a mistake in the form.
+ */
+const NO_SUCH_BUCKET = "<Code>NoSuchBucket</Code>";
 
 /**
  * A remote request that did not succeed, carrying a machine readable cause.
@@ -72,14 +84,32 @@ export class RemoteError extends Error
 }
 
 /**
+ * Builds an empty bucket location, the bucket named in the path as most providers expect.
+ *
+ * @returns An `S3Config` with no bucket and no key.
+ * @author Claude
+ */
+export const emptyS3Config = (): S3Config => ( {
+    endpoint: "",
+    region: "",
+    bucket: "",
+    key: DEFAULT_S3_KEY,
+    accessKeyId: "",
+    secretAccessKey: "",
+    pathStyle: true
+} );
+
+/**
  * Builds an unconfigured connection, which is what an absent key degrades into.
  *
  * @returns A `RemoteConfig` with no endpoint, meaning the site works from the overlay alone.
  * @author Claude
  */
 export const emptyRemoteConfig = (): RemoteConfig => ( {
+    kind: "api",
     baseUrl: "",
     secret: "",
+    s3: emptyS3Config(),
     revision: null,
     autoPush: false,
     lastPulledAt: null,
@@ -102,10 +132,24 @@ export const emptyRemoteConfig = (): RemoteConfig => ( {
 export const normalizeRemoteConfig = ( value: unknown ): RemoteConfig =>
 {
     const raw = asRecord( value );
+    const s3 = asRecord( raw.s3 );
+    const empty = emptyS3Config();
 
     return {
+        // A connection stored before S3 existed carries no kind, and one stored before
+        // the rename carries `serveur`: both reached an API.
+        kind: raw.kind === "s3" ? "s3" : "api",
         baseUrl: asTrimmed( raw.baseUrl ),
         secret: asTrimmed( raw.secret ),
+        s3: {
+            endpoint: asTrimmed( s3.endpoint ),
+            region: asTrimmed( s3.region ),
+            bucket: asTrimmed( s3.bucket ),
+            key: asTrimmed( s3.key ) || empty.key,
+            accessKeyId: asTrimmed( s3.accessKeyId ),
+            secretAccessKey: asTrimmed( s3.secretAccessKey ),
+            pathStyle: asBoolean( s3.pathStyle, empty.pathStyle )
+        },
         revision: asNullableString( raw.revision ),
         autoPush: asBoolean( raw.autoPush ),
         lastPulledAt: asNullableString( raw.lastPulledAt ),
@@ -143,6 +187,48 @@ export const isUsableBaseUrl = ( baseUrl: string ): boolean =>
         return false;
     }
 };
+
+/**
+ * Writes the CORS headers the API answers with, `OPTIONS` included, for this site to reach it.
+ *
+ * Built from the headers this module sends, so the example shown to the reader
+ * cannot drift from the requests it describes.
+ *
+ * @param origin Origin of this site, the only one allowed.
+ * @returns One header per line, ready to paste into a server configuration.
+ * @author Claude
+ */
+export const apiCorsHeaders = ( origin: string ): string => [
+    `Access-Control-Allow-Origin: ${ origin }`,
+    "Access-Control-Allow-Methods: GET, PUT, OPTIONS",
+    `Access-Control-Allow-Headers: Content-Type, If-Match, ${ SECRET_HEADER }`,
+    "Access-Control-Expose-Headers: ETag"
+].join( "\n" );
+
+/**
+ * Tells whether a connection leads somewhere, whichever its destination.
+ *
+ * @param config Connection as stored or as typed.
+ * @returns True when a request could be built from it.
+ * @author Claude
+ */
+export const isUsableRemoteConfig = ( config: Pick<RemoteConfig, "kind" | "baseUrl" | "s3"> ): boolean =>
+    config.kind === "s3" ? isUsableS3Config( config.s3 ) : isUsableBaseUrl( config.baseUrl );
+
+/**
+ * Names the snapshot a connection reads and writes, so a move to another one can be noticed.
+ *
+ * The keys and the secret are left out: changing them reaches the same
+ * snapshot, and the revision known for it stays valid.
+ *
+ * @param config Connection as stored or as typed.
+ * @returns The destination and the location of the snapshot.
+ * @author Claude
+ */
+export const remoteTarget = ( config: Pick<RemoteConfig, "kind" | "baseUrl" | "s3"> ): string =>
+    config.kind === "s3"
+        ? `s3 ${ config.s3.region.trim() } ${ s3ObjectUrl( config.s3 ) }`
+        : `api ${ config.baseUrl.trim() }`;
 
 /**
  * Removes the trailing slashes of a base url, so the path is joined exactly once.
@@ -231,20 +317,41 @@ export const parseSnapshot = ( payload: unknown, revision: string | null ): Remo
 };
 
 /**
- * Assembles the request headers, adding the secret only when there is one.
+ * Builds the url and the headers of a request, for either destination.
+ *
+ * A server receives the secret when there is one; a bucket receives a signature
+ * covering every header, so the two only share the headers of the contract.
  *
  * @param config Connection to the service.
+ * @param method `GET` to read the snapshot, `PUT` to replace it.
  * @param extra Headers specific to the request.
- * @returns The headers to send.
+ * @param body Body of a write.
+ * @returns The url to call and the headers to send.
+ * @throws {RemoteError} With kind `network` when the connection is unusable.
  * @author Claude
  */
-const buildHeaders = ( config: RemoteConfig, extra: Record<string, string> ): Record<string, string> =>
+const prepare = async (
+    config: RemoteConfig,
+    method: "GET" | "PUT",
+    extra: Record<string, string>,
+    body?: string
+): Promise<SignedRequest> =>
 {
+    if ( config.kind === "s3" )
+    {
+        if ( !isUsableS3Config( config.s3 ) )
+        {
+            throw new RemoteError( "network", "Incomplete S3 connection." );
+        }
+
+        return signS3Request( config.s3, method, extra, body );
+    }
+
     const secret = config.secret.trim();
 
     return {
-        ...extra,
-        ...( secret ? { [ SECRET_HEADER ]: secret } : {} )
+        url: datasetEndpoint( config.baseUrl ),
+        headers: { ...extra, ...( secret ? { [ SECRET_HEADER ]: secret } : {} ) }
     };
 };
 
@@ -291,6 +398,22 @@ const failureOf = ( status: number, notFound: RemoteFailure ): RemoteFailure =>
     status === 404 ? notFound : ( FAILURE_BY_STATUS.get( status ) ?? "server" );
 
 /**
+ * Maps a failed read to its cause, telling a missing bucket from a missing object.
+ *
+ * @param kind Destination that answered.
+ * @param response The failed response, whose body is only read for a bucket.
+ * @returns The matching cause.
+ * @author Claude
+ */
+const readFailureOf = async ( kind: RemoteKind, response: Response ): Promise<RemoteFailure> =>
+{
+    const bucketChecked = kind === "s3" && response.status === 404;
+    const bucketMissing = bucketChecked && ( await response.text() ).includes( NO_SUCH_BUCKET );
+
+    return bucketMissing ? "unsupported" : failureOf( response.status, "missing" );
+};
+
+/**
  * Fetches the snapshot currently stored by the service.
  *
  * The body is read as text before being parsed, so an HTML error page served by
@@ -305,16 +428,15 @@ const failureOf = ( status: number, notFound: RemoteFailure ): RemoteFailure =>
  */
 export const readRemoteSnapshot = async ( config: RemoteConfig ): Promise<RemoteSnapshot> =>
 {
-    const endpoint = datasetEndpoint( config.baseUrl );
-    const response = await request( endpoint, {
-        method: "GET",
-        headers: buildHeaders( config, { Accept: "application/json" } ),
-        cache: "no-store"
-    } );
+    const { url: endpoint, headers } = await prepare( config, "GET", { Accept: "application/json" } );
+    const response = await request( endpoint, { method: "GET", headers, cache: "no-store" } );
 
     if ( !response.ok )
     {
-        throw new RemoteError( failureOf( response.status, "missing" ), `GET ${ endpoint } answered ${ response.status }.` );
+        throw new RemoteError(
+            await readFailureOf( config.kind, response ),
+            `GET ${ endpoint } answered ${ response.status }.`
+        );
     }
 
     const text = await response.text();
@@ -360,16 +482,14 @@ export const writeRemoteSnapshot = async (
     conditional = true
 ): Promise<string | null> =>
 {
-    const endpoint = datasetEndpoint( config.baseUrl );
     const revision = conditional ? config.revision : null;
-    const response = await request( endpoint, {
-        method: "PUT",
-        headers: buildHeaders( config, {
-            "Content-Type": "application/json",
-            ...( revision ? { "If-Match": revision } : {} )
-        } ),
-        body: json
-    } );
+    const { url: endpoint, headers } = await prepare(
+        config,
+        "PUT",
+        { "Content-Type": "application/json", ...( revision ? { "If-Match": revision } : {} ) },
+        json
+    );
+    const response = await request( endpoint, { method: "PUT", headers, body: json } );
 
     if ( !response.ok )
     {

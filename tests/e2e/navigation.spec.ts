@@ -9,7 +9,7 @@
  */
 
 import { PAGES } from "./utilities/dataset";
-import { expect, isNarrow, test, THEME_KEY, waitForDrawer } from "./utilities/fixtures";
+import { expect, test, THEME_KEY } from "./utilities/fixtures";
 
 test.describe( "site frame", () =>
 {
@@ -50,27 +50,7 @@ test.describe( "site frame", () =>
         await expect( page.getByRole( "heading", { name: "Paramètres", level: 1 } ) ).toBeVisible();
     } );
 
-    test( "reaches the authoring tools", async ( { page, wiki } ) =>
-    {
-        await wiki.open();
-
-        if ( isNarrow( page ) )
-        {
-            await page.getByRole( "button", { name: "Ouvrir la navigation" } ).click();
-            await page.getByRole( "navigation", { name: "Navigation mobile" } )
-                .getByRole( "link", { name: "Tableau de bord" } ).click();
-            await waitForDrawer( page );
-        }
-        else
-        {
-            await page.getByRole( "button", { name: "Outils" } ).click();
-            await page.getByRole( "menuitem", { name: "Tableau de bord" } ).click();
-        }
-
-        await expect( page ).toHaveURL( /\/dashboard\/$/ );
-    } );
-
-    test( "searches by title, by alias, and says when nothing matches", async ( { page, wiki } ) =>
+    test( "offers the last edits, searches by alias, and creates what nothing matches", async ( { page, wiki } ) =>
     {
         await wiki.open();
 
@@ -78,7 +58,8 @@ test.describe( "site frame", () =>
 
         const palette = page.getByRole( "dialog", { name: "Rechercher une fiche" } );
 
-        await expect( palette ).toBeVisible();
+        await expect( palette.getByText( "Modifiées récemment" ) ).toBeVisible();
+        await expect( palette.getByRole( "option" ).first() ).toHaveAttribute( "aria-selected", "true" );
 
         await page.keyboard.type( "zzzz" );
 
@@ -97,19 +78,8 @@ test.describe( "site frame", () =>
         await page.keyboard.press( "Enter" );
 
         await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.athena.slug }/$` ) );
-    } );
-
-    test( "offers the pages edited last, and the creation of a page nothing matches", async ( { page, wiki } ) =>
-    {
-        await wiki.open();
 
         await page.keyboard.press( "Control+k" );
-
-        const palette = page.getByRole( "dialog", { name: "Rechercher une fiche" } );
-
-        await expect( palette.getByText( "Modifiées récemment" ) ).toBeVisible();
-        await expect( palette.getByRole( "option" ).first() ).toHaveAttribute( "aria-selected", "true" );
-
         await page.keyboard.type( "Phare du Nord" );
 
         const create = palette.getByRole( "option", { name: "Créer la fiche « Phare du Nord »" } );

@@ -50,7 +50,7 @@ const IMPORTED: Dataset = {
 
 test.describe( "data page", () =>
 {
-    test( "inventories what the browser holds, and nothing when it holds nothing", async ( { page, wiki } ) =>
+    test( "inventories what the browser holds, nothing included, and writes it to a file", async ( { page, wiki } ) =>
     {
         await wiki.openEmpty( "/data" );
 
@@ -61,11 +61,6 @@ test.describe( "data page", () =>
 
         await expect( page.getByText( "éléments enregistrés sur cet appareil." ) ).toBeVisible();
         await expect( page.getByRole( "link", { name: PAGES.port.title } ) ).toBeVisible();
-    } );
-
-    test( "writes the whole wiki to a file", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/data" );
 
         const download = page.waitForEvent( "download" );
 

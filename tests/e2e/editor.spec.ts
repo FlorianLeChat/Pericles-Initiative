@@ -8,8 +8,9 @@
  * @author Claude
  */
 
+import type { Locator } from "@playwright/test";
 import { expect, test } from "./utilities/fixtures";
-import { CATEGORIES, crowdedDataset, ILLUSTRATION, illustratedDataset, MISSING_SLUG, PAGES } from "./utilities/dataset";
+import { CATEGORIES, crowdedDataset, ILLUSTRATION, illustratedDataset, PAGES } from "./utilities/dataset";
 
 /** Where the Milkdown editor writes, once it has finished booting. */
 const BODY = "[contenteditable=\"true\"]";
@@ -17,8 +18,27 @@ const BODY = "[contenteditable=\"true\"]";
 /** Accessible name of the dialog standing between unsaved changes and the way out. */
 const UNSAVED_DIALOG = "Quitter l'éditeur ?";
 
+/** Accessible name of the box offering to rewrite the links of the pages citing a renamed one. */
+const RELINK = "Mettre à jour la fiche qui cite l'ancienne adresse";
+
 /** How long `@milkdown/plugin-listener` waits before reporting the Markdown, in milliseconds. */
 const MARKDOWN_DEBOUNCE = 200;
+
+/**
+ * Reads the values a field suggests, through the `datalist` it points at.
+ *
+ * @param field Input carrying a `list` attribute.
+ * @returns The values offered, in document order.
+ * @author Claude
+ */
+const suggestionsOf = async ( field: Locator ): Promise<string[]> =>
+{
+    const list = await field.getAttribute( "list" );
+
+    return field.page()
+        .locator( `datalist#${ list } option` )
+        .evaluateAll( ( options ) => options.map( ( option ) => ( option as HTMLOptionElement ).value ) );
+};
 
 test.describe( "entry editor", () =>
 {
@@ -121,21 +141,7 @@ test.describe( "entry editor", () =>
         await expect( page.getByRole( "heading", { level: 2, name: "2040 à 2049" } ) ).toBeVisible();
     } );
 
-    test( "prefills the form from a red link and closes the gap", async ( { page, wiki } ) =>
-    {
-        await wiki.open( `/new?slug=${ MISSING_SLUG }&titre=Conseil%20des%20parties` );
-
-        await expect( page.getByLabel( "Titre", { exact: true } ) ).toHaveValue( "Conseil des parties" );
-        await expect( page.getByLabel( "Adresse de la page" ) ).toHaveValue( MISSING_SLUG );
-
-        await page.getByRole( "button", { name: "Enregistrer" } ).click();
-
-        await expect( page ).toHaveURL( new RegExp( `/entries/${ MISSING_SLUG }/$` ) );
-        await expect( page.getByRole( "region", { name: "Pages qui mènent ici" } )
-            .getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
-    } );
-
-    test( "edits an existing page and moves it to its new address", async ( { page, wiki } ) =>
+    test( "edits a page, moves it, and points the pages citing it at its new address", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.bureau.slug }` );
 
@@ -143,6 +149,8 @@ test.describe( "entry editor", () =>
 
         await page.getByLabel( "Adresse de la page" ).fill( "bureau-des-marees" );
         await page.getByLabel( "Résumé" ).fill( "Le bureau, après sa réorganisation." );
+
+        await expect( page.getByRole( "checkbox", { name: RELINK } ) ).toBeChecked();
 
         await page.getByRole( "button", { name: "Statut" } ).click();
         await page.getByRole( "radio", { name: "Brouillon", exact: true } ).check();
@@ -156,19 +164,6 @@ test.describe( "entry editor", () =>
         // The identifier survives a rename, which is what keeps the page one page.
         expect( stored?.id ).toBe( PAGES.bureau.id );
         expect( stored?.status ).toBe( "brouillon" );
-    } );
-
-    test( "points the pages citing a renamed page at its new address", async ( { page, wiki } ) =>
-    {
-        await wiki.open( `/edit/${ PAGES.bureau.slug }` );
-
-        await page.getByLabel( "Adresse de la page" ).fill( "bureau-des-marees" );
-
-        const relink = page.getByRole( "checkbox", { name: "Mettre à jour la fiche qui cite l'ancienne adresse" } );
-
-        await expect( relink ).toBeChecked();
-
-        await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
         const citing = await wiki.storedEntry( PAGES.port.slug );
 
@@ -181,7 +176,7 @@ test.describe( "entry editor", () =>
         await wiki.open( `/edit/${ PAGES.bureau.slug }` );
 
         await page.getByLabel( "Adresse de la page" ).fill( "bureau-des-marees" );
-        await page.getByRole( "checkbox", { name: "Mettre à jour la fiche qui cite l'ancienne adresse" } ).uncheck();
+        await page.getByRole( "checkbox", { name: RELINK } ).uncheck();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
         const citing = await wiki.storedEntry( PAGES.port.slug );
@@ -223,43 +218,22 @@ test.describe( "entry editor", () =>
         await expect( page.getByText( "Aucune catégorie ne correspond." ) ).toBeVisible();
     } );
 
-    test( "offers the infobox labels the wiki already uses", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/new" );
-
-        await page.getByRole( "button", { name: "Infobox" } ).click();
-        await page.getByRole( "button", { name: "Ajouter une ligne" } ).click();
-
-        const label = page.getByLabel( "Intitulé de la ligne 1" );
-        const list = await label.getAttribute( "list" );
-        const suggested = await page
-            .locator( `datalist#${ list } option` )
-            .evaluateAll( ( options ) => options.map( ( option ) => ( option as HTMLOptionElement ).value ) );
-
-        expect( suggested ).toContain( PAGES.port.infobox[ 0 ]?.label );
-    } );
-
-    test( "offers the illustration paths the wiki already points at", async ( { page, wiki } ) =>
+    test( "offers the labels and illustrations already in use, and flags a broken one", async ( { page, wiki } ) =>
     {
         await wiki.openWith( illustratedDataset(), `/edit/${ PAGES.port.slug }` );
+
+        await page.getByRole( "button", { name: "Infobox" } ).click();
+
+        expect( await suggestionsOf( page.getByLabel( "Intitulé de la ligne 1" ) ) )
+            .toContain( PAGES.port.infobox[ 0 ]?.label );
 
         await page.getByRole( "button", { name: "Illustration" } ).click();
 
         const field = page.getByLabel( "Adresse de l'image" );
-        const list = await field.getAttribute( "list" );
-        const suggested = await page
-            .locator( `datalist#${ list } option` )
-            .evaluateAll( ( options ) => options.map( ( option ) => ( option as HTMLOptionElement ).value ) );
 
-        expect( suggested ).toContain( ILLUSTRATION );
-    } );
+        expect( await suggestionsOf( field ) ).toContain( ILLUSTRATION );
 
-    test( "says so when an illustration does not load", async ( { page, wiki } ) =>
-    {
-        await wiki.open( `/edit/${ PAGES.port.slug }` );
-
-        await page.getByRole( "button", { name: "Illustration" } ).click();
-        await page.getByLabel( "Adresse de l'image" ).fill( "/media/une-illustration-qui-nexiste-pas.webp" );
+        await field.fill( "/media/une-illustration-qui-nexiste-pas.webp" );
 
         await expect( page.getByText( "Cette illustration ne se charge pas" ) ).toBeVisible();
     } );
@@ -296,7 +270,7 @@ test.describe( "entry editor", () =>
         await expect( page.getByText( "min de lecture" ) ).toBeVisible();
     } );
 
-    test( "writes an invented name into the body", async ( { page, wiki } ) =>
+    test( "draws invented names, holds them still, and writes the chosen one down", async ( { page, wiki } ) =>
     {
         await wiki.open( "/new" );
 
@@ -305,10 +279,24 @@ test.describe( "entry editor", () =>
         await page.getByRole( "button", { name: "Inventer", exact: true } ).click();
 
         const dialog = page.getByRole( "dialog", { name: "Inventer un nom" } );
-        const first = dialog.getByRole( "listitem" ).first().getByRole( "button" );
+        const offered = dialog.getByRole( "listitem" );
 
-        await expect( first ).toBeVisible();
+        await expect( offered.first() ).toBeVisible();
 
+        const drawn = await offered.allInnerTexts();
+
+        // Walking through the kinds is looking at what was drawn, not drawing again:
+        // a candidate half chosen has to still be there on the way back.
+        await dialog.getByRole( "button", { name: "Ville" } ).click();
+        await dialog.getByRole( "button", { name: "Nom complet" } ).click();
+
+        expect( await offered.allInnerTexts() ).toEqual( drawn );
+
+        await dialog.getByRole( "button", { name: "Relancer" } ).click();
+
+        await expect.poll( () => offered.allInnerTexts() ).not.toEqual( drawn );
+
+        const first = offered.first().getByRole( "button" );
         const invented = ( await first.textContent() )?.trim() ?? "";
 
         await first.click();
@@ -319,31 +307,6 @@ test.describe( "entry editor", () =>
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
         expect( ( await wiki.storedEntry( "le-cartographe-des-seuils" ) )?.body ).toContain( invented );
-    } );
-
-    test( "holds the invented names still until another draw is asked for", async ( { page, wiki } ) =>
-    {
-        await wiki.open( "/new" );
-
-        await page.getByRole( "button", { name: "Inventer", exact: true } ).click();
-
-        const dialog = page.getByRole( "dialog", { name: "Inventer un nom" } );
-        const offered = dialog.getByRole( "listitem" );
-
-        await expect( offered.first() ).toBeVisible();
-
-        const first = await offered.allInnerTexts();
-
-        // Walking through the kinds is looking at what was drawn, not drawing again:
-        // a candidate half chosen has to still be there on the way back.
-        await dialog.getByRole( "button", { name: "Ville" } ).click();
-        await dialog.getByRole( "button", { name: "Nom complet" } ).click();
-
-        expect( await offered.allInnerTexts() ).toEqual( first );
-
-        await dialog.getByRole( "button", { name: "Relancer" } ).click();
-
-        await expect.poll( () => offered.allInnerTexts() ).not.toEqual( first );
     } );
 
     test( "deletes a page once the deletion is confirmed", async ( { page, wiki } ) =>
@@ -385,20 +348,7 @@ test.describe( "entry editor", () =>
         await expect( page ).toHaveURL( /\/entries\/digue-de-sainte-roque\/$/ );
     } );
 
-    test( "keeps the editor open when the reader refuses to leave", async ( { page, wiki } ) =>
-    {
-        await wiki.open( `/edit/${ PAGES.traite.slug }` );
-
-        await page.getByLabel( "Résumé" ).fill( "Une reformulation en cours." );
-        await page.getByRole( "link", { name: "Annuler" } ).click();
-
-        await wiki.confirm( UNSAVED_DIALOG, "Annuler" );
-
-        await expect( page ).toHaveURL( new RegExp( `/edit/${ PAGES.traite.slug }/$` ) );
-        await expect( page.getByLabel( "Résumé" ) ).toHaveValue( "Une reformulation en cours." );
-    } );
-
-    test( "leaves the editor once the reader confirms, storing nothing", async ( { page, wiki } ) =>
+    test( "holds the editor open over unsaved changes, then leaves without storing", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.traite.slug }` );
 
@@ -406,6 +356,13 @@ test.describe( "entry editor", () =>
         await page.getByRole( "link", { name: "Annuler" } ).click();
 
         await expect( page.getByText( "Certaines modifications ne sont pas enregistrées" ) ).toBeVisible();
+
+        await wiki.confirm( UNSAVED_DIALOG, "Annuler" );
+
+        await expect( page ).toHaveURL( new RegExp( `/edit/${ PAGES.traite.slug }/$` ) );
+        await expect( page.getByLabel( "Résumé" ) ).toHaveValue( "Une reformulation abandonnée." );
+
+        await page.getByRole( "link", { name: "Annuler" } ).click();
 
         await wiki.confirm( UNSAVED_DIALOG, "Quitter sans enregistrer" );
 

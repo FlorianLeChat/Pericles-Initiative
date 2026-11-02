@@ -21,9 +21,9 @@
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
     import { setLocale } from "#lib/locales/runtime.js";
+    import { ACTION_BUTTON } from "#lib/config/forms.ts";
     import { normalizeDataset } from "#lib/utilities/dataset.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON, DANGER_OUTLINE } from "#lib/config/forms.ts";
 
     let confirmOpen = $state( false );
     let loading = $state( false );
@@ -80,8 +80,8 @@
     {/if}
 
     <Button
-        color="alternative"
-        class="mt-2 {ACTION_BUTTON} {DANGER_OUTLINE}"
+        color="primary"
+        class="mt-2 {ACTION_BUTTON}"
         disabled={loading}
         onclick={() => ( confirmOpen = true )}
     >

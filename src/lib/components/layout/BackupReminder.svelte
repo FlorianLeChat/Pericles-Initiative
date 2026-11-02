@@ -65,7 +65,7 @@
 
         if ( !stored && remote.failure )
         {
-            failure = REMOTE_FAILURE_MESSAGE[ remote.failure ]();
+            failure = REMOTE_FAILURE_MESSAGE[ remote.config.kind ][ remote.failure ]();
         }
     };
 </script>
