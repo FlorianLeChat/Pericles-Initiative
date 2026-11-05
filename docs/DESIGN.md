@@ -15,10 +15,22 @@ colors:
   ink-800: "#202326"
   ink-900: "#17191c"
   ink-950: "#101214"
-  dark-ink-700: "#2a2e34"
-  dark-ink-800: "#1f2328"
-  dark-ink-900: "#1b1e22"
-  dark-ink-950: "#141619"
+  dark-ink-700: "#343a42"
+  dark-ink-800: "#262b31"
+  dark-ink-900: "#1c1f24"
+  dark-ink-950: "#101215"
+  control: "#e3e5e8"
+  control-hover: "#d5d9de"
+  control-pressed: "#c6ccd3"
+  control-edge: "#c6ccd3"
+  field: "#ffffff"
+  field-edge: "#878e98"
+  dark-control: "#262b31"
+  dark-control-hover: "#30363d"
+  dark-control-pressed: "#3b424a"
+  dark-control-edge: "#3b424a"
+  dark-field: "#101215"
+  dark-field-edge: "#6b737e"
   dark-paper-200: "#e4e6ea"
   dark-paper-400: "#a2a8b1"
   accent-200: "#b8d8ff"
@@ -205,7 +217,10 @@ A neutral, cool grey archive with one chosen accent and a catalogue red.
 ### Neutral
 - **Ground** (white): page and card surfaces in light mode; cards are distinguished from the page by their hairline alone.
 - **Paper scale** (`paper-50` to `paper-400`): `paper-100` fills the search pill and quiet hovers, `paper-200` is the hairline of every surface and divider and the offered filter pill, `paper-300` the hovered hairline and dashed empty states, `paper-400` list bullets and dark mode muted text.
-- **Ink scale** (`ink-400` to `ink-950`): `ink-400` muted text (holds 4.5:1 on every light paper stop), `ink-600` secondary text, `ink-700` article body, `ink-800` default text, `ink-900` headings. In dark mode `ink-950` is the ground, `ink-900` the card, `ink-700`/`ink-800` the hairlines, and the stops shift to the `dark-ink-*` / `dark-paper-*` values ("encre réchauffée") through a scoped `.dark` override, so a component writes the same class in both themes.
+- **Ink scale** (`ink-400` to `ink-950`): `ink-400` muted text (holds 4.5:1 on every light paper stop), `ink-600` secondary text, `ink-700` article body, `ink-800` default text, `ink-900` headings. In dark mode `ink-950` is the ground, `ink-900` the card a step above it, `ink-800` a control a step above the card, `ink-700` the hairline, and the stops shift to the cool `dark-ink-*` / `dark-paper-*` values through a scoped `.dark` override, so a component writes the same class in both themes. Each of those four stands at least 1.14 to 1 from the next: they used to sit within 1.08, one colour to the eye.
+
+### States
+Controls read their states from named tokens, never from a numbered stop, each redefined by the `.dark` block: `control` (rest of a filled control, an offered pill, a secondary button in dark), `control-hover`, `control-pressed` and `control-edge`, then `field` and `field-edge` for what is typed into. A pressed control climbs one step per state, towards the ink in light and towards the paper in dark, each step about 1.12 to 1 from the last; the chosen one is inverted rather than one more grey. Text on a pressed fill is the secondary colour, never the muted one. A field is inset (the page colour, white in light) behind an edge at three to one, passed to every Flowbite field as `FIELD` (`src/lib/config/forms.ts`). Flowbite's `gray-*` aliases point at these states, per theme: the light stops 50 to 300 and the dark stops 600 to 800 are surfaces, the others text.
 
 ### Fixed hues (categories and severities)
 Category colours (`src/lib/config/palette.ts`) and live severities (`src/lib/config/severities.ts`) use fixed Tailwind stock hues: a 100 tint with 700/800 text for a chip, a 500/600 dot, and a `900/60` tint with 200 text in dark mode. Seven category keys (bleu, vert, ambre, violet, rose, cyan, pierre); four severities (info in neutrals, important in blue, urgent in amber, breaking in `alert-600` with white text).
@@ -229,7 +244,7 @@ Category colours (`src/lib/config/palette.ts`) and live severities (`src/lib/con
 - **Display** (Source Serif 4, 600, 2.25rem, line height 1.1, tracking tight): the title of an article, of a red link page and of the home page.
 - **Headline** (Source Serif 4, 600, 1.875rem rising to 2.25rem from `sm`): the title of a section page, through `PageHeader`.
 - **Wordmark** (Source Serif 4, 600, 1.125rem): the universe name in the header; the same serif size titles the infobox and dialogs.
-- **Article heading** (Public Sans, 600, 1.5rem, tight): level 2 headings inside a body.
+- **Article heading** (Public Sans, 600, 1.5rem, tight): level 2 headings inside a body; level 3 steps down to 1.25rem.
 - **Title** (Public Sans, 600, 1.25rem, tight): `.section-heading`, every section inside a page.
 - **Lede** (Public Sans, 400, 1.125rem to 1.25rem, relaxed, max 62ch): the summary under an article title.
 - **Body** (Public Sans, 400, 1.125rem in articles at a 70ch measure; 0.875rem for interface text and list rows).
@@ -245,13 +260,13 @@ Category colours (`src/lib/config/palette.ts`) and live severities (`src/lib/con
 
 ## Layout
 
-A 4px rhythm (Tailwind steps 1, 2, 3, 4, 6, 8, 12 are the common ones). A sticky 64px header with a translucent white ground and blur sits above everything, holding the serif wordmark, a centred search pill (max 24rem) with its shortcut keycap, quiet text nav, one primary «Nouvelle fiche» button and icon controls; below `lg` the nav moves into a right hand drawer.
+A 4px rhythm (Tailwind steps 1, 2, 3, 4, 6, 8, 12 are the common ones). A sticky 64px header with a translucent white ground and blur sits above everything, holding the serif wordmark, a centred search pill (max 24rem) with its shortcut keycap, quiet text nav, one primary «Nouvelle fiche» button (dropped to a `control` pill on `/new` and `/edit`, where the save bar holds the primary action) and icon controls; below `lg` the nav moves into a right hand drawer.
 
 Containers: 80rem (`max-w-7xl`) for the header and the article, 72rem (`max-w-6xl`) for listings and section pages, 48rem for the red link page; horizontal padding 16px, 24px from `sm`. Vertical page padding 32px to 48px (`py-8 lg:py-12`, listings `py-10 lg:py-14`).
 
 The article is a two column grid from `lg`: a body column with a 13rem "Sur cette page" rail at the far right (sticky at 6rem), 48px gutter. The body sits at 70ch; the infobox floats right at 20rem from `lg`, and stacks above the body on smaller screens. Listing rows use a `9rem | 1fr` grid from `sm`, the call number in the first column, moved under the row on phones. The home page splits featured content `1.6fr | 1fr`.
 
-Actions: one per line at full width on phones, a natural row from `sm` (`ACTION_ROW`); the cancel/save pair of the editor and dialog answers split one line evenly. Filter pills stand 40px on phones, 36px from `sm`. Form controls go to 16px text below `sm` to stop iOS zoom.
+Actions: one per line at full width on phones, a natural row from `sm` (`ACTION_ROW`); dialog answers split one line evenly; a dialog with a third answer (leaving unsaved work: «Enregistrer et quitter», «Quitter sans enregistrer», «Rester») stacks them full width, the confirmation on top. Filter pills stand 40px on phones, 36px from `sm`. Form controls go to 16px text below `sm` to stop iOS zoom, except the display fields of the editor (`.field-display`), already above it.
 
 Every listing handles zero entries with a dashed `EmptyState` inviting creation, never a blank grid. Until `wiki.ready` the layout renders `PageSkeleton`: flat paper bars at the shapes of a title, a lede and a 70ch body, marked `aria-busy`, so the overlay never flashes an empty wiki.
 
@@ -260,11 +275,13 @@ Every listing handles zero entries with a dashed `EmptyState` inviting creation,
 Flat by default. Depth is tonal and linear: a 1px `paper-200` hairline draws every card, divider and rail, and in dark mode a card lifts one step off the ground (`ink-900` on `ink-950`). Hover strengthens the hairline (`paper-300`) or tints the fill, never raises.
 
 ### Shadow Vocabulary
-- **Floating** (`shadow-lg`, Tailwind default `0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)`): only on panels floating over content at the bottom of the viewport: the sync prompt, the backup reminder, the connection status and the editor's save toast.
+- **Floating** (`shadow-lg`, Tailwind default `0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)`): only on panels floating over content at the bottom of the viewport: the sync prompt, the backup reminder, and the connection status.
 - **Editor menus** (Crepe's own `--crepe-shadow-1/2`): toolbars and slash menus inside Milkdown, which float by nature.
 
 ### Named Rules
 **The Hairline Rule.** A resting surface is drawn by its border, not a shadow. Shadow is reserved for something that floats over content it does not belong to.
+
+**The Edge Rule.** An edge read beside is a hairline; an edge typed into is three to one. Cards, rails, dividers and listings keep the 1px `paper-200` / `ink-700` line, which a reader passes; a field, which a reader has to find before writing in it, takes `field-edge` (three to one against the card and the page in both themes), and so does the outline of an unticked checkbox. A control that is pressed rather than typed into is told apart by its fill and its label, and moves one state step at a time.
 
 ## Shapes
 
@@ -274,15 +291,17 @@ Gently rounded and consistent per role: 6px for nav items, 8px for buttons and t
 
 ### Buttons
 - **Shape:** 8px radius for the primary, full pill for secondary.
-- **Primary:** accent 700 surface, white text, 14px medium, 36px tall in the header (Flowbite `color="primary"` resolves to the same stops); hover to accent 800. One per view where possible, «Nouvelle fiche» in the header.
+- **Primary:** accent 700 surface, white text, 14px medium, 36px tall in the header (Flowbite `color="primary"` resolves to the same stops); hover to accent 800 in light, and up to accent 600 in dark, where every control lightens on hover (the `.dark` block swaps Flowbite's `primary-600` and `primary-700` for it). One per view where possible, «Nouvelle fiche» in the header.
 - **Alternative:** Flowbite `color="alternative"`, white with a paper hairline, ink text, used for «Modifier» and every secondary action.
-- **Destructive:** the two resets, whose only purpose is to erase, are solid red at rest (Flowbite `color="red"`), like the confirm button of the dialog that follows. The demonstration import is offered as an invitation and wears the accent like a primary action; the replacement it causes is said, in red, by its confirmation dialog.
+- **Destructive:** the two resets, whose only purpose is to erase, are solid red at rest (Flowbite `color="red"`), like the confirm button of the dialog that follows. That red is the catalogue's: Tailwind's `red-*` is redrawn in `@theme` around `alert-500`, so a destructive button, an error alert and a failed toast no longer bring a hotter second red. It follows the ladder of the primary button: rest on red 700, hover to 800 in light and up to 600 in dark. The demonstration import is offered as an invitation and wears the accent like a primary action; the replacement it causes is said, in red, by its confirmation dialog.
 - **Save bar:** a form spread over several cards has one sticky bar at its foot, a muted `role="status"` line on the left saying whether the draft is unsaved, blocked or saved, and the single primary button on the right. Never one submit button per card.
-- **Focus:** a 2px accent 500 outline at a 2px offset, site wide.
+- **Pressed:** every button darkens a step in light and lightens one in dark while pressed (`PRESSED` in `src/lib/config/forms.ts`, a brightness over its hover fill), handed to every Flowbite button through the `ThemeProvider` of the root layout and written on the header's «Nouvelle fiche». It is the one feedback a phone gets, having no hover.
+- **Disabled:** a state of its own, never a fade: the `control` fill, muted text, no accent, whatever the colour of the enabled button. Only a button drawn on no fill (`bg-transparent`, the row controls of the infobox card) keeps Flowbite's half opacity.
+- **Focus:** a 2px accent 500 outline at a 2px offset, site wide. The offset is what lets the ring clear three to one on a hovered fill; it never goes to zero.
 
 ### Chips
 - **Category chip:** full pill, fixed hue tint with a 6px dot, 12px text.
-- **Filter pills:** a row of pills over invisible Flowbite radios (`RADIO_OVERLAY`); offered in `paper-200`/`ink-600`, chosen inverted to `ink-800`/`paper-100`. Colour pills keep their own hue and mark the choice with a 2px accent ring.
+- **Filter pills:** a row of pills over invisible Flowbite radios (`RADIO_OVERLAY`); offered on `control` with `ink-600` text, darkening to `control-hover` under the pointer and `control-pressed` under a finger, chosen inverted to `ink-800`/`paper-100` and still answering the pointer one step towards the page. `choiceColors` holds those colours for every single choice, the status of a page included. Under forced colours, where fills are dropped, offered pills keep a border and the chosen one a 2px border. Colour pills keep their own hue and mark the choice with a 2px accent ring.
 - **Tags** (live feed): `paper-100` pill, 12px.
 
 ### Cards / Containers
@@ -295,6 +314,9 @@ Gently rounded and consistent per role: 6px for nav items, 8px for buttons and t
 ### Inputs / Fields
 - **Style:** Flowbite fields aliased to the palette; small inputs carry `SMALL_FIELD` to match a small select. Caption above a field is `.field-label` (14px medium, `ink-600`).
 - **Focus:** the accent ring.
+- **Menus:** a select draws its arrow in the muted text of each theme, written out in `app.css`, since a custom property does not reach into the data URI Flowbite paints it with.
+- **Tap:** Flowbite's `focus-within` ring on a button is kept for the keyboard; a click or a tap leaves no ring behind.
+- **Invalid:** a field carrying `aria-invalid` draws its edge in catalogue red, through `FIELD`; the state follows the attribute assistive technology announces rather than a colour prop.
 - **Dark:** fields sit on `ink-900` with `ink-800` borders, never lighter than their card.
 - **Checkbox:** an unticked box is edged in the muted text colour, `ink-400` in light and `paper-400` in dark, so its outline clears 3:1 on the card; Flowbite's own `gray-300` and dark `gray-600` edges left it invisible. A ticked box takes the accent fill.
 
@@ -305,7 +327,7 @@ Gently rounded and consistent per role: 6px for nav items, 8px for buttons and t
 - **Tools tabs:** `ToolsNav`, under the title of the dashboard, the backups and the settings, the three pages behind the header's tools menu. 14px links on a hairline, 44px tall, the current one `ink-900`, semibold, with a 2px bottom border; real links, never in-page tabs. On those pages the tools trigger of the header takes a `paper-100` fill.
 
 ### Call number
-The heading line of a catalogue card, derived on the fly by `callNumber` in `src/lib/utilities/catalogue.ts`: three letters of the first category, the earliest year among the page's dates, three letters of the title («PEO 1826 MIR»), parts omitted when missing, never stored. Set as `.call-number` in the meta line under an article title and as the first column of a listing row.
+The heading line of a catalogue card, derived on the fly by `callNumber` in `src/lib/utilities/catalogue.ts`: three letters of the first category, the earliest year among the page's dates, three letters of the title («PEO 1826 MIR»), parts omitted when missing, never stored. Set as `.call-number` in the meta line under an article title, as the first column of a listing row, and under the title of the infobox card in the editor.
 
 ### Title block
 `PageHeader` and the article header: serif title, then the 32px red `.title-rule`, then the meta line and a muted lede. Nothing above the title but a breadcrumb.
@@ -331,6 +353,16 @@ Every copy goes through `CopyButton`: a pill 44px tall on a phone and 36px from 
 
 ### Online backup sync
 Once a destination is tested, a «Synchronisation» group follows under a hairline, only while the tile on screen is the stored destination: its 16px semibold heading, one status line (a muted tick when up to date, a `signal-500` icon and `signal-700` text when pages changed since, a plain question for the first sync), the send and fetch buttons with their outcome under them, a 12px note on what each replaces, the automatic sending checkbox under a hairline, then one line holding the two dates and, at its end, «Oublier» as a quiet catalogue red link: it removes a setting, not a page.
+
+### Editor
+The editor is written on the page rather than in a form beside it, in the article's own two columns (`1fr | 20rem` from `lg`, 48px gutter; stacked on a phone, body first). Over it, the sticky save bar: a muted `role="status"` line on the left («Modifications non enregistrées», «Fiche enregistrée» with a tick, a `signal-700` «Brouillon» in front when the page is a draft) and the actions on the right, nothing else. A new page is born a draft, so a draft shows «Fermer», «Enregistrer» in the alternative style and «Publier» as the one primary button; a published page shows «Fermer» and «Enregistrer» as primary, and goes back to draft from the settings. «Fermer» leaves, and «Annuler» is kept for the dialogs, where it only ever means not doing what they ask. On a phone the bar stays one line: «Fermer» comes first as a 36px cross, the status stacks on two 12px lines beside it («Brouillon» over «Non enregistrée»), then the save buttons. The save buttons are never disabled: a save asked for without a title puts the focus on the title, draws its edge in catalogue red and says why under the rule.
+
+- **Templates** (`TemplatePicker`, creation only): a row of filter pills over the title, each with its 14px Lucide icon from `sm` (dropped on a phone, which keeps the seven to two lines), led by a muted 12px «Modèle»; «Page vierge» is chosen on arrival and comes last. A template only changes the placeholders, the empty rows and dates of the card, and the empty sections of the body; replacing anything already written asks first.
+- **Heading** (`EntryHeading`): the title typed in the display serif, the 32px red rule, the summary typed in the lede style; both are `.field-display` textareas sized to their content, labelled for assistive technology only. A summary over 160 characters, or one being typed, shows its count under it; the space stays reserved so nothing jumps. A taken address is announced here, in catalogue red, with the button taking the free one.
+- **Body**: the Milkdown surface, a `.surface` that does not clip so the block menu may overhang it (the menu flips within the part of the window the bars marked `data-sticky-top` leave free, and shortens its list to fit there), under a toolbar of two pills, «Lier une fiche» with its keycap (hidden under a coarse pointer, which has no keyboard to press it on) and «Inventer», then a muted word count, taken on the body as it will be stored, so the empty sections of a template count for nothing. Crepe’s block menu, toolbar, link field, image and code blocks are labelled through the catalogue; the block menu offers no level one heading, nor levels five and six. The two dialogs those open, the page picker and the name generator, end on an «Annuler» footer, since full screen on a phone they leave no backdrop to tap. It is written as `.article-body` reads it: 18px text at a 1.75 line height, headings in Public Sans 600, tight, 1.5rem for level 2 and 1.25rem for level 3, never in the serif.
+- **Infobox card** (`InfoboxCard`): a `.surface` shaped like the infobox it produces: the illustration or a dashed «Ajouter une illustration» slot on top, the title mirrored in the serif with its call number under it, derived as the article will derive it, then «Dates» (a 14px calendar glyph before each intitulé) with the age at death worked out under them, then «Informations», then the categories as fixed hue chips at the foot behind a «Choisir les catégories» pill. Rows are divided by `paper-200` hairlines, as in the published infobox. Every row is an intitulé over a value, both `.field-ghost`: no box at rest, a `paper-200` hairline on hover, white ground and the focus ring while typing. The intitulé is muted 12px from `sm` (16px on a phone, like every field, against iOS zoom), the value medium. An empty value is also `.field-slot`: a dashed `control-edge` outline until it holds the focus or text, so a slot to fill never reads as one more intitulé. A value is named after its intitulé («Valeur de « Naissance »»), by its position only while the intitulé is empty. A value holding a link is drawn, while it does not hold the focus, as the article will show it: its labels in `.wiki-link` or `.wiki-link-missing`, never as anchors; focused, it shows its Markdown again. The controls of a row (link a page, up, down, remove, 36px each) are hidden under a fine pointer until the row is hovered or holds the focus; under a coarse one they are drawn on the active row only, the last one touched, kept as state rather than read from the focus since iOS gives a tapped button none. Alt with an arrow moves a row from either of its fields, the focus moving with it. A removed row goes at once: a `paper-100` pill under the rows says «Ligne retirée : Nom» in a live region, with a «Rétablir» pill that takes the focus and puts the row back where it stood.
+- **Image import** (`ImageImportDialog`): every image chosen from a file, the illustration of the card, a figure of the body and the logo of `/settings`, opens this dialog before anything is kept, and so does base64 typed or pasted where an address is expected: the address field of the card, the logo field, the link field of an image block. The field empties while the dialog is open. A preview on `paper-100` (`ink-800` in dark), a «Qualité» row of filter pills («Légère», «Équilibrée» chosen on arrival, «Fidèle»), the dimensions and weight of the WebP that will be stored, and a muted line setting that weight against what the wiki already takes of its roughly 5 MB; «Annuler» and «Importer» in the footer. Once imported, the source is never shown as the data url it is: a muted «Image importée de cet appareil, 35,6 Ko.» with a «Retirer l’image» pill takes the place of the address field, which comes back with the «Choisir une image» pill above it once the image is removed.
+- **Settings** (`EntrySettings`): one folded `.surface` under the card, its header naming it and summing it up on one muted line (status · the path in Plex Mono); unfolded, the status pills, the address and the rewrite of citing pages, the other names, and the red deletion under a hairline.
 
 ### Infobox
 A `.surface` aside: optional 16:9 image with caption under a hairline, serif title, a `dl` of label/value rows divided by hairlines, categories at the foot.

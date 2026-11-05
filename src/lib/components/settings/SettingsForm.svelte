@@ -29,15 +29,20 @@
     import Radio from "flowbite-svelte/Radio.svelte";
     import { ACCENTS } from "#lib/config/accents.ts";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Upload from "@lucide/svelte/icons/upload";
     import Button from "flowbite-svelte/Button.svelte";
     import Helper from "flowbite-svelte/Helper.svelte";
-    import Textarea from "flowbite-svelte/Textarea.svelte";
-    import FeaturedPagesEditor from "./FeaturedPagesEditor.svelte";
     import HeaderPreview from "./HeaderPreview.svelte";
+    import { formatSize } from "#lib/utilities/size.ts";
+    import Textarea from "flowbite-svelte/Textarea.svelte";
     import SettingsSection from "./SettingsSection.svelte";
+    import { IMAGE_MAX_SIDE } from "#lib/config/images.ts";
+    import FeaturedPagesEditor from "./FeaturedPagesEditor.svelte";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
     import { getLocale, locales, setLocale } from "#lib/locales/runtime.js";
-    import { ACTION_BUTTON, colorPill, filterPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
+    import ImageImportDialog from "#lib/components/editor/ImageImportDialog.svelte";
+    import { dataUrlBlob, imageSize, isImportedImage, pastedImage } from "#lib/utilities/image.ts";
+    import { ACTION_BUTTON, colorPill, FIELD, filterPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
 
     type Locale = ( typeof locales )[ number ];
 
@@ -87,6 +92,11 @@
 
     let saved = $state( false );
 
+    let importer: ImageImportDialog | undefined = $state();
+    let logoFile: HTMLInputElement | undefined = $state();
+
+    const logoImported = $derived( isImportedImage( logo ) );
+
     const snapshot = (): string => JSON.stringify( { universe, description, logo, accent, featured } );
 
     /** Last state written to the dataset, so saving clears the pending marker. */
@@ -118,6 +128,59 @@
 
         baseline = snapshot();
         saved = true;
+    };
+
+    /**
+     * Sends base64 typed or pasted into the logo field through the import dialog,
+     * rather than storing it at full size.
+     *
+     * @param event Input of the logo field.
+     * @author Claude
+     */
+    const importPastedLogo = async ( event: Event ): Promise<void> =>
+    {
+        saved = false;
+
+        const field = event.target;
+        const data = field instanceof HTMLInputElement ? pastedImage( field.value ) : null;
+
+        if ( !data || !importer )
+        {
+            return;
+        }
+
+        logo = "";
+
+        const url = await importer.pick( await dataUrlBlob( data ) );
+
+        logo = url ?? "";
+    };
+
+    /**
+     * Imports the logo from the file just chosen, once its quality is settled.
+     *
+     * @param event Change of the file field.
+     * @author Claude
+     */
+    const importLogo = async ( event: Event & { currentTarget: HTMLInputElement } ): Promise<void> =>
+    {
+        const field = event.currentTarget;
+        const file = field.files?.[ 0 ];
+
+        field.value = "";
+
+        if ( !file || !importer )
+        {
+            return;
+        }
+
+        const url = await importer.pick( file );
+
+        if ( url )
+        {
+            logo = url;
+            saved = false;
+        }
     };
 
     /**
@@ -182,7 +245,7 @@
                     bind:value={universe}
                     oninput={() => ( saved = false )}
                     type="text"
-                    class="font-serif text-lg"
+                    class="{FIELD} font-serif text-lg"
                     required
                 />
             </div>
@@ -195,23 +258,52 @@
                     bind:value={description}
                     oninput={() => ( saved = false )}
                     rows={3}
-                    class="w-full resize-y"
+                    class="{FIELD} w-full resize-y"
                     placeholder={m.settings_form_description_placeholder()}
                 />
             </div>
 
             <div>
-                <Label for="meta-logo" class="field-label">{m.settings_form_logo_label()}</Label>
+                <Label for={logoImported ? undefined : "meta-logo"} class="field-label">{m.settings_form_logo_label()}</Label>
 
-                <Input
-                    id="meta-logo"
-                    bind:value={logo}
-                    oninput={() => ( saved = false )}
-                    type="text"
-                    class="font-mono text-xs"
-                    aria-describedby="meta-logo-hint"
-                    placeholder={m.settings_form_logo_placeholder()}
-                />
+                {#if logoImported}
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <p class="text-muted text-xs">{m.image_import_imported( { size: formatSize( imageSize( logo ) ) } )}</p>
+
+                        <Button
+                            color="alternative"
+                            size="xs"
+                            class="rounded-full"
+                            onclick={() =>
+                            {
+                                logo = "";
+                                saved = false;
+                            }}
+                        >
+                            {m.image_import_remove()}
+                        </Button>
+                    </div>
+                {:else}
+                    <div class="flex flex-wrap gap-2">
+                        <Input
+                            id="meta-logo"
+                            bind:value={logo}
+                            oninput={importPastedLogo}
+                            type="text"
+                            class="{FIELD} min-w-0 flex-1 font-mono text-xs"
+                            classes={{ div: "min-w-48 flex-1" }}
+                            aria-describedby="meta-logo-hint"
+                            placeholder={m.settings_form_logo_placeholder()}
+                        />
+
+                        <Button color="alternative" class="shrink-0 gap-2 rounded-full" onclick={() => logoFile?.click()}>
+                            <Upload class="h-4 w-4" />
+                            {m.image_import_choose()}
+                        </Button>
+
+                        <input bind:this={logoFile} type="file" accept="image/*" class="hidden" onchange={importLogo} />
+                    </div>
+                {/if}
 
                 <Helper id="meta-logo-hint" class="mt-1.5 text-xs leading-relaxed">
                     {m.settings_form_logo_hint()}
@@ -249,7 +341,7 @@
     <FeaturedPagesEditor bind:slugs={featured} />
 
     <div
-        class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/95 sticky bottom-4 z-10 mb-2 flex flex-col gap-3
+        class="border-paper-200 dark:border-ink-700 dark:bg-ink-950/95 sticky bottom-4 z-10 mb-2 flex flex-col gap-3
                rounded-xl border bg-white/95 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between"
     >
         <p class="text-muted min-h-5 text-sm" role="status">
@@ -303,3 +395,5 @@
     danger={!canSave}
     onconfirm={confirmLocale}
 />
+
+<ImageImportDialog bind:this={importer} maxSide={IMAGE_MAX_SIDE.logo} />

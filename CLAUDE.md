@@ -119,9 +119,13 @@ editor, and any sample text written into components.
   `@returns` and `@throws` where they apply.
 - Any JSDoc block you author ends with `@author Claude`.
 - Non exported helpers get a JSDoc block when their intent is not obvious from the name.
-- Inline comments explain **why**, never **what**. A comment restating the code is noise, a comment
-  recording a constraint is documentation. Good example, from `src/routes/+layout.svelte`: effects do
-  not run while prerendering, which is why the dataset is also installed synchronously.
+- Documentation lives in the JSDoc of declarations. **No inline comment** (`//`, `/* */` inside a
+  body, `<!-- -->` in markup) is written beside the lines of a change or a fix to explain a choice
+  of design, layout or wording: when a decision needs recording, it goes in the JSDoc of the
+  enclosing function or component. The one exception is a technical trap, a line that looks wrong
+  and would be "fixed" into a bug without its comment. Reference example, from
+  `src/routes/+layout.svelte`: effects do not run while prerendering, which is why the dataset is
+  also installed synchronously. Specs keep the comments narrating their journey.
 
 ## Prefer arrow functions
 
@@ -196,9 +200,9 @@ change, however small.
 - **Duplication.** A literal list repeated beside the config that already declares it, a plural
   written by hand where `plural` and `counted` exist, a colour or an icon spelled out where
   `src/lib/config/` holds it. Two copies drift; one of them is always the wrong one first.
-- **Comments.** Keep the ones recording a constraint, a trap or a decision that the code cannot
-  state. Delete the ones restating what the line below already says, and the commented out code
-  nobody dares remove. A comment that would still be true if the code changed underneath it is worse
+- **Comments.** No inline comment added by the change, unless it guards a technical trap; a
+  decision goes in a JSDoc. Delete the ones restating what the line below already says, and the
+  commented out code nobody dares remove. A comment that would still be true if the code changed underneath it is worse
   than none.
 - **Accessibility.** Every interactive control has an accessible name, in French, and Flowbite gives
   its own in English. A control the pointer can reach, the keyboard reaches too. Anything that
@@ -264,9 +268,15 @@ Two rules with no exception, because both hide the very thing these questions lo
   persistent on it. Categories are the exception: they are keyed by slug.
 - `localStorage` keys are namespaced `pericles:`. Currently `pericles:overlay`, `pericles:theme`,
   `pericles:locale` and `pericles:remote`, the last one absent until a remote service is configured.
-- Images are a path under `/media/` or an absolute URL. Never store base64 in the dataset: the
-  overlay shares the roughly five megabyte `localStorage` quota with all the text. Static images
-  under `static/media/` are the one thing that still ships with the repository.
+- Images are a base64 data url or an absolute URL, nothing else: no path under `/media/`, and no
+  image ships with the repository. A file chosen by the reader, for an illustration, a figure of the
+  body or the logo, and base64 pasted where an address is expected, go through `ImageImportDialog` (`src/lib/components/editor/`), which reduces
+  it to `IMAGE_MAX_SIDE` and encodes it as WebP at the quality the reader picks among
+  `IMAGE_QUALITIES` (`src/lib/config/images.ts`). The reduction is not optional: the overlay
+  shares the roughly five megabyte `localStorage` quota with all the text, which is why the dialog
+  shows the weight of the image beside what the wiki already takes. `isImageSource` in
+  `src/lib/utilities/url.ts` accepts a base64 raster (PNG, JPEG, WebP, GIF, AVIF, never SVG) in an
+  image source only, for the dataset and for the sanitizer alike; a link never follows one.
 - Dates: `createdAt`, `updatedAt` and `publishedAt` are real ISO timestamps. In universe dates live
   in `Entry.dates`, a list of `{ id, label, value }` rows: a page is dated by its own references, a
   birth and a death, a founding, an occurrence, and each row stands on its own point of the
@@ -285,6 +295,9 @@ Two rules with no exception, because both hide the very thing these questions lo
 - Internal links use plain Markdown pointing at an internal path: `[Athéna Vance](/entries/athena-vance)`.
   There is deliberately **no** `[[wiki]]` syntax: standard links round trip through the editor
   untouched and still give us the link graph, the backlinks and the red links.
+- Infobox values are one line of Markdown each, rendered by `renderPhrase`, so a row such as «Parents»
+  links pages the same way. The link graph reads them with the body, and `retargetLinks` rewrites them
+  with it.
 - A link to a slug with no page becomes a red link, and its target renders a page inviting creation.
   This is a feature, not a broken state, and it must never throw or 404.
 - Bodies start their headings at level 2. Level 1 is the page title, rendered outside the body.
@@ -405,8 +418,8 @@ Four things it does not do on its own, and every one of them has bitten this cod
   black on near black. `Modal` and `Drawer` therefore spell out `text-ink-800 dark:text-paper-200`
   themselves, and anything placed inside one that relies on inheritance has to be checked in the dark
   theme, which the Playwright suite does not currently visit.
-- **`primary-*` and `gray-*` are aliases of the editorial palette**, declared in `@theme`. Nothing in
-  `src/` writes those two scales by hand; they exist so the classes compiled into the library resolve
+- **`primary-*`, `gray-*` and `red-*` are aliases of the editorial palette**, declared in `@theme`. Nothing in
+  `src/` writes those three scales by hand; they exist so the classes compiled into the library resolve
   to our colours.
 - **Its dialogs must not carry a Svelte transition.** `Modal` and `Drawer` are real `<dialog>`
   elements opened with `showModal`, and a transition keeps one mounted for the length of its outro. A
@@ -449,7 +462,7 @@ commit**:
 - `tests/e2e/article.spec.ts` — a single page (infobox, table of contents, backlinks, related reads,
   red links and the page written from one).
 - `tests/e2e/editor.spec.ts` — creation, edition, deletion, slug derivation and collisions, the
-  Milkdown body, the link picker, the name generator, the unsaved changes guard, saving in place,
+  templates, the Milkdown body, the link picker, the name generator, the unsaved changes guard, saving in place,
   the rewrite of incoming links on a rename, the categories, the suggested vocabularies.
 - `tests/e2e/categories.spec.ts` — overview, one category, and management (create, rename, delete).
 - `tests/e2e/live.spec.ts` — feed (pinned group, day groups, severity and tag filters, composer,
@@ -568,19 +581,19 @@ src/
         components/             the three controls every section shares, then one folder per domain
             dashboard/          figures and charts
             data/               file backup, remote backup, local content, demonstration content, the two resets
-            editor/             Milkdown editor, page form, link picker, category picker, name generator
+            editor/             page form, heading, infobox card, settings, templates, Milkdown editor, pickers, name generator, image import
             layout/             header, tools menu, tools tabs, search palette, theme, connection status, page meta
             live/               live feed, composer, alert banner
             settings/           identity of the wiki, featured pages, preferences of this device
             wiki/               article body, infobox, table of contents, backlinks, cards, filters
-        config/                 page types, palette, severities, navigation, motion, forms, remote failures
+        config/                 templates, generator, palette, severities, navigation, motion, forms, remote failures, images
         demo.ts                 the demonstration wiki, imported on demand from /data
         locales/                generated by the Paraglide vite plugin, gitignored, never hand edited
         state/wiki.svelte.ts    seed plus overlay, link graph, mutations, export and import
         state/remote.svelte.ts  connection to the optional snapshot server or S3 bucket
         state/sync.svelte.ts    wiring between the two: send, restore, the check made on arrival
         types.ts                every data contract
-        utilities/              markdown, dataset, remote, s3 (SigV4 signing), search, stats, date, slug, url, plural
+        utilities/              markdown, dataset, remote, s3 (SigV4 signing), search, stats, date, slug, url, plural, image, image-block, size
     routes/
         +layout.ts              installs an always empty seed, sets prerender
         +layout.svelte          installs the dataset, frames the site
@@ -593,8 +606,8 @@ src/
         data/                   export, import, remote backup, demonstration content
         settings/               identity of the wiki, featured pages, language
 static/
+    assets/favicon.svg          icon of the site and of the installed application
     assets/fonts/               self hosted Public Sans, Source Serif 4 and IBM Plex Mono, latin subset
-    media/                      illustrations referenced by pages, installable icons
     manifest.webmanifest        name, icons and shortcuts of the installed site
 tests/
     e2e/                        one spec per section of the site

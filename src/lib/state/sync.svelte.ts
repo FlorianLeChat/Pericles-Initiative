@@ -286,8 +286,6 @@ class SyncStore
             }
             else if ( localMoved )
             {
-                // The backup did not move while this browser did: that is the reminder's
-                // business, which offers to send after every change.
                 this.verdict = null;
             }
             else
@@ -308,8 +306,6 @@ class SyncStore
 
         if ( remoteTime === localTime )
         {
-            // Same content stamp on both sides: this browser sent that very snapshot,
-            // or restored it before the second marker existed.
             remote.markSynced( wiki.changedAt, marker );
             this.#settle();
 

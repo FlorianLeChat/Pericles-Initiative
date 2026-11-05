@@ -17,7 +17,7 @@
     import { TOOL_LINKS } from "#lib/config/navigation.ts";
 </script>
 
-<nav class="border-paper-200 dark:border-ink-800 mt-6 flex gap-6 border-b" aria-label={m.common_tools_label()}>
+<nav class="border-paper-200 dark:border-ink-700 mt-6 flex gap-6 border-b" aria-label={m.common_tools_label()}>
     {#each TOOL_LINKS as link ( link.href )}
         {@const current = page.url.pathname.startsWith( resolve( link.href ) )}
 

@@ -34,7 +34,7 @@
 {#snippet branch( categories: Category[], depth: number )}
     <ul
         class={depth === 0
-            ? "divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 divide-y border-y"
+            ? "divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 divide-y border-y"
             : "border-paper-300 dark:border-ink-700 mt-3 ml-1 space-y-3 border-l pl-5"}
     >
         {#each categories as category ( category.slug )}

@@ -35,7 +35,7 @@
     const LIVE_LENGTH = 4;
 
     /** Hairlines between the rows of every list on this page, and around them. */
-    const HAIRLINE_LIST = "divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 divide-y";
+    const HAIRLINE_LIST = "divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 divide-y";
 
     const isEmpty = $derived( wiki.entries.length === 0 );
 
@@ -48,7 +48,6 @@
     const lead = $derived( featured[ 0 ] );
     const featuredList = $derived( featured.slice( 1, 1 + FEATURED_LIST_LENGTH ) );
 
-    // A page already put forward would otherwise appear twice on the same screen.
     const featuredIds = $derived( new Set( featured.map( ( entry ) => entry.id ) ) );
 
     const latest = $derived(
@@ -98,7 +97,7 @@
 
 <PageMeta title={wiki.meta.universe} />
 
-<section class="border-paper-200 dark:border-ink-800 border-b" aria-labelledby="home-title">
+<section class="border-paper-200 dark:border-ink-700 border-b" aria-labelledby="home-title">
     <div class="mx-auto max-w-6xl px-4 pt-8 pb-8 sm:px-6 sm:pt-14 sm:pb-12">
         <h1
             id="home-title"
@@ -169,7 +168,7 @@
                             <img
                                 src={lead.image.src}
                                 alt={lead.image.alt}
-                                class="border-paper-200 dark:border-ink-800 mb-5 aspect-[16/8] w-full rounded-xl border
+                                class="border-paper-200 dark:border-ink-700 mb-5 aspect-[16/8] w-full rounded-xl border
                                        object-cover"
                                 loading="lazy"
                                 decoding="async"

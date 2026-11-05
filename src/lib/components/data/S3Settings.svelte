@@ -14,6 +14,7 @@
      * @author Claude
      */
     import type { Snippet } from "svelte";
+    import { FIELD } from "#lib/config/forms.ts";
     import * as m from "#lib/locales/messages.js";
     import type { S3Config } from "#lib/types.ts";
     import Input from "flowbite-svelte/Input.svelte";
@@ -75,7 +76,7 @@
                     id="remote-s3-endpoint"
                     bind:value={config.endpoint}
                     type="url"
-                    class="font-mono text-xs"
+                    class="{FIELD} font-mono text-xs"
                     aria-describedby="remote-s3-endpoint-hint"
                     placeholder={m.remote_backup_s3_endpoint_placeholder()}
                     autocomplete="off"
@@ -93,7 +94,7 @@
                     <Input
                         id="remote-s3-region"
                         bind:value={config.region}
-                        class="font-mono text-xs"
+                        class="{FIELD} font-mono text-xs"
                         aria-describedby="remote-s3-region-hint"
                         placeholder={m.remote_backup_s3_region_placeholder()}
                         autocomplete="off"
@@ -111,7 +112,7 @@
                     <Input
                         id="remote-s3-bucket"
                         bind:value={config.bucket}
-                        class="font-mono text-xs"
+                        class="{FIELD} font-mono text-xs"
                         placeholder={m.remote_backup_s3_bucket_placeholder()}
                         autocomplete="off"
                         spellcheck="false"
@@ -125,7 +126,7 @@
                 <Input
                     id="remote-s3-key"
                     bind:value={config.key}
-                    class="font-mono text-xs"
+                    class="{FIELD} font-mono text-xs"
                     aria-describedby="remote-s3-key-hint"
                     placeholder={DEFAULT_S3_KEY}
                     autocomplete="off"
@@ -153,7 +154,6 @@
             </Checkbox>
         </fieldset>
 
-        <!-- The hairline sits on a wrapper: drawn on the fieldset, it would run through its legend. -->
         <div class="border-paper-200 dark:border-ink-700 border-t pt-6">
             <fieldset class="space-y-4">
                 <legend class="text-ink-900 dark:text-paper-100 mb-3 text-base font-semibold">
@@ -168,7 +168,7 @@
                     <Input
                         id="remote-s3-access-key"
                         bind:value={config.accessKeyId}
-                        class="font-mono text-xs"
+                        class="{FIELD} font-mono text-xs"
                         autocomplete="off"
                         spellcheck="false"
                     />
@@ -180,6 +180,7 @@
                     </Label>
 
                     <Input
+                        class={FIELD}
                         id="remote-s3-secret-key"
                         bind:value={config.secretAccessKey}
                         type="password"

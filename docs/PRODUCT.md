@@ -39,8 +39,10 @@ from inside the fiction. Entirely client side, with no account, no server and no
 ## Capabilities and Constraints
 
 - No authentication, no database, statically generated (SvelteKit `adapter-static`, SPA fallback).
-- Pages typed as character, place, event, organisation, object, concept; categories with parents; infobox,
-  table of contents, backlinks, red links, timeline, dashboard, live feed with severities and tags.
+- Pages carry no type: they are classified by categories with parents, and started from templates (character,
+  place, organisation, event, object, concept, or a blank page) that only pre-fill dates, infobox rows and
+  sections. Infobox, whose values may link to other pages, table of contents, backlinks, red links, timeline,
+  dashboard, live feed with severities and tags.
 - Interface in French and English; the fiction is authored content in whatever language the author writes.
 - Full engineering constraints are in `CLAUDE.md`.
 
@@ -54,7 +56,7 @@ from inside the fiction. Entirely client side, with no account, no server and no
 ## Evidence on Hand
 
 - Demonstration wiki "The Lantern Coast" in `src/lib/demo.ts` (English fiction, 20 pages).
-- Self-hosted fonts in `static/assets/fonts/`, icons in `static/media/`.
+- Self-hosted fonts in `static/assets/fonts/`, the icon in `static/assets/favicon.svg`. No image ships: the ones a wiki shows are imported by the reader as base64, or linked from elsewhere.
 - No real campaign content ships with the repository; nothing must be fabricated as if it were.
 
 ## Product Principles

@@ -10,6 +10,7 @@
      * @author Claude
      */
     import type { Snippet } from "svelte";
+    import { FIELD } from "#lib/config/forms.ts";
     import * as m from "#lib/locales/messages.js";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
@@ -53,7 +54,7 @@
                 id="remote-base-url"
                 bind:value={baseUrl}
                 type="url"
-                class="font-mono text-xs"
+                class="{FIELD} font-mono text-xs"
                 aria-describedby="remote-base-url-hint"
                 placeholder={m.remote_backup_url_placeholder()}
                 autocomplete="off"
@@ -68,6 +69,7 @@
             <Label for="remote-secret" class="field-label">{m.remote_backup_secret_label()}</Label>
 
             <Input
+                class={FIELD}
                 id="remote-secret"
                 bind:value={secret}
                 type="password"

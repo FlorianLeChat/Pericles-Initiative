@@ -100,7 +100,7 @@ const ENTRY_LIST: Entry[] = [
         categories: [ "institutions" ],
         infobox: [
             { label: "Fonction", value: "Navigatrice en chef" },
-            { label: "Port d’attache", value: "Port Méridien" }
+            { label: "Port d’attache", value: "[Port Méridien](/entries/port-meridien)" }
         ],
         image: null,
         dates: [
@@ -125,7 +125,10 @@ const ENTRY_LIST: Entry[] = [
             "d’[Athéna Vance](/entries/athena-vance)."
         ].join( "\n" ),
         categories: [ "sites" ],
-        infobox: [ { label: "Population", value: "12 400" } ],
+        infobox: [
+            { label: "Population", value: "12 400" },
+            { label: "Administration", value: "[Bureau des courants](/entries/bureau-des-courants)" }
+        ],
         image: null,
         dates: [ { id: "fixture-date-fondation", label: "Fondation", value: "2018" } ],
         status: "publie",
@@ -297,8 +300,14 @@ export const DATES = {
     brouillon: pick( DATE_LIST, "id", "fixture-date-brouillon" )
 };
 
-/** Path the illustrated wiki points at, asserted on by the editor spec. */
-export const ILLUSTRATION = "/media/ponton-de-port-meridien.webp";
+/** Address the illustrated wiki points at, asserted on by the editor spec, and never fetched. */
+export const ILLUSTRATION = "https://images.exemple.test/ponton-de-port-meridien.webp";
+
+/** A one pixel PNG, written out the way an imported image is stored, and read back as a file to import. */
+export const IMPORTED_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
+/** Alt text of the figure the illustrated wiki writes into a body. */
+export const FIGURE_ALT = "Plan des quais";
 
 export const CATEGORIES = {
     institutions: pick( CATEGORY_LIST, "slug", "institutions" ),
@@ -409,12 +418,14 @@ export const crowdedDataset = (): Dataset =>
 };
 
 /**
- * Builds a wiki where one page carries an illustration.
+ * Builds a wiki where one page carries an illustration, and another a figure.
  *
  * The sample keeps every page unillustrated, since the repository ships no
- * media and a spec that reached the network would not be a spec. The path here
- * is never fetched successfully either: what it proves is that the editor reads
- * the corpus to suggest the paths a wiki already uses.
+ * image and a spec that reached the network would not be a spec. The address of
+ * the illustration is never fetched: what it proves is that the editor reads the
+ * corpus to suggest the addresses a wiki already uses. The figure is an imported
+ * image standing alone in a paragraph of the port, written as base64: the editor
+ * has to keep its alternative text, and the article its source.
  *
  * @returns A dataset whose first page points at an illustration.
  * @author Claude
@@ -427,6 +438,16 @@ export const illustratedDataset = (): Dataset =>
     if ( illustrated )
     {
         illustrated.image = { src: ILLUSTRATION, alt: "Le ponton de Port Méridien, au petit matin." };
+    }
+
+    const figured = dataset.entries.find( ( entry ) => entry.slug === PAGES.port.slug );
+
+    if ( figured )
+    {
+        figured.body = `${ figured.body }
+
+![${ FIGURE_ALT }](${ IMPORTED_IMAGE })
+`;
     }
 
     return dataset;

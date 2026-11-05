@@ -118,16 +118,14 @@
                 <section aria-labelledby="timeline-period-{periodIndex}">
                     <h2 id="timeline-period-{periodIndex}" class="section-heading">{period.heading}</h2>
 
-                    <!-- The hairline of the date column runs unbroken from row to row, which is
-                         why the rows carry their spacing as padding rather than as a gap. -->
-                    <ol class="border-paper-200 dark:border-ink-800 mt-4 border-l sm:border-l-0">
+                    <ol class="border-paper-200 dark:border-ink-700 mt-4 border-l sm:border-l-0">
                         {#each period.points as point, index ( `${ point.entry.id }-${ point.date.id }` )}
                             <li
                                 class="rise-in grid pl-4 sm:grid-cols-[10rem_minmax(0,1fr)] sm:pl-0"
                                 style="--rank: {staggerRank( index )}"
                             >
                                 <p
-                                    class="text-muted border-paper-200 dark:border-ink-800 pt-3 text-sm sm:border-r sm:pt-4 sm:pr-5 sm:pb-4 sm:text-right"
+                                    class="text-muted border-paper-200 dark:border-ink-700 pt-3 text-sm sm:border-r sm:pt-4 sm:pr-5 sm:pb-4 sm:text-right"
                                 >
                                     {formatUniverseDate( point.date.value )}
                                 </p>

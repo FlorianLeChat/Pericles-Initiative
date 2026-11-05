@@ -20,6 +20,7 @@
     import Kbd from "flowbite-svelte/Kbd.svelte";
     import * as m from "#lib/locales/messages.js";
     import ThemeToggle from "./ThemeToggle.svelte";
+    import { PRESSED } from "#lib/config/forms.ts";
     import Search from "@lucide/svelte/icons/search";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Drawer from "flowbite-svelte/Drawer.svelte";
@@ -51,11 +52,25 @@
      * @author Claude
      */
     const isActive = ( href: Path ): boolean => page.url.pathname.startsWith( resolve( href ) );
+
+    /**
+     * Whether a page is being written, where the save bar holds the one primary
+     * action. A second filled button in the accent, starting yet another page,
+     * read as the next step of the one under way rather than as a way out of it.
+     */
+    const writing = $derived( page.route.id?.startsWith( "/new" ) === true || page.route.id?.startsWith( "/edit" ) === true );
+
+    const newEntryLook = $derived(
+        writing
+            ? "bg-control text-ink-800 hover:bg-control-hover dark:text-paper-200 rounded-full"
+            : "bg-accent-700 hover:bg-accent-800 dark:hover:bg-accent-600 rounded-lg text-white"
+    );
 </script>
 
 <header
     id="site-header"
-    class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/90 sticky top-0 z-40 border-b bg-white/90 backdrop-blur"
+    data-sticky-top
+    class="border-paper-200 dark:border-ink-700 dark:bg-ink-950/90 sticky top-0 z-40 border-b bg-white/90 backdrop-blur"
 >
     <div class="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
         <a href={resolve( "/" )} class="group flex min-w-0 shrink-0 items-center gap-2.5">
@@ -117,14 +132,14 @@
 
             <a
                 href={resolve( "/new" )}
-                class="bg-accent-700 hover:bg-accent-800 hidden h-9 items-center gap-2 rounded-lg px-3.5 text-sm
-                       leading-none font-medium text-white transition-colors lg:inline-flex"
+                class="{PRESSED} {newEntryLook} hidden h-9 items-center gap-2 px-3.5 text-sm leading-none font-medium
+                       transition-colors lg:inline-flex"
             >
                 <Plus class="h-4 w-4" />
                 {m.common_new_entry()}
             </a>
 
-            <div class="border-paper-200 dark:border-ink-800 ml-1 flex items-center gap-1 border-l pl-1.5">
+            <div class="border-paper-200 dark:border-ink-700 ml-1 flex items-center gap-1 border-l pl-1.5">
                 <ToolsMenu links={TOOL_LINKS} {isActive} />
 
                 <ThemeToggle />
@@ -154,7 +169,7 @@
     class="text-ink-800 dark:bg-ink-950 dark:text-paper-200 z-50 w-72 bg-white p-0 lg:hidden"
     aria-label={m.site_header_drawer_aria()}
 >
-    <div class="border-paper-200 dark:border-ink-800 flex items-center justify-between border-b px-4 py-3">
+    <div class="border-paper-200 dark:border-ink-700 flex items-center justify-between border-b px-4 py-3">
         <p class="text-muted text-xs tracking-wide uppercase">{m.site_header_drawer_heading()}</p>
 
         <button
@@ -207,8 +222,8 @@
             <li class="pt-2">
                 <a
                     href={resolve( "/new" )}
-                    class="bg-accent-700 hover:bg-accent-800 flex min-h-11 w-full items-center justify-center gap-2
-                           rounded-lg px-4 text-sm font-medium text-white transition-colors"
+                    class="{PRESSED} bg-accent-700 hover:bg-accent-800 dark:hover:bg-accent-600 flex min-h-11 w-full
+                           items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-white transition-colors"
                     onclick={() => ( menuOpen = false )}
                 >
                     <Plus class="h-4 w-4" />

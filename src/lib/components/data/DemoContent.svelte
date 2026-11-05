@@ -55,9 +55,6 @@
             // changes and the reload below is needed in both cases.
             await setLocale( "en", { reload: false } );
 
-            // A language only changes on a document load, and the identity form of
-            // the settings reads `meta` once, when it mounts: reloading puts every
-            // panel of the site on the new content and the new language at once.
             window.location.reload();
         }
         catch

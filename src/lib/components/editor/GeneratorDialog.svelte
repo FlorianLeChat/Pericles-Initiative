@@ -14,32 +14,32 @@
      *
      * @author Claude
      */
+    import { untrack } from "svelte";
     import type { Faker } from "@faker-js/faker";
     import * as m from "#lib/locales/messages.js";
     import Modal from "flowbite-svelte/Modal.svelte";
-    import { filterPill } from "#lib/config/forms.ts";
     import Button from "flowbite-svelte/Button.svelte";
     import { getLocale } from "#lib/locales/runtime.js";
     import RefreshCw from "@lucide/svelte/icons/refresh-cw";
+    import { filterPill, PAIRED_ACTION } from "#lib/config/forms.ts";
     import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
+    import { GENERATOR_KINDS, type GeneratorKind } from "#lib/config/generator.ts";
 
     interface Props {
         open: boolean;
         /** Called with the chosen text. */
         oninsert: ( value: string ) => void;
+        /** Kind shown first, which the template of the page may choose. */
+        initialKind?: GeneratorKind;
     }
 
-    let { open = $bindable( false ), oninsert }: Props = $props();
+    let { open = $bindable( false ), oninsert, initialKind = "fullName" }: Props = $props();
 
     /** How many candidates are offered at a time. */
     const SAMPLE_COUNT = 6;
 
-    /** What can be invented, in the order the panel offers it. */
-    const KINDS = [ "fullName", "firstName", "lastName", "city", "country", "street", "organisation", "job", "date" ] as const;
-
-    type Kind = ( typeof KINDS )[ number ];
-
-    let kind = $state<Kind>( "fullName" );
+    // The editor remounts with its template, so the first kind is read once.
+    let kind = $state<GeneratorKind>( untrack( () => initialKind ) );
 
     /**
      * What is currently offered, for every kind at once.
@@ -49,7 +49,7 @@
      * the one they had already half chosen unfindable. Nothing here moves until
      * the reader asks for another draw.
      */
-    let pools = $state<Partial<Record<Kind, string[]>>>( {} );
+    let pools = $state<Partial<Record<GeneratorKind, string[]>>>( {} );
 
     let faker: Faker | null = null;
 
@@ -62,7 +62,7 @@
      * @returns Its label, in the reader's language.
      * @author Claude
      */
-    const kindLabel = ( value: Kind ): string =>
+    const kindLabel = ( value: GeneratorKind ): string =>
     {
         switch ( value )
         {
@@ -95,7 +95,7 @@
      * @returns The invented text.
      * @author Claude
      */
-    const invent = ( source: Faker, value: Kind ): string =>
+    const invent = ( source: Faker, value: GeneratorKind ): string =>
     {
         switch ( value )
         {
@@ -116,8 +116,6 @@
             case "job":
                 return source.person.jobTitle();
             case "date":
-                // The chronology reads an ISO date, and reads free text as it stands,
-                // so the one shape it can sort by is the one worth proposing.
                 return source.date.past( { years: 60 } ).toISOString().slice( 0, 10 );
         }
     };
@@ -152,7 +150,7 @@
      * @returns The candidates, without the repetitions a small dictionary gives.
      * @author Claude
      */
-    const drawn = ( source: Faker, value: Kind ): string[] =>
+    const drawn = ( source: Faker, value: GeneratorKind ): string[] =>
         [ ...new Set( Array.from( { length: SAMPLE_COUNT }, () => invent( source, value ) ) ) ];
 
     /**
@@ -169,11 +167,9 @@
     {
         const source = await load();
 
-        pools = Object.fromEntries( KINDS.map( ( value ) => [ value, drawn( source, value ) ] ) ) as Record<Kind, string[]>;
+        pools = Object.fromEntries( GENERATOR_KINDS.map( ( value ) => [ value, drawn( source, value ) ] ) ) as Record<GeneratorKind, string[]>;
     };
 
-    // Drawn once on opening, and dropped on the way out so the next opening does
-    // not offer the names of the previous page.
     $effect( () =>
     {
         if ( open )
@@ -205,16 +201,17 @@
     size="sm"
     dismissable={false}
     transitionParams={{ duration: 0 }}
-    class="border-paper-200 text-ink-800 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-200 mt-[8dvh]
+    class="border-paper-200 text-ink-800 dark:border-ink-700 dark:bg-ink-900 dark:text-paper-200 mt-[8dvh]
            max-h-[80dvh] rounded-2xl border {MODAL_MOBILE_FULLSCREEN}"
     classes={{
-        header: "border-paper-200 dark:border-ink-800 text-ink-900 dark:text-paper-100 font-serif",
-        body: "space-y-4"
+        header: "border-paper-200 dark:border-ink-700 text-ink-900 dark:text-paper-100 font-serif",
+        body: "space-y-4",
+        footer: "border-paper-200 dark:border-ink-700 justify-end"
     }}
     aria-label={m.generator_title()}
 >
     <div class="flex flex-wrap gap-1.5" role="group" aria-label={m.generator_kinds_legend()}>
-        {#each KINDS as offered ( offered )}
+        {#each GENERATOR_KINDS as offered ( offered )}
             <button
                 type="button"
                 class={filterPill( offered === kind )}
@@ -253,4 +250,10 @@
             {m.generator_redraw()}
         </Button>
     </div>
+
+    {#snippet footer()}
+        <Button color="alternative" class={PAIRED_ACTION} onclick={() => ( open = false )}>
+            {m.common_cancel()}
+        </Button>
+    {/snippet}
 </Modal>

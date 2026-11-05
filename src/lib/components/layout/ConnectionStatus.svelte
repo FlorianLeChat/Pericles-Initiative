@@ -139,8 +139,6 @@
         }
     } );
 
-    // A new edit is a new attempt: the send that failed carried content that no
-    // longer exists, so its exhausted budget has nothing left to say.
     $effect( () =>
     {
         void wiki.changedAt;
@@ -180,9 +178,6 @@
 
         if ( blocked || exhausted )
         {
-            // A dismissed failure still means nothing will be retried until the
-            // next edit, which is what resets both flags: showing "envoi imminent"
-            // here would promise a send that is not coming.
             return dismissed ? null : "failed";
         }
 

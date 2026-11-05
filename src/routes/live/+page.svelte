@@ -21,10 +21,10 @@
     import type { LiveEntry, LiveSeverity } from "#lib/types.ts";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { filterPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
     import LiveComposer from "#lib/components/live/LiveComposer.svelte";
     import LiveFeedGroup from "#lib/components/live/LiveFeedGroup.svelte";
     import { formatLongDate, relativeTime } from "#lib/utilities/date.ts";
+    import { FIELD, filterPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
 
     let severity = $state<LiveSeverity | "toutes">( "toutes" );
     let tag = $state( "toutes" );
@@ -154,7 +154,7 @@
                         size="sm"
                         placeholder=""
                         class="w-auto"
-                        classes={{ select: "h-10 rounded-full py-1.5 ps-3.5 pe-8 text-xs font-medium" }}
+                        classes={{ select: `${ FIELD } h-10 rounded-full py-1.5 ps-3.5 pe-8 text-xs font-medium` }}
                         aria-label={m.live_filter_tag_aria()}
                     >
                         <option value="toutes">{m.live_filter_all_tags()}</option>

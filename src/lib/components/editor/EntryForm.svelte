@@ -6,47 +6,25 @@
      */
     import { untrack } from "svelte";
     import { resolve } from "$app/paths";
-    import ChipsInput from "./ChipsInput.svelte";
+    import X from "@lucide/svelte/icons/x";
     import * as m from "#lib/locales/messages.js";
     import Check from "@lucide/svelte/icons/check";
-    import DatesEditor from "./DatesEditor.svelte";
-    import OptionPanel from "./OptionPanel.svelte";
-    import Input from "flowbite-svelte/Input.svelte";
-    import Label from "flowbite-svelte/Label.svelte";
-    import Toast from "flowbite-svelte/Toast.svelte";
+    import InfoboxCard from "./InfoboxCard.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
-    import StatusPicker from "./StatusPicker.svelte";
-    import Trash2 from "@lucide/svelte/icons/trash-2";
+    import EntryHeading from "./EntryHeading.svelte";
     import Button from "flowbite-svelte/Button.svelte";
-    import Helper from "flowbite-svelte/Helper.svelte";
     import type { ResolvedPathname } from "$app/types";
-    import InfoboxEditor from "./InfoboxEditor.svelte";
-    import { PAIRED_ACTION } from "#lib/config/forms.ts";
+    import EntrySettings from "./EntrySettings.svelte";
+    import TemplatePicker from "./TemplatePicker.svelte";
     import { pluralize } from "#lib/utilities/plural.ts";
-    import CategoryPicker from "./CategoryPicker.svelte";
     import MarkdownEditor from "./MarkdownEditor.svelte";
-    import Checkbox from "flowbite-svelte/Checkbox.svelte";
-    import Textarea from "flowbite-svelte/Textarea.svelte";
+    import { createId } from "#lib/utilities/dataset.ts";
     import { beforeNavigate, goto } from "$app/navigation";
-    import { motionDuration } from "#lib/config/motion.ts";
-    import Accordion from "flowbite-svelte/Accordion.svelte";
-    import EntryImageFields from "./EntryImageFields.svelte";
     import { slugify, uniqueSlug } from "#lib/utilities/slug.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { countWords, describeLength } from "#lib/utilities/markdown.ts";
     import type { Entry, EntryDate, EntryStatus, InfoboxField } from "#lib/types.ts";
-
-    /** How long the confirmation of a save stays on screen, in milliseconds. */
-    const CONFIRMATION_DELAY = 2500;
-
-    /**
-     * Length past which a summary stops being read whole where it is reused.
-     *
-     * The summary is what `PageMeta` hands to the description of the page, and a
-     * search engine or a messaging application cuts that off around here. It is a
-     * guide rather than a limit: nothing stops a longer one from being saved.
-     */
-    const SUMMARY_LENGTH = 160;
+    import { countWords, describeLength, dropEmptySections } from "#lib/utilities/markdown.ts";
+    import { BLANK_TEMPLATE, templateBody, type PageTemplate } from "#lib/config/templates.ts";
 
     interface Props {
         /** Page being edited, absent when creating one. */
@@ -84,7 +62,7 @@
         imageCaption: entry?.image?.caption ?? "",
         dates: ( entry?.dates ?? [] ).map( ( date ) => ( { ...date } ) ),
         aliases: [ ...( entry?.aliases ?? [] ) ],
-        status: entry?.status ?? ( "publie" as EntryStatus ),
+        status: entry?.status ?? ( "brouillon" as EntryStatus ),
         /** The slug stops following the title as soon as it is known. */
         slugLocked: Boolean( entry ?? initialSlug )
     } ) );
@@ -116,6 +94,23 @@
     let saved = $state( false );
     let leaveOpen = $state( false );
     let leaving = $state( false );
+
+    /** Template the page is being written from, offered only while it is created. */
+    let template = $state<PageTemplate>( BLANK_TEMPLATE );
+
+    /** Template waiting for the writer to agree that it replaces what is written. */
+    let pendingTemplate: PageTemplate | null = null;
+    let templateConfirmOpen = $state( false );
+
+    /**
+     * Counters bumped to remount what cannot follow on its own.
+     *
+     * Milkdown reads its Markdown once, so a template writing a new body has to
+     * start a new editor; a radio the writer clicked but whose change was then
+     * refused stays checked in the browser, so the row is drawn again.
+     */
+    let bodyRevision = $state( 0 );
+    let pickerRevision = $state( 0 );
 
     /** Where the reader was going when the guard stopped them. */
     let destination: URL | null = null;
@@ -174,78 +169,89 @@
      * keystroke. Comparing the fields instead stops at the first difference, and
      * a body left untouched is the same string rather than a new one.
      */
-    const dirty = $derived.by( () =>
-        title !== baseline.title
-        || slug !== baseline.slug
-        || summary !== baseline.summary
-        || body !== baseline.body
-        || imageSrc !== baseline.imageSrc
-        || imageAlt !== baseline.imageAlt
-        || imageCaption !== baseline.imageCaption
-        || status !== baseline.status
-        || slugLocked !== baseline.slugLocked
-        || !sameList( categories, baseline.categories, ( a, b ) => a === b )
-        || !sameList( aliases, baseline.aliases, ( a, b ) => a === b )
-        || !sameList( infobox, baseline.infobox, ( a, b ) => a.label === b.label && a.value === b.value )
-        || !sameList( dates, baseline.dates, ( a, b ) => a.id === b.id && a.label === b.label && a.value === b.value )
+    const dirty = $derived.by(
+        () =>
+            title !== baseline.title
+            || slug !== baseline.slug
+            || summary !== baseline.summary
+            || body !== baseline.body
+            || imageSrc !== baseline.imageSrc
+            || imageAlt !== baseline.imageAlt
+            || imageCaption !== baseline.imageCaption
+            || status !== baseline.status
+            || slugLocked !== baseline.slugLocked
+            || !sameList( categories, baseline.categories, ( a, b ) => a === b )
+            || !sameList( aliases, baseline.aliases, ( a, b ) => a === b )
+            || !sameList( infobox, baseline.infobox, ( a, b ) => a.label === b.label && a.value === b.value )
+            || !sameList( dates, baseline.dates, ( a, b ) => a.id === b.id && a.label === b.label && a.value === b.value )
     );
     const canSave = $derived( title.trim().length > 0 );
 
-    const words = $derived( countWords( body ) );
+    /**
+     * Whether a save was asked for while the title was empty.
+     *
+     * The buttons stay enabled rather than greyed out: a disabled button says
+     * nothing about why, whereas an attempt can be answered under the title.
+     */
+    let saveAttempted = $state( false );
+    const titleMissing = $derived( saveAttempted && !canSave );
+
+    let titleField: HTMLTextAreaElement | undefined = $state();
+
+    const isDraft = $derived( status === "brouillon" );
+
+    /** Whether the last thing that happened is a save, which nothing has changed since. */
+    const justSaved = $derived( saved && !dirty );
+
+    /** What the bar says of the work, in place of a heading repeating the title below it. */
+    const stateLine = $derived.by( () =>
+    {
+        if ( dirty )
+        {
+            return m.entry_form_state_unsaved();
+        }
+
+        if ( justSaved )
+        {
+            return m.entry_form_saved();
+        }
+
+        return current ? m.entry_form_state_clean() : m.entry_form_create_heading();
+    } );
+
+    /** The body as it will be stored, without the sections a template wrote and nobody filled. */
+    const storedBody = $derived(
+        template.sections.length > 0 ? dropEmptySections( body, template.sections.map( ( heading ) => heading() ) ) : body
+    );
+
+    const words = $derived( countWords( storedBody ) );
     const extent = $derived( describeLength( words ) );
 
     /**
-     * Tells whether an infobox row carries anything at all.
+     * Tells whether an infobox row says anything.
      *
-     * An empty row is a row the author started and left, so it is neither saved
-     * nor counted in the header of its panel.
+     * A row with no value is a row the author started and left, or one a template
+     * offered and nobody needed: either way it would print an intitulé over
+     * nothing, so it is not saved.
      *
      * @param field Row of the infobox.
-     * @returns True when either the label or the value holds something.
+     * @returns True when the value holds something.
      * @author Claude
      */
-    const isFilled = ( field: InfoboxField ): boolean => field.label.trim() !== "" || field.value.trim() !== "";
+    const isFilled = ( field: InfoboxField ): boolean => field.value.trim() !== "";
 
     /**
      * Tells whether a date row carries a date at all.
      *
-     * Stricter than `isFilled` on purpose: an intitulé alone places nothing on
-     * the chronology and prints an empty row in the infobox, whereas a date with
-     * no intitulé reads perfectly well under its default heading.
+     * Like `isFilled`, an intitulé alone is not enough: it places nothing on the
+     * chronology, whereas a date with no intitulé reads perfectly well under its
+     * default heading.
      *
      * @param date Date of reference.
      * @returns True when the date itself holds something.
      * @author Claude
      */
     const isDated = ( date: EntryDate ): boolean => date.value.trim() !== "";
-
-    /*
-     * What each closed panel of the options says of itself. The panels arrive
-     * closed, so a value nobody can see is a value nobody checks before saving,
-     * and «Aucune» agrees with the noun of its own group rather than with a
-     * shared default.
-     */
-    const infoboxSummary = $derived.by( () =>
-    {
-        const rows = infobox.filter( isFilled ).length;
-
-        return rows === 0
-            ? m.entry_form_infobox_none()
-            : pluralize( rows, { one: m.entry_form_infobox_count_one, other: m.entry_form_infobox_count_other } );
-    } );
-    const datesSummary = $derived.by( () =>
-    {
-        const rows = dates.filter( isDated ).length;
-
-        return rows === 0
-            ? m.entry_form_dates_none()
-            : pluralize( rows, { one: m.entry_form_dates_count_one, other: m.entry_form_dates_count_other } );
-    } );
-    const aliasesSummary = $derived(
-        aliases.length === 0
-            ? m.entry_form_aliases_none()
-            : pluralize( aliases.length, { one: m.entry_form_aliases_count_one, other: m.entry_form_aliases_count_other } )
-    );
 
     /** The address as typed, which is what every check below reads. */
     const candidateSlug = $derived( slug.trim() );
@@ -255,6 +261,9 @@
 
     /** Pages whose links would turn red were the address to change without them. */
     const citations = $derived( previousSlug ? wiki.backlinksOf( previousSlug ).length : 0 );
+
+    /** Pages whose links to this one would turn red were it deleted. */
+    const citedBy = $derived( current ? wiki.backlinksOf( current.slug ).length : 0 );
 
     const relinkLabel = $derived(
         pluralize( citations, { one: m.entry_form_relink_one, other: m.entry_form_relink_other } )
@@ -285,9 +294,7 @@
      * the page already holding it. The list is derived, so it is rebuilt when
      * the corpus moves rather than on every keystroke in the field.
      */
-    const takenSlugs = $derived(
-        wiki.entries.filter( ( item ) => item.id !== current?.id ).map( ( item ) => item.slug )
-    );
+    const takenSlugs = $derived( wiki.entries.filter( ( item ) => item.id !== current?.id ).map( ( item ) => item.slug ) );
 
     /** The address the page would end up under, once the collision is settled. */
     const settledSlug = $derived( slugTaken ? uniqueSlug( candidateSlug, takenSlugs ) : "" );
@@ -346,6 +353,30 @@
     };
 
     /**
+     * Saves the page, then goes where the guard stopped the writer.
+     *
+     * A destination that was this page under the address it is leaving is
+     * followed to the new one, or the writer would land on a red link to the page
+     * they have just saved.
+     *
+     * @author Claude
+     */
+    const saveAndLeave = (): void =>
+    {
+        if ( !destination || !ready() )
+        {
+            return;
+        }
+
+        const before = current ? resolve( `entries/${ current.slug }/` ) : "";
+        const stored = store();
+        const followed = before !== "" && destination.pathname === before;
+
+        leaving = true;
+        void goto( followed ? resolve( `entries/${ stored.slug }/` ) : resolvedPath( destination ) );
+    };
+
+    /**
      * Writes the page, and makes the form the editor of what was written.
      *
      * The address actually taken is read back into the field: `saveEntry` appends
@@ -364,7 +395,7 @@
             title: title.trim(),
             slug: slug.trim() || slugify( title ),
             summary: summary.trim(),
-            body,
+            body: storedBody,
             categories: [ ...categories ],
             infobox: infobox.filter( isFilled ),
             image: imageSrc.trim()
@@ -389,13 +420,80 @@
     };
 
     /**
+     * Writes a template into the card and the body.
+     *
+     * What the template writes is not the writer's change, so it moves the
+     * baseline with it: picking a template and leaving straight away loses
+     * nothing, and must not be held back by the guard.
+     *
+     * @param next Template to apply.
+     * @author Claude
+     */
+    const applyTemplate = ( next: PageTemplate ): void =>
+    {
+        dates = next.dates.map( ( label ) => ( { id: createId(), label: label(), value: "" } ) );
+        infobox = next.rows.map( ( label ) => ( { label: label(), value: "" } ) );
+        body = templateBody( next );
+        template = next;
+        bodyRevision += 1;
+
+        baseline = {
+            ...baseline,
+            body,
+            dates: dates.map( ( date ) => ( { ...date } ) ),
+            infobox: infobox.map( ( field ) => ( { ...field } ) )
+        };
+    };
+
+    /**
+     * Applies the template the writer picked, once they agree to lose what it replaces.
+     *
+     * @param next Template picked.
+     * @author Claude
+     */
+    const chooseTemplate = ( next: PageTemplate ): void =>
+    {
+        const written = dates.some( isDated )
+          || infobox.some( isFilled )
+          || body.trim() !== templateBody( template ).trim();
+
+        if ( !written )
+        {
+            applyTemplate( next );
+            return;
+        }
+
+        pendingTemplate = next;
+        pickerRevision += 1;
+        templateConfirmOpen = true;
+    };
+
+    /**
+     * Tells whether the page can be written, and points at the title when it cannot.
+     *
+     * @returns True when the title holds something.
+     * @author Claude
+     */
+    const ready = (): boolean =>
+    {
+        if ( canSave )
+        {
+            return true;
+        }
+
+        saveAttempted = true;
+        titleField?.focus();
+        return false;
+    };
+
+    /**
      * Saves the page and opens it.
      *
      * @author Claude
      */
     const save = (): void =>
     {
-        if ( !canSave )
+        if ( !ready() )
         {
             return;
         }
@@ -417,13 +515,32 @@
      */
     const saveInPlace = (): void =>
     {
-        if ( !canSave )
+        if ( !ready() )
         {
             return;
         }
 
         store();
         saved = true;
+    };
+
+    /**
+     * Publishes a draft and opens it.
+     *
+     * The status only moves once the page can be written, or a refused save
+     * would leave a page that is still a draft announcing itself as published.
+     *
+     * @author Claude
+     */
+    const publish = (): void =>
+    {
+        if ( !ready() )
+        {
+            return;
+        }
+
+        status = "publie";
+        save();
     };
 
     /**
@@ -441,22 +558,6 @@
         }
     };
 
-    /*
-     * The confirmation goes on its own, rather than waiting for a dismissal that
-     * would be one more thing to do in the middle of writing.
-     */
-    $effect( () =>
-    {
-        if ( !saved )
-        {
-            return;
-        }
-
-        const timer = setTimeout( () => ( saved = false ), CONFIRMATION_DELAY );
-
-        return () => clearTimeout( timer );
-    } );
-
     /**
      * Deletes the page and goes back to the index.
      *
@@ -473,13 +574,15 @@
         leaving = true;
         void goto( resolve( "/entries" ) );
     };
-
 </script>
 
 <svelte:window onkeydown={onKeydown} />
 
+<h1 class="sr-only">{current ? m.entry_form_edit_heading() : m.entry_form_create_heading()}</h1>
+
 <form
-    class="mx-auto max-w-6xl px-4 py-8 sm:px-6"
+    class="mx-auto max-w-7xl px-4 pb-12 sm:px-6"
+    novalidate
     onsubmit={( event ) =>
     {
         event.preventDefault();
@@ -487,161 +590,114 @@
     }}
 >
     <div
-        class="border-paper-200 dark:border-ink-800 dark:bg-ink-950/80 bg-paper-50/90 sticky top-16 z-30 -mx-4 mb-8
+        data-sticky-top
+        class="border-paper-200 dark:border-ink-700 dark:bg-ink-950/80 bg-paper-50/90 sticky top-16 z-30 -mx-4 mb-8
                flex items-center gap-2 border-b px-4 py-3 backdrop-blur sm:-mx-6 sm:gap-3 sm:px-6"
     >
-        <div class="hidden min-w-0 flex-1 sm:block">
-            <p class="truncate text-sm">
-                <span class="text-muted">{current ? m.entry_form_edit_heading() : m.entry_form_create_heading()} · </span>
-                <span class="font-medium">{title.trim() || m.entry_form_untitled()}</span>
-            </p>
-        </div>
-
-        <div class="ml-auto flex w-full shrink-0 items-center gap-2 sm:w-auto">
-            {#if current}
-                <Button
-                    color="red"
-                    size="sm"
-                    class="h-9 shrink-0 px-2 sm:px-3"
-                    onclick={() => ( deleteOpen = true )}
-                    aria-label={m.entry_form_delete_aria()}
-                >
-                    <Trash2 class="h-4 w-4 sm:hidden" />
-
-                    <span class="hidden sm:inline">{m.common_delete()}</span>
-                </Button>
+        <p
+            class="text-muted flex min-w-0 flex-1 flex-col text-xs leading-tight sm:flex-row sm:items-center sm:gap-1.5
+                   sm:text-sm"
+            role="status"
+        >
+            {#if isDraft}
+                <span class="text-signal-700 dark:text-dark-signal-700 font-medium">{m.status_picker_draft()}</span>
+                <span class="hidden sm:inline" aria-hidden="true">·</span>
             {/if}
 
-            <Button
-                href={current ? resolve( `entries/${ current.slug }/` ) : resolve( "/entries" )}
-                color="alternative"
-                size="sm"
-                class="h-9 {PAIRED_ACTION}"
-            >
-                {m.common_cancel()}
-            </Button>
-
-            <Button type="submit" color="primary" size="sm" class="h-9 {PAIRED_ACTION}" disabled={!canSave}>
-                {m.common_save()}
-            </Button>
-        </div>
-    </div>
-
-    <div class="space-y-4">
-        <div>
-            <Label for="entry-title" class="field-label">{m.entry_form_title_label()}</Label>
-
-            <Input
-                id="entry-title"
-                bind:value={title}
-                type="text"
-                class="font-serif text-xl"
-                placeholder={m.entry_form_title_placeholder()}
-                required
-            />
-        </div>
-
-        <div>
-            <Label for="entry-slug" class="field-label">
-                {m.entry_form_slug_label()}
-                {#if !slugLocked}
-                    <span class="text-muted font-normal">{m.entry_form_slug_follows_title()}</span>
+            <span class="flex min-w-0 items-center gap-1">
+                {#if justSaved}
+                    <Check class="text-accent-600 dark:text-accent-400 h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
                 {/if}
-            </Label>
 
-            <div class="flex items-center gap-2">
-                <span class="text-muted shrink-0 font-mono text-sm">/entries/</span>
+                {#if dirty}
+                    <span class="truncate sm:hidden">{m.entry_form_state_unsaved_short()}</span>
+                    <span class="hidden truncate sm:inline">{stateLine}</span>
+                {:else}
+                    <span class="truncate">{stateLine}</span>
+                {/if}
+            </span>
+        </p>
 
-                <Input
-                    id="entry-slug"
-                    bind:value={slug}
-                    oninput={() => ( slugLocked = true )}
-                    onblur={() => ( slug = slug.trim() ? slugify( slug ) : "" )}
-                    type="text"
-                    class="font-mono"
-                    color={slugTaken ? "red" : "default"}
-                    aria-invalid={slugTaken}
-                    aria-describedby={slugTaken ? "entry-slug-taken" : undefined}
-                    placeholder={m.entry_form_slug_placeholder()}
-                />
-            </div>
+        <Button
+            href={current ? resolve( `entries/${ current.slug }/` ) : resolve( "entries/" )}
+            color="alternative"
+            size="sm"
+            class="order-first h-9 w-9 shrink-0 p-0 sm:order-none sm:w-auto sm:px-3"
+        >
+            <X class="h-4 w-4 sm:hidden" />
+            <span class="sr-only sm:not-sr-only">{m.entry_form_close()}</span>
+        </Button>
 
-            {#if slugTaken}
-                <div id="entry-slug-taken" class="mt-1.5 flex flex-wrap items-center gap-2">
-                    <Helper color="red" class="text-xs">
-                        {m.entry_form_slug_taken_hint( { slug: settledSlug } )}
-                    </Helper>
+        <Button type="submit" color={isDraft ? "alternative" : "primary"} size="sm" class="h-9 shrink-0">
+            {m.common_save()}
+        </Button>
 
-                    <Button color="alternative" size="xs" class="rounded-full" onclick={() => ( slug = settledSlug )}>
-                        {m.entry_form_slug_take_settled()}
-                    </Button>
-                </div>
-            {/if}
-
-            {#if citations > 0}
-                <Checkbox bind:checked={relink} classes={{ div: "mt-2 flex min-h-9 items-center text-sm" }}>
-                    {relinkLabel}
-                </Checkbox>
-
-                <Helper class="text-xs leading-relaxed">{m.entry_form_relink_hint()}</Helper>
-            {/if}
-        </div>
-
-        <div>
-            <Label for="entry-summary" class="field-label">{m.entry_form_summary_label()}</Label>
-
-            <Textarea
-                id="entry-summary"
-                bind:value={summary}
-                rows={2}
-                class="w-full resize-y"
-                placeholder={m.entry_form_summary_placeholder()}
-            />
-
-            <Helper color={summary.length > SUMMARY_LENGTH ? "red" : "gray"} class="mt-1.5 text-xs">
-                {m.entry_form_summary_length( { count: summary.length, limit: SUMMARY_LENGTH } )}
-            </Helper>
-        </div>
+        {#if isDraft}
+            <Button color="primary" size="sm" class="h-9 shrink-0" onclick={publish}>
+                {m.entry_form_publish()}
+            </Button>
+        {/if}
     </div>
 
-    <div class="mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div class="grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-12">
         <div class="min-w-0">
-            <p class="field-label">{m.entry_form_body_label()}</p>
+            {#if !current}
+                {#key pickerRevision}
+                    <TemplatePicker chosen={template.id} onchoose={chooseTemplate} />
+                {/key}
+            {/if}
 
-            <MarkdownEditor value={body} onchange={( markdown ) => ( body = markdown )} />
+            <EntryHeading
+                bind:title
+                bind:summary
+                bind:titleField
+                {titleMissing}
+                titlePlaceholder={template.titlePlaceholder()}
+                summaryPlaceholder={template.summaryPlaceholder()}
+                {settledSlug}
+                onsettle={() =>
+                {
+                    slug = settledSlug;
+                    slugLocked = true;
+                }}
+            />
 
-            <p class="text-muted mt-2 text-xs">{extent}</p>
+            <div class="mt-8">
+                {#key bodyRevision}
+                    <MarkdownEditor
+                        value={body}
+                        onchange={( markdown ) => ( body = markdown )}
+                        generatorKind={template.generator}
+                    />
+                {/key}
+
+                <p class="text-muted mt-2 text-xs">{extent}</p>
+            </div>
         </div>
 
-        <aside>
-            <Accordion multiple flush class="surface overflow-hidden">
-                <StatusPicker bind:status />
+        <div class="space-y-4">
+            <InfoboxCard
+                {title}
+                bind:imageSrc
+                bind:imageAlt
+                bind:imageCaption
+                bind:dates
+                bind:infobox
+                bind:categories
+            />
 
-                <CategoryPicker bind:categories />
-
-                <OptionPanel label={m.entry_form_dates_label()} value={datesSummary}>
-                    <DatesEditor bind:dates />
-
-                    <p class="text-muted mt-2 text-xs leading-relaxed">
-                        {m.entry_form_dates_hint()}
-                    </p>
-                </OptionPanel>
-
-                <OptionPanel label={m.entry_form_infobox_label()} value={infoboxSummary}>
-                    <InfoboxEditor bind:fields={infobox} />
-                </OptionPanel>
-
-                <EntryImageFields bind:src={imageSrc} bind:alt={imageAlt} bind:caption={imageCaption} />
-
-                <OptionPanel label={m.entry_form_aliases_label()} value={aliasesSummary}>
-                    <ChipsInput bind:values={aliases} id="entry-aliases" placeholder={m.entry_form_aliases_placeholder()} />
-
-                    <p class="text-muted mt-2 text-xs leading-relaxed">
-                        {m.entry_form_aliases_hint()}
-                    </p>
-                </OptionPanel>
-            </Accordion>
-        </aside>
+            <EntrySettings
+                bind:status
+                bind:slug
+                bind:slugLocked
+                bind:aliases
+                bind:relink
+                {citations}
+                {relinkLabel}
+                {slugTaken}
+                ondelete={current ? () => ( deleteOpen = true ) : undefined}
+            />
+        </div>
     </div>
 </form>
 
@@ -649,30 +705,27 @@
     bind:open={leaveOpen}
     title={m.entry_form_unsaved_title()}
     message={m.entry_form_unsaved_message()}
-    confirmLabel={m.entry_form_unsaved_leave()}
-    danger
-    onconfirm={leave}
+    confirmLabel={m.entry_form_unsaved_save()}
+    cancelLabel={m.entry_form_unsaved_stay()}
+    onconfirm={saveAndLeave}
+    secondaryLabel={m.entry_form_unsaved_leave()}
+    onsecondary={leave}
 />
 
-{#if saved}
-    <div class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex justify-end sm:inset-x-6">
-        <Toast
-            dismissable={false}
-            color="green"
-            params={{ duration: motionDuration() }}
-            class="surface text-ink-800 dark:text-paper-200 max-w-xs rounded-2xl p-3 text-xs shadow-lg
-                   max-sm:w-full max-sm:max-w-none"
-            role="status"
-            aria-live="polite"
-        >
-            <div class="flex items-center gap-2.5">
-                <Check class="text-accent-600 dark:text-accent-400 h-4 w-4 shrink-0" />
-
-                <span>{m.entry_form_saved()}</span>
-            </div>
-        </Toast>
-    </div>
-{/if}
+<ConfirmDialog
+    bind:open={templateConfirmOpen}
+    title={m.template_switch_title()}
+    message={m.template_switch_message()}
+    confirmLabel={m.template_switch_confirm()}
+    danger
+    onconfirm={() =>
+    {
+        if ( pendingTemplate )
+        {
+            applyTemplate( pendingTemplate );
+        }
+    }}
+/>
 
 {#if current}
     <ConfirmDialog
@@ -682,5 +735,13 @@
         confirmLabel={m.common_delete()}
         danger
         onconfirm={remove}
-    />
+    >
+        {#if citedBy > 0}
+            <p class="mt-2">
+                {pluralize( citedBy, { one: m.entry_form_delete_cited_one, other: m.entry_form_delete_cited_other } )}
+            </p>
+        {/if}
+
+        <p class="mt-2">{m.entry_form_delete_backup()}</p>
+    </ConfirmDialog>
 {/if}

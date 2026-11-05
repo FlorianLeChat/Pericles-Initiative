@@ -160,7 +160,6 @@
         {/snippet}
 
         {#snippet action()}
-            <!-- From `lg` the header already offers it, a second one beside the title only competes with it. -->
             <Button href={resolve( "/new" )} color="primary" class="lg:hidden">{m.wiki_new_entry_button()}</Button>
         {/snippet}
     </PageHeader>
@@ -182,13 +181,9 @@
             <EmptyState title={m.wiki_no_match_title()} description={m.wiki_no_match_description()} />
         </div>
     {:else if isAlphabetical}
-        <!--
-            The letter stands in a gutter of its own beside its rows rather than on a
-            line above them, so a letter holding a single page costs one row, not two.
-        -->
         {#each letterGroups as group, rank ( group.letter )}
             <section
-                class="border-paper-200 dark:border-ink-800 grid grid-cols-1 gap-x-4 sm:grid-cols-[2rem_minmax(0,1fr)]
+                class="border-paper-200 dark:border-ink-700 grid grid-cols-1 gap-x-4 sm:grid-cols-[2rem_minmax(0,1fr)]
                        {groupSpacing( rank )}"
             >
                 <h2
@@ -198,7 +193,7 @@
                     {group.letter}
                 </h2>
 
-                <ul class="divide-paper-200 dark:divide-ink-800 divide-y">
+                <ul class="divide-paper-200 dark:divide-ink-700 divide-y">
                     {#each group.entries as entry, offset ( entry.id )}
                         <li><EntryCard {entry} index={group.start + offset} /></li>
                     {/each}
@@ -209,7 +204,7 @@
         <section class="mt-6">
             <h2 class="text-muted text-sm font-medium">{listingHeading}</h2>
 
-            <ul class="divide-paper-200 dark:divide-ink-800 mt-1 divide-y">
+            <ul class="divide-paper-200 dark:divide-ink-700 mt-1 divide-y">
                 {#each filtered as entry, index ( entry.id )}
                     <li><EntryCard {entry} {index} /></li>
                 {/each}

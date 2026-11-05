@@ -53,7 +53,6 @@
 
     const searching = $derived( query.trim().length > 0 );
 
-    // Drafts are searchable too: there is no audience to hide them from.
     const hits = $derived( searching ? searchEntries( wiki.entries, query, 8 ) : [] );
 
     /**
@@ -107,8 +106,6 @@
         selected = 0;
     } );
 
-    // Emptied on the way out, so the palette reopens on a blank field rather
-    // than on the query of the last visit, which typing would append to.
     $effect( () =>
     {
         if ( !open )
@@ -186,10 +183,10 @@
     placement="top-center"
     dismissable={false}
     transitionParams={{ duration: 0 }}
-    class="border-paper-200 text-ink-800 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-200 mt-[8dvh]
+    class="border-paper-200 text-ink-800 dark:border-ink-700 dark:bg-ink-900 dark:text-paper-200 mt-[8dvh]
            max-h-[80dvh] rounded-2xl border {MODAL_MOBILE_FULLSCREEN}"
     classes={{
-        header: "border-paper-200 dark:border-ink-800 p-3",
+        header: "border-paper-200 dark:border-ink-700 p-3",
         body: "p-2"
     }}
     aria-label={m.search_dialog_aria_label()}
@@ -272,7 +269,7 @@
     </ul>
 
     {#if !searching}
-        <p class="text-muted border-paper-200 dark:border-ink-800 mt-2 border-t px-3 pt-3 pb-1 text-xs">
+        <p class="text-muted border-paper-200 dark:border-ink-700 mt-2 border-t px-3 pt-3 pb-1 text-xs">
             {m.search_dialog_all_hint( { count: wiki.entries.length } )}
         </p>
     {/if}

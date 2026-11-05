@@ -88,7 +88,7 @@
         </div>
     {:else}
         <ol
-            class="border-paper-200 divide-paper-200 dark:border-ink-800 dark:divide-ink-800 divide-y rounded-xl border"
+            class="border-paper-200 divide-paper-200 dark:border-ink-700 dark:divide-ink-700 divide-y rounded-xl border"
             aria-label={m.featured_pages_list_label()}
         >
             {#each slugs as slug, index ( slug )}

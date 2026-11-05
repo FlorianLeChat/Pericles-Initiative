@@ -32,12 +32,12 @@ const letterCode = ( value: string ): string => deburr( value ).replaceAll( NON_
 /**
  * Builds the call number of a page.
  *
- * @param entry The page.
+ * @param entry The page, or as much of it as the editor holds before it is saved.
  * @param category Its first category, when it has one.
  * @returns The parts that could be derived, separated by spaces.
  * @author Claude
  */
-export const callNumber = ( entry: Entry, category: Category | undefined ): string =>
+export const callNumber = ( entry: Pick<Entry, "dates" | "title">, category: Category | undefined ): string =>
 {
     const years = entry.dates
         .map( ( date ) => extractYear( date.value ) )

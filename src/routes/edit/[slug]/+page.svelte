@@ -12,6 +12,7 @@
     import EmptyState from "#lib/components/EmptyState.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import EntryForm from "#lib/components/editor/EntryForm.svelte";
+    import PageSkeleton from "#lib/components/layout/PageSkeleton.svelte";
 
     const slug = $derived( page.params.slug ?? "" );
     const entry = $derived( wiki.bySlug( slug ) );
@@ -33,5 +34,5 @@
         </EmptyState>
     </div>
 {:else}
-    <p class="text-muted mx-auto max-w-3xl px-4 py-16 text-sm sm:px-6">{m.edit_loading()}</p>
+    <PageSkeleton />
 {/if}

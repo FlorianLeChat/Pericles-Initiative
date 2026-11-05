@@ -24,12 +24,18 @@ test.describe( "article page", () =>
         const infobox = page.getByRole( "complementary", { name: "Fiche signalétique" } );
 
         await expect( infobox.getByText( "Navigatrice en chef" ) ).toBeVisible();
+        await expect( infobox.getByRole( "link", { name: PAGES.port.title } ) )
+            .toHaveAttribute( "href", `/entries/${ PAGES.port.slug }` );
 
         // The dates of reference open the panel, each under its own intitulé.
-        await expect( infobox.getByText( DATES.naissance.label ) ).toBeVisible();
+        await expect( infobox.getByText( DATES.naissance.label, { exact: true } ) ).toBeVisible();
         await expect( infobox.getByText( "14 mai 2020" ) ).toBeVisible();
-        await expect( infobox.getByText( DATES.deces.label ) ).toBeVisible();
+        await expect( infobox.getByText( DATES.deces.label, { exact: true } ) ).toBeVisible();
         await expect( infobox.getByText( "12 juin 2043" ) ).toBeVisible();
+
+        // A life dated at both ends tells its length, the birthday counted.
+        await expect( infobox.getByText( "Âge au décès" ) ).toBeVisible();
+        await expect( infobox.getByText( "23 ans", { exact: true } ) ).toBeVisible();
 
         await expect( infobox.getByRole( "link", { name: CATEGORIES.institutions.name } ) ).toBeVisible();
         await expect( infobox.getByText( "Autres noms : La Vance" ) ).toBeVisible();
@@ -90,6 +96,7 @@ test.describe( "article page", () =>
 
         await expect( page ).toHaveURL( new RegExp( `/new/\\?slug=${ MISSING_SLUG }&titre=` ) );
         await expect( page.getByLabel( "Titre", { exact: true } ) ).toHaveValue( "Conseil des parties" );
+        await page.getByRole( "button", { name: "Réglages de la fiche" } ).click();
         await expect( page.getByLabel( "Adresse de la page" ) ).toHaveValue( MISSING_SLUG );
 
         await page.getByRole( "button", { name: "Enregistrer" } ).click();

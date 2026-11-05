@@ -91,7 +91,7 @@
             <section class="mt-10 max-w-4xl" aria-labelledby="subcategories-heading">
                 <h2 id="subcategories-heading" class="section-heading">{m.categories_slug_subcategories_heading()}</h2>
 
-                <ul class="divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 mt-4 divide-y border-y">
+                <ul class="divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 mt-4 divide-y border-y">
                     {#each subcategories as child ( child.slug )}
                         <li class="flex items-baseline gap-3 py-3">
                             <span
@@ -133,7 +133,7 @@
             <section class="mt-10 max-w-4xl" aria-labelledby="pages-heading">
                 <h2 id="pages-heading" class="section-heading">{m.categories_slug_pages_heading()}</h2>
 
-                <ul class="divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 mt-4 divide-y border-y">
+                <ul class="divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 mt-4 divide-y border-y">
                     {#each entries as entry ( entry.id )}
                         {@const lead = entry.summary || excerpt( entry.body, 150 )}
                         {@const reference = callNumber( entry, wiki.categoriesBySlug.get( entry.categories[ 0 ] ) )}

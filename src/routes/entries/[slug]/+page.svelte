@@ -57,19 +57,12 @@
             : m.wiki_slug_title_unwritten( { universe: wiki.meta.universe } )
     );
 
-    /* A page still to be written describes nothing of its own, so it falls back. */
     const metaDescription = $derived( entry ? entry.summary || excerpt( entry.body, 155 ) : undefined );
 </script>
 
 <PageMeta title={metaTitle} description={metaDescription} />
 
 {#if entry && rendered}
-    <!--
-        Two columns from `lg`: the page, and a narrow rail holding only its contents,
-        sticky, so the section being read stays in sight. The infobox belongs to the
-        page rather than to the rail: it floats beside the body from `lg`, and on a
-        phone it comes straight after the lede, before the folded contents.
-    -->
     <article
         class="mx-auto grid max-w-7xl grid-cols-1 gap-x-12 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_13rem] lg:py-12
                xl:gap-x-16"
@@ -159,10 +152,10 @@
                     <Backlinks entries={backlinks} />
 
                     {#if related.length > 0}
-                        <section class="border-paper-200 dark:border-ink-800 mt-12 max-w-[70ch] border-t pt-8">
+                        <section class="border-paper-200 dark:border-ink-700 mt-12 max-w-[70ch] border-t pt-8">
                             <h2 class="section-heading">{m.wiki_slug_related_heading()}</h2>
 
-                            <ul class="divide-paper-200 dark:divide-ink-800 mt-4 divide-y">
+                            <ul class="divide-paper-200 dark:divide-ink-700 mt-4 divide-y">
                                 {#each related as item ( item.id )}
                                     <li class="py-3">
                                         <a href={resolve( `entries/${ item.slug }/` )} class="wiki-link font-medium">

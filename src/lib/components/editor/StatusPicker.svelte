@@ -1,6 +1,6 @@
 <script lang="ts">
     /**
-     * Status picker of the entry form, as one panel of its options.
+     * Status picker of the entry form, among the settings of the page.
      *
      * A choice of one value among several is a radio group rather than a row of
      * pressed buttons: the arrows move through the options, the group is
@@ -12,16 +12,12 @@
      * `classes.label` and `RADIO_OVERLAY` reaches the input, which is what keeps
      * the whole pill clickable.
      *
-     * The panel is closed on arrival, so the chosen value is written in its
-     * header: a status nobody can see is a status nobody checks.
-     *
      * @author Claude
      */
     import * as m from "#lib/locales/messages.js";
-    import OptionPanel from "./OptionPanel.svelte";
     import Radio from "flowbite-svelte/Radio.svelte";
     import type { EntryStatus } from "#lib/types.ts";
-    import { RADIO_OVERLAY } from "#lib/config/forms.ts";
+    import { choiceColors, RADIO_OVERLAY } from "#lib/config/forms.ts";
 
     interface Props {
         status: EntryStatus;
@@ -33,37 +29,27 @@
         { id: "publie", label: m.status_picker_published() },
         { id: "brouillon", label: m.status_picker_draft() }
     ];
-
-    const chosenStatus = $derived( STATUSES.find( ( option ) => option.id === status )?.label ?? "" );
-
-    /** Appearance of one option, which only depends on whether it is the chosen one. */
-    const optionClass = ( chosen: boolean ): string =>
-        chosen
-            ? "bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900"
-            : "bg-paper-100 text-ink-600 dark:bg-ink-800 dark:text-paper-300";
 </script>
 
-<OptionPanel label={m.status_picker_legend()} value={chosenStatus}>
-    <fieldset>
-        <legend class="sr-only">{m.status_picker_fieldset_legend()}</legend>
+<fieldset>
+    <legend class="field-label">{m.status_picker_legend()}</legend>
 
-        <div class="flex gap-1.5">
-            {#each STATUSES as option ( option.id )}
-                <Radio
-                    name="entry-status"
-                    value={option.id}
-                    bind:group={status}
-                    class={RADIO_OVERLAY}
-                    classes={{
-                        label: `relative flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-xl px-3
+    <div class="flex gap-1.5">
+        {#each STATUSES as option ( option.id )}
+            <Radio
+                name="entry-status"
+                value={option.id}
+                bind:group={status}
+                class={RADIO_OVERLAY}
+                classes={{
+                    label: `relative flex min-h-10 flex-1 cursor-pointer items-center justify-center rounded-full px-3 sm:min-h-9
                                 text-xs font-medium transition has-[:focus-visible]:outline-2
                                 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-500
-                                ${ optionClass( status === option.id ) }`
-                    }}
-                >
-                    {option.label}
-                </Radio>
-            {/each}
-        </div>
-    </fieldset>
-</OptionPanel>
+                                ${ choiceColors( status === option.id ) }`
+                }}
+            >
+                {option.label}
+            </Radio>
+        {/each}
+    </div>
+</fieldset>

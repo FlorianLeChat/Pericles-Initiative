@@ -68,7 +68,7 @@
 
 {#if headings.length > 1}
     <details
-        class="group border-paper-200 dark:border-ink-800 border-t pt-4 lg:sticky lg:top-24 lg:border-t-0 lg:pt-0"
+        class="group border-paper-200 dark:border-ink-700 border-t pt-4 lg:sticky lg:top-24 lg:border-t-0 lg:pt-0"
         bind:open
     >
         <summary
@@ -81,7 +81,7 @@
         </summary>
 
         <nav class="mt-3" aria-label={m.table_of_contents_heading()}>
-            <ol class="border-paper-200 dark:border-ink-800 space-y-0.5 border-l text-sm">
+            <ol class="border-paper-200 dark:border-ink-700 space-y-0.5 border-l text-sm">
                 {#each headings as heading ( heading.id )}
                     <li class={indent( heading.level )}>
                         <a
