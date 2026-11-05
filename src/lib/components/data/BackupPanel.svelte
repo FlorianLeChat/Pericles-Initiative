@@ -62,8 +62,6 @@
         }
     } );
 
-    // While the file is on screen, the hidden online form keeps showing the
-    // destination it would come back to, so its draft does not jump tiles.
     const remoteKind = $derived<RemoteKind>( destination === "file" ? remote.config.kind : destination );
 </script>
 
@@ -97,7 +95,7 @@
         </div>
     </fieldset>
 
-    <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
+    <div class="border-paper-200 dark:border-ink-700 mt-6 border-t pt-6">
         <div hidden={destination !== "file"}>
             <FileBackup />
         </div>

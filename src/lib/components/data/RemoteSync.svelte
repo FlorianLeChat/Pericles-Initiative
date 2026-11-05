@@ -143,7 +143,7 @@
     };
 </script>
 
-<section class="border-paper-200 dark:border-ink-800 mt-8 border-t pt-6" aria-labelledby={headingId}>
+<section class="border-paper-200 dark:border-ink-700 mt-8 border-t pt-6" aria-labelledby={headingId}>
     <h3 id={headingId} class="text-ink-900 dark:text-paper-100 text-base font-semibold">
         {m.remote_backup_sync_heading()}
     </h3>
@@ -193,7 +193,7 @@
         {/if}
     </p>
 
-    <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-5">
+    <div class="border-paper-200 dark:border-ink-700 mt-6 border-t pt-5">
         <Checkbox
             classes={{ div: "flex items-start text-sm" }}
             class="mt-0.5 shrink-0"
@@ -241,7 +241,6 @@
             </div>
         </dl>
 
-        <!-- Forgetting removes a setting, not a page, so it reads as a quiet link rather than a red button. -->
         <button
             type="button"
             class="text-alert-500 focus-visible:outline-accent-500 min-h-11 w-fit text-sm font-medium underline-offset-4

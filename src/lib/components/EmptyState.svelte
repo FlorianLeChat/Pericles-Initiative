@@ -21,7 +21,7 @@
     let { title, description, level = 2, children }: Props = $props();
 </script>
 
-<div class="border-paper-300 dark:border-ink-800 rise-in rounded-2xl border border-dashed px-6 py-14 text-center">
+<div class="border-paper-300 dark:border-ink-700 rise-in rounded-2xl border border-dashed px-6 py-14 text-center">
     <svelte:element this={level === 2 ? "h2" : "h3"} class="text-lg font-medium">
         {title}
     </svelte:element>

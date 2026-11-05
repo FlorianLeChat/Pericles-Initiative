@@ -24,6 +24,14 @@ const SCHEME_NOISE = /[^\x21-\x7E]/g;
 /** Schemes an article is allowed to navigate to or load from. */
 const ALLOWED_SCHEME = /^(?:https?|mailto|tel):/;
 
+/**
+ * A raster image written into the url itself, in base64.
+ *
+ * SVG is left out on purpose: it is a document that can carry script, where a
+ * PNG, a JPEG or a WebP can only be drawn.
+ */
+const IMAGE_DATA = /^data:image\/(?:png|jpeg|webp|gif|avif);base64,[a-z0-9+/]+=*$/i;
+
 /** Any `scheme:` prefix, used to tell an absolute url from a relative path. */
 const ANY_SCHEME = /^[a-z][a-z0-9+.-]*:/;
 
@@ -91,3 +99,16 @@ export const isSafeUrl = ( value: string ): boolean =>
 
     return ALLOWED_SCHEME.test( decoded );
 };
+
+/**
+ * Tells whether a value may be the source of an image of the wiki.
+ *
+ * Wider than `isSafeUrl` by one case: an image imported from a file is stored
+ * in the dataset as a base64 raster, which may be drawn but never followed, so
+ * it is accepted here and nowhere a url is navigated to.
+ *
+ * @param value Source to judge.
+ * @returns True for a safe url or a base64 raster image.
+ * @author Claude
+ */
+export const isImageSource = ( value: string ): boolean => isSafeUrl( value ) || IMAGE_DATA.test( value );

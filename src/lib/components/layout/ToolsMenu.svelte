@@ -58,7 +58,7 @@
 <div class="hidden lg:block">
     <button
         type="button"
-        class="hover:bg-paper-200 dark:hover:bg-ink-800 inline-flex h-9 w-9 items-center justify-center rounded-full
+        class="hover:bg-control inline-flex h-9 w-9 items-center justify-center rounded-full
                transition {onTool
                    ? "bg-paper-100 text-ink-900 dark:bg-ink-800 dark:text-paper-100"
                    : "text-ink-600 dark:text-paper-300"}"

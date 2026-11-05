@@ -43,8 +43,6 @@
     let report = $state<{ kind: "success" | "error"; text: string; destination: RemoteKind } | null>( null );
     let seeded = $state( false );
 
-    // A report speaks for the destination it was made about, and switching tiles
-    // must not leave one destination's success under another's fields.
     const feedback = $derived( report?.destination === kind ? report : null );
 
     // The connection is read from `localStorage`, so it only exists once mounted:
@@ -81,9 +79,6 @@
 
     const canConnect = $derived( isUsableRemoteConfig( draft ) );
 
-    // The transfers act on the stored connection. While another destination is
-    // chosen on screen they would send to one the reader is no longer looking
-    // at, so they wait until the new one has been tested, which stores it.
     const showingStored = $derived( kind === remote.config.kind );
     const dirty = $derived( connectionOf( draft ) !== connectionOf( remote.config ) );
 

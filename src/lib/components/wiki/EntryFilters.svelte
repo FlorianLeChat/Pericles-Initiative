@@ -39,7 +39,7 @@
     import Button from "flowbite-svelte/Button.svelte";
     import Search from "flowbite-svelte/Search.svelte";
     import Select from "flowbite-svelte/Select.svelte";
-    import { SMALL_FIELD } from "#lib/config/forms.ts";
+    import { FIELD, SMALL_FIELD } from "#lib/config/forms.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
     import type { EntryFilterState } from "#lib/types.ts";
     import SlidersHorizontal from "@lucide/svelte/icons/sliders-horizontal";
@@ -58,7 +58,7 @@
     const SEARCH_FIELD = "bg-paper-100 dark:bg-ink-900 h-10 rounded-full border-transparent dark:border-transparent";
 
     /** The menus stay small and round, quieter than the listing they order. */
-    const MENU_FIELD = `${ SMALL_FIELD } rounded-full ps-3.5 pe-8 text-sm`;
+    const MENU_FIELD = `${ FIELD } ${ SMALL_FIELD } rounded-full ps-3.5 pe-8 text-sm`;
 
     const MENU_LABEL = "text-muted w-20 shrink-0 text-sm font-normal sm:w-auto";
 
@@ -87,7 +87,7 @@
     );
 </script>
 
-<section class="border-paper-200 dark:border-ink-800 border-b pb-3" aria-label={m.entry_filters_section_aria()}>
+<section class="border-paper-200 dark:border-ink-700 border-b pb-3" aria-label={m.entry_filters_section_aria()}>
     <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-6">
         <Search
             bind:value={filters.query}

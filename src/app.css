@@ -38,7 +38,7 @@
  * all, and `dist/<name>` is where each one lives. `dialog` backs `Modal`, `utils`
  * holds the close button they share, and `theme` the tokens they all read.
  */
-@source '../node_modules/flowbite-svelte/dist/{accordion,alert,badge,breadcrumb,buttons,dialog,drawer,dropdown,kbd,modal,spinner,theme,toast,utils}';
+@source '../node_modules/flowbite-svelte/dist/{alert,badge,breadcrumb,buttons,dialog,drawer,dropdown,kbd,modal,spinner,theme,toast,utils}';
 @source '../node_modules/flowbite-svelte/dist/forms/{checkbox,fileupload,helper,input-field,label,radio,search,select,textarea}';
 
 /* Class based dark mode: the theme toggle writes `.dark` on <html>. */
@@ -190,6 +190,48 @@
     --color-alert-600: #a8231c;
 
     /*
+     * Flowbite paints a destructive button, an error alert and a failed toast
+     * with Tailwind's stock red, a hotter red than the catalogue's that read as
+     * a second brand colour next to it. Nothing in `src/` writes `red-*`, so the
+     * scale is redrawn around the catalogue red instead: 500 is `alert-500`, and
+     * white clears four and a half to one on 600 and every stop past it.
+     */
+    --color-red-50: #fdf2f1;
+    --color-red-100: #fbe3e1;
+    --color-red-200: #f8d4d0;
+    --color-red-300: #ec9890;
+    --color-red-400: #f07a6e;
+    --color-red-500: #c42b22;
+    --color-red-600: #b12820;
+    --color-red-700: #96211a;
+    --color-red-800: #7a1b15;
+    --color-red-900: #561310;
+    --color-red-950: #3a0c0a;
+
+    /*
+     * States of the controls, named by what they are rather than by a stop.
+     *
+     * A control a reader presses climbs one step per state, rest, then hover,
+     * then pressed, towards the ink in the light theme and towards the paper in
+     * the dark one; the chosen one is inverted rather than one more grey, so a
+     * hover is never mistaken for a choice. Each step clears about 1.12 to 1 on
+     * the one before it, which a pointer reads; a phone has no hover, and reads
+     * the pressed step instead. Text on a pressed fill is the secondary colour,
+     * never the muted one, which falls just short of four and a half to one there.
+     *
+     * A field is the other kind of control, written into rather than pressed,
+     * and its edge clears three to one against the card and the page: an edge
+     * read beside is a hairline, an edge typed into is not. The `.dark` block
+     * holds the dark values; a component writes `bg-control` once, for both.
+     */
+    --color-control: #e3e5e8;
+    --color-control-hover: #d5d9de;
+    --color-control-pressed: #c6ccd3;
+    --color-control-edge: #c6ccd3;
+    --color-field: #ffffff;
+    --color-field-edge: #878e98;
+
+    /*
      * The two scales Flowbite paints its components with, aliased onto the
      * editorial palette above. This is what makes an imported component look
      * like the rest of the site instead of like the library's demo: nothing in
@@ -197,7 +239,7 @@
      * classes baked into Flowbite's compiled output resolve to our colours.
      *
      * They are declared as references rather than as copied hex values, so the
-     * warmed retouch the `.dark` block applies to the ink and paper stops
+     * retouch the `.dark` block applies to the ink and paper stops and states
      * reaches Flowbite too. A custom property is resolved where it is used, not
      * where it is declared, which is what makes that indirection work.
      *
@@ -218,23 +260,25 @@
      * Paper runs light to mid, ink runs mid to dark, so the two joined end to
      * end give the light to dark ramp Flowbite expects of a neutral scale.
      */
-    --color-gray-50: var(--color-paper-50);
-    --color-gray-100: var(--color-paper-100);
+    --color-gray-50: var(--color-field);
+    --color-gray-100: var(--color-control);
     --color-gray-200: var(--color-paper-200);
-    --color-gray-300: var(--color-paper-300);
+    --color-gray-300: var(--color-field-edge);
     --color-gray-400: var(--color-paper-400);
     --color-gray-500: var(--color-ink-400);
 
     /*
-     * These two stops are the field borders and the field backgrounds of the dark
-     * theme, and they are pulled a long way down the ink scale on purpose.
+     * Each theme reads half of this scale as surfaces and the other half as text.
+     * The light theme paints a field (50 and 300) and a secondary button (100 and
+     * 200) with the light stops, so those point at their states, and writes its
+     * text with the dark ones, which stay ink. The `.dark` block turns that
+     * round: the dark stops become the states of a button there, the light ones
+     * paper again.
      *
-     * Flowbite paints a field lighter than the card holding it. On the warm dark
-     * palette of this site that read as a pale blue box floating on the paper, and
-     * the borders came out louder than any other line on the page. Landing them on
-     * `ink-800` and `ink-900` is what the site's own fields used before the
-     * migration, so a Flowbite field now sits in its card the way the hand written
-     * ones did.
+     * Flowbite paints a field and the hover of a button with the same
+     * `gray-700` in the dark theme, and the edge of both with `gray-600`, so
+     * those stops follow the button, and every field takes `FIELD` from
+     * `src/lib/config/forms.ts`, which outranks them.
      */
     --color-gray-600: var(--color-ink-800);
     --color-gray-700: var(--color-ink-900);
@@ -394,8 +438,8 @@
     }
 
     /*
-     * Dark theme stops: a lighter retouch of the ink and paper scale ("encre
-     * réchauffée"), plus the brighter red a dark page reads better, scoped to
+     * Dark theme stops: a cool retouch of the ink and paper scale and of the
+     * control states, plus the brighter red a dark page reads better, scoped to
      * `.dark` so the light theme keeps its own values. The accent has no line
      * here: it is chosen rather than fixed, so its own retouch belongs to the
      * `[data-accent]` block of each ramp.
@@ -406,10 +450,50 @@
      * themes and simply picks up whichever stop is in force around it.
      */
     :is(.dark) {
-        --color-ink-700: #2a2e34;
-        --color-ink-800: #1f2328;
-        --color-ink-900: #1b1e22;
-        --color-ink-950: #141619;
+        /*
+         * Four steps a dark screen can actually tell apart: the page, the card
+         * a step above it, a control a step above the card, the hairline above
+         * that. They used to sit within 1.08 to 1 of one another, which is one
+         * colour to the eye, and the hover of a button landed on the card.
+         */
+        --color-ink-700: #343a42;
+        --color-ink-800: #262b31;
+        --color-ink-900: #1c1f24;
+        --color-ink-950: #101215;
+
+        --color-control: #262b31;
+        --color-control-hover: #30363d;
+        --color-control-pressed: #3b424a;
+        --color-control-edge: #3b424a;
+        --color-field: #101215;
+        --color-field-edge: #6b737e;
+
+        /*
+         * The light stops of Flowbite's grey point at states in the light theme,
+         * but the dark theme reads them as text: a keycap or a heading asks for
+         * `dark:text-gray-100`. Here they go back to the paper they stand for,
+         * and the dark stops become the states of a button.
+         */
+        --color-gray-50: var(--color-paper-50);
+        --color-gray-100: var(--color-paper-100);
+        --color-gray-300: var(--color-paper-300);
+        --color-gray-600: var(--color-control-edge);
+        --color-gray-700: var(--color-control-hover);
+        --color-gray-800: var(--color-control);
+
+        /*
+         * Flowbite's primary button rests on 600 and darkens to 700 in the dark
+         * theme, which sinks it into the page on hover and leaves its rest barely
+         * above it. Swapping the two stops here gives it the ladder every other
+         * control follows: it rests on 700 and lifts to 600. White clears four and
+         * a half to one on both, in every ramp.
+         */
+        --color-primary-600: var(--color-accent-700);
+        --color-primary-700: var(--color-accent-600);
+
+        /* The same swap for a destructive button, which Flowbite darkens on hover just the same. */
+        --color-red-600: #96211a;
+        --color-red-700: #b12820;
 
         --color-paper-100: #eef0f2;
         --color-paper-200: #e4e6ea;
@@ -450,7 +534,7 @@
     }
 
     :is(.dark) {
-        scrollbar-color: var(--color-ink-700) transparent;
+        scrollbar-color: var(--color-field-edge) transparent;
         caret-color: var(--color-accent-400);
     }
 
@@ -474,7 +558,7 @@
      * headings line up into a column the eye can run down.
      */
     .settings-section {
-        @apply border-paper-200 dark:border-ink-800 grid gap-5 border-t py-8 md:grid-cols-[14rem_minmax(0,1fr)]
+        @apply border-paper-200 dark:border-ink-700 grid gap-5 border-t py-8 md:grid-cols-[14rem_minmax(0,1fr)]
             md:gap-10;
     }
 
@@ -504,6 +588,31 @@
      */
     .field-label {
         @apply text-ink-600 dark:text-paper-300 mb-1.5 block text-sm font-medium;
+    }
+
+    /*
+     * A field written in place, on the page being edited rather than in a form
+     * beside it: no box at rest, the edge of a control once pointed at, the inset
+     * fill and the three to one edge of a field while typing. Sixteen pixels below
+     * `sm` so iOS does not zoom; under forced colours, where a transparent edge is
+     * no edge, it keeps one at rest.
+     */
+    .field-ghost {
+        @apply text-ink-800 dark:text-paper-200 placeholder:text-ink-400 dark:placeholder:text-paper-400/80
+               placeholder:font-normal
+               hover:border-control-edge focus:border-field-edge forced-colors:border-[CanvasText]
+               w-full min-w-0 rounded-md border border-transparent bg-transparent px-2 py-1.5
+               text-base transition-colors focus:bg-field sm:text-sm;
+    }
+
+    /*
+     * A value still to be written on the infobox card. Its placeholder alone read
+     * like one more filled intitulé, the same grey at nearly the same size, so an
+     * empty value is outlined by a dashed hairline until it holds the focus or
+     * something typed.
+     */
+    .field-slot:placeholder-shown:not(:focus) {
+        @apply border-control-edge border-dashed;
     }
 
     /*
@@ -565,6 +674,7 @@
     .article-body {
         @apply prose prose-lg max-w-[70ch];
         @apply prose-headings:font-semibold prose-headings:tracking-tight prose-h2:text-[1.5rem] prose-h2:mt-12;
+        @apply prose-h3:text-[1.25rem];
         @apply prose-a:font-normal prose-img:rounded-xl prose-blockquote:not-italic;
         @apply prose-blockquote:font-normal prose-blockquote:border-l;
 
@@ -874,12 +984,13 @@ dialog[open]::backdrop {
  * Unlayered on purpose: this has to beat the `text-sm` utility Flowbite bakes
  * into its inputs, and a rule inside `@layer base` loses to every utility.
  * Checkboxes and radios are excluded, being sized by their box and not by their
- * text, and never triggering the zoom in the first place.
+ * text, and never triggering the zoom in the first place, and so is the title of
+ * the editor (`.field-display`), whose display size is already above it.
  */
 @media (width < 40rem) {
     input:not([type='checkbox'], [type='radio']),
     select,
-    textarea {
+    textarea:not(.field-display) {
         font-size: 1rem;
     }
 }
@@ -895,6 +1006,51 @@ dialog[open]::backdrop {
  * Unlayered for the same reason as the rule above: the classes it overrides are
  * utilities, and a layered rule loses to them whatever its specificity.
  */
+/*
+ * A disabled button is a state of its own rather than the button at half
+ * opacity. Flowbite fades it, which in the dark theme blended a primary button
+ * into the card until it read as the hover of a secondary one, not as an action
+ * that is not available yet. It takes the rest of a control instead, muted text
+ * and no accent, whatever its colour when enabled.
+ *
+ * Unlayered for the same reason as the rule above: `opacity-50` and the colours
+ * it overrides are utilities. Buttons drawn on no fill at all, the controls of a
+ * row of the infobox card, keep the library's fade, which is all an icon needs.
+ */
+button:disabled:not(.bg-transparent) {
+    opacity: 1;
+    border-color: transparent;
+    background-color: var(--color-control);
+    color: var(--color-ink-400);
+}
+
+.dark button:disabled:not(.bg-transparent) {
+    color: var(--color-paper-400);
+}
+
+/*
+ * The arrow of a menu. Flowbite draws it as an SVG in a data URI whose stroke
+ * names a custom property, and a property does not reach into an image: the
+ * stroke resolved to nothing and every menu of the site lost its arrow. The two
+ * strokes are written out, the muted text of each theme.
+ */
+select:not([size]) {
+    background-image: url("data:image/svg+xml,%3csvg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 10 6'%3e%3cpath stroke='%235b6168' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 1 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+.dark select:not([size]) {
+    background-image: url("data:image/svg+xml,%3csvg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 10 6'%3e%3cpath stroke='%23a2a8b1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 1 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/*
+ * Flowbite rings a button on `focus-within`, which a tap or a click sets as
+ * surely as the keyboard: on a phone, «Filtres» kept a thick grey ring after it
+ * was touched, as if still pressed. The ring stays for the keyboard only.
+ */
+button[class*='focus-within:ring']:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
 input[type='checkbox']:not(:checked) {
     border-color: var(--color-ink-400);
 }
@@ -936,12 +1092,17 @@ input[type='checkbox']:not(:checked) {
     --crepe-color-inline-area: var(--color-paper-200);
 
     --crepe-base-font-size: 16px;
-    --crepe-font-title: var(--font-serif);
+    --crepe-font-title: var(--font-sans);
     --crepe-font-default: var(--font-sans);
     --crepe-font-code: var(--font-mono);
 
     --crepe-shadow-1: 0 1px 2px 0 rgb(0 0 0 / 0.06), 0 1px 3px 0 rgb(0 0 0 / 0.08);
     --crepe-shadow-2: 0 4px 12px -2px rgb(0 0 0 / 0.12), 0 2px 6px -2px rgb(0 0 0 / 0.08);
+}
+
+/* The frame around the editor does not clip, so its lower corners are carried down to the editor. */
+.milkdown {
+    border-radius: inherit;
 }
 
 :is(.dark) .milkdown {
@@ -968,10 +1129,66 @@ input[type='checkbox']:not(:checked) {
     --crepe-shadow-2: 0 4px 14px -2px rgb(0 0 0 / 0.55);
 }
 
-/* The editor fills our own frame, so its default page padding is dropped. */
-.milkdown .ProseMirror {
-    padding: 1.25rem 1.5rem 3rem;
+/*
+ * The editor fills our own frame, so its default page padding is dropped.
+ *
+ * Crepe declares its own with the same selector, in a stylesheet the editor
+ * loads after this one, and won: a phone was left a body column a third of its
+ * width. The element in the selector is what outranks it. The wider left
+ * gutter from `sm` leaves room for the handle Crepe draws beside a block.
+ */
+.milkdown div.ProseMirror {
+    padding: 1rem 1rem 3rem;
     min-height: 24rem;
+}
+
+@media (width >= 40rem) {
+    .milkdown div.ProseMirror {
+        padding: 1.25rem 2rem 3rem 3.5rem;
+    }
+}
+
+/*
+ * The body is written at the size and with the headings `.article-body` will
+ * read it in. Crepe sets its headings as a display scale, 36px for a level 2,
+ * which made a template's «Biographie» louder than the title of the page and
+ * gave the editor a second serif moment the article never has. The element in
+ * each selector is what outranks Crepe's own, as for the padding above.
+ */
+.milkdown div.ProseMirror {
+    font-size: 1.125rem;
+}
+
+.milkdown div.ProseMirror p {
+    line-height: 1.75;
+}
+
+.milkdown div.ProseMirror :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--color-ink-900);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+:is(.dark) .milkdown div.ProseMirror :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--color-paper-100);
+}
+
+.milkdown div.ProseMirror :is(h1, h2) {
+    font-size: 1.5rem;
+    line-height: 1.33;
+    margin-top: 2rem;
+}
+
+.milkdown div.ProseMirror h3 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+    margin-top: 1.5rem;
+}
+
+.milkdown div.ProseMirror :is(h4, h5, h6) {
+    font-size: 1.125rem;
+    line-height: 1.5;
+    margin-top: 1.25rem;
 }
 
 /*

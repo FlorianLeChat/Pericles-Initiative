@@ -9,7 +9,7 @@
  */
 
 import { slugify } from "./slug";
-import { isSafeUrl } from "./url";
+import { isImageSource } from "./url";
 import * as m from "#lib/locales/messages.js";
 import { PALETTE_KEYS } from "#lib/config/palette.ts";
 import { SEVERITY_IDS } from "#lib/config/severities.ts";
@@ -143,12 +143,11 @@ const normalizeDates = ( value: unknown, legacy: unknown ): EntryDate[] =>
 };
 
 /**
- * Keeps an image source only when it is a path or an allowed absolute url.
+ * Keeps an image source only when it is an allowed url or a base64 raster.
  *
- * Refusing the other schemes is what keeps `data:` base64 payloads out of the
- * dataset, where they would eat the `localStorage` quota shared with all the
- * text. A relative path is left exactly as written: the shape of the path is
- * the author's business, only its scheme is ours.
+ * A file chosen in the editor is stored as base64 WebP, reduced on the way in
+ * to spare the `localStorage` quota; any other scheme, `javascript:` or an
+ * SVG payload among them, is refused.
  *
  * @param value Raw image source.
  * @returns The source, or an empty string when its scheme is refused.
@@ -157,7 +156,7 @@ const normalizeDates = ( value: unknown, legacy: unknown ): EntryDate[] =>
 const normalizeImageSource = ( value: unknown ): string =>
 {
     const src = asTrimmed( value );
-    return isSafeUrl( src ) ? src : "";
+    return isImageSource( src ) ? src : "";
 };
 
 const normalizeImage = ( value: unknown ): EntryImage | null =>

@@ -90,7 +90,7 @@
         <p class="text-muted mt-8 text-sm">{m.settings_loading()}</p>
     {/if}
 
-    <section class="border-paper-200 dark:border-ink-800 border-t pt-4" aria-labelledby="about-heading">
+    <section class="border-paper-200 dark:border-ink-700 border-t pt-4" aria-labelledby="about-heading">
         <h2 id="about-heading" class="sr-only">{m.settings_form_about_heading()}</h2>
 
         <dl class="text-muted flex flex-wrap gap-x-6 gap-y-1 text-xs">

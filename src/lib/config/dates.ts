@@ -15,6 +15,7 @@
  */
 
 import * as m from "#lib/locales/messages.js";
+import { locales } from "#lib/locales/runtime.js";
 
 export const DATE_LABELS: readonly string[] = [
     m.dates_birth(),
@@ -31,3 +32,14 @@ export const DATE_LABELS: readonly string[] = [
     m.dates_commissioning(),
     m.dates_publication()
 ];
+
+/**
+ * Intitulés that mark a birth, in every language of the interface, lowercased.
+ *
+ * A page is dated in whatever language its author wrote it, so a «Birth» typed
+ * under the English interface is as much a birth as a «Naissance».
+ */
+export const BIRTH_LABELS: readonly string[] = locales.map( ( locale ) => m.dates_birth( {}, { locale } ).toLowerCase() );
+
+/** Intitulés that mark a death, in every language of the interface, lowercased. */
+export const DEATH_LABELS: readonly string[] = locales.map( ( locale ) => m.dates_death( {}, { locale } ).toLowerCase() );

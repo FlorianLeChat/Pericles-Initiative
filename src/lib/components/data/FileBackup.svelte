@@ -25,7 +25,7 @@
     import Fileupload from "flowbite-svelte/Fileupload.svelte";
     import { normalizeDataset } from "#lib/utilities/dataset.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON, ACTION_ROW } from "#lib/config/forms.ts";
+    import { ACTION_BUTTON, ACTION_ROW, FIELD } from "#lib/config/forms.ts";
 
     /**
      * Top level keys every export writes. A JSON object carrying none of them is
@@ -258,7 +258,7 @@
         </div>
     </div>
 
-    <div class="border-paper-200 dark:border-ink-800 mt-6 border-t pt-6">
+    <div class="border-paper-200 dark:border-ink-700 mt-6 border-t pt-6">
         <h3 class="font-semibold">{m.file_backup_restore_heading()}</h3>
 
         <p class="text-muted mt-1 text-sm">{m.file_backup_restore_description()}</p>
@@ -281,7 +281,7 @@
                     id="import-text"
                     bind:value={importText}
                     rows={5}
-                    class="w-full resize-y font-mono text-xs"
+                    class="{FIELD} w-full resize-y font-mono text-xs"
                     placeholder={m.file_backup_paste_placeholder()}
                 />
             </div>
@@ -307,7 +307,7 @@
     onconfirm={runImport}
 >
     <dl
-        class="border-paper-200 dark:border-ink-800 divide-paper-200 dark:divide-ink-800 mt-4 divide-y rounded-lg
+        class="border-paper-200 dark:border-ink-700 divide-paper-200 dark:divide-ink-700 mt-4 divide-y rounded-lg
                border"
     >
         <div class="px-3 py-2.5">

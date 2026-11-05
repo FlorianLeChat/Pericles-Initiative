@@ -17,7 +17,9 @@
     import Modal from "flowbite-svelte/Modal.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import { slugify } from "#lib/utilities/slug.ts";
+    import Button from "flowbite-svelte/Button.svelte";
     import { searchEntries } from "#lib/utilities/search.ts";
+    import { FIELD, PAIRED_ACTION } from "#lib/config/forms.ts";
     import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
 
     interface Props {
@@ -36,9 +38,6 @@
     const plannedSlug = $derived( trimmed.length > 0 ? slugify( trimmed ) : "" );
     const isNew = $derived( plannedSlug.length > 0 && !wiki.slugs.has( plannedSlug ) );
 
-    // Reopened as often as a page is written, so the field is focused on every
-    // opening rather than only on the first one, and emptied on the way out so
-    // the next opening starts blank rather than on the last search.
     $effect( () =>
     {
         if ( open )
@@ -72,11 +71,12 @@
     placement="top-center"
     dismissable={false}
     transitionParams={{ duration: 0 }}
-    class="border-paper-200 text-ink-800 dark:border-ink-800 dark:bg-ink-900 dark:text-paper-200 mt-[8dvh]
+    class="border-paper-200 text-ink-800 dark:border-ink-700 dark:bg-ink-900 dark:text-paper-200 mt-[8dvh]
            max-h-[80dvh] rounded-2xl border {MODAL_MOBILE_FULLSCREEN}"
     classes={{
-        header: "border-paper-200 dark:border-ink-800 p-4",
-        body: "p-2"
+        header: "border-paper-200 dark:border-ink-700 p-4",
+        body: "p-2",
+        footer: "border-paper-200 dark:border-ink-700 justify-end p-4"
     }}
     aria-label={m.entry_picker_aria_label()}
 >
@@ -108,7 +108,7 @@
                     }
                 }}
                 type="text"
-                class="rounded-xl bg-white px-3.5 py-2.5 transition"
+                class="{FIELD} rounded-xl px-3.5 py-2.5 transition"
                 placeholder={m.entry_picker_input_label()}
                 aria-label={m.entry_picker_input_label()}
                 autocomplete="off"
@@ -171,4 +171,10 @@
             {/if}
         </ul>
     {/if}
+
+    {#snippet footer()}
+        <Button color="alternative" class={PAIRED_ACTION} onclick={() => ( open = false )}>
+            {m.common_cancel()}
+        </Button>
+    {/snippet}
 </Modal>

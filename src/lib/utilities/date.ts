@@ -11,6 +11,7 @@
 import * as m from "#lib/locales/messages.js";
 import type { EntryDate } from "#lib/types.ts";
 import { getLocale } from "#lib/locales/runtime.js";
+import { BIRTH_LABELS, DEATH_LABELS } from "#lib/config/dates.ts";
 
 /**
  * Builds the formatters that depend on the current locale.
@@ -294,4 +295,68 @@ export const formatUniverseDate = ( value: string | null | undefined ): string =
     }
 
     return formatLongDate( value );
+};
+
+/**
+ * Reads the year, and the month and day when given, of an in universe date.
+ *
+ * @param value ISO string or free text.
+ * @returns The parts known, or null when not even a year can be found.
+ * @author Claude
+ */
+const dateParts = ( value: string ): { year: number; month: number | null; day: number | null } | null =>
+{
+    const iso = ISO_DATE_PREFIX.exec( value );
+    if ( iso )
+    {
+        const [ , year, month, day ] = iso;
+        return { year: Number( year ), month: month ? Number( month ) : null, day: day ? Number( day ) : null };
+    }
+
+    const year = extractYear( value );
+    return year === null ? null : { year, month: null, day: null };
+};
+
+/**
+ * Finds the date of a page whose intitulé is one of the given ones.
+ *
+ * @param dates Dates of reference of the page.
+ * @param labels Intitulés accepted, lowercased.
+ * @returns The value of the first matching date, or null.
+ * @author Claude
+ */
+const datedBy = ( dates: readonly EntryDate[], labels: readonly string[] ): string | null =>
+    dates.find( ( date ) => labels.includes( date.label.trim().toLowerCase() ) )?.value ?? null;
+
+/**
+ * Works out how old someone was when they died, from their birth and death.
+ *
+ * The universe has no present of its own, so only a life with both ends dated
+ * has an age to tell. Either end may be a bare year or free text holding one: the
+ * difference of the years is then the best the dates can say, and the birthday
+ * is only taken into account when both ends give it.
+ *
+ * @param dates Dates of reference of the page.
+ * @returns The age in whole years, or null when it cannot be told.
+ * @author Claude
+ */
+export const ageAtDeath = ( dates: readonly EntryDate[] ): number | null =>
+{
+    const birthValue = datedBy( dates, BIRTH_LABELS );
+    const deathValue = datedBy( dates, DEATH_LABELS );
+    const birth = birthValue ? dateParts( birthValue ) : null;
+    const death = deathValue ? dateParts( deathValue ) : null;
+
+    if ( !birth || !death )
+    {
+        return null;
+    }
+
+    const monthAhead = birth.month !== null && death.month !== null && death.month < birth.month;
+    const sameMonth = birth.month !== null && birth.month === death.month;
+    const dayAhead = sameMonth && birth.day !== null && death.day !== null && death.day < birth.day;
+    const birthdayAhead = monthAhead || dayAhead;
+    const age = death.year - birth.year - ( birthdayAhead ? 1 : 0 );
+
+    return age < 0 ? null : age;
 };

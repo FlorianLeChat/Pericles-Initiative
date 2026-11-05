@@ -14,7 +14,9 @@
     import Alert from "flowbite-svelte/Alert.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import { search } from "#lib/state/search.svelte.ts";
+    import { FLOWBITE_THEME } from "#lib/config/forms.ts";
     import { platform } from "#lib/state/platform.svelte.ts";
+    import ThemeProvider from "flowbite-svelte/ThemeProvider.svelte";
     import SiteHeader from "#lib/components/layout/SiteHeader.svelte";
     import SyncPrompt from "#lib/components/layout/SyncPrompt.svelte";
     import PageSkeleton from "#lib/components/layout/PageSkeleton.svelte";
@@ -162,36 +164,38 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<a
-    href="#main-content"
-    class="bg-accent-600 focus:ring-accent-500 sr-only rounded-full px-4 py-2 text-sm font-medium text-white
-           focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:ring-2 focus:ring-offset-2"
->
-    {m.layout_skip_link()}
-</a>
+<ThemeProvider theme={FLOWBITE_THEME}>
+    <a
+        href="#main-content"
+        class="bg-accent-600 focus:ring-accent-500 sr-only rounded-full px-4 py-2 text-sm font-medium text-white
+               focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-60 focus:ring-2 focus:ring-offset-2"
+    >
+        {m.layout_skip_link()}
+    </a>
 
-<BreakingBanner />
+    <BreakingBanner />
 
-<SiteHeader onsearch={() => ( search.open = true )} />
+    <SiteHeader onsearch={() => ( search.open = true )} />
 
-<main id="main-content" tabindex="-1" class="flex-1 focus:outline-none">
-    {#if wiki.ready}
-        {@render children()}
-    {:else}
-        <PageSkeleton />
-    {/if}
-</main>
+    <main id="main-content" tabindex="-1" class="flex-1 focus:outline-none">
+        {#if wiki.ready}
+            {@render children()}
+        {:else}
+            <PageSkeleton />
+        {/if}
+    </main>
 
-<SearchDialog bind:open={search.open} />
+    <SearchDialog bind:open={search.open} />
 
-<div class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col items-start gap-2 sm:inset-x-6">
-    {#if wiki.storageError}
-        <Alert color="red" class="pointer-events-auto w-full max-w-md max-sm:max-w-none" role="alert">
-            {wiki.storageError}
-        </Alert>
-    {/if}
+    <div class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col items-start gap-2 sm:inset-x-6">
+        {#if wiki.storageError}
+            <Alert color="red" class="pointer-events-auto w-full max-w-md max-sm:max-w-none" role="alert">
+                {wiki.storageError}
+            </Alert>
+        {/if}
 
-    <SyncPrompt />
-    <BackupReminder />
-    <ConnectionStatus />
-</div>
+        <SyncPrompt />
+        <BackupReminder />
+        <ConnectionStatus />
+    </div>
+</ThemeProvider>

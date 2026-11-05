@@ -55,7 +55,7 @@
     <ToolsNav />
 
     <dl
-        class="border-paper-200 dark:border-ink-800 bg-paper-200 dark:bg-ink-800 mt-8 grid grid-cols-2 gap-px
+        class="border-paper-200 dark:border-ink-700 bg-paper-200 dark:bg-ink-800 mt-8 grid grid-cols-2 gap-px
                overflow-hidden rounded-xl border lg:grid-cols-4"
     >
         <StatCard
@@ -84,7 +84,7 @@
                     <p class="text-muted mt-3 text-sm">{m.dashboard_missing_empty()}</p>
                 {:else}
                     <ul
-                        class="divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 mt-4 divide-y
+                        class="divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 mt-4 divide-y
                                border-y text-sm"
                     >
                         {#each missing as item ( item.slug )}
@@ -123,7 +123,7 @@
                 {#if stats.issues.length === 0}
                     <p class="text-muted mt-3 text-sm">{m.dashboard_issues_empty()}</p>
                 {:else}
-                    <div class="divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 mt-4 divide-y border-y">
+                    <div class="divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 mt-4 divide-y border-y">
                         {#each stats.issues as issue ( issue.key )}
                             <div class="py-3">
                                 <h3 class="text-sm font-medium">
@@ -165,7 +165,7 @@
                     <p class="text-muted mt-3 text-sm">{m.dashboard_most_linked_empty()}</p>
                 {:else}
                     <ol
-                        class="divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 mt-4 divide-y
+                        class="divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 mt-4 divide-y
                                border-y text-sm"
                     >
                         {#each stats.mostLinked as item ( item.entry.id )}
@@ -219,7 +219,7 @@
                     <p class="text-muted mt-3 text-sm">{m.dashboard_recent_empty()}</p>
                 {:else}
                     <ul
-                        class="divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 mt-4 divide-y
+                        class="divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 mt-4 divide-y
                                border-y text-sm"
                     >
                         {#each recent as entry ( entry.id )}

@@ -34,7 +34,6 @@
     const body = $derived( renderInline( item.body, wiki.slugs ) );
     const target = $derived( item.entrySlug ? wiki.bySlug( item.entrySlug ) : undefined );
 
-    // Pinned items sit outside the day groups, so their dateline has to carry the day itself.
     const dateline = $derived( item.pinned ? formatDateTime( item.publishedAt ) : formatTime( item.publishedAt ) );
 </script>
 

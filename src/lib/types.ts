@@ -36,7 +36,7 @@ export interface EntryDate {
     value: string;
 }
 
-/** Illustration of a page: a path under `/media/` or an absolute URL. */
+/** Illustration of a page: a base64 data url or an absolute URL. */
 export interface EntryImage {
     src: string;
     alt: string;
@@ -98,7 +98,7 @@ export interface LiveEntry {
 export interface WikiMeta {
     universe: string;
     description: string;
-    /** Path under `/media/` or absolute url. Empty falls back to a monogram. */
+    /** Base64 data url or absolute url. Empty falls back to a monogram. */
     logo: string;
     /** Key of an accent, see `src/lib/config/accents.ts`. */
     accent: string;

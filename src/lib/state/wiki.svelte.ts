@@ -57,6 +57,19 @@ export interface ChronologyPoint {
     date: EntryDate;
 }
 
+/**
+ * Gathers every piece of Markdown of a page that may carry a link.
+ *
+ * The values of the infobox are joined to the body as paragraphs of their own,
+ * so the single memoised lexing pass of `extractInternalLinks` still covers them.
+ *
+ * @param entry Page to read.
+ * @returns The body, then each value of the infobox, separated by blank lines.
+ * @author Claude
+ */
+const linkedText = ( entry: Entry ): string =>
+    [ entry.body, ...entry.infobox.map( ( field ) => field.value ) ].join( "\n\n" );
+
 class WikiStore
 {
     /** Raw value last passed to `hydrate`, so repeated calls are free. */
@@ -172,14 +185,19 @@ class WikiStore
         return new Map( Object.entries( grouped ) );
     } );
 
-    /** For each page slug, the slugs it links to. */
-    outgoingLinks = $derived( new Map( this.entries.map( ( entry ) => [ entry.slug, extractInternalLinks( entry.body ) ] ) ) );
+    /**
+     * For each page slug, the slugs it links to.
+     *
+     * The values of the infobox count as much as the body: «Parents» or
+     * «Affiliation» pointing at another page is the plainest link a page makes.
+     */
+    outgoingLinks = $derived(
+        new Map( this.entries.map( ( entry ) => [ entry.slug, extractInternalLinks( linkedText( entry ) ) ] ) )
+    );
 
     /** For each page slug, the pages linking to it. */
     incomingLinks = $derived.by( () =>
     {
-        // Grouped into a plain record, then frozen into a Map in one go: the Map is
-        // never mutated after construction, which is what SvelteMap would be for.
         const grouped: Record<string, Entry[]> = {};
 
         for ( const entry of this.entries )
@@ -191,8 +209,6 @@ class WikiStore
                     continue;
                 }
 
-                // Pushed rather than rebuilt by spreading: a page cited by many others
-                // would otherwise be recopied once per incoming link.
                 const sources = grouped[ target ] ?? [];
                 sources.push( entry );
                 grouped[ target ] = sources;
@@ -419,8 +435,6 @@ class WikiStore
     {
         const reference = new Set( entry.categories );
 
-        // Scored once per candidate rather than inside the comparator, which called
-        // it twice per comparison and rescanned both category lists each time.
         const scored = this.publishedEntries
             .filter( ( candidate ) => candidate.id !== entry.id )
             .map( ( candidate ) => ( {
@@ -489,7 +503,13 @@ class WikiStore
         {
             for ( const source of sources )
             {
-                this.saveEntry( { ...source, body: retargetInternalLinks( source.body, from, to ) } );
+                this.saveEntry( {
+                    ...source,
+                    body: retargetInternalLinks( source.body, from, to ),
+                    infobox: source.infobox.map( ( field ) => (
+                        { ...field, value: retargetInternalLinks( field.value, from, to ) }
+                    ) )
+                } );
             }
         } );
 
@@ -557,8 +577,6 @@ class WikiStore
                 return;
             }
 
-            // The categories filed under the old address follow it, or they would fall
-            // back to the top of the tree with a parent that no longer exists.
             for ( const child of this.categories )
             {
                 if ( child.parent === previousSlug )

@@ -10,16 +10,25 @@
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./utilities/fixtures";
-import { CATEGORIES, crowdedDataset, ILLUSTRATION, illustratedDataset, PAGES } from "./utilities/dataset";
+import { CATEGORIES,
+    crowdedDataset,
+    FIGURE_ALT,
+    ILLUSTRATION,
+    IMPORTED_IMAGE,
+    illustratedDataset,
+    PAGES } from "./utilities/dataset";
 
 /** Where the Milkdown editor writes, once it has finished booting. */
 const BODY = "[contenteditable=\"true\"]";
 
 /** Accessible name of the dialog standing between unsaved changes and the way out. */
-const UNSAVED_DIALOG = "Quitter l'éditeur ?";
+const UNSAVED_DIALOG = "Quitter l’éditeur ?";
 
 /** Accessible name of the box offering to rewrite the links of the pages citing a renamed one. */
-const RELINK = "Mettre à jour la fiche qui cite l'ancienne adresse";
+const RELINK = "Mettre à jour la fiche qui cite l’ancienne adresse";
+
+/** Accessible name of the fold holding the status, the address and the other names of a page. */
+const SETTINGS = "Réglages de la fiche";
 
 /** How long `@milkdown/plugin-listener` waits before reporting the Markdown, in milliseconds. */
 const MARKDOWN_DEBOUNCE = 200;
@@ -42,15 +51,27 @@ const suggestionsOf = async ( field: Locator ): Promise<string[]> =>
 
 test.describe( "entry editor", () =>
 {
-    test( "creates a page, deriving its address from its title", async ( { page, wiki } ) =>
+    test( "creates a page as a draft, deriving its address from its title, then publishes it", async ( { page, wiki } ) =>
     {
         await wiki.open( "/new" );
 
+        await expect( page.getByRole( "status" ).filter( { hasText: "Brouillon" } ) ).toBeVisible();
+
+        // Saving without a title is answered under it rather than by a button greyed out for no stated reason.
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        await expect( page.getByText( "Une fiche a besoin d’un titre pour être enregistrée." ) ).toBeVisible();
+        await expect( page.getByLabel( "Titre", { exact: true } ) ).toBeFocused();
+        await expect( page ).toHaveURL( /\/new\/$/ );
+
         await page.getByLabel( "Titre", { exact: true } ).fill( PAGES.port.title );
+
+        await expect( page.getByText( "Une fiche a besoin d’un titre" ) ).toHaveCount( 0 );
 
         await expect( page.getByText( `sera enregistrée sous ${ PAGES.port.slug }-2` ) ).toBeVisible();
 
         await page.getByRole( "button", { name: "Utiliser cette adresse" } ).click();
+        await page.getByRole( "button", { name: SETTINGS } ).click();
 
         await expect( page.getByLabel( "Adresse de la page" ) ).toHaveValue( `${ PAGES.port.slug }-2` );
 
@@ -62,16 +83,18 @@ test.describe( "entry editor", () =>
 
         await page.getByLabel( "Résumé" ).fill( "La digue qui protège le seuil des vents du nord." );
 
-        await page.getByRole( "button", { name: "Catégories" } ).click();
+        await page.getByRole( "button", { name: "Choisir les catégories" } ).click();
         await page.getByRole( "checkbox", { name: CATEGORIES.sites.name } ).check();
-        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+        await page.getByRole( "button", { name: "Publier" } ).click();
 
         await expect( page ).toHaveURL( /\/entries\/digue-de-sainte-roque\/$/ );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( "Digue de Sainte Roque" );
+        await expect( page.getByText( "Brouillon : le contenu est encore incomplet" ) ).toHaveCount( 0 );
 
         const stored = await wiki.storedEntry( "digue-de-sainte-roque" );
 
         expect( stored?.categories ).toEqual( [ CATEGORIES.sites.slug ] );
+        expect( stored?.status ).toBe( "publie" );
 
         // A cold start reads the page back out of storage, which is the whole point.
         await page.reload();
@@ -84,12 +107,22 @@ test.describe( "entry editor", () =>
         await wiki.open( "/new" );
 
         await page.getByLabel( "Titre", { exact: true } ).fill( "Relevé des vents" );
-        await expect( page.getByRole( "button", { name: "Lier une fiche" } ) ).toBeEnabled();
+        await expect( page.getByRole( "button", { name: /^Lier une fiche/ } ) ).toBeEnabled();
 
         await page.locator( BODY ).click();
+
+        // Crepe’s own block menu speaks the language of the page, and offers no
+        // level one heading, which the title already is.
+        await page.keyboard.type( "/" );
+
+        await expect( page.getByText( "Titre de section", { exact: true } ) ).toBeVisible();
+        await expect( page.getByText( /^(Heading 1|Titre 1)$/ ) ).toHaveCount( 0 );
+
+        await page.keyboard.press( "Escape" );
+        await page.keyboard.press( "Backspace" );
         await page.locator( BODY ).pressSequentially( "Le relevé cite " );
 
-        await page.getByRole( "button", { name: "Lier une fiche" } ).click();
+        await page.getByRole( "button", { name: /^Lier une fiche/ } ).click();
         await page.getByPlaceholder( "Titre de la fiche à lier" ).fill( PAGES.port.title );
         await page.getByRole( "button", { name: `${ PAGES.port.title } /entries/${ PAGES.port.slug }` } ).click();
 
@@ -107,23 +140,70 @@ test.describe( "entry editor", () =>
             .toHaveAttribute( "href", `/entries/${ PAGES.port.slug }` );
     } );
 
+    test( "starts a page from a template, and keeps only what was filled in", async ( { page, wiki } ) =>
+    {
+        await wiki.open( "/new" );
+
+        await page.getByRole( "radio", { name: "Personnage" } ).check();
+
+        await expect( page.getByLabel( "Titre", { exact: true } ) ).toHaveAttribute( "placeholder", "Nom du personnage" );
+        await expect( page.getByLabel( "Intitulé de la date 1" ) ).toHaveValue( "Naissance" );
+        await expect( page.getByLabel( "Intitulé de la ligne 1" ) ).toHaveValue( "Prénom" );
+        await expect( page.locator( BODY ).getByRole( "heading", { name: "Biographie" } ) ).toBeVisible();
+
+        // Headings a template wrote are not words of the page yet.
+        await expect( page.getByText( "0 mot", { exact: true } ) ).toBeVisible();
+
+        // What a template writes is not the writer's work: switching costs nothing yet.
+        await page.getByRole( "radio", { name: "Lieu" } ).check();
+
+        await expect( page.getByLabel( "Intitulé de la ligne 1" ) ).toHaveValue( "Type" );
+
+        await page.getByRole( "radio", { name: "Personnage" } ).check();
+        await page.getByLabel( "Titre", { exact: true } ).fill( "Ilse Marrow" );
+        await page.getByLabel( "Valeur de « Prénom »" ).fill( "Ilse" );
+        await page.getByLabel( "Valeur de « Naissance »" ).fill( "2001-03-02" );
+        await page.getByLabel( "Valeur de « Décès »" ).fill( "2044-01-15" );
+
+        // Once something is written, another template asks before replacing it.
+        await page.getByRole( "radio", { name: "Lieu" } ).click();
+        await wiki.confirm( "Changer de modèle ?", "Annuler" );
+
+        await expect( page.getByLabel( "Valeur de « Prénom »" ) ).toHaveValue( "Ilse" );
+        await expect( page.getByRole( "radio", { name: "Personnage" } ) ).toBeChecked();
+
+        // A life dated at both ends tells its length on the card already.
+        await expect( page.getByText( "Âge au décès : 42 ans" ) ).toBeVisible();
+
+        // So does the call number the article will carry.
+        await expect( page.getByText( "2001 ILS", { exact: true } ) ).toBeVisible();
+
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        await expect( page ).toHaveURL( /\/entries\/ilse-marrow\/$/ );
+
+        const stored = await wiki.storedEntry( "ilse-marrow" );
+
+        // The rows, dates and sections nobody filled are left out of the page.
+        expect( stored?.infobox ).toEqual( [ { label: "Prénom", value: "Ilse" } ] );
+        expect( stored?.dates.map( ( date ) => date.label ) ).toEqual( [ "Naissance", "Décès" ] );
+        expect( stored?.body ).toBe( "" );
+    } );
+
     test( "dates a page, which puts it in the infobox and in the chronology", async ( { page, wiki } ) =>
     {
         await wiki.open( "/new" );
 
         await page.getByLabel( "Titre", { exact: true } ).fill( "Fanal de Sainte Roque" );
 
-        await page.getByRole( "button", { name: "Dates" } ).click();
         await page.getByRole( "button", { name: "Ajouter une date" } ).click();
         await page.getByLabel( "Intitulé de la date 1" ).fill( "Mise à feu" );
-        await page.getByLabel( "Valeur de la date 1" ).fill( "2045-01-09" );
+        await page.getByLabel( "Valeur de « Mise à feu »" ).fill( "2045-01-09" );
 
         // A row left without a date is a row the author started and abandoned, so
-        // it is neither stored nor counted by the header of the panel.
+        // it is not stored.
         await page.getByRole( "button", { name: "Ajouter une date" } ).click();
         await page.getByLabel( "Intitulé de la date 2" ).fill( "Extinction" );
-
-        await expect( page.getByRole( "button", { name: "Dates 1 date" } ) ).toBeVisible();
 
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
@@ -147,12 +227,12 @@ test.describe( "entry editor", () =>
 
         await expect( page.getByLabel( "Titre", { exact: true } ) ).toHaveValue( PAGES.bureau.title );
 
+        await page.getByRole( "button", { name: SETTINGS } ).click();
         await page.getByLabel( "Adresse de la page" ).fill( "bureau-des-marees" );
         await page.getByLabel( "Résumé" ).fill( "Le bureau, après sa réorganisation." );
 
         await expect( page.getByRole( "checkbox", { name: RELINK } ) ).toBeChecked();
 
-        await page.getByRole( "button", { name: "Statut" } ).click();
         await page.getByRole( "radio", { name: "Brouillon", exact: true } ).check();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
@@ -169,12 +249,17 @@ test.describe( "entry editor", () =>
 
         expect( citing?.body ).toContain( "(/entries/bureau-des-marees)" );
         expect( citing?.body ).not.toContain( `(/entries/${ PAGES.bureau.slug })` );
+
+        // A link written in the infobox is a link like any other, and moves with the page.
+        expect( citing?.infobox.map( ( field ) => field.value ) )
+            .toContain( "[Bureau des courants](/entries/bureau-des-marees)" );
     } );
 
     test( "leaves the citing pages alone when the reader declines", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.bureau.slug }` );
 
+        await page.getByRole( "button", { name: SETTINGS } ).click();
         await page.getByLabel( "Adresse de la page" ).fill( "bureau-des-marees" );
         await page.getByRole( "checkbox", { name: RELINK } ).uncheck();
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
@@ -189,7 +274,7 @@ test.describe( "entry editor", () =>
         await wiki.open( "/new" );
 
         await page.getByLabel( "Titre", { exact: true } ).fill( "Relevé des courants" );
-        await page.getByRole( "button", { name: "Catégories" } ).click();
+        await page.getByRole( "button", { name: "Choisir les catégories" } ).click();
         await page.getByRole( "button", { name: "Nouvelle catégorie" } ).click();
 
         await page.getByLabel( "Nom" ).fill( "Relevés" );
@@ -199,6 +284,8 @@ test.describe( "entry editor", () =>
 
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
+        // Saved without being published, a new page stays the draft it was born as.
+        expect( ( await wiki.storedEntry( "releve-des-courants" ) )?.status ).toBe( "brouillon" );
         expect( ( await wiki.storedEntry( "releve-des-courants" ) )?.categories ).toContain( "releves" );
         expect( ( await wiki.storedOverlay() )?.categories[ "releves" ]?.name ).toBe( "Relevés" );
     } );
@@ -207,7 +294,7 @@ test.describe( "entry editor", () =>
     {
         await wiki.openWith( crowdedDataset(), "/new" );
 
-        await page.getByRole( "button", { name: "Catégories" } ).click();
+        await page.getByRole( "button", { name: "Choisir les catégories" } ).click();
         await page.getByLabel( "Filtrer les catégories" ).fill( "cartographie 1" );
 
         await expect( page.getByRole( "checkbox", { name: "Cartographie 1", exact: true } ) ).toBeVisible();
@@ -218,49 +305,139 @@ test.describe( "entry editor", () =>
         await expect( page.getByText( "Aucune catégorie ne correspond." ) ).toBeVisible();
     } );
 
-    test( "offers the labels and illustrations already in use, and flags a broken one", async ( { page, wiki } ) =>
+    test( "offers what the wiki already uses, flags a broken illustration, and imports images", async ( { page, wiki } ) =>
     {
+        await page.route( "https://images.exemple.test/**", ( route ) => route.fulfill( { status: 404 } ) );
         await wiki.openWith( illustratedDataset(), `/edit/${ PAGES.port.slug }` );
-
-        await page.getByRole( "button", { name: "Infobox" } ).click();
 
         expect( await suggestionsOf( page.getByLabel( "Intitulé de la ligne 1" ) ) )
             .toContain( PAGES.port.infobox[ 0 ]?.label );
 
-        await page.getByRole( "button", { name: "Illustration" } ).click();
+        await page.getByRole( "button", { name: "Ajouter une illustration" } ).click();
 
         const field = page.getByLabel( "Adresse de l'image" );
 
         expect( await suggestionsOf( field ) ).toContain( ILLUSTRATION );
 
-        await field.fill( "/media/une-illustration-qui-nexiste-pas.webp" );
+        await field.fill( "https://images.exemple.test/absente.webp" );
 
         await expect( page.getByText( "Cette illustration ne se charge pas" ) ).toBeVisible();
+
+        const dialog = page.getByRole( "dialog", { name: "Importer une image" } );
+
+        await field.fill( IMPORTED_IMAGE );
+
+        await expect( dialog ).toBeVisible();
+        await expect( field ).toHaveValue( "" );
+
+        await dialog.getByRole( "button", { name: "Annuler" } ).click();
+
+        await expect( dialog ).toBeHidden();
+        await expect( field ).toHaveValue( "" );
+
+        const chooser = page.waitForEvent( "filechooser" );
+
+        await page.getByRole( "button", { name: "Choisir une image" } ).click();
+        await ( await chooser ).setFiles( {
+            name: "ponton.png",
+            mimeType: "image/png",
+            buffer: Buffer.from( IMPORTED_IMAGE.split( "," )[ 1 ] ?? "", "base64" )
+        } );
+
+        await dialog.getByRole( "radio", { name: "Légère" } ).check();
+
+        await expect( dialog.getByText( /^1 × 1 px, environ/ ) ).toBeVisible();
+
+        await dialog.getByRole( "button", { name: "Importer" } ).click();
+
+        await expect( dialog ).toBeHidden();
+        await expect( page.getByText( /^Image importée de cet appareil/ ) ).toBeVisible();
+        await expect( page.getByLabel( "Adresse de l'image" ) ).toHaveCount( 0 );
+
+        await page.locator( BODY ).getByRole( "paragraph" ).last().click();
+        await page.keyboard.press( "End" );
+        await page.keyboard.press( "Enter" );
+        await page.keyboard.type( "/" );
+        await page.locator( ".milkdown-slash-menu" ).getByText( "Image", { exact: true } ).click();
+        await page.locator( ".image-edit input.link-input-area" ).evaluate( ( element, text ) =>
+        {
+            const transfer = new DataTransfer();
+
+            transfer.setData( "text/plain", text );
+            element.dispatchEvent( new ClipboardEvent( "paste", { clipboardData: transfer, bubbles: true, cancelable: true } ) );
+        }, IMPORTED_IMAGE );
+        await dialog.getByRole( "button", { name: "Importer" } ).click();
+
+        await expect( dialog ).toBeHidden();
+
+        await page.waitForTimeout( MARKDOWN_DEBOUNCE * 2 );
+        await page.getByRole( "button", { name: "Enregistrer" } ).click();
+
+        const stored = await wiki.storedEntry( PAGES.port.slug );
+
+        expect( stored?.image?.src ).toMatch( /^data:image\/webp;base64,/ );
+        expect( stored?.body ).toMatch( /\]\(data:image\/webp;base64,/ );
+
+        await expect( page.getByRole( "article" ).getByRole( "img", { name: FIGURE_ALT } ) )
+            .toHaveAttribute( "src", IMPORTED_IMAGE );
     } );
 
-    test( "walks from one infobox row to the next with the enter key", async ( { page, wiki } ) =>
+    test( "walks and moves the infobox rows from the keyboard, and takes a removed one back", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.port.slug }` );
 
-        await page.getByRole( "button", { name: "Infobox" } ).click();
-
-        await page.getByLabel( "Valeur de la ligne 1" ).press( "Enter" );
+        await page.getByLabel( `Valeur de « ${ PAGES.port.infobox[ 0 ]?.label } »` ).press( "Enter" );
 
         await expect( page ).toHaveURL( new RegExp( `/edit/${ PAGES.port.slug }/$` ) );
         await expect( page.getByLabel( "Intitulé de la ligne 2" ) ).toBeFocused();
 
         await page.getByLabel( "Intitulé de la ligne 2" ).fill( "Quais" );
-        await page.getByLabel( "Valeur de la ligne 2" ).fill( "Sept" );
+        await page.getByLabel( "Valeur de « Quais »" ).fill( "Sept" );
+
+        // A row links a page from its own control, after what it already says.
+        await page.getByRole( "button", { name: "Quais : lier une fiche" } ).click();
+        await page.getByPlaceholder( "Titre de la fiche à lier" ).fill( PAGES.athena.title );
+        await page.getByRole( "button", { name: `${ PAGES.athena.title } /entries/${ PAGES.athena.slug }` } ).click();
+
+        // Out of focus, the value reads as the infobox will show it rather than as Markdown.
+        const card = page.getByRole( "complementary", { name: "Infobox" } );
+
+        await expect( card.getByText( PAGES.athena.title, { exact: true } ) ).toBeVisible();
+
+        // Alt and an arrow carry the whole row, and the focus with it.
+        await page.getByLabel( "Valeur de « Quais »" ).press( "Alt+ArrowUp" );
+
+        await expect( page.getByLabel( "Intitulé de la ligne 1" ) ).toHaveValue( "Quais" );
+        await expect( page.getByLabel( "Valeur de « Quais »" ) ).toBeFocused();
+
+        // A row goes at once, and comes back from the line announcing it.
+        await page.getByRole( "button", { name: "Supprimer Quais" } ).click();
+
+        const removal = card.getByRole( "status" ).filter( { hasText: "Ligne retirée" } );
+
+        await expect( removal ).toHaveText( "Ligne retirée : Quais" );
+        await expect( page.getByLabel( "Valeur de « Quais »" ) ).toHaveCount( 0 );
+
+        await card.getByRole( "button", { name: "Rétablir" } ).click();
+
+        await expect( page.getByLabel( "Intitulé de la ligne 1" ) ).toHaveValue( "Quais" );
+        await expect( page.getByLabel( "Intitulé de la ligne 1" ) ).toBeFocused();
+
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
         const stored = await wiki.storedEntry( PAGES.port.slug );
 
-        expect( stored?.infobox ).toContainEqual( { label: "Quais", value: "Sept" } );
+        expect( stored?.infobox[ 0 ] ).toEqual(
+            { label: "Quais", value: `Sept, [${ PAGES.athena.title }](/entries/${ PAGES.athena.slug })` }
+        );
     } );
 
     test( "measures the body and the summary as they are written", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.port.slug }` );
+
+        // The count only shows while the summary is being written.
+        await page.getByLabel( "Résumé" ).focus();
 
         await expect( page.getByText( `Longueur : ${ PAGES.port.summary.length } / 160` ) ).toBeVisible();
 
@@ -280,6 +457,11 @@ test.describe( "entry editor", () =>
 
         const dialog = page.getByRole( "dialog", { name: "Inventer un nom" } );
         const offered = dialog.getByRole( "listitem" );
+
+        // Full screen on a phone, the dialog says in words how to leave it empty handed.
+        await dialog.getByRole( "button", { name: "Annuler" } ).click();
+        await expect( dialog ).toBeHidden();
+        await page.getByRole( "button", { name: "Inventer", exact: true } ).click();
 
         await expect( offered.first() ).toBeVisible();
 
@@ -309,16 +491,23 @@ test.describe( "entry editor", () =>
         expect( ( await wiki.storedEntry( "le-cartographe-des-seuils" ) )?.body ).toContain( invented );
     } );
 
-    test( "deletes a page once the deletion is confirmed", async ( { page, wiki } ) =>
+    test( "deletes a page once the deletion is confirmed, after saying what it breaks", async ( { page, wiki } ) =>
     {
-        await wiki.open( `/edit/${ PAGES.sceau.slug }` );
+        await wiki.open( `/edit/${ PAGES.traite.slug }` );
 
+        await page.getByRole( "button", { name: SETTINGS } ).click();
         await page.getByRole( "button", { name: "Supprimer la fiche" } ).click();
+
+        const dialog = page.getByRole( "dialog", { name: "Supprimer cette fiche ?" } );
+
+        await expect( dialog ).toContainText( "fiches la citent : leurs liens deviendront des liens rouges." );
+        await expect( dialog ).toContainText( "sauf une copie gardée depuis la page Sauvegardes" );
+
         await wiki.confirm( "Supprimer cette fiche ?", "Supprimer" );
 
         await expect( page ).toHaveURL( /\/entries\/$/ );
-        await expect( page.getByRole( "link", { name: PAGES.sceau.title } ) ).toBeHidden();
-        expect( await wiki.storedEntry( PAGES.sceau.slug ) ).toBeUndefined();
+        await expect( page.getByRole( "link", { name: PAGES.traite.title } ) ).toBeHidden();
+        expect( await wiki.storedEntry( PAGES.traite.slug ) ).toBeUndefined();
     } );
 
     test( "saves without leaving, and keeps editing the page it just created", async ( { page, wiki } ) =>
@@ -343,9 +532,13 @@ test.describe( "entry editor", () =>
         expect( written ).toHaveLength( 1 );
         expect( written[ 0 ]?.summary ).toBe( "La digue qui protège le seuil des vents du nord." );
 
-        await page.getByRole( "link", { name: "Annuler" } ).click();
+        // Leaving over a change still unsaved can write it on the way out.
+        await page.getByLabel( "Résumé" ).fill( "La digue du seuil." );
+        await page.getByRole( "link", { name: "Fermer" } ).click();
+        await wiki.confirm( UNSAVED_DIALOG, "Enregistrer et quitter" );
 
         await expect( page ).toHaveURL( /\/entries\/digue-de-sainte-roque\/$/ );
+        expect( ( await wiki.storedEntry( "digue-de-sainte-roque" ) )?.summary ).toBe( "La digue du seuil." );
     } );
 
     test( "holds the editor open over unsaved changes, then leaves without storing", async ( { page, wiki } ) =>
@@ -353,20 +546,30 @@ test.describe( "entry editor", () =>
         await wiki.open( `/edit/${ PAGES.traite.slug }` );
 
         await page.getByLabel( "Résumé" ).fill( "Une reformulation abandonnée." );
-        await page.getByRole( "link", { name: "Annuler" } ).click();
+        await page.getByRole( "link", { name: "Fermer" } ).click();
 
         await expect( page.getByText( "Certaines modifications ne sont pas enregistrées" ) ).toBeVisible();
 
-        await wiki.confirm( UNSAVED_DIALOG, "Annuler" );
+        await wiki.confirm( UNSAVED_DIALOG, "Rester" );
 
         await expect( page ).toHaveURL( new RegExp( `/edit/${ PAGES.traite.slug }/$` ) );
         await expect( page.getByLabel( "Résumé" ) ).toHaveValue( "Une reformulation abandonnée." );
 
-        await page.getByRole( "link", { name: "Annuler" } ).click();
+        // A category declared for a page that is then abandoned goes with it.
+        await page.getByRole( "button", { name: "Choisir les catégories" } ).click();
+        await page.getByRole( "button", { name: "Nouvelle catégorie" } ).click();
+        await page.getByLabel( "Nom" ).fill( "Relevés" );
+        await page.getByRole( "dialog" ).getByRole( "button", { name: "Créer" } ).click();
+
+        await expect( page.getByRole( "checkbox", { name: "Relevés" } ) ).toBeChecked();
+
+        await page.getByRole( "link", { name: "Fermer" } ).click();
 
         await wiki.confirm( UNSAVED_DIALOG, "Quitter sans enregistrer" );
 
         await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.traite.slug }/$` ) );
         expect( ( await wiki.storedEntry( PAGES.traite.slug ) )?.summary ).toBe( PAGES.traite.summary );
+        // The category goes when the editor is torn down, which lands just after the url has changed.
+        await expect.poll( async () => ( await wiki.storedOverlay() )?.categories[ "releves" ] ).toBeUndefined();
     } );
 } );

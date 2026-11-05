@@ -36,7 +36,7 @@
 
     <div
         data-accent={accent}
-        class="border-paper-200 dark:border-ink-800 dark:bg-ink-950 flex h-16 items-center gap-3 rounded-xl border
+        class="border-paper-200 dark:border-ink-700 dark:bg-ink-950 flex h-16 items-center gap-3 rounded-xl border
                bg-white px-4"
         aria-hidden="true"
     >

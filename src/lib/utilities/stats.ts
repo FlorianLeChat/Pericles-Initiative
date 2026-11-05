@@ -90,7 +90,6 @@ const monthLabelFormatter = (): Intl.DateTimeFormat => new Intl.DateTimeFormat( 
  */
 const buildActivity = ( entries: readonly Entry[], now: Date ): ActivityPoint[] =>
 {
-    // Counted in one pass over the corpus rather than one pass per month.
     const counts = new Map<string, number>();
 
     for ( const entry of entries )
@@ -131,9 +130,6 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
 
     const published = entries.filter( ( entry ) => entry.status === "publie" );
 
-    // One pass over the corpus feeds the word total, the category breakdown and
-    // the short page check, instead of rescanning it once per category and twice
-    // per page for the word count.
     const wordsByEntry = new Map<Entry, number>();
     const countsByCategory = new Map<string, number>();
     let words = 0;

@@ -5,6 +5,7 @@
      * @author Claude
      */
     import X from "@lucide/svelte/icons/x";
+    import { FIELD } from "#lib/config/forms.ts";
     import * as m from "#lib/locales/messages.js";
     import Input from "flowbite-svelte/Input.svelte";
 
@@ -40,6 +41,7 @@
 <div class="space-y-2">
     <Input
         {id}
+        class={FIELD}
         bind:value={draft}
         onkeydown={( event: KeyboardEvent ) =>
         {

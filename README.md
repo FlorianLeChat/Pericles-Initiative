@@ -49,13 +49,13 @@ sequenceDiagram
     Interface-->>Utilisateur: Un squelette neutre le temps de cette lecture, puis l'accueil, ou une invitation à créer si le wiki est vide
 
     Utilisateur->>Interface: Je parcours le wiki, les catégories, la chronologie
-    Interface-->>Utilisateur: Les fiches, leurs rétroliens et leurs lectures liées
+    Interface-->>Utilisateur: Les fiches, leurs rétroliens, tirés du corps comme de l'infobox, et leurs lectures liées
     Interface-->>Utilisateur: Un lien rouge quand la fiche visée n'existe pas encore
 
     loop À chaque fiche
         Utilisateur->>Éditeur interactif: Je crée ou je modifie une fiche
         Éditeur interactif->>Stockage local: Enregistre la fiche dans la surcouche
-        Éditeur interactif->>Stockage local: Réécrit les liens des fiches qui citaient l'ancienne adresse
+        Éditeur interactif->>Stockage local: Réécrit les liens, corps et infobox, des fiches qui citaient l'ancienne adresse
         Stockage local-->>Utilisateur: Le contenu, aussitôt disponible, sans requête réseau
     end
 
@@ -128,13 +128,13 @@ sequenceDiagram
     Interface-->>User: A neutral skeleton during that read, then the home page, or an invitation to create if the wiki is empty
 
     User->>Interface: I browse the wiki, the categories, the timeline
-    Interface-->>User: The entries, their backlinks and their related reads
+    Interface-->>User: The entries, their backlinks, drawn from the body and the infobox alike, and their related reads
     Interface-->>User: A red link whenever the target entry does not exist yet
 
     loop For every entry
         User->>Interactive editor: I create or edit an entry
         Interactive editor->>Local storage: Saves the entry into the overlay
-        Interactive editor->>Local storage: Rewrites the links of the entries citing the old address
+        Interactive editor->>Local storage: Rewrites the links, body and infobox, of the entries citing the old address
         Local storage-->>User: The content, available right away, with no network request
     end
 

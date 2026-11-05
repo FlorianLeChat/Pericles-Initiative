@@ -32,14 +32,14 @@
 </script>
 
 <section class="mt-10">
-    <h2 class="section-heading border-paper-200 dark:border-ink-800 flex items-center gap-2 border-b pb-2">
+    <h2 class="section-heading border-paper-200 dark:border-ink-700 flex items-center gap-2 border-b pb-2">
         {#if pinned}
             <Pin class="text-ink-500 dark:text-paper-400 h-4.5 w-4.5" aria-hidden="true" />
         {/if}
         {heading}
     </h2>
 
-    <div class="divide-paper-200 dark:divide-ink-800 divide-y">
+    <div class="divide-paper-200 dark:divide-ink-700 divide-y">
         {#each items as item, index ( item.id )}
             <div
                 animate:flip={{ duration: 260, easing: cubicOut }}

@@ -14,6 +14,7 @@
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
     import { formatDateTime } from "#lib/utilities/date.ts";
+    import { formatSize, storedSize } from "#lib/utilities/size.ts";
 
     /** Shared by the headings of each kind of stored item. */
     const SUBHEADING = "text-ink-900 dark:text-paper-100 mb-2 text-sm font-semibold";
@@ -25,8 +26,6 @@
     const storedCategories = $derived( Object.values( wiki.overlay.categories ) );
     const storedLive = $derived( Object.values( wiki.overlay.live ) );
 
-    // Only ever populated once a backend feeds a seed: deleting a page that exists
-    // in this browser alone simply drops it, there is nothing to remember.
     const deletedEntries = $derived(
         wiki.overlay.deleted.entries.map( ( id ) => ( {
             id,
@@ -34,21 +33,7 @@
         } ) )
     );
 
-    const overlaySize = $derived( new TextEncoder().encode( JSON.stringify( wiki.overlay ) ).length );
-
-    /**
-     * Formats a byte count for display.
-     *
-     * @param bytes Size in bytes.
-     * @returns A short human readable size.
-     * @author Claude
-     */
-    const formatSize = ( bytes: number ): string =>
-        bytes < 1024
-            ? `${ bytes } ${ m.local_content_unit_bytes() }`
-            : bytes < 1_048_576
-                ? `${ ( bytes / 1024 ).toFixed( 1 ) } ${ m.local_content_unit_kilobytes() }`
-                : `${ ( bytes / 1_048_576 ).toFixed( 2 ) } ${ m.local_content_unit_megabytes() }`;
+    const overlaySize = $derived( storedSize( wiki.overlay ) );
 </script>
 
 <section class="surface p-6" aria-labelledby="local-content-heading">
@@ -114,7 +99,7 @@
                         {#each deletedEntries as item ( item.id )}
                             <li class="flex items-center gap-2">
                                 <span
-                                    class="bg-alert-500/15 text-alert-600 rounded-full px-2 py-0.5 text-xs dark:text-red-300"
+                                    class="bg-alert-500/15 text-alert-600 rounded-full px-2 py-0.5 text-xs dark:text-alert-500"
                                 >
                                     {m.local_content_deleted_tag()}
                                 </span>

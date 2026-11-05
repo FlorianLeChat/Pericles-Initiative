@@ -21,8 +21,8 @@
     import { SEVERITIES } from "#lib/config/severities.ts";
     import type { LiveEntry, LiveSeverity } from "#lib/types.ts";
     import ChipsInput from "#lib/components/editor/ChipsInput.svelte";
-    import { RADIO_OVERLAY, SMALL_FIELD } from "#lib/config/forms.ts";
     import EntryPicker from "#lib/components/editor/EntryPicker.svelte";
+    import { FIELD, RADIO_OVERLAY, SMALL_FIELD } from "#lib/config/forms.ts";
     import { fromDateTimeInput, toDateTimeInput } from "#lib/utilities/date.ts";
 
     interface Props {
@@ -162,7 +162,7 @@
         <div>
             <Label for="live-title" class="field-label">{m.live_composer_title_label()}</Label>
 
-            <Input id="live-title" bind:value={title} type="text" placeholder={m.live_composer_title_placeholder()} required />
+            <Input class={FIELD} id="live-title" bind:value={title} type="text" placeholder={m.live_composer_title_placeholder()} required />
         </div>
 
         <div>
@@ -183,7 +183,7 @@
                 bind:elementRef={bodyInput}
                 bind:value={body}
                 rows={3}
-                class="w-full resize-y"
+                class="{FIELD} w-full resize-y"
                 placeholder={m.live_composer_body_placeholder()}
             />
         </div>
@@ -218,13 +218,13 @@
             <div>
                 <Label for="live-date" class="field-label">{m.live_composer_timestamp_label()}</Label>
 
-                <Input id="live-date" bind:value={publishedAt} type="datetime-local" size="sm" class={SMALL_FIELD} />
+                <Input id="live-date" bind:value={publishedAt} type="datetime-local" size="sm" class="{FIELD} {SMALL_FIELD}" />
             </div>
 
             <div>
                 <Label for="live-entry" class="field-label">{m.live_composer_entry_label()}</Label>
 
-                <Select id="live-entry" bind:value={entrySlug} size="sm" placeholder="">
+                <Select classes={{ select: FIELD }} id="live-entry" bind:value={entrySlug} size="sm" placeholder="">
                     <option value="">{m.live_composer_entry_none()}</option>
 
                     {#each wiki.entries as entry ( entry.id )}
@@ -241,7 +241,7 @@
                     bind:value={source}
                     type="text"
                     size="sm"
-                    class={SMALL_FIELD}
+                    class="{FIELD} {SMALL_FIELD}"
                     placeholder={m.live_composer_source_placeholder()}
                 />
             </div>

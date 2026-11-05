@@ -93,7 +93,7 @@ test.describe( "accessibility", () =>
                 // disabled and greyed. Measuring then would be measuring a state
                 // no reader ever works in, and would report its own dimming as a
                 // contrast fault.
-                await expect( page.getByRole( "button", { name: "Lier une fiche" } ) ).toBeEnabled();
+                await expect( page.getByRole( "button", { name: /^Lier une fiche/ } ) ).toBeEnabled();
             }
 
             await audit( page );
@@ -149,6 +149,7 @@ test.describe( "accessibility", () =>
         await still( page );
         await wiki.open( `/edit/${ PAGES.athena.slug }` );
 
+        await page.getByRole( "button", { name: "Réglages de la fiche" } ).click();
         await page.getByRole( "button", { name: "Supprimer la fiche" } ).click();
 
         await expect( page.getByRole( "dialog", { name: "Supprimer cette fiche ?" } ) ).toBeVisible();

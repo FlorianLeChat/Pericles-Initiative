@@ -8,7 +8,7 @@
  */
 
 import type { Locator, Page } from "@playwright/test";
-import { COUNTS, PAGES, UNIVERSE } from "./utilities/dataset";
+import { COUNTS, IMPORTED_IMAGE, PAGES, UNIVERSE } from "./utilities/dataset";
 import { ACCENTS, DEFAULT_ACCENT, type Accent } from "#lib/config/accents.ts";
 import { expect, LOCALE_KEY, test, type WikiHelper } from "./utilities/fixtures";
 
@@ -57,6 +57,10 @@ test.describe( "settings", () =>
         await expect( page.getByRole( "button", { name: "Enregistrer" } ) ).toBeDisabled();
 
         await page.getByLabel( "Nom de l'univers" ).fill( "Périclès, second cycle" );
+        await page.getByLabel( "Logo" ).fill( IMPORTED_IMAGE );
+        await page.getByRole( "dialog", { name: "Importer une image" } ).getByRole( "button", { name: "Importer" } ).click();
+
+        await expect( page.getByText( /^Image importée de cet appareil/ ) ).toBeVisible();
 
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
@@ -67,6 +71,7 @@ test.describe( "settings", () =>
 
         await expect( page.getByRole( "banner" ) ).toContainText( "Périclès, second cycle" );
         expect( ( await wiki.storedOverlay() )?.meta?.universe ).toBe( "Périclès, second cycle" );
+        expect( ( await wiki.storedOverlay() )?.meta?.logo ).toMatch( /^data:image\/webp;base64,/ );
     } );
 
     test( "changes the pages put forward on the home page", async ( { page, wiki } ) =>

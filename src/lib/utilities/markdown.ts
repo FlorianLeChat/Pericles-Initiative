@@ -13,9 +13,9 @@
  */
 
 import { slugify } from "./slug";
-import { isSafeUrl } from "./url";
 import { pluralize } from "./plural";
 import * as m from "#lib/locales/messages.js";
+import { isImageSource, isSafeUrl } from "./url";
 import { marked, type Token, type Tokens } from "marked";
 import type { Heading, RenderedArticle } from "#lib/types.ts";
 
@@ -117,7 +117,8 @@ const unquote = ( value: string ): string =>
  * against a pasted snippet or an imported JSON file, not a hardened sanitizer.
  *
  * @param html Rendered HTML.
- * @returns The same HTML without scripts, dangerous tags or executable urls.
+ * @returns The same HTML without scripts, dangerous tags or executable urls; an image
+ * may keep a base64 raster source, which is drawn and never followed.
  * @author Claude
  */
 export const sanitizeHtml = ( html: string ): string =>
@@ -126,7 +127,12 @@ export const sanitizeHtml = ( html: string ): string =>
         .replaceAll( FORBIDDEN_TAGS, "" )
         .replaceAll( EVENT_ATTRIBUTES, "" )
         .replaceAll( URL_ATTRIBUTES, ( match, name: string, value: string ) =>
-            isSafeUrl( unquote( value ) ) ? match : ` ${ name }="#"` );
+        {
+            const url = unquote( value );
+            const allowed = name.toLowerCase() === "src" ? isImageSource( url ) : isSafeUrl( url );
+
+            return allowed ? match : ` ${ name }="#"`;
+        } );
 
 /**
  * Upper bound of every memoisation cache.
@@ -163,7 +169,6 @@ const memoize = <T>( compute: ( markdown: string ) => T ): ( ( markdown: string 
 
         const value = compute( markdown );
 
-        // A Map iterates in insertion order, so its first key is the oldest one.
         if ( cache.size >= CACHE_LIMIT )
         {
             const oldest = cache.keys().next().value;
@@ -345,6 +350,58 @@ export const retargetInternalLinks = ( markdown: string, from: string, to: strin
     return markdown.replace( links, ( _match, opening: string ) => `${ opening }${ to }` );
 };
 
+/** Matches a level two heading on a line of its own, capturing its text. */
+const LEVEL_TWO_HEADING = /^##[^\S\n]+(.+?)[^\S\n]*$/;
+
+/** Matches a heading of level one or two, which closes the section above it. */
+const SECTION_BREAK = /^#{1,2}[^\S\n]/;
+
+/**
+ * Removes the level two sections a template wrote and nobody filled.
+ *
+ * Only the headings given are considered: a section the author wrote on purpose
+ * and left empty for now is theirs to keep, whereas «Personnalité» left standing
+ * by a template would print a heading over nothing.
+ *
+ * @param markdown Article body.
+ * @param headings Text of the headings the template wrote.
+ * @returns The body, without those of them that hold nothing.
+ * @author Claude
+ */
+export const dropEmptySections = ( markdown: string, headings: readonly string[] ): string =>
+{
+    const lines = markdown.split( "\n" );
+    const kept: string[] = [];
+    let index = 0;
+
+    while ( index < lines.length )
+    {
+        const line = lines[ index ] ?? "";
+        const heading = LEVEL_TWO_HEADING.exec( line )?.[ 1 ];
+        let end = index + 1;
+
+        while ( end < lines.length && !SECTION_BREAK.test( lines[ end ] ?? "" ) )
+        {
+            end += 1;
+        }
+
+        const section = lines.slice( index + 1, end );
+        const empty = section.every( ( content ) => content.trim() === "" );
+        const scaffolding = heading !== undefined && headings.includes( heading ) && empty;
+
+        if ( !scaffolding )
+        {
+            kept.push( ...( heading === undefined ? [ line ] : [ line, ...section ] ) );
+        }
+
+        index = heading === undefined ? index + 1 : end;
+    }
+
+    const result = kept.join( "\n" ).trim();
+
+    return result ? `${ result }\n` : "";
+};
+
 /**
  * Adds anchor identifiers to the rendered headings.
  *
@@ -476,6 +533,82 @@ export const renderArticle = (
  */
 export const renderInline = ( markdown: string, knownSlugs: ReadonlySet<string> = new Set<string>() ): string =>
     decorateLinks( renderSanitized( markdown ), knownSlugs );
+
+/**
+ * Parses and sanitizes a single line of Markdown, with no paragraph around it.
+ *
+ * A value of an infobox is one phrase rather than a block: parsed as a block,
+ * «1,82 m» would come back as a paragraph and «- 12» as a list.
+ *
+ * @param markdown One line of Markdown.
+ * @returns Sanitized inline HTML, links still undecorated.
+ * @author Claude
+ */
+const renderSanitizedPhrase = memoize( ( markdown: string ): string =>
+    sanitizeHtml( marked.parseInline( markdown ) as string ) );
+
+/** A link of one line of Markdown, capturing its label and its target. */
+const PHRASE_LINK = /\[([^\][]*)]\(([^()\s]*)\)/g;
+
+/** One run of a line of Markdown: plain text, or the label of a link. */
+export interface PhraseSegment {
+    text: string;
+    /** Slug of the page linked to, null for plain text or a link leaving the wiki. */
+    slug: string | null;
+    /** Whether the run is a link at all. */
+    link: boolean;
+}
+
+/**
+ * Cuts a line of Markdown into its text and the labels of its links.
+ *
+ * For a preview drawn by the editor beside the field it previews: unlike
+ * `renderPhrase`, it yields no anchor, since a link in a preview the pointer
+ * passes through would lead out of a page being written.
+ *
+ * @param markdown One line of Markdown.
+ * @returns The runs, in order.
+ * @author Claude
+ */
+export const phraseSegments = ( markdown: string ): PhraseSegment[] =>
+{
+    const segments: PhraseSegment[] = [];
+    let last = 0;
+
+    for ( const match of markdown.matchAll( PHRASE_LINK ) )
+    {
+        const [ whole, label = "", href = "" ] = match;
+        const before = markdown.slice( last, match.index );
+
+        if ( before )
+        {
+            segments.push( { text: before, slug: null, link: false } );
+        }
+
+        segments.push( { text: label, slug: INTERNAL_HREF.exec( href )?.[ 1 ] ?? null, link: true } );
+        last = match.index + whole.length;
+    }
+
+    const rest = markdown.slice( last );
+
+    if ( rest )
+    {
+        segments.push( { text: rest, slug: null, link: false } );
+    }
+
+    return segments;
+};
+
+/**
+ * Renders a single line of Markdown, such as a value of an infobox.
+ *
+ * @param markdown One line of Markdown.
+ * @param knownSlugs Slugs of the pages that currently exist, for red links.
+ * @returns Display ready inline HTML.
+ * @author Claude
+ */
+export const renderPhrase = ( markdown: string, knownSlugs: ReadonlySet<string> = new Set<string>() ): string =>
+    decorateLinks( renderSanitizedPhrase( markdown ), knownSlugs );
 
 /**
  * Converts Markdown to plain text, for excerpts, search and word counts.

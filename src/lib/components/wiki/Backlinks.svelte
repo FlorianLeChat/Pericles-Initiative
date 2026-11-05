@@ -23,7 +23,7 @@
     const headingId = $props.id();
 </script>
 
-<section class="border-paper-200 dark:border-ink-800 mt-12 max-w-[70ch] border-t pt-8" aria-labelledby={headingId}>
+<section class="border-paper-200 dark:border-ink-700 mt-12 max-w-[70ch] border-t pt-8" aria-labelledby={headingId}>
     <h2 id={headingId} class="section-heading">{title}</h2>
 
     {#if entries.length === 0}

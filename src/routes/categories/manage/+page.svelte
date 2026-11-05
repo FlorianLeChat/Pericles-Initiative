@@ -22,9 +22,9 @@
     import ChevronRight from "@lucide/svelte/icons/chevron-right";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import { PALETTE, paletteColor } from "#lib/config/palette.ts";
-    import { colorPill, RADIO_OVERLAY } from "#lib/config/forms.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
     import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
+    import { colorPill, FIELD, RADIO_OVERLAY } from "#lib/config/forms.ts";
     import { categoryChildren, categoryDescendants } from "#lib/utilities/categories.ts";
 
     let editing = $state<Category | null>( null );
@@ -192,7 +192,7 @@
         <div
             class={wiki.categories.length === 0
                 ? ""
-                : "divide-paper-200 dark:divide-ink-800 border-paper-200 dark:border-ink-800 divide-y border-y"}
+                : "divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 divide-y border-y"}
         >
             {#each wiki.categories as category ( category.slug )}
                 {@const count = wiki.entriesInCategory( category.slug, true ).length}
@@ -259,7 +259,7 @@
                 </article>
             {:else}
                 <p
-                    class="border-paper-300 dark:border-ink-800 text-muted rounded-2xl border border-dashed px-6 py-10 text-center text-sm"
+                    class="border-paper-300 dark:border-ink-700 text-muted rounded-2xl border border-dashed px-6 py-10 text-center text-sm"
                 >
                     {m.categories_manage_empty_list()}
                 </p>
@@ -284,6 +284,7 @@
                 <Label for="category-name" class="field-label">{m.categories_manage_field_name_label()}</Label>
 
                 <Input
+                    class={FIELD}
                     id="category-name"
                     bind:value={name}
                     type="text"
@@ -300,8 +301,7 @@
                     bind:value={slug}
                     oninput={() => ( slugLocked = true )}
                     type="text"
-                    class="font-mono text-xs"
-                    color={slugTaken ? "red" : "default"}
+                    class="{FIELD} font-mono text-xs"
                     aria-invalid={slugTaken}
                     aria-describedby={slugTaken ? "category-slug-taken" : undefined}
                     placeholder={m.categories_manage_field_slug_placeholder()}
@@ -323,7 +323,7 @@
                     id="category-description"
                     bind:value={description}
                     rows={3}
-                    class="w-full resize-y"
+                    class="{FIELD} w-full resize-y"
                     placeholder={m.categories_manage_field_description_placeholder()}
                 />
             </div>
@@ -331,7 +331,7 @@
             <div>
                 <Label for="category-parent" class="field-label">{m.categories_manage_field_parent_label()}</Label>
 
-                <Select id="category-parent" bind:value={parent} placeholder="">
+                <Select classes={{ select: FIELD }} id="category-parent" bind:value={parent} placeholder="">
                     <option value="">{m.categories_manage_field_parent_none()}</option>
 
                     {#each parentOptions as option ( option.slug )}

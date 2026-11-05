@@ -77,10 +77,9 @@ const monthsAgo = ( months: number ): string =>
 /**
  * Address of one demonstration illustration.
  *
- * The repository ships no image for this content: a path under `/media/` would
- * have to be a file committed for a demonstration alone, and a missing one renders
- * as a broken image on the very page meant to show the site at its best. These are
- * therefore remote placeholders, and the one thing in this dataset that needs a
+ * The repository ships no image, and six photographs written out in base64 would
+ * weigh more than the whole of this dataset and eat the storage of whoever
+ * installs it. These are therefore remote placeholders, and the one thing in this dataset that needs a
  * network. They are asked for in grey so that whatever comes back reads as a plate
  * of an archive rather than as a holiday photograph.
  *
@@ -225,8 +224,9 @@ const entryList = (): Entry[] => [
         infobox: [
             { label: "Office", value: "Chief keeper, Cape Ainsley" },
             { label: "Years in service", value: "Thirty three" },
-            { label: "Appointed by", value: "Office of Lights" },
-            { label: "Born at", value: "Cape Ainsley" }
+            { label: "Appointed by", value: "[Office of Lights](/entries/office-of-lights)" },
+            { label: "Born at", value: "[Cape Ainsley](/entries/cape-ainsley)" },
+            { label: "Father", value: "[Orin Halloway](/entries/orin-halloway)" }
         ],
         image: {
             src: illustration( "lantern-coast-mira" ),
@@ -777,7 +777,7 @@ const entryList = (): Entry[] => [
         infobox: [
             { label: "Office", value: "Harbour master, Saltmarch" },
             { label: "Years in service", value: "Twenty six" },
-            { label: "Known for", value: "The Quiet Accord" }
+            { label: "Known for", value: "[The Quiet Accord](/entries/the-quiet-accord)" }
         ],
         image: null,
         dates: [
@@ -816,7 +816,7 @@ const entryList = (): Entry[] => [
         ].join( "\n" ),
         categories: [ "events", "concepts" ],
         infobox: [
-            { label: "Parties", value: "Cape Ainsley, Saltmarch" },
+            { label: "Parties", value: "[Cape Ainsley](/entries/cape-ainsley), [Saltmarch](/entries/saltmarch)" },
             { label: "Articles", value: "7" },
             { label: "Signed at", value: "The customs house, Cape Ainsley" }
         ],

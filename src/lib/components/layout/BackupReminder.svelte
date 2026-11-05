@@ -30,8 +30,6 @@
     /** Change marker the reminder was last waved away on, so the next change brings it back. */
     let dismissedChange = $state<string | null>( null );
 
-    // A failure belongs to the content that was being sent: a new change is a new
-    // offer, and the old reason has nothing left to say about it.
     $effect( () =>
     {
         void wiki.changedAt;
