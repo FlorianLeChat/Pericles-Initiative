@@ -2,8 +2,17 @@
     /**
      * Management of the categories.
      *
+     * The rows follow the tree of `/categories`: a subcategory stands under its
+     * parent, indented behind the same hairline branch, so where a category is
+     * filed reads from its place rather than from a note under its name.
+     *
+     * «Modifier» and «Supprimer» are the same alternative pill, so a row offers two
+     * actions of one shape; «Supprimer» is written in the catalogue red, as every
+     * control that erases is, and the confirmation is where the red fills.
+     *
      * @author Claude
      */
+    import { tick } from "svelte";
     import { resolve } from "$app/paths";
     import * as m from "#lib/locales/messages.js";
     import type { Category } from "#lib/types.ts";
@@ -15,7 +24,6 @@
     import Button from "flowbite-svelte/Button.svelte";
     import Helper from "flowbite-svelte/Helper.svelte";
     import Select from "flowbite-svelte/Select.svelte";
-    import { pluralize } from "#lib/utilities/plural.ts";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
     import PageHeader from "#lib/components/PageHeader.svelte";
@@ -24,8 +32,12 @@
     import { PALETTE, paletteColor } from "#lib/config/palette.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
     import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
-    import { colorPill, FIELD, RADIO_OVERLAY } from "#lib/config/forms.ts";
-    import { categoryChildren, categoryDescendants } from "#lib/utilities/categories.ts";
+    import { BREADCRUMB_LIST, BREADCRUMB_STEP } from "#lib/config/navigation.ts";
+    import { colorPill, FIELD, RADIO_OVERLAY, TOUCH_HEIGHT } from "#lib/config/forms.ts";
+    import { categoryChildren, categoryDescendants, pageCountWithDrafts } from "#lib/utilities/categories.ts";
+
+    /** The hairline a subcategory hangs from, as on `/categories`. */
+    const BRANCH = "border-paper-300 dark:border-ink-700 border-l pl-5";
 
     let editing = $state<Category | null>( null );
     let name = $state( "" );
@@ -42,6 +54,23 @@
     const canSave = $derived( name.trim().length > 0 );
 
     const tree = $derived( categoryChildren( wiki.categories ) );
+
+    /** Every category in the order of the tree, each with how deep it is filed. */
+    const rows = $derived.by( () =>
+    {
+        const ordered: { category: Category; depth: number }[] = [];
+        const visit = ( parentSlug: string | null, depth: number ): void =>
+        {
+            for ( const category of tree.get( parentSlug ) ?? [] )
+            {
+                ordered.push( { category, depth } );
+                visit( category.slug, depth + 1 );
+            }
+        };
+
+        visit( null, 0 );
+        return ordered;
+    } );
 
     /**
      * Categories the one in the form may be filed under: never itself, nor anything already filed
@@ -97,12 +126,17 @@
     };
 
     /**
-     * Loads a category into the form.
+     * Loads a category into the form, and puts the focus on its name.
+     *
+     * The form stands above the list on a phone, so a «Modifier» tapped far down
+     * the list would otherwise fill a form the reader cannot see; moving the
+     * focus brings it into view, and lets a keyboard type the new name at once.
      *
      * @param category Category to edit.
+     * @returns Resolves once the focus has moved.
      * @author Claude
      */
-    const startEdit = ( category: Category ): void =>
+    const startEdit = async ( category: Category ): Promise<void> =>
     {
         editing = category;
         name = category.name;
@@ -111,7 +145,13 @@
         color = category.color;
         parent = category.parent ?? "";
         slugLocked = true;
+
+        await tick();
+        document.getElementById( NAME_FIELD_ID )?.focus();
     };
+
+    /** Identifier of the name field, which takes the focus when a category is loaded. */
+    const NAME_FIELD_ID = "category-name";
 
     /**
      * Saves the form, creating or updating a category.
@@ -164,14 +204,14 @@
 <PageMeta title={m.categories_manage_title( { universe: wiki.meta.universe } )} />
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm">
-        <BreadcrumbItem href={resolve( "/categories" )}>
+    <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm" classes={{ list: BREADCRUMB_LIST }}>
+        <BreadcrumbItem home href={resolve( "/categories" )} homeClass={BREADCRUMB_STEP}>
             {#snippet icon()}{/snippet}
 
             {m.common_categories_label()}
         </BreadcrumbItem>
 
-        <BreadcrumbItem aria-current="page">
+        <BreadcrumbItem aria-current="page" spanClass={BREADCRUMB_STEP}>
             {#snippet icon()}
                 <ChevronRight class="text-muted mx-1 h-4 w-4" />
             {/snippet}
@@ -181,7 +221,7 @@
     </Breadcrumb>
 
     <div class="mt-4">
-        <PageHeader title={m.common_categories_manage_label()}>
+        <PageHeader title={m.common_categories_manage_label()} rule={false}>
             {#snippet description()}
                 {m.categories_manage_description()}
             {/snippet}
@@ -194,12 +234,16 @@
                 ? ""
                 : "divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 divide-y border-y"}
         >
-            {#each wiki.categories as category ( category.slug )}
-                {@const count = wiki.entriesInCategory( category.slug, true ).length}
-                {@const parentCategory = category.parent ? wiki.categoriesBySlug.get( category.parent ) : undefined}
+            {#each rows as { category, depth } ( category.slug )}
+                {@const members = wiki.entriesInCategory( category.slug, true )}
+                {@const indent = depth > 0 ? `margin-left: ${ ( depth - 1 ) * 1.5 + 0.25 }rem` : undefined}
 
                 <article class="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:gap-4">
-                    <div class="flex min-w-0 flex-1 items-start gap-3">
+                    <div
+                        class="flex min-w-0 flex-1 items-start gap-3
+                               {depth > 0 ? BRANCH : ""}"
+                        style={indent}
+                    >
                         <span
                             class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full {paletteColor( category.color ).dot}"
                             aria-hidden="true"
@@ -209,12 +253,6 @@
                             <p class="text-sm font-medium">{category.name}</p>
 
                             <p class="text-muted truncate font-mono text-xs">/categories/{category.slug}</p>
-
-                            {#if parentCategory}
-                                <p class="text-muted mt-1 text-xs">
-                                    {m.categories_manage_parent_note( { name: parentCategory.name } )}
-                                </p>
-                            {/if}
 
                             {#if category.description}
                                 <p class="text-muted mt-1 line-clamp-2 text-xs leading-relaxed">
@@ -226,17 +264,14 @@
 
                     <div class="flex shrink-0 items-center gap-2">
                         <span class="text-muted mr-auto text-xs sm:mr-0">
-                            {pluralize( count, {
-                                one: m.common_count_fiche_one,
-                                other: m.common_count_fiche_other
-                            } )}
+                            {pageCountWithDrafts( members )}
                         </span>
 
                         <Button
                             color="alternative"
                             size="xs"
-                            class="rounded-full"
-                            onclick={() => startEdit( category )}
+                            class="rounded-full {TOUCH_HEIGHT}"
+                            onclick={() => void startEdit( category )}
                             aria-label={m.categories_manage_edit_aria( { name: category.name } )}
                         >
                             {m.common_edit_action()}
@@ -245,7 +280,7 @@
                         <Button
                             color="alternative"
                             size="xs"
-                            class="hover:text-alert-500 rounded-full border-0"
+                            class="text-alert-500 dark:text-dark-alert-500 hover:text-alert-500 rounded-full {TOUCH_HEIGHT}"
                             onclick={() =>
                             {
                                 pendingDeletion = category;
@@ -281,11 +316,11 @@
             </h2>
 
             <div>
-                <Label for="category-name" class="field-label">{m.categories_manage_field_name_label()}</Label>
+                <Label for={NAME_FIELD_ID} class="field-label">{m.categories_manage_field_name_label()}</Label>
 
                 <Input
                     class={FIELD}
-                    id="category-name"
+                    id={NAME_FIELD_ID}
                     bind:value={name}
                     type="text"
                     placeholder={m.categories_manage_field_name_placeholder()}
@@ -301,7 +336,7 @@
                     bind:value={slug}
                     oninput={() => ( slugLocked = true )}
                     type="text"
-                    class="{FIELD} font-mono text-xs"
+                    class="{FIELD} font-mono text-xs placeholder:font-sans"
                     aria-invalid={slugTaken}
                     aria-describedby={slugTaken ? "category-slug-taken" : undefined}
                     placeholder={m.categories_manage_field_slug_placeholder()}

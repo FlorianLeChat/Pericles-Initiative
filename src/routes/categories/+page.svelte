@@ -6,6 +6,17 @@
      * the ones filed beneath it, indented along a hairline guide. The name is the
      * one link of a row, so the keyboard meets each category once.
      *
+     * «Gérer les catégories» is a secondary button: this page is read far more
+     * often than its classification is reworked, and the header already spends the
+     * accent on «Nouvelle fiche». A device set to read only does not show it.
+     *
+     * The pages filed nowhere follow as hairline rows of links, two columns from
+     * `sm`, rather than as pills, which read as category chips; an odd last row
+     * spans both columns, so the closing hairline runs the whole width.
+     *
+     * The page keeps one 56rem column, header included, so «Gérer les catégories»
+     * stands over the edge of the tree it manages rather than past it.
+     *
      * @author Claude
      */
     import { resolve } from "$app/paths";
@@ -13,8 +24,10 @@
     import type { Category } from "#lib/types.ts";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
+    import { TOUCH_HEIGHT } from "#lib/config/forms.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
     import { paletteColor } from "#lib/config/palette.ts";
+    import { reading } from "#lib/state/reading.svelte.ts";
     import EmptyState from "#lib/components/EmptyState.svelte";
     import PageHeader from "#lib/components/PageHeader.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
@@ -53,7 +66,7 @@
                         <p class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                             <a
                                 href={resolve( `categories/${ category.slug }/` )}
-                                class="wiki-link font-semibold {size}"
+                                class="wiki-link inline-flex items-center font-semibold {size} {TOUCH_HEIGHT}"
                             >
                                 {category.name}
                             </a>
@@ -67,7 +80,7 @@
                         </p>
 
                         {#if category.description}
-                            <p class="text-muted mt-1 max-w-2xl text-sm leading-relaxed">{category.description}</p>
+                            <p class="text-muted mt-1 max-w-help text-sm leading-relaxed">{category.description}</p>
                         {/if}
 
                         {#if children.length > 0}
@@ -81,46 +94,54 @@
 {/snippet}
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <PageHeader title={m.common_categories_label()}>
-        {#snippet description()}
-            {m.categories_description()}
-        {/snippet}
+    <div class="max-w-4xl">
+        <PageHeader title={m.common_categories_label()}>
+            {#snippet description()}
+                {m.categories_description()}
+            {/snippet}
 
-        {#snippet action()}
-            <Button href={resolve( "/categories/manage" )} color="primary">{m.common_categories_manage_label()}</Button>
-        {/snippet}
-    </PageHeader>
+            {#snippet action()}
+                {#if !reading.enabled}
+                    <Button href={resolve( "/categories/manage" )} color="alternative">
+                        {m.common_categories_manage_label()}
+                    </Button>
+                {/if}
+            {/snippet}
+        </PageHeader>
 
-    {#if roots.length === 0}
-        <div class="mt-10">
-            <EmptyState title={m.categories_empty_title()} description={m.categories_empty_description()}>
-                <Button href={resolve( "/categories/manage" )} color="alternative">
-                    {m.categories_create_button()}
-                </Button>
-            </EmptyState>
-        </div>
-    {:else}
-        <div class="mt-10 max-w-4xl">
-            {@render branch( roots, 0 )}
-        </div>
-    {/if}
+        {#if roots.length === 0}
+            <div class="mt-10">
+                <EmptyState title={m.categories_empty_title()} description={m.categories_empty_description()}>
+                    <Button href={resolve( "/categories/manage" )} color="alternative">
+                        {m.categories_create_button()}
+                    </Button>
+                </EmptyState>
+            </div>
+        {:else}
+            <div class="mt-10">
+                {@render branch( roots, 0 )}
+            </div>
+        {/if}
 
-    {#if uncategorized.length > 0}
-        <section class="mt-12 max-w-4xl" aria-labelledby="uncategorized-heading">
-            <h2 id="uncategorized-heading" class="section-heading">{m.categories_uncategorized_heading()}</h2>
+        {#if uncategorized.length > 0}
+            <section class="mt-12" aria-labelledby="uncategorized-heading">
+                <h2 id="uncategorized-heading" class="section-heading">{m.categories_uncategorized_heading()}</h2>
 
-            <ul class="mt-4 flex flex-wrap gap-2">
-                {#each uncategorized as entry ( entry.id )}
-                    <li>
-                        <a
-                            href={resolve( `entries/${ entry.slug }/` )}
-                            class="border-paper-300 dark:border-ink-700 hover:border-accent-400 rounded-full border px-3 py-1.5 text-sm transition"
-                        >
-                            {entry.title}
-                        </a>
-                    </li>
-                {/each}
-            </ul>
-        </section>
-    {/if}
+                <ul
+                    class="border-paper-200 dark:border-ink-700 mt-4 grid border-t text-sm sm:grid-cols-2 sm:gap-x-8"
+                >
+                    {#each uncategorized as entry ( entry.id )}
+                        <li class="border-paper-200 dark:border-ink-700 border-b sm:py-2 sm:odd:last:col-span-2">
+                            <a
+                                href={resolve( `entries/${ entry.slug }/` )}
+                                class="row-link block truncate content-center {TOUCH_HEIGHT}"
+                            >
+                                {entry.title}
+                            </a>
+                        </li>
+                    {/each}
+                </ul>
+            </section>
+        {/if}
+    </div>
 </div>

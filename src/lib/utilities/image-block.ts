@@ -42,7 +42,7 @@ const readAlt = ( raw: unknown ): { ratio: number; alt: string } =>
     return { ratio: ratio > 0 ? ratio : 1, alt: "" };
 };
 
-/** The image block schema of Crepe, with an alt of its own. Used after Crepe’s own, which it replaces. */
+/** The image block schema of Crepe, with an alt of its own. Used after Crepe's own, which it replaces. */
 export const imageBlockWithAlt = imageBlockSchema.extendSchema( ( previous ) => ( ctx ) =>
 {
     const base = previous( ctx );

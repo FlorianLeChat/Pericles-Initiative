@@ -15,6 +15,7 @@
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import { PUBLIC_VERSION } from "$app/env/public";
+    import { reading } from "#lib/state/reading.svelte.ts";
     import { localStorageKey } from "#lib/locales/runtime.js";
     import PageHeader from "#lib/components/PageHeader.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
@@ -32,7 +33,8 @@
      * the stored choice hands the decision back to the strategy behind it, the
      * language the browser itself asks for. Nothing gates this button, since a
      * locale that was never chosen and one chosen to be the preferred one read
-     * exactly the same from here.
+     * exactly the same from here. The use of the device is another, and goes back
+     * to reading and writing.
      *
      * Reloading afterwards for the reason `DemoContent` already does, plus one:
      * the form snapshots the identity when it mounts, and a language only changes
@@ -43,6 +45,7 @@
     const reset = (): void =>
     {
         wiki.resetMeta();
+        reading.set( false );
 
         try
         {
@@ -59,8 +62,8 @@
 
 <PageMeta title={m.settings_title( { universe: wiki.meta.universe } )} />
 
-<div class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-    <PageHeader title={m.settings_heading()}>
+<div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <PageHeader title={m.settings_heading()} rule={false}>
         {#snippet description()}
             {m.settings_description()}
         {/snippet}
@@ -68,45 +71,49 @@
 
     <ToolsNav />
 
-    {#if wiki.overlayLoaded}
-        <SettingsForm />
+    <div class="max-w-4xl">
+        {#if wiki.overlayLoaded}
+            <SettingsForm />
 
-        <ResetPanel
-            heading={m.settings_reset_heading()}
-            description={m.settings_reset_description()}
-            action={m.settings_reset_button()}
-            confirmTitle={m.settings_reset_confirm_title()}
-            confirmMessage={m.settings_reset_confirm_message()}
-            confirmLabel={m.settings_reset_confirm_label()}
-            onconfirm={reset}
-            frame="settings-section"
-        >
-            {#snippet spares()}
-                {m.settings_reset_spares_intro()}
-                <a href={resolve( "/data" )} class="wiki-link">{m.common_backups_link()}</a>.
-            {/snippet}
-        </ResetPanel>
-    {:else}
-        <p class="text-muted mt-8 text-sm">{m.settings_loading()}</p>
-    {/if}
+            <ResetPanel
+                heading={m.settings_reset_heading()}
+                description={m.settings_reset_description()}
+                action={m.settings_reset_button()}
+                confirmTitle={m.settings_reset_confirm_title()}
+                confirmMessage={m.settings_reset_confirm_message()}
+                confirmLabel={m.settings_reset_confirm_label()}
+                onconfirm={reset}
+                frame="settings-section"
+            >
+                {#snippet spares()}
+                    {m.settings_reset_spares_intro()}
+                    <a href={resolve( "/data" )} class="wiki-link">{m.common_backups_link()}</a>.
+                {/snippet}
+            </ResetPanel>
+        {:else}
+            <p class="text-muted mt-8 text-sm">{m.settings_loading()}</p>
+        {/if}
 
-    <section class="border-paper-200 dark:border-ink-700 border-t pt-4" aria-labelledby="about-heading">
-        <h2 id="about-heading" class="sr-only">{m.settings_form_about_heading()}</h2>
+        <section class="border-paper-200 dark:border-ink-700 border-t pt-4" aria-labelledby="about-heading">
+            <h2 id="about-heading" class="sr-only">{m.settings_form_about_heading()}</h2>
 
-        <dl class="text-muted flex flex-wrap gap-x-6 gap-y-1 text-xs">
-            <div class="flex gap-1.5">
-                <dt>{m.settings_form_version_label()}</dt>
+            <dl class="text-muted flex flex-wrap gap-x-6 gap-y-1 text-xs">
+                <div class="flex gap-1.5">
+                    <dt>{m.settings_form_version_label()}</dt>
 
-                <dd class="text-ink-600 dark:text-paper-300 font-medium">{PUBLIC_VERSION}</dd>
-            </div>
+                    <dd class="text-ink-600 dark:text-paper-300 font-medium">{PUBLIC_VERSION}</dd>
+                </div>
 
-            <div class="flex min-w-0 gap-1.5">
-                <dt>{m.settings_form_source_label()}</dt>
+                <div class="flex min-w-0 gap-1.5">
+                    <dt>{m.settings_form_source_label()}</dt>
 
-                <dd class="min-w-0 break-all">
-                    <a href={REPOSITORY_URL} class="wiki-link" target="_blank" rel="noreferrer">{REPOSITORY_URL}</a>
-                </dd>
-            </div>
-        </dl>
-    </section>
+                    <dd class="min-w-0 break-all">
+                        <a href={REPOSITORY_URL} class="wiki-link font-mono text-xs" target="_blank" rel="noreferrer"
+                            >{REPOSITORY_URL}</a
+                        >
+                    </dd>
+                </div>
+            </dl>
+        </section>
+    </div>
 </div>

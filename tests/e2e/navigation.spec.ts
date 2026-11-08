@@ -8,8 +8,8 @@
  * @author Claude
  */
 
-import { PAGES } from "./utilities/dataset";
-import { expect, test, THEME_KEY } from "./utilities/fixtures";
+import { CATEGORIES, MISSING_SLUG, PAGES } from "./utilities/dataset";
+import { expect, isNarrow, test, THEME_KEY } from "./utilities/fixtures";
 
 test.describe( "site frame", () =>
 {
@@ -28,6 +28,34 @@ test.describe( "site frame", () =>
 
         await wiki.navigate( "Chronologie" );
         await expect( page ).toHaveURL( /\/timeline\/$/ );
+
+        // A mistyped address is told in the reader's language, and names what was asked for.
+        await wiki.open( "/nulle-part" );
+
+        await expect( page.getByRole( "heading", { level: 1, name: "Cette page ne figure pas dans les archives" } ) )
+            .toBeVisible();
+        await expect( page.getByRole( "main" ) ).toContainText( "Aucune page n'est rangée à l'adresse /nulle-part/" );
+        await expect( page.getByText( "Not Found" ) ).toHaveCount( 0 );
+
+        // A mistyped address usually means a page under another spelling, so the search is one press away.
+        await page.getByRole( "main" ).getByRole( "button", { name: "Chercher une fiche" } ).click();
+
+        const palette = page.getByRole( "dialog", { name: "Rechercher une fiche" } );
+
+        await expect( palette ).toBeVisible();
+        await page.keyboard.press( "Escape" );
+        await expect( palette ).toBeHidden();
+
+        if ( isNarrow( page ) )
+        {
+            // The drawer's two groups are headings, and the tools a list named by the second.
+            await page.getByRole( "button", { name: "Ouvrir la navigation" } ).click();
+
+            const drawer = page.getByRole( "dialog" );
+
+            await expect( drawer.getByRole( "heading", { level: 2, name: "Navigation" } ) ).toBeVisible();
+            await expect( drawer.getByRole( "list", { name: "Outils" } ).getByRole( "link" ) ).toHaveCount( 3 );
+        }
     } );
 
     test( "moves between the tools through their tabs, marking the current one", async ( { page, wiki } ) =>
@@ -50,7 +78,7 @@ test.describe( "site frame", () =>
         await expect( page.getByRole( "heading", { name: "Paramètres", level: 1 } ) ).toBeVisible();
     } );
 
-    test( "offers the last edits, searches by alias, and creates what nothing matches", async ( { page, wiki } ) =>
+    test( "offers the last edits, explains its hits, hands them to the index, and creates", async ( { page, wiki } ) =>
     {
         await wiki.open();
 
@@ -65,19 +93,62 @@ test.describe( "site frame", () =>
 
         await expect( palette ).toContainText( "Aucune fiche ne correspond" );
 
-        await page.keyboard.press( "Escape" );
+        // A phone has no Escape key: the palette carries its own way out there.
+        const close = palette.getByRole( "button", { name: "Fermer" } );
+
+        if ( isNarrow( page ) )
+        {
+            await close.click();
+        }
+        else
+        {
+            await expect( close ).toBeHidden();
+            await page.keyboard.press( "Escape" );
+        }
 
         await expect( palette ).toBeHidden();
 
         await page.getByRole( "button", { name: "Rechercher" } ).click();
         await page.keyboard.type( "la vance" );
 
-        await expect( palette.getByRole( "option" ).first() ).toContainText( PAGES.athena.title );
-        await expect( palette.getByRole( "option" ).first() ).toHaveAttribute( "aria-selected", "true" );
+        const byAlias = palette.getByRole( "option" ).first();
+
+        await expect( byAlias ).toContainText( PAGES.athena.title );
+        await expect( byAlias ).toContainText( "Autre nom : La Vance" );
+        await expect( byAlias ).toContainText( CATEGORIES.institutions.name );
+        await expect( byAlias ).toHaveAttribute( "aria-selected", "true" );
+        await expect( palette.getByRole( "option", { name: "Créer la fiche « La vance »" } ) ).toBeVisible();
 
         await page.keyboard.press( "Enter" );
 
         await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.athena.slug }/$` ) );
+        await expect( page.getByRole( "heading", { name: PAGES.athena.title, level: 1 } ) ).toBeVisible();
+
+        await page.keyboard.press( "Control+k" );
+        await page.keyboard.type( "athena" );
+
+        await expect( palette.getByRole( "option", { name: new RegExp( PAGES.port.title ) } ) ).toContainText( "Athéna Vance" );
+
+        const found = await palette.getByRole( "option" ).filter( { hasNotText: /Voir tous|Créer la fiche/ } ).count();
+
+        await palette.getByRole( "option", { name: "Voir tous les résultats pour « athena » dans l'encyclopédie" } ).click();
+
+        await expect( page ).toHaveURL( /\/entries\/\?q=athena$/ );
+        await expect( page.getByLabel( "Filtrer les fiches" ) ).toHaveValue( "athena" );
+        await expect( page.getByRole( "main" ).getByRole( "article" ) ).toHaveCount( found );
+
+        // A page still to write is found too, with who waits for it, and takes the place of its creation.
+        await page.keyboard.press( "Control+k" );
+        await page.keyboard.type( "conseil des parties" );
+
+        const waiting = palette.getByRole( "option", { name: /^Conseil des parties À écrire/ } );
+
+        await expect( waiting ).toContainText( /À écrire · citée \d+ fois/ );
+        await expect( palette.getByRole( "option", { name: /^Créer la fiche/ } ) ).toHaveCount( 0 );
+
+        await waiting.click();
+
+        await expect( page ).toHaveURL( new RegExp( `/entries/${ MISSING_SLUG }/$` ) );
 
         await page.keyboard.press( "Control+k" );
         await page.keyboard.type( "Phare du Nord" );

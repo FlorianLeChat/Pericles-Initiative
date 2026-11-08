@@ -8,6 +8,17 @@
      * left the rest of the page reachable behind it. The drawer is an overlay
      * with its own backdrop, and the page does not move.
      *
+     * A device set to read only (`reading`) shows no «Nouvelle fiche», in the bar
+     * or in the drawer, no dashboard among its tools (`toolLinks`), and below
+     * `lg` no search button either: `ThumbSearch` carries the search at the foot
+     * of the screen there, in reach of the thumb.
+     *
+     * The drawer names itself with a heading and its tools with another, the list
+     * of tools labelled by it, so a screen reader moving by headings finds both
+     * groups rather than two lines it reads as prose. They are set in the muted
+     * 12px label of the site, in sentence case, since spaced capitals over a list
+     * read as an eyebrow rather than as the name of a group.
+     *
      * @author Claude
      */
     import { page } from "$app/state";
@@ -20,12 +31,13 @@
     import Kbd from "flowbite-svelte/Kbd.svelte";
     import * as m from "#lib/locales/messages.js";
     import ThemeToggle from "./ThemeToggle.svelte";
-    import { PRESSED } from "#lib/config/forms.ts";
     import Search from "@lucide/svelte/icons/search";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Drawer from "flowbite-svelte/Drawer.svelte";
+    import { reading } from "#lib/state/reading.svelte.ts";
     import { platform } from "#lib/state/platform.svelte.ts";
-    import { NAV_LINKS, TOOL_LINKS } from "#lib/config/navigation.ts";
+    import { PRESSED, TOUCH_HEIGHT } from "#lib/config/forms.ts";
+    import { NAV_LINKS, toolLinks } from "#lib/config/navigation.ts";
 
     interface Props {
         /** Opens the search palette. */
@@ -35,6 +47,8 @@
     let { onsearch }: Props = $props();
 
     let menuOpen = $state( false );
+
+    const tools = $derived( toolLinks( reading.enabled ) );
 
     const shortcut = $derived( platform.apple ? m.site_header_shortcut_label_apple() : m.site_header_shortcut_label() );
 
@@ -53,15 +67,32 @@
      */
     const isActive = ( href: Path ): boolean => page.url.pathname.startsWith( resolve( href ) );
 
-    /**
-     * Whether a page is being written, where the save bar holds the one primary
-     * action. A second filled button in the accent, starting yet another page,
-     * read as the next step of the one under way rather than as a way out of it.
-     */
     const writing = $derived( page.route.id?.startsWith( "/new" ) === true || page.route.id?.startsWith( "/edit" ) === true );
 
+    const unwrittenPage = $derived(
+        page.route.id === "/entries/[slug]" && wiki.ready && wiki.bySlug( page.params.slug ?? "" ) === undefined
+    );
+
+    const emptyHome = $derived( page.route.id === "/" && wiki.ready && wiki.entries.length === 0 );
+
+    /**
+     * Whether the page holds a primary action of its own, which the «Nouvelle
+     * fiche» of the header then steps back for, dropping to a control pill: the
+     * save bar of the editor, «Publier une entrée» on the live feed, «Créer cette
+     * fiche» on a red link, «Créer une fiche» on an empty home page, and the
+     * backups page, whose download, or demonstration on an empty wiki, is the step
+     * it exists for, and the error page, whose way home is the only step left. Two filled
+     * buttons in the accent on one screen read as two next steps, and on the
+     * last two they would even be the same one. Both red link and empty home wait
+     * for the overlay, so a page of content never flashes the quiet look on a
+     * cold load.
+     */
+    const pageHoldsPrimary = $derived(
+        writing || page.route.id === "/live" || page.route.id === "/data" || unwrittenPage || emptyHome || page.error !== null
+    );
+
     const newEntryLook = $derived(
-        writing
+        pageHoldsPrimary
             ? "bg-control text-ink-800 hover:bg-control-hover dark:text-paper-200 rounded-full"
             : "bg-accent-700 hover:bg-accent-800 dark:hover:bg-accent-600 rounded-lg text-white"
     );
@@ -73,7 +104,7 @@
     class="border-paper-200 dark:border-ink-700 dark:bg-ink-950/90 sticky top-0 z-40 border-b bg-white/90 backdrop-blur"
 >
     <div class="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
-        <a href={resolve( "/" )} class="group flex min-w-0 shrink-0 items-center gap-2.5">
+        <a href={resolve( "/" )} class="group flex min-w-0 shrink-0 items-center gap-2.5 {TOUCH_HEIGHT}">
             {#if wiki.meta.logo}
                 <img src={wiki.meta.logo} alt="" class="h-8 w-8 shrink-0 rounded-lg object-cover" width="32" height="32" />
             {/if}
@@ -120,27 +151,31 @@
                 {/each}
             </nav>
 
-            <button
-                type="button"
-                class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
-                       items-center justify-center rounded-full transition lg:hidden"
-                onclick={onsearch}
-                aria-label={m.common_search()}
-            >
-                <Search class="h-[18px] w-[18px]" />
-            </button>
+            {#if !reading.enabled}
+                <button
+                    type="button"
+                    class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
+                           items-center justify-center rounded-full transition lg:hidden"
+                    onclick={onsearch}
+                    aria-label={m.common_search()}
+                >
+                    <Search class="h-[18px] w-[18px]" />
+                </button>
+            {/if}
 
-            <a
-                href={resolve( "/new" )}
-                class="{PRESSED} {newEntryLook} hidden h-9 items-center gap-2 px-3.5 text-sm leading-none font-medium
-                       transition-colors lg:inline-flex"
-            >
-                <Plus class="h-4 w-4" />
-                {m.common_new_entry()}
-            </a>
+            {#if !reading.enabled}
+                <a
+                    href={resolve( "/new" )}
+                    class="{PRESSED} {newEntryLook} hidden h-9 items-center gap-2 px-3.5 text-sm leading-none
+                           font-medium transition-colors lg:inline-flex"
+                >
+                    <Plus class="h-4 w-4" />
+                    {m.common_new_entry()}
+                </a>
+            {/if}
 
             <div class="border-paper-200 dark:border-ink-700 ml-1 flex items-center gap-1 border-l pl-1.5">
-                <ToolsMenu links={TOOL_LINKS} {isActive} />
+                <ToolsMenu links={tools} {isActive} />
 
                 <ThemeToggle />
             </div>
@@ -170,7 +205,7 @@
     aria-label={m.site_header_drawer_aria()}
 >
     <div class="border-paper-200 dark:border-ink-700 flex items-center justify-between border-b px-4 py-3">
-        <p class="text-muted text-xs tracking-wide uppercase">{m.site_header_drawer_heading()}</p>
+        <h2 class="text-muted text-xs font-medium">{m.site_header_drawer_heading()}</h2>
 
         <button
             type="button"
@@ -201,10 +236,12 @@
             {/each}
         </ul>
 
-        <p class="text-muted mt-3 px-3 text-xs tracking-wide uppercase">{m.common_tools_label()}</p>
+        <h3 id="drawer-tools-heading" class="text-muted mt-3 px-3 text-xs font-medium">
+            {m.common_tools_label()}
+        </h3>
 
-        <ul class="mt-1 space-y-1">
-            {#each TOOL_LINKS as link ( link.href )}
+        <ul class="mt-1 space-y-1" aria-labelledby="drawer-tools-heading">
+            {#each tools as link ( link.href )}
                 <li>
                     <a
                         href={resolve( link.href )}
@@ -218,18 +255,19 @@
                     </a>
                 </li>
             {/each}
-
-            <li class="pt-2">
-                <a
-                    href={resolve( "/new" )}
-                    class="{PRESSED} bg-accent-700 hover:bg-accent-800 dark:hover:bg-accent-600 flex min-h-11 w-full
-                           items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-white transition-colors"
-                    onclick={() => ( menuOpen = false )}
-                >
-                    <Plus class="h-4 w-4" />
-                    {m.common_new_entry()}
-                </a>
-            </li>
         </ul>
+
+        {#if !reading.enabled}
+            <a
+                href={resolve( "/new" )}
+                class="{PRESSED} bg-accent-700 hover:bg-accent-800 dark:hover:bg-accent-600 mt-3 flex min-h-11 w-full
+                       items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-white
+                       transition-colors"
+                onclick={() => ( menuOpen = false )}
+            >
+                <Plus class="h-4 w-4" />
+                {m.common_new_entry()}
+            </a>
+        {/if}
     </nav>
 </Drawer>

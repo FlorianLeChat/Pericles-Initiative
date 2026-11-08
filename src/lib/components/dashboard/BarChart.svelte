@@ -7,11 +7,24 @@
      * also means the chart is made of real text, so the label and the figure are
      * read out as they stand and nothing has to be restated for a screen reader.
      *
+     * The figure counts every page, drafts included, since the dashboard is the
+     * author's view; a bar holding drafts says how many beside its label, in the
+     * label column rather than on a line under the bar, so the list keeps one
+     * rhythm and never contradicts the published count a reader sees on
+     * `/categories`. With a target, the label is drawn in ink and the whole row
+     * is its link.
+     *
+     * On a phone the label takes a line of its own above the bar rather than a
+     * truncated column beside it: «Guilds and offi…» named nothing, and the bar
+     * keeps the whole width for its length.
+     *
      * @author Claude
      */
     import { resolve } from "$app/paths";
     import type { Path } from "$app/types";
+    import * as m from "#lib/locales/messages.js";
     import { staggerRank } from "#lib/config/motion.ts";
+    import { TOUCH_HEIGHT } from "#lib/config/forms.ts";
     import type { CountByKey } from "#lib/utilities/stats.ts";
 
     interface Props {
@@ -33,16 +46,23 @@
 <ul class="space-y-2.5">
     {#each items as item, index ( item.key )}
         <li
-            class="grid grid-cols-[minmax(4.5rem,7rem)_minmax(0,1fr)_1.75rem] items-center gap-2 text-sm
-                   sm:grid-cols-[minmax(6rem,10rem)_minmax(0,1fr)_2.5rem] sm:gap-3"
+            class="relative grid grid-cols-[minmax(0,1fr)_1.75rem] items-center gap-x-2 text-sm
+                   sm:grid-cols-[minmax(6rem,14rem)_minmax(0,1fr)_2.5rem] sm:gap-3"
         >
-            <span class="truncate">
+            <span class="col-span-2 flex min-w-0 items-baseline gap-2 sm:col-span-1">
                 {#if href}
-                    <a href={resolve( href( item ) )} class="wiki-link">
+                    <a
+                        href={resolve( href( item ) )}
+                        class="row-link stretched-link block min-w-0 content-center sm:truncate {TOUCH_HEIGHT}"
+                    >
                         {item.label}
                     </a>
                 {:else}
-                    {item.label}
+                    <span class="min-w-0 sm:truncate">{item.label}</span>
+                {/if}
+
+                {#if item.drafts > 0}
+                    <span class="text-muted shrink-0 text-xs">{m.dashboard_category_drafts( { count: item.drafts } )}</span>
                 {/if}
             </span>
 

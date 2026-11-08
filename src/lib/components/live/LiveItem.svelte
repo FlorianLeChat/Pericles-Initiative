@@ -4,12 +4,21 @@
      * a sentence or two, then the link to the full page.
      *
      * Editing and deleting stay one tab stop each, but as quiet icon buttons after
-     * the link, so the destructive one is never the most prominent thing on a row.
+     * the link, drawn a step lighter than the text, so the dispatch carries the
+     * weight of the row and the destructive one is never the most prominent thing
+     * on it. «Lire la fiche» names its page to assistive technology, its accessible
+     * name opening on the visible words, since a feed of eleven identical links
+     * told a screen reader nothing of where each led.
+     *
+     * A pinned item carries no marker of its own: the feed only ever shows one
+     * under the «Épinglées» heading, which already says it of each. The date in
+     * full on its dateline stays, since that group has no day heading above it,
+     * and the relative time leaves it: «7 novembre 2026 à 19:23 · hier» said the
+     * same date twice.
      *
      * @author Claude
      */
     import { resolve } from "$app/paths";
-    import Pin from "@lucide/svelte/icons/pin";
     import * as m from "#lib/locales/messages.js";
     import type { LiveEntry } from "#lib/types.ts";
     import Pencil from "@lucide/svelte/icons/pencil";
@@ -18,6 +27,7 @@
     import SeverityBadge from "./SeverityBadge.svelte";
     import { renderInline } from "#lib/utilities/markdown.ts";
     import { severityConfig } from "#lib/config/severities.ts";
+    import { ICON_BUTTON, TOUCH_HEIGHT } from "#lib/config/forms.ts";
     import { formatDateTime, formatTime, relativeTime } from "#lib/utilities/date.ts";
 
     interface Props {
@@ -49,33 +59,34 @@
             {dateline}
         </time>
 
-        <span class="text-muted">{relativeTime( item.publishedAt )}</span>
+        {#if !item.pinned}
+            <span class="text-muted">{relativeTime( item.publishedAt )}</span>
+        {/if}
 
         <SeverityBadge severity={item.severity} />
-
-        {#if item.pinned}
-            <span class="text-ink-600 dark:text-paper-300 inline-flex items-center gap-1 font-medium">
-                <Pin class="h-3.5 w-3.5" aria-hidden="true" />
-                {m.live_item_pinned_badge()}
-            </span>
-        {/if}
     </div>
 
-    <h3 class="text-ink-900 dark:text-paper-100 mt-2 text-lg leading-snug font-semibold tracking-tight">
+    <h3 class="text-ink-900 dark:text-paper-100 mt-2 text-lg leading-snug font-semibold tracking-tight text-balance">
         {item.title}
     </h3>
 
     {#if item.body}
-        <div class="article-body prose-sm mt-1.5 max-w-2xl">
+        <div class="article-body prose-sm mt-1.5 max-w-help">
             {@html body}
         </div>
     {/if}
 
     <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
         {#if target}
-            <a href={resolve( `entries/${ target.slug }/` )} class="wiki-link font-medium">{m.live_item_read_entry()}</a>
+            <a
+                href={resolve( `entries/${ target.slug }/` )}
+                class="wiki-link inline-flex items-center font-medium {TOUCH_HEIGHT}"
+                aria-label={m.live_item_read_entry_aria( { title: target.title } )}
+            >
+                {m.live_item_read_entry()}
+            </a>
         {:else if item.entrySlug}
-            <a href={resolve( `entries/${ item.entrySlug }/` )} class="wiki-link-missing font-medium">
+            <a href={resolve( `entries/${ item.entrySlug }/` )} class="wiki-link-missing inline-flex items-center font-medium {TOUCH_HEIGHT}">
                 {m.live_item_missing_entry( { slug: item.entrySlug } )}
             </a>
         {/if}
@@ -95,8 +106,8 @@
                 {#if onedit}
                     <button
                         type="button"
-                        class="text-ink-500 dark:text-paper-400 hover:bg-paper-100 dark:hover:bg-ink-800 hover:text-accent-600
-                               dark:hover:text-accent-400 inline-flex h-9 w-9 items-center justify-center rounded-full
+                        class="text-ink-400 dark:text-paper-400/70 hover:bg-paper-100 dark:hover:bg-ink-800 hover:text-accent-600
+                               dark:hover:text-accent-400 inline-flex {ICON_BUTTON} items-center justify-center rounded-full
                                transition"
                         onclick={() => onedit( item )}
                         aria-label={m.live_item_edit_aria( { title: item.title } )}
@@ -109,8 +120,8 @@
                 {#if ondelete}
                     <button
                         type="button"
-                        class="text-ink-500 dark:text-paper-400 hover:bg-paper-100 dark:hover:bg-ink-800 hover:text-alert-500
-                               inline-flex h-9 w-9 items-center justify-center rounded-full transition"
+                        class="text-ink-400 dark:text-paper-400/70 hover:bg-paper-100 dark:hover:bg-ink-800 hover:text-alert-500
+                               inline-flex {ICON_BUTTON} items-center justify-center rounded-full transition"
                         onclick={() => ondelete( item )}
                         aria-label={m.live_item_delete_aria( { title: item.title } )}
                         title={m.common_delete()}

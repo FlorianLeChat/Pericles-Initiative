@@ -17,8 +17,10 @@
 
 import { browser } from "$app/env";
 import * as m from "#lib/locales/messages.js";
-import { uniqueSlug } from "#lib/utilities/slug.ts";
+import { storedSize } from "#lib/utilities/size.ts";
+import { STORAGE_QUOTA } from "#lib/config/storage.ts";
 import { timelineSortKey } from "#lib/utilities/date.ts";
+import { compareTitles, uniqueSlug } from "#lib/utilities/slug.ts";
 import { extractInternalLinks, retargetInternalLinks } from "#lib/utilities/markdown.ts";
 import type { Category, Dataset, Entry, EntryDate, LiveEntry, Overlay, WikiMeta } from "#lib/types.ts";
 import { buildImportOverlay,
@@ -37,6 +39,46 @@ import { buildImportOverlay,
 /** `localStorage` key holding the unpublished changes. */
 const OVERLAY_KEY = "pericles:overlay";
 
+/** `localStorage` key holding the wiki as it stood before the last replacement. */
+const PREVIOUS_KEY = "pericles:previous";
+
+/** What `/data` says of the wiki the last replacement set aside. */
+export interface PreviousWiki {
+    /** When it was replaced, an ISO timestamp. */
+    replacedAt: string;
+    /** How many pages it held. */
+    entries: number;
+}
+
+/** The shape written under `PREVIOUS_KEY`. */
+interface StoredPrevious {
+    replacedAt: string;
+    overlay: unknown;
+}
+
+/**
+ * Reads what was written under `PREVIOUS_KEY`, through the same normalisation
+ * as the overlay itself.
+ *
+ * @param raw The stored string.
+ * @returns When it was replaced and the overlay it held, or null when unreadable.
+ * @author Claude
+ */
+const readPrevious = ( raw: string ): { replacedAt: string; overlay: Overlay } | null =>
+{
+    try
+    {
+        const parsed = JSON.parse( raw ) as Partial<StoredPrevious> | null;
+        const replacedAt = typeof parsed?.replacedAt === "string" ? parsed.replacedAt : "";
+
+        return { replacedAt, overlay: normalizeOverlay( parsed?.overlay ) };
+    }
+    catch
+    {
+        return null;
+    }
+};
+
 /** How long an alert keeps showing the site wide banner, in milliseconds. */
 const BREAKING_MAX_AGE = 24 * 60 * 60 * 1000;
 
@@ -44,6 +86,20 @@ const BREAKING_MAX_AGE = 24 * 60 * 60 * 1000;
 export interface MissingLink {
     slug: string;
     from: Entry[];
+}
+
+/**
+ * A change the reader can still take back: a deletion, or several drafts
+ * published at once.
+ *
+ * `kind` says what happened and `title` names what it touched, the first page
+ * of a publication; `count` says how many pages a publication touched. That is
+ * all the toast offering the undo needs to word its sentence.
+ */
+export interface Undoable {
+    kind: "entry" | "live" | "category" | "publish";
+    title: string;
+    count?: number;
 }
 
 /**
@@ -78,6 +134,22 @@ class WikiStore
     /** Depth of the running `#batch` calls, while which `persist` is deferred. */
     #batchDepth = 0;
 
+    /**
+     * The overlay as it stood before the last deletion, which `undo` puts back.
+     *
+     * One level, and kept in memory only: a second copy of the wiki written to
+     * `localStorage` would share the quota with the first, and a reload is
+     * reason enough to consider the deletion settled. Any later write drops it,
+     * since restoring the whole overlay would otherwise take that write back too.
+     */
+    #undoOverlay: Overlay | null = null;
+
+    /** Set between taking the snapshot and the write of the deletion it covers. */
+    #remembering = false;
+
+    /** The deletion `undo` would take back, null when there is none. */
+    undoable = $state<Undoable | null>( null );
+
     /** Seed dataset, always empty until a real backend feeds it. */
     seed = $state<Dataset>( emptyDataset() );
 
@@ -108,7 +180,7 @@ class WikiStore
     meta = $derived( this.dataset.meta );
 
     /** Every page, drafts included, sorted by title. */
-    entries = $derived( [ ...this.dataset.entries ].sort( ( a, b ) => a.title.localeCompare( b.title, "fr" ) ) );
+    entries = $derived( [ ...this.dataset.entries ].sort( ( a, b ) => compareTitles( a.title, b.title ) ) );
 
     /** Pages visible in public listings. */
     publishedEntries = $derived( this.entries.filter( ( entry ) => entry.status === "publie" ) );
@@ -261,6 +333,20 @@ class WikiStore
     /** How many items this browser stores, the identity of the wiki included. */
     storedItemCount = $derived( this.storedContentCount + ( this.overlay.meta ? 1 : 0 ) );
 
+    /**
+     * The wiki the last import, restore, demonstration or reset set aside, which
+     * `restorePrevious` brings back; null when there is none.
+     */
+    previous = $state<PreviousWiki | null>( null );
+
+    /**
+     * Whether a replacement would leave a copy of the current wiki to come back
+     * to. The copy shares the quota of `localStorage` with the wiki that takes
+     * its place, so the estimate counts the current wiki twice, its copy and a
+     * replacement of about its size, and says no when that does not fit.
+     */
+    canKeepPrevious = $derived( this.hasStoredContent && storedSize( this.overlay ) * 2 <= STORAGE_QUOTA );
+
     /** True when this browser holds anything at all, be it content or settings. */
     hasStoredItems = $derived( this.storedItemCount > 0 );
 
@@ -315,6 +401,13 @@ class WikiStore
             {
                 this.overlay = normalizeOverlay( JSON.parse( stored ) );
             }
+
+            const kept = localStorage.getItem( PREVIOUS_KEY );
+            const previous = kept ? readPrevious( kept ) : null;
+
+            this.previous = previous
+                ? { replacedAt: previous.replacedAt, entries: Object.keys( previous.overlay.entries ).length }
+                : null;
         }
         catch ( error )
         {
@@ -340,6 +433,15 @@ class WikiStore
         if ( !browser || this.#batchDepth > 0 )
         {
             return;
+        }
+
+        if ( this.#remembering )
+        {
+            this.#remembering = false;
+        }
+        else
+        {
+            this.dismissUndo();
         }
 
         this.overlay.changedAt = new Date().toISOString();
@@ -380,6 +482,51 @@ class WikiStore
         }
 
         this.persist();
+    }
+
+    /**
+     * Keeps the overlay as it stands, for the change about to be written.
+     *
+     * @param undoable What the change removes or publishes.
+     * @author Claude
+     */
+    #remember( undoable: Undoable ): void
+    {
+        this.#undoOverlay = $state.snapshot( this.overlay );
+        this.#remembering = true;
+        this.undoable = undoable;
+    }
+
+    /**
+     * Puts back what the last deletion removed.
+     *
+     * The whole overlay is restored rather than the one item, so a page comes
+     * back with its address, its categories and the deletion marker of a seeded
+     * page withdrawn, exactly as it stood. Nothing can have been written since,
+     * or the snapshot would already be gone.
+     *
+     * @author Claude
+     */
+    undo(): void
+    {
+        if ( !this.#undoOverlay )
+        {
+            return;
+        }
+
+        this.overlay = this.#undoOverlay;
+        this.persist();
+    }
+
+    /**
+     * Gives up the chance to take the last deletion back.
+     *
+     * @author Claude
+     */
+    dismissUndo(): void
+    {
+        this.#undoOverlay = null;
+        this.undoable = null;
     }
 
     /**
@@ -424,7 +571,12 @@ class WikiStore
     }
 
     /**
-     * Suggests pages related to a given one, by shared categories.
+     * Suggests pages related to a given one, by shared categories, leaving out
+     * the pages that already link to it.
+     *
+     * Those are listed just above the suggestions, under «Pages qui mènent ici»,
+     * and a page named twice at the foot of an article pushed out a third that
+     * was not named at all.
      *
      * @param entry Reference page.
      * @param limit Maximum number of suggestions, defaults to 4.
@@ -434,9 +586,10 @@ class WikiStore
     relatedTo( entry: Entry, limit = 4 ): Entry[]
     {
         const reference = new Set( entry.categories );
+        const citing = new Set( this.backlinksOf( entry.slug ).map( ( candidate ) => candidate.id ) );
 
         const scored = this.publishedEntries
-            .filter( ( candidate ) => candidate.id !== entry.id )
+            .filter( ( candidate ) => candidate.id !== entry.id && !citing.has( candidate.id ) )
             .map( ( candidate ) => ( {
                 candidate,
                 shared: candidate.categories.filter( ( category ) => reference.has( category ) ).length
@@ -480,6 +633,40 @@ class WikiStore
     }
 
     /**
+     * Publishes several drafts at once, from the index filtered to drafts.
+     *
+     * Written in one batch, so the overlay is serialised once, and remembered
+     * like a deletion, so the toast can take the whole publication back.
+     *
+     * @param ids Identifiers of the pages to publish; those already published are skipped.
+     * @returns How many pages were published.
+     * @author Claude
+     */
+    publishEntries( ids: readonly string[] ): number
+    {
+        const drafts = ids
+            .map( ( id ) => this.entriesById.get( id ) )
+            .filter( ( entry ): entry is Entry => entry?.status === "brouillon" );
+        const first = drafts.at( 0 );
+
+        if ( !first )
+        {
+            return 0;
+        }
+
+        this.#remember( { kind: "publish", title: first.title, count: drafts.length } );
+        this.#batch( () =>
+        {
+            for ( const draft of drafts )
+            {
+                this.saveEntry( { ...draft, status: "publie" } );
+            }
+        } );
+
+        return drafts.length;
+    }
+
+    /**
      * Points the links of every page at a page that changed address.
      *
      * A slug is the url, and nothing else keys a link: renaming a page leaves
@@ -519,11 +706,20 @@ class WikiStore
     /**
      * Deletes a page, whether it comes from the seed or from the overlay.
      *
+     * The deletion can be taken back through `undo` until anything else is written.
+     *
      * @param id Identifier of the page.
      * @author Claude
      */
     deleteEntry( id: string ): void
     {
+        const entry = this.entriesById.get( id );
+
+        if ( entry )
+        {
+            this.#remember( { kind: "entry", title: entry.title } );
+        }
+
         this.overlay.entries = withoutKey( this.overlay.entries, id );
 
         const inSeed = this.seed.entries.some( ( entry ) => entry.id === id );
@@ -605,13 +801,22 @@ class WikiStore
     }
 
     /**
-     * Deletes a category and detaches it from every page.
+     * Deletes a category and detaches it from every page, which `undo` can take
+     * back like a page: the whole overlay is restored, so the category comes
+     * back on every page it was taken off.
      *
      * @param slug Category slug.
      * @author Claude
      */
     deleteCategory( slug: string ): void
     {
+        const category = this.categoriesBySlug.get( slug );
+
+        if ( category )
+        {
+            this.#remember( { kind: "category", title: category.name } );
+        }
+
         this.#batch( () =>
         {
             this.#forgetCategory( slug );
@@ -650,13 +855,20 @@ class WikiStore
     }
 
     /**
-     * Deletes a live feed item.
+     * Deletes a live feed item, which `undo` can take back like a page.
      *
      * @param id Identifier of the item.
      * @author Claude
      */
     deleteLiveEntry( id: string ): void
     {
+        const item = this.dataset.live.find( ( candidate ) => candidate.id === id );
+
+        if ( item )
+        {
+            this.#remember( { kind: "live", title: item.title } );
+        }
+
         this.overlay.live = withoutKey( this.overlay.live, id );
 
         const inSeed = this.seed.live.some( ( item ) => item.id === id );
@@ -696,6 +908,8 @@ class WikiStore
         {
             return;
         }
+
+        this.dismissUndo();
 
         try
         {
@@ -775,8 +989,7 @@ class WikiStore
      */
     importDataset( imported: Dataset ): { entries: number; categories: number; live: number }
     {
-        this.overlay = buildImportOverlay( this.seed, imported );
-        this.persist();
+        this.#replace( buildImportOverlay( this.seed, imported ) );
 
         return {
             entries: imported.entries.length,
@@ -797,17 +1010,130 @@ class WikiStore
      */
     resetContent(): void
     {
-        const identity = this.overlay.meta;
+        this.#replace( { ...emptyOverlay(), meta: this.overlay.meta } );
+    }
 
-        this.overlay = { ...emptyOverlay(), meta: identity };
-
-        if ( identity )
+    /**
+     * Brings back the wiki the last replacement set aside.
+     *
+     * It is itself a replacement, so the wiki it takes the place of is set aside
+     * in turn, and pressing it twice comes back to where the reader started.
+     *
+     * @author Claude
+     */
+    restorePrevious(): void
+    {
+        if ( !browser )
         {
-            this.persist();
+            return;
         }
-        else
+
+        let raw: string | null;
+
+        try
+        {
+            raw = localStorage.getItem( PREVIOUS_KEY );
+        }
+        catch ( error )
+        {
+            this.storageError = m.wiki_storage_read_error( { error: String( error ) } );
+            return;
+        }
+
+        const previous = raw ? readPrevious( raw ) : null;
+
+        this.#dropPrevious();
+
+        if ( previous )
+        {
+            this.#replace( previous.overlay );
+        }
+    }
+
+    /**
+     * Installs an overlay in place of the whole current one, setting the current
+     * one aside under `PREVIOUS_KEY` first when it holds content and fits.
+     *
+     * The copy goes first, so a full quota refuses it rather than the wiki
+     * arriving; when the wiki arriving is then refused all the same, the copy
+     * leaves to make room for it, since the wiki on screen is the one to keep.
+     * An overlay holding nothing at all, not even an identity, is forgotten
+     * rather than written, as `#forgetStorage` explains.
+     *
+     * @param next The overlay to install, already normalised.
+     * @author Claude
+     */
+    #replace( next: Overlay ): void
+    {
+        const kept = this.#keepPrevious();
+        const holdsSomething = countOverlayContent( next ) > 0 || next.meta !== null;
+
+        this.overlay = next;
+
+        if ( !holdsSomething )
         {
             this.#forgetStorage();
+            return;
+        }
+
+        this.persist();
+
+        if ( this.storageError && kept )
+        {
+            this.#dropPrevious();
+            this.persist();
+        }
+    }
+
+    /**
+     * Writes the current overlay under `PREVIOUS_KEY`, when it holds content.
+     *
+     * A browser holding no page has nothing worth coming back to, so an earlier
+     * copy is left as it is rather than overwritten by an empty wiki. A copy that
+     * does not fit removes the older one, which no longer describes the wiki the
+     * replacement is about to set aside.
+     *
+     * @returns True when the copy was written.
+     * @author Claude
+     */
+    #keepPrevious(): boolean
+    {
+        if ( !browser || !this.hasStoredContent )
+        {
+            return false;
+        }
+
+        const stored: StoredPrevious = { replacedAt: new Date().toISOString(), overlay: $state.snapshot( this.overlay ) };
+
+        try
+        {
+            localStorage.setItem( PREVIOUS_KEY, JSON.stringify( stored ) );
+            this.previous = { replacedAt: stored.replacedAt, entries: Object.keys( this.overlay.entries ).length };
+            return true;
+        }
+        catch
+        {
+            this.#dropPrevious();
+            return false;
+        }
+    }
+
+    /**
+     * Forgets the wiki set aside by the last replacement.
+     *
+     * @author Claude
+     */
+    #dropPrevious(): void
+    {
+        this.previous = null;
+
+        try
+        {
+            localStorage.removeItem( PREVIOUS_KEY );
+        }
+        catch ( error )
+        {
+            this.storageError = m.wiki_storage_write_error( { error: String( error ) } );
         }
     }
 }

@@ -28,7 +28,7 @@
     import { paletteColor } from "#lib/config/palette.ts";
     import Checkbox from "flowbite-svelte/Checkbox.svelte";
     import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
-    import { FIELD, PAIRED_ACTION, SMALL_FIELD } from "#lib/config/forms.ts";
+    import { FIELD, PAIRED_ACTION, SMALL_FIELD, TOUCH_HEIGHT } from "#lib/config/forms.ts";
 
     interface Props {
         /** Slugs of the categories the page carries. */
@@ -143,7 +143,7 @@
     <Button
         color="alternative"
         size="xs"
-        class="rounded-full"
+        class="rounded-full {TOUCH_HEIGHT}"
         aria-expanded={open}
         aria-controls="entry-categories"
         onclick={() => ( open = !open )}

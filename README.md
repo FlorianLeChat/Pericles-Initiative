@@ -70,7 +70,9 @@ sequenceDiagram
     Utilisateur->>Interface: J'importe un fichier
     Interface-->>Utilisateur: Ce que contient le fichier face à ce que contient le navigateur
     Utilisateur->>Interface: Je confirme le remplacement, après une copie si je le souhaite
-    Interface->>Stockage local: Remplace intégralement le contenu du navigateur
+    Interface->>Stockage local: Met le wiki actuel de côté, s'il y a la place, puis remplace intégralement le contenu du navigateur
+    Utilisateur->>Interface: Je reviens au wiki précédent, si je le souhaite
+    Interface->>Stockage local: Rétablit le wiki mis de côté, et met de côté celui qu'il remplace
 
     Utilisateur->>Sauvegarde en ligne: J'envoie un instantané, si j'en ai configuré une
     Sauvegarde en ligne-->>Utilisateur: L'état de la synchronisation
@@ -149,7 +151,9 @@ sequenceDiagram
     User->>Interface: I import a file
     Interface-->>User: What the file holds against what the browser holds
     User->>Interface: I confirm the replacement, after a copy if I want one
-    Interface->>Local storage: Replaces the whole content of the browser
+    Interface->>Local storage: Sets the current wiki aside, when there is room, then replaces the whole content of the browser
+    User->>Interface: I go back to the previous wiki, if I want to
+    Interface->>Local storage: Reinstates the wiki set aside, and sets aside the one it replaces
 
     Interface->>Online backup: Reads the snapshot on arrival, then at most once a minute, if I configured one
     Online backup-->>Interface: The dataset, stamped with when its content last changed

@@ -39,7 +39,7 @@
  * holds the close button they share, and `theme` the tokens they all read.
  */
 @source '../node_modules/flowbite-svelte/dist/{alert,badge,breadcrumb,buttons,dialog,drawer,dropdown,kbd,modal,spinner,theme,toast,utils}';
-@source '../node_modules/flowbite-svelte/dist/forms/{checkbox,fileupload,helper,input-field,label,radio,search,select,textarea}';
+@source '../node_modules/flowbite-svelte/dist/forms/{checkbox,helper,input-field,label,radio,search,select,textarea}';
 
 /* Class based dark mode: the theme toggle writes `.dark` on <html>. */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -125,6 +125,17 @@
     --font-sans: 'Public Sans', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --font-serif: 'Source Serif 4', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
     --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+
+    /*
+     * Reading measure of a body and of a lede: about seventy characters of Public
+     * Sans at 16 to 18px, where `70ch`, counted on the width of a zero, ran close to
+     * ninety. Interface text at 14px reads through `max-w-help` for the same
+     * reason: Tailwind's `max-w-prose` is a fixed `65ch`, outside the theme, and
+     * let help sentences, dispatches and summaries run to ninety characters at
+     * that size, where 28rem holds seventy.
+     */
+    --container-measure: 36rem;
+    --container-help: 28rem;
 
     /*
      * Neutral palette: white ground, cool greys, hairlines rather than shadows.
@@ -311,13 +322,20 @@
  * Specificity is otherwise out of the picture: `--accent-*` is declared nowhere
  * else, and two ramps never apply to the same element.
  *
- * The stops that carry text are what fixes each ramp, and the reason four of them
+ * The stops that carry text are what fixes each ramp, and the reason two of them
  * are not the ones their family would give. 600 draws a link on paper and has to
  * clear four and a half to one against it, 700 carries white text and has to
  * clear the same the other way round, and 500 is the focus ring, which needs three
  * to one against the page. Only the blue and the violet manage the first of those
- * at the stop a stock palette calls 600: green, amber, rose and cyan are all too
- * light there, so each of those ramps is shifted a notch down.
+ * at the stop a stock palette calls 600: green and cyan are both too light there,
+ * so each of those ramps is shifted a notch down.
+ *
+ * The amber and the rose are drawn rather than borrowed, on a single OKLCH hue each
+ * and one lightness per stop shared by both. Their stock families stood beside
+ * the catalogue red, hue 29: the rose at 17, the same lightness, so a link could
+ * not be told from a red link, and the amber at 49. The rose is moved to 350, a
+ * raspberry, and the amber to 75, a golden ochre, which leaves both at least
+ * thirty five degrees from the red in either theme.
  */
 
 [data-accent] {
@@ -369,16 +387,16 @@
 }
 
 [data-accent='ambre'] {
-    --accent-50: #fffbeb;
-    --accent-100: #fef3c7;
-    --accent-200: #fde68a;
-    --accent-300: #fcd34d;
-    --accent-400: #f59e0b;
-    --accent-500: #d97706;
-    --accent-600: #b45309;
-    --accent-700: #92400e;
-    --accent-800: #78350f;
-    --accent-900: #451a03;
+    --accent-50: #fff5e8;
+    --accent-100: #fee9ce;
+    --accent-200: #fcd6a1;
+    --accent-300: #f5bc69;
+    --accent-400: #e49e22;
+    --accent-500: #b37903;
+    --accent-600: #8b5d02;
+    --accent-700: #774f02;
+    --accent-800: #5e3e01;
+    --accent-900: #402800;
 }
 
 [data-accent='violet'] {
@@ -395,16 +413,16 @@
 }
 
 [data-accent='rose'] {
-    --accent-50: #fff1f2;
-    --accent-100: #ffe4e6;
-    --accent-200: #fecdd3;
-    --accent-300: #fda4af;
-    --accent-400: #fb7185;
-    --accent-500: #e11d48;
-    --accent-600: #be123c;
-    --accent-700: #9f1239;
-    --accent-800: #881337;
-    --accent-900: #4c0519;
+    --accent-50: #fff3f8;
+    --accent-100: #fee5f0;
+    --accent-200: #ffcce2;
+    --accent-300: #ffa9d2;
+    --accent-400: #ff78be;
+    --accent-500: #d84497;
+    --accent-600: #b31a77;
+    --accent-700: #9e0067;
+    --accent-800: #7d0151;
+    --accent-900: #570036;
 }
 
 [data-accent='cyan'] {
@@ -435,6 +453,19 @@
         --duration-swap: 200ms;
         /* Kept in step with `RANK_STEP` in `src/lib/config/motion.ts`. */
         --rank-step: 45ms;
+    }
+
+    /*
+     * Paragraphs balance their last lines rather than leaving one word alone on
+     * the last, which the summaries of listing rows, the bodies of the feed and
+     * the help under a field all did at one width or another. A paragraph cut by
+     * `truncate` or `line-clamp` is unaffected, having no last line to balance.
+     * The items of an article's lists are paragraphs in all but their tag, and
+     * left the same straggler on a phone.
+     */
+    p,
+    .article-body li {
+        text-wrap: pretty;
     }
 
     /*
@@ -567,11 +598,8 @@
         @apply text-ink-900 dark:text-paper-100 text-xl font-semibold tracking-tight;
     }
 
-    /*
-     * Call number of a page, the catalogue card's heading line: a type code, a
-     * year and three letters of the title, set in the mono face and nowhere else.
-     */
-    .call-number {
+    /* A literal string a reader could type or copy, a path or a slug, set in the mono face and nowhere else. */
+    .machine-string {
         @apply text-ink-400 dark:text-paper-400/80 font-mono text-xs tracking-wide;
     }
 
@@ -672,7 +700,7 @@
      * text as the content rules ask: the plugin's generated pair would double them.
      */
     .article-body {
-        @apply prose prose-lg max-w-[70ch];
+        @apply prose prose-lg max-w-measure;
         @apply prose-headings:font-semibold prose-headings:tracking-tight prose-h2:text-[1.5rem] prose-h2:mt-12;
         @apply prose-h3:text-[1.25rem];
         @apply prose-a:font-normal prose-img:rounded-xl prose-blockquote:not-italic;
@@ -758,6 +786,17 @@
 
     .wiki-link-missing {
         @apply text-alert-500 decoration-alert-500/50 underline decoration-dotted underline-offset-2;
+    }
+
+    /*
+     * A link that is the whole surface of a list row: the related reads, the
+     * backlinks, the dashboard lists, the points of the timeline. Drawn in ink
+     * and underlined only on hover and focus, since a column of accent underlines
+     * read as a wall of links where each row is one plain choice. `.wiki-link`
+     * stays for prose, for a link standing on its own and for red links.
+     */
+    .row-link {
+        @apply text-ink-900 decoration-accent-400 dark:text-paper-100 dark:decoration-accent-500 underline-offset-2 hover:underline focus-visible:underline;
     }
 
     .surface-lift {
@@ -1045,9 +1084,22 @@ select:not([size]) {
 /*
  * Flowbite rings a button on `focus-within`, which a tap or a click sets as
  * surely as the keyboard: on a phone, «Filtres» kept a thick grey ring after it
- * was touched, as if still pressed. The ring stays for the keyboard only.
+ * was touched, as if still pressed. A link drawn as a button is ringed the same
+ * way, so both drop it for a pointer.
+ *
+ * For the keyboard the ring gives way to the site's own outline. Flowbite also
+ * writes `focus-within:outline-hidden`, which beat the base `:focus-visible`
+ * rule of the layers, and left a four pixel ring in `gray-200` or
+ * `primary-300`: about 1.3 to 1 on white, and all but invisible in the dark
+ * theme. Unlayered, this outline wins.
  */
-button[class*='focus-within:ring']:focus:not(:focus-visible) {
+:is(a, button)[class*='focus-within:ring']:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+:is(a, button)[class*='focus-within:ring']:focus-visible {
+    outline: 2px solid var(--color-accent-500);
+    outline-offset: 2px;
     box-shadow: none;
 }
 
@@ -1098,6 +1150,16 @@ input[type='checkbox']:not(:checked) {
 
     --crepe-shadow-1: 0 1px 2px 0 rgb(0 0 0 / 0.06), 0 1px 3px 0 rgb(0 0 0 / 0.08);
     --crepe-shadow-2: 0 4px 12px -2px rgb(0 0 0 / 0.12), 0 2px 6px -2px rgb(0 0 0 / 0.08);
+}
+
+/*
+ * Group headings of the block menu, in the muted text colour rather than Crepe's
+ * own mix of the surface text at sixty per cent, which only cleared four to one on
+ * the menu. The repeated class is what outranks Crepe's selector, declared in a
+ * stylesheet the editor loads after this one.
+ */
+.milkdown .milkdown-slash-menu .menu-groups .menu-group.menu-group h6 {
+    color: var(--crepe-color-on-surface-variant);
 }
 
 /* The frame around the editor does not clip, so its lower corners are carried down to the editor. */
@@ -1161,6 +1223,15 @@ input[type='checkbox']:not(:checked) {
 
 .milkdown div.ProseMirror p {
     line-height: 1.75;
+}
+
+/*
+ * A link to a page that does not exist carries `.wiki-link-missing` on a span the
+ * red link plugin wraps inside its anchor. The span draws the dotted red
+ * underline; the solid one Crepe gives the anchor would run under it.
+ */
+.milkdown div.ProseMirror a:has(> .wiki-link-missing) {
+    text-decoration: none;
 }
 
 .milkdown div.ProseMirror :is(h1, h2, h3, h4, h5, h6) {

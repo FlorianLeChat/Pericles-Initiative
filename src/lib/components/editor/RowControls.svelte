@@ -18,6 +18,7 @@
     import Link from "@lucide/svelte/icons/link";
     import * as m from "#lib/locales/messages.js";
     import Button from "flowbite-svelte/Button.svelte";
+    import { ICON_BUTTON } from "#lib/config/forms.ts";
     import ArrowUp from "@lucide/svelte/icons/arrow-up";
     import ArrowDown from "@lucide/svelte/icons/arrow-down";
 
@@ -37,7 +38,7 @@
 
     let { name, first, last, onmove, onremove, onlink, active }: Props = $props();
 
-    const CONTROL = "text-ink-500 dark:text-paper-400 h-9 w-9 shrink-0 border-0 bg-transparent dark:bg-transparent p-0";
+    const CONTROL = `text-ink-500 dark:text-paper-400 ${ ICON_BUTTON } shrink-0 border-0 bg-transparent dark:bg-transparent p-0`;
 </script>
 
 <div

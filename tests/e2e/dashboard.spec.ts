@@ -9,7 +9,10 @@
 
 import { expect, test } from "./utilities/fixtures";
 import type { Locator, Page } from "@playwright/test";
-import { CATEGORIES, COUNTS, MISSING_SLUG, PAGES } from "./utilities/dataset";
+import { CATEGORIES, COUNTS, MISSING_SLUG, PAGES, sampleDataset } from "./utilities/dataset";
+
+/** A date of edit past the twelve months of the activity chart, whatever day the suite runs on. */
+const QUIET_YEARS_AGO = "2001-01-01T00:00:00.000Z";
 
 /** How many months the activity chart draws, as `buildActivity` counts them. */
 const ACTIVITY_MONTHS = 12;
@@ -54,7 +57,7 @@ test.describe( "dashboard", () =>
         const mostLinked = panel( page, "Fiches les plus citées" ).getByRole( "listitem" ).first();
 
         await expect( mostLinked ).toContainText( PAGES.athena.title );
-        await expect( mostLinked ).toContainText( "2 liens" );
+        await expect( mostLinked ).toContainText( "citée 2 fois" );
 
         const missing = panel( page, "Pages à écrire" );
 
@@ -73,7 +76,10 @@ test.describe( "dashboard", () =>
     {
         await wiki.open( "/dashboard" );
 
-        const months = panel( page, "Activité d'édition" ).getByRole( "listitem" );
+        const activity = panel( page, "Activité d'édition" );
+        const months = activity.getByRole( "listitem" );
+
+        await expect( activity ).toContainText( "Fiches modifiées chaque mois, de" );
 
         await expect( months ).toHaveCount( ACTIVITY_MONTHS );
         await expect( months.last() ).toContainText( MONTH_LABEL.format( new Date() ) );
@@ -86,6 +92,29 @@ test.describe( "dashboard", () =>
         expect( counted ).toBe( COUNTS.entries );
     } );
 
+    test( "invites an empty wiki to start, and says a quiet year in a sentence", async ( { page, wiki } ) =>
+    {
+        await wiki.openEmpty( "/dashboard" );
+
+        // An empty wiki draws no panel of zeros: it points at the first page and at the demonstration.
+        await expect( page.getByText( "Aucune fiche pour le moment" ) ).toBeVisible();
+        await expect( page.getByRole( "main" ).getByRole( "link", { name: "Créer une fiche" } ) ).toBeVisible();
+        await expect( page.getByRole( "main" ).getByRole( "link", { name: /contenu de démonstration/ } ) ).toBeVisible();
+        await expect( page.getByRole( "heading", { name: "Activité d'édition" } ) ).toHaveCount( 0 );
+        await expect( page.getByRole( "main" ).locator( "dl" ) ).toHaveCount( 0 );
+
+        // A wiki whose pages were all edited long ago says so rather than drawing a year of zeros.
+        const dataset = sampleDataset();
+
+        dataset.entries = dataset.entries.map( ( entry ) => ( { ...entry, updatedAt: QUIET_YEARS_AGO } ) );
+        await wiki.openWith( dataset, "/dashboard" );
+
+        const activity = panel( page, "Activité d'édition" );
+
+        await expect( activity ).toContainText( "Aucune fiche modifiée sur les douze derniers mois." );
+        await expect( activity.getByRole( "listitem" ) ).toHaveCount( 0 );
+    } );
+
     test( "counts the corpus, points at what it lacks, and breaks it down", async ( { page, wiki } ) =>
     {
         await wiki.open( "/dashboard" );
@@ -94,17 +123,30 @@ test.describe( "dashboard", () =>
         await expect( figure( page, "Fiches" ) )
             .toContainText( `${ COUNTS.published } publiées, ${ COUNTS.drafts } en brouillon` );
         await expect( figure( page, "Catégories" ) ).toContainText( String( COUNTS.categories ) );
-        await expect( figure( page, "Fil en direct" ) ).toContainText( String( COUNTS.live ) );
+        await expect( figure( page, "En direct" ) ).toContainText( String( COUNTS.live ) );
 
         const issues = panel( page, "Points d'attention" );
 
-        await expect( issues ).toContainText( "Sans résumé" );
-        await expect( issues ).toContainText( "Sans date de référence" );
-        await expect( issues.getByRole( "link", { name: PAGES.sceau.title } ).first() ).toBeVisible();
-        await expect( issues.getByRole( "link", { name: PAGES.bureau.title } ).first() ).toBeVisible();
+        // The panel says what it checks before it lists anything.
+        await expect( issues ).toContainText( "moins de 50 mots" );
+
+        // One row per page, carrying every gap it has, however many there are.
+        await expect( issues ).toContainText( "sans résumé" );
+        await expect( issues ).toContainText( "sans date" );
+        await expect( issues.getByRole( "link", { name: PAGES.sceau.title, exact: true } ) ).toHaveCount( 1 );
+        await expect( issues.getByRole( "link", { name: PAGES.bureau.title, exact: true } ) ).toHaveCount( 1 );
+
+        // A page lacking only length is counted under the list rather than listed.
+        await expect( issues.getByText( /^Et \d+ fiches? à qui il ne manque que de la longueur, sous 50 mots\.$/ ) ).toBeVisible();
+
+        // Every point of attention is something to fix, so each page has its way into the editor.
+        await expect( issues.getByRole( "link", { name: `Modifier la fiche « ${ PAGES.sceau.title } »` } ) )
+            .toHaveAttribute( "href", `/edit/${ PAGES.sceau.slug }/` );
 
         await expect( panel( page, "Dernières modifications" ).getByRole( "listitem" ).first() )
             .toContainText( PAGES.athena.title );
+
+        await expect( panel( page, "Par catégorie" ) ).toContainText( `dont ${ COUNTS.doctrineDrafts } en brouillon` );
 
         await panel( page, "Par catégorie" ).getByRole( "link", { name: CATEGORIES.institutions.name } ).click();
 

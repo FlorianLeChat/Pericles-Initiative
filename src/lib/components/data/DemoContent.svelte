@@ -14,12 +14,21 @@
      * a third way of filling this browser, beside the restore of a file. It also
      * switches the interface to English, the language the fiction is written in.
      *
+     * Its button is the primary action of the page only while this browser holds
+     * no page: there, the demonstration is the obvious next step. Once the wiki
+     * holds pages of its own, the same press replaces them, so it steps back to a
+     * secondary button and the confirmation offers to download them first.
+     *
+     * Its two paragraphs keep a 65ch measure: the card spans the column, and at
+     * full width a line ran to some hundred and twenty five characters.
+     *
      * @author Claude
      */
     import * as m from "#lib/locales/messages.js";
     import Alert from "flowbite-svelte/Alert.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
+    import DownloadFirst from "./DownloadFirst.svelte";
     import { setLocale } from "#lib/locales/runtime.js";
     import { ACTION_BUTTON } from "#lib/config/forms.ts";
     import { normalizeDataset } from "#lib/utilities/dataset.ts";
@@ -68,16 +77,16 @@
 <section class="surface mt-6 space-y-3 p-6" aria-labelledby="demo-heading">
     <h2 id="demo-heading" class="section-heading">{m.demo_heading()}</h2>
 
-    <p class="text-muted text-sm leading-relaxed">{m.demo_description()}</p>
+    <p class="text-muted max-w-help text-sm leading-relaxed text-pretty">{m.demo_description()}</p>
 
-    <p class="text-ink-600 dark:text-paper-300 text-sm leading-relaxed">{m.demo_note()}</p>
+    <p class="text-ink-600 dark:text-paper-300 max-w-help text-sm leading-relaxed text-pretty">{m.demo_note()}</p>
 
     {#if failed}
         <Alert color="red" class="rounded-xl text-sm" role="status">{m.demo_error()}</Alert>
     {/if}
 
     <Button
-        color="primary"
+        color={wiki.hasStoredContent ? "alternative" : "primary"}
         class="mt-2 {ACTION_BUTTON}"
         disabled={loading}
         onclick={() => ( confirmOpen = true )}
@@ -89,8 +98,12 @@
 <ConfirmDialog
     bind:open={confirmOpen}
     title={m.demo_confirm_title()}
-    message={m.demo_confirm_message()}
+    message={wiki.hasStoredContent ? m.demo_confirm_message() : m.demo_confirm_message_empty()}
     confirmLabel={m.demo_confirm_label()}
-    danger
+    danger={wiki.hasStoredContent}
     onconfirm={() => void load()}
-/>
+>
+    {#if confirmOpen && wiki.hasStoredContent}
+        <DownloadFirst />
+    {/if}
+</ConfirmDialog>

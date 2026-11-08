@@ -8,9 +8,9 @@
  */
 
 import type { Locator, Page } from "@playwright/test";
-import { COUNTS, IMPORTED_IMAGE, PAGES, UNIVERSE } from "./utilities/dataset";
+import { COUNTS, IMPORTED_IMAGE, MISSING_SLUG, PAGES, UNIVERSE } from "./utilities/dataset";
 import { ACCENTS, DEFAULT_ACCENT, type Accent } from "#lib/config/accents.ts";
-import { expect, LOCALE_KEY, test, type WikiHelper } from "./utilities/fixtures";
+import { expect, isNarrow, LOCALE_KEY, test, type WikiHelper } from "./utilities/fixtures";
 
 /**
  * Reaches the settings the way a reader does, from a page already open.
@@ -51,6 +51,10 @@ test.describe( "settings", () =>
         await openSettings( page, wiki );
 
         await expect( page.getByLabel( "Nom de l'univers" ) ).toHaveValue( UNIVERSE );
+
+        // At rest the bar is only its status: the button comes with the first change.
+        await expect( page.getByText( "Tout est enregistré." ) ).toBeVisible();
+        await expect( page.getByRole( "button", { name: "Enregistrer", exact: true } ) ).toHaveCount( 0 );
 
         await page.getByLabel( "Nom de l'univers" ).fill( "" );
 
@@ -133,9 +137,70 @@ test.describe( "settings", () =>
         expect( ( await wiki.storedOverlay() )?.meta?.accent ).toBe( chosen.key );
     } );
 
-    test( "puts every setting back once confirmed, and spares the pages", async ( { page, wiki } ) =>
+    test( "reads only on this device, then puts every setting back and spares the pages", async ( { page, wiki } ) =>
     {
         await openSettings( page, wiki );
+
+        // Reading only applies at once, with no save, and is remembered outside the overlay.
+        await page.getByRole( "radio", { name: "Lire seulement" } ).click();
+
+        expect( await page.evaluate( () => window.localStorage.getItem( "pericles:mode" ) ) ).toBe( "lecture" );
+
+        await wiki.navigate( "En direct" );
+
+        await expect( page.getByRole( "heading", { name: "En direct", level: 1 } ) ).toBeVisible();
+        await expect( page.getByRole( "article" ) ).toHaveCount( COUNTS.live );
+        await expect( page.getByRole( "button", { name: "Publier une entrée" } ) ).toHaveCount( 0 );
+        await expect( page.getByRole( "button", { name: /^Modifier l'entrée/ } ) ).toHaveCount( 0 );
+        await expect( page.getByRole( "link", { name: "Nouvelle fiche" } ) ).toHaveCount( 0 );
+
+        // The chronology says undated pages are left out, without sending a player to the workbench.
+        await wiki.navigate( "Chronologie" );
+
+        await expect( page.getByRole( "heading", { name: "Chronologie", level: 1 } ) ).toBeVisible();
+        await expect( page.getByRole( "link", { name: "points d'attention" } ) ).toHaveCount( 0 );
+
+        // On a reading phone the search leaves the header for the foot of the screen, in reach of the thumb.
+        if ( isNarrow( page ) )
+        {
+            const search = page.getByRole( "button", { name: "Rechercher", exact: true } );
+            const box = await search.boundingBox();
+
+            expect( box?.y ?? 0 ).toBeGreaterThan( ( page.viewportSize()?.height ?? 0 ) / 2 );
+            await search.click();
+            await expect( page.getByRole( "dialog" ) ).toBeVisible();
+            await page.keyboard.press( "Escape" );
+            await expect( page.getByRole( "dialog" ) ).toBeHidden();
+        }
+
+        // The dashboard leaves the tools of a reading device; reached by its address, it offers no way into the editor.
+        await page.goto( "/dashboard/" );
+
+        await expect( page.getByRole( "main" ).getByRole( "navigation", { name: "Outils" } ).getByRole( "link" ) )
+            .toHaveText( [ "Sauvegardes", "Paramètres" ] );
+
+        await expect( page.getByRole( "heading", { name: "Pages à écrire" } ) ).toBeVisible();
+        await expect( page.getByRole( "link", { name: /^Créer la fiche/ } ) ).toHaveCount( 0 );
+        await expect( page.getByRole( "link", { name: /^Modifier la fiche/ } ) ).toHaveCount( 0 );
+
+        // The backups keep the download and the restore, but no demonstration and no way to empty the wiki.
+        await page.goto( "/data/" );
+
+        await expect( page.getByRole( "button", { name: "Télécharger ma sauvegarde" } ) ).toBeVisible();
+        await expect( page.getByRole( "button", { name: "Restaurer cette sauvegarde" } ) ).toBeVisible();
+        await expect( page.getByRole( "button", { name: "Effacer tout mon contenu" } ) ).toHaveCount( 0 );
+        await expect( page.getByRole( "button", { name: /démonstration/ } ) ).toHaveCount( 0 );
+
+        // A page still to write tells a player it is not written, never to write it, and says it once.
+        await page.goto( `/entries/${ MISSING_SLUG }/` );
+
+        await expect( page.getByRole( "heading", { name: "Personne n'a encore écrit cette fiche" } ) ).toBeVisible();
+        await expect( page.getByText( /Écrivez-la/ ) ).toHaveCount( 0 );
+        await expect( page.getByRole( "link", { name: "L'écrire" } ) ).toHaveCount( 0 );
+
+        await wiki.openTool( "Paramètres" );
+
+        await expect( page.getByRole( "radio", { name: "Lire seulement" } ) ).toBeChecked();
 
         await page.getByLabel( "Description" ).fill( "Une description de passage." );
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
@@ -150,22 +215,26 @@ test.describe( "settings", () =>
 
         expect( overlay?.meta ).toBeNull();
         expect( Object.keys( overlay?.entries ?? {} ) ).toHaveLength( COUNTS.entries );
+        expect( await page.evaluate( () => window.localStorage.getItem( "pericles:mode" ) ) ).toBeNull();
+        await expect( page.getByRole( "radio", { name: "Read and write" } ) ).toBeChecked();
     } );
 
     test( "switches the language, remembers it, and reloads the page in it", async ( { page, wiki } ) =>
     {
         await openSettings( page, wiki );
-        await page.getByRole( "radio", { name: "Anglais" } ).click();
+        await expect( page.locator( "html" ) ).toHaveAttribute( "lang", "fr" );
+        await page.getByRole( "radio", { name: "English" } ).click();
 
         await expect( page ).toHaveURL( /\/settings\/$/ );
         await expect( page.getByRole( "heading", { name: "Settings", level: 1 } ) ).toBeVisible();
+        await expect( page.locator( "html" ) ).toHaveAttribute( "lang", "en" );
         await expect( page.getByLabel( "Universe name" ) ).toBeVisible();
 
         const locale = await page.evaluate( ( key ) => window.localStorage.getItem( key ), LOCALE_KEY );
 
         expect( locale ).toBe( "en" );
 
-        await page.getByRole( "radio", { name: "French" } ).click();
+        await page.getByRole( "radio", { name: "Français" } ).click();
         await expect( page.getByRole( "heading", { name: "Paramètres", level: 1 } ) ).toBeVisible();
     } );
 
@@ -175,7 +244,7 @@ test.describe( "settings", () =>
 
         // An empty name cannot be saved, so the guard can only offer to switch without it.
         await page.getByLabel( "Nom de l'univers" ).fill( "" );
-        await page.getByRole( "radio", { name: "Anglais" } ).click();
+        await page.getByRole( "radio", { name: "English" } ).click();
 
         await wiki.confirm( "Changer de langue sans enregistrer ?", "Annuler" );
 
@@ -184,7 +253,7 @@ test.describe( "settings", () =>
         await expect( page.getByLabel( "Nom de l'univers" ) ).toHaveValue( "" );
 
         await page.getByLabel( "Nom de l'univers" ).fill( "Périclès, troisième cycle" );
-        await page.getByRole( "radio", { name: "Anglais" } ).click();
+        await page.getByRole( "radio", { name: "English" } ).click();
 
         await expect( page.getByRole( "radio", { name: "Français" } ) ).toBeChecked();
 

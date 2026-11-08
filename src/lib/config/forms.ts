@@ -22,11 +22,11 @@ export const RADIO_OVERLAY = "absolute inset-0 m-0 h-full w-full cursor-pointer 
 /**
  * Shape of a filter pill, whichever value it carries.
  *
- * It stands a notch taller below `sm`, where the row is what a thumb aims at
- * rather than what a pointer clicks, and where the pills are the one filter that
- * is not a full width menu.
+ * It stands at 44px below `sm`, where the row is what a thumb aims at rather
+ * than what a pointer clicks, and where the pills are the one filter that is not
+ * a full width menu.
  */
-const PILL_BASE = `relative flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-medium
+const PILL_BASE = `relative flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full px-3 text-xs font-medium
                    transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2
                    has-[:focus-visible]:outline-accent-500 sm:min-h-9`;
 
@@ -125,6 +125,24 @@ export const ACTION_BUTTON = "w-full sm:w-auto";
 export const PAIRED_ACTION = "flex-1 sm:flex-none";
 
 /**
+ * Size of an icon button: 44px square on a phone, 36px from `sm`.
+ *
+ * Forty four pixels is what a fingertip needs to land on a control without
+ * catching its neighbour, and a phone is where the wiki is read at the table.
+ * From `sm` a pointer is the likelier hand, and the denser 36px keeps rows of
+ * controls from crowding what they act on.
+ */
+export const ICON_BUTTON = "h-11 w-11 sm:h-9 sm:w-9";
+
+/**
+ * Height floor of a small text button or link: 44px on a phone, its own from `sm`.
+ *
+ * For the `xs` and `sm` Flowbite buttons and the text buttons that sit in a
+ * toolbar or beside a label, the same reasoning as `ICON_BUTTON`.
+ */
+export const TOUCH_HEIGHT = "min-h-11 sm:min-h-0";
+
+/**
  * Class bringing a small Flowbite `Input` to the height of a small `Select`.
  *
  * The library does not agree with itself on what `size="sm"` means: an input gets
@@ -146,9 +164,10 @@ export const SMALL_FIELD = "py-2.5";
  * sits inset, at the colour of the page, behind an edge at three to one, and a
  * field marked `aria-invalid` draws that edge in catalogue red: the state is
  * read from the attribute assistive technology already announces, rather than
- * from a colour prop that could drift from it.
+ * from a colour prop that could drift from it. Below `sm` it stands at least
+ * 44px tall, like every other control a finger aims at.
  */
-export const FIELD = `bg-field dark:bg-field border-field-edge dark:border-field-edge aria-invalid:border-alert-500
+export const FIELD = `min-h-11 sm:min-h-0 bg-field dark:bg-field border-field-edge dark:border-field-edge aria-invalid:border-alert-500
                       dark:aria-invalid:border-alert-500`;
 
 /**
@@ -169,6 +188,8 @@ export const PRESSED = "active:not-disabled:brightness-90 dark:active:not-disabl
  * Theme handed to Flowbite at the root of the site, appended to every one of its buttons.
  *
  * Flowbite's own route to a class shared by every instance, rather than a
- * stylesheet rule guessing which buttons are its own from their classes.
+ * stylesheet rule guessing which buttons are its own from their classes. It
+ * carries the pressed state and the 44px floor of a phone, so no Flowbite
+ * button, whatever its size, stands under a fingertip.
  */
-export const FLOWBITE_THEME = { button: { base: PRESSED } };
+export const FLOWBITE_THEME = { button: { base: `${ PRESSED } ${ TOUCH_HEIGHT }` } };

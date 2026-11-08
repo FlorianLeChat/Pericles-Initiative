@@ -6,11 +6,33 @@
      * body, the one `BackupPanel` shows under its file tile: a file on this
      * device, no server involved, no request fired.
      *
-     * A restore replaces everything and keeps no undo, since a second copy of the
-     * wiki would share the storage quota with the first. So the file is read and
+     * A restore replaces everything; the store sets the wiki it replaces aside
+     * when it fits, and the confirmation says whether it will. So the file is read and
      * normalised before anything is asked: the confirmation shows what this
      * device holds against what the file holds, and offers to download the
      * current version first, from inside the dialog.
+     *
+     * The file is chosen through a button of the site rather than the browser's
+     * own file field, which writes «Choose File» and «No file chosen» in the
+     * language of the browser, not the page's. The real field stays, hidden, and
+     * keeps the label; the name of the chosen file shows beside the button and
+     * describes it.
+     *
+     * The download is the primary action of the page while the browser holds
+     * pages, and steps back to the alternative style when it holds none, leaving
+     * the place to the demonstration; with nothing stored at all, not even an
+     * identity, there is nothing to write, and the download leaves with its copy
+     * rather than standing disabled beside a copy that still answered. The restore stays an
+     * alternative button in every case: it replaces the wiki, and its confirmation
+     * says so in red, so it is never the step the page invites first.
+     *
+     * Each half speaks under its own buttons: the download and the copy under
+     * theirs, the reading of a file and the restore under the restore button. One
+     * message above the download used to answer a failed restore about nine
+     * hundred pixels above the button pressed, on a phone.
+     *
+     * The paste area is a mono field, but its placeholder is a sentence and keeps
+     * the sans.
      *
      * @author Claude
      */
@@ -19,13 +41,15 @@
     import Alert from "flowbite-svelte/Alert.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import Upload from "@lucide/svelte/icons/upload";
     import Button from "flowbite-svelte/Button.svelte";
+    import DownloadFirst from "./DownloadFirst.svelte";
     import { pluralize } from "#lib/utilities/plural.ts";
     import Textarea from "flowbite-svelte/Textarea.svelte";
-    import Fileupload from "flowbite-svelte/Fileupload.svelte";
+    import { downloadBackup } from "#lib/utilities/download.ts";
     import { normalizeDataset } from "#lib/utilities/dataset.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
-    import { ACTION_BUTTON, ACTION_ROW, FIELD } from "#lib/config/forms.ts";
+    import { ACTION_BUTTON, ACTION_ROW, FIELD, TOUCH_HEIGHT } from "#lib/config/forms.ts";
 
     /**
      * Top level keys every export writes. A JSON object carrying none of them is
@@ -34,10 +58,13 @@
     const BACKUP_KEYS = [ "meta", "entries", "categories", "live" ];
 
     let importText = $state( "" );
-    let feedback = $state<{ kind: "success" | "error"; text: string } | null>( null );
+    let fileField: HTMLInputElement | undefined = $state();
+
+    /** Name of the file last chosen, empty until one is. */
+    let fileName = $state( "" );
+    let feedback = $state<{ kind: "success" | "error"; text: string; area: "download" | "restore" } | null>( null );
     let importOpen = $state( false );
     let pending = $state<Dataset | null>( null );
-    let downloadedFirst = $state( false );
 
     /**
      * Phrases how much a wiki holds, each noun agreeing with its own count.
@@ -49,10 +76,10 @@
     const summarize = ( counts: { entries: number; categories: number; live: number } ): string =>
     {
         const entries = pluralize( counts.entries, { one: m.common_count_fiche_one, other: m.common_count_fiche_other } );
-        const categories = pluralize(
-            counts.categories,
-            { one: m.common_count_categorie_one, other: m.common_count_categorie_other }
-        );
+        const categories = pluralize( counts.categories, {
+            one: m.common_count_categorie_one,
+            other: m.common_count_categorie_other
+        } );
         const live = pluralize( counts.live, { one: m.common_count_entree_one, other: m.common_count_entree_other } );
 
         return m.file_backup_compare_counts( { entries, categories, live } );
@@ -125,16 +152,9 @@
      */
     const download = (): void =>
     {
-        const blob = new Blob( [ wiki.exportJson() ], { type: "application/json" } );
-        const url = URL.createObjectURL( blob );
-        const link = document.createElement( "a" );
+        downloadBackup( wiki.exportJson() );
 
-        link.href = url;
-        link.download = "wiki.json";
-        link.click();
-        URL.revokeObjectURL( url );
-
-        feedback = { kind: "success", text: m.file_backup_download_success() };
+        feedback = { kind: "success", text: m.file_backup_download_success(), area: "download" };
     };
 
     /**
@@ -147,11 +167,11 @@
         try
         {
             await navigator.clipboard.writeText( wiki.exportJson() );
-            feedback = { kind: "success", text: m.file_backup_copy_success() };
+            feedback = { kind: "success", text: m.file_backup_copy_success(), area: "download" };
         }
         catch
         {
-            feedback = { kind: "error", text: m.file_backup_copy_error() };
+            feedback = { kind: "error", text: m.file_backup_copy_error(), area: "download" };
         }
     };
 
@@ -171,14 +191,16 @@
             return;
         }
 
+        fileName = file.name;
+
         try
         {
             importText = await file.text();
-            feedback = { kind: "success", text: m.file_backup_file_ready( { name: file.name } ) };
+            feedback = { kind: "success", text: m.file_backup_file_ready( { name: file.name } ), area: "restore" };
         }
         catch
         {
-            feedback = { kind: "error", text: m.file_backup_import_error() };
+            feedback = { kind: "error", text: m.file_backup_import_error(), area: "restore" };
         }
     };
 
@@ -193,26 +215,14 @@
 
         if ( !dataset )
         {
-            feedback = { kind: "error", text: m.file_backup_import_error() };
+            feedback = { kind: "error", text: m.file_backup_import_error(), area: "restore" };
 
             return;
         }
 
         feedback = null;
         pending = dataset;
-        downloadedFirst = false;
         importOpen = true;
-    };
-
-    /**
-     * Downloads the current version from inside the confirmation, which stays open.
-     *
-     * @author Claude
-     */
-    const downloadFirst = (): void =>
-    {
-        download();
-        downloadedFirst = true;
     };
 
     /**
@@ -231,45 +241,78 @@
 
         pending = null;
         importText = "";
-        feedback = { kind: "success", text: m.file_backup_restored_summary( { summary: summarize( counts ) } ) };
+        feedback = {
+            kind: "success",
+            text: m.file_backup_restored_summary( { summary: summarize( counts ) } ),
+            area: "restore"
+        };
     };
 </script>
 
-<div>
-    {#if feedback}
+{#snippet message( area: "download" | "restore" )}
+    {#if feedback?.area === area}
         <Alert
             color={feedback.kind === "success" ? "primary" : "red"}
-            class="mb-6 rounded-xl text-sm"
+            class="mt-4 rounded-xl text-sm"
             role={feedback.kind === "success" ? "status" : "alert"}
         >
             {feedback.text}
         </Alert>
     {/if}
+{/snippet}
+
+<div>
+
+    {#if wiki.hasStoredItems}
+        <div class="border-paper-200 dark:border-ink-700 mb-6 border-b pb-6">
+            <h3 class="font-semibold">{m.file_backup_download_heading()}</h3>
+
+            <p class="text-muted mt-1 max-w-help text-sm">{m.file_backup_download_description()}</p>
+
+            <div class="mt-4 {ACTION_ROW}">
+                <Button color={wiki.hasStoredContent ? "primary" : "alternative"} onclick={download}>
+                    {m.file_backup_download_button()}
+                </Button>
+
+                <Button color="alternative" onclick={() => void copy()}>{m.file_backup_copy_button()}</Button>
+            </div>
+
+            {@render message( "download" )}
+        </div>
+    {/if}
 
     <div>
-        <h3 class="font-semibold">{m.file_backup_download_heading()}</h3>
-
-        <p class="text-muted mt-1 text-sm">{m.file_backup_download_description()}</p>
-
-        <div class="mt-4 {ACTION_ROW}">
-            <Button color="primary" onclick={download}>{m.file_backup_download_button()}</Button>
-
-            <Button color="alternative" onclick={() => void copy()}>{m.file_backup_copy_button()}</Button>
-        </div>
-    </div>
-
-    <div class="border-paper-200 dark:border-ink-700 mt-6 border-t pt-6">
         <h3 class="font-semibold">{m.file_backup_restore_heading()}</h3>
 
-        <p class="text-muted mt-1 text-sm">{m.file_backup_restore_description()}</p>
+        <p class="text-muted mt-1 max-w-help text-sm">{m.file_backup_restore_description()}</p>
 
         <div class="mt-4 space-y-4">
             <div>
                 <Label for="import-file" class="field-label">{m.file_backup_file_label()}</Label>
 
-                <Fileupload
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <Button
+                        color="alternative"
+                        size="sm"
+                        class="gap-2 rounded-full {TOUCH_HEIGHT}"
+                        aria-describedby="import-file-name"
+                        onclick={() => fileField?.click()}
+                    >
+                        <Upload class="h-4 w-4" />
+                        {m.file_backup_choose_button()}
+                    </Button>
+
+                    <span id="import-file-name" class="text-muted min-w-0 truncate text-sm">
+                        {fileName || m.file_backup_no_file()}
+                    </span>
+                </div>
+
+                <input
+                    bind:this={fileField}
                     id="import-file"
+                    type="file"
                     accept="application/json,.json"
+                    class="hidden"
                     onchange={( event: Event ) => void onFile( event )}
                 />
             </div>
@@ -281,19 +324,21 @@
                     id="import-text"
                     bind:value={importText}
                     rows={5}
-                    class="{FIELD} w-full resize-y font-mono text-xs"
+                    class="{FIELD} w-full resize-y font-mono text-xs placeholder:font-sans"
                     placeholder={m.file_backup_paste_placeholder()}
                 />
             </div>
 
             <Button
-                color="primary"
+                color="alternative"
                 class={ACTION_BUTTON}
                 disabled={importText.trim().length === 0}
                 onclick={prepareImport}
             >
                 {m.file_backup_restore_button()}
             </Button>
+
+            {@render message( "restore" )}
         </div>
     </div>
 </div>
@@ -303,7 +348,7 @@
     title={m.file_backup_replace_title()}
     message={m.file_backup_replace_message()}
     confirmLabel={m.file_backup_replace_confirm()}
-    danger
+    danger={wiki.hasStoredContent}
     onconfirm={runImport}
 >
     <dl
@@ -327,13 +372,7 @@
         </div>
     </dl>
 
-    <div class="mt-4 flex flex-col items-start gap-2">
-        <Button color="alternative" size="sm" onclick={downloadFirst}>{m.file_backup_download_first()}</Button>
-
-        <p class="text-xs" role="status">
-            {#if downloadedFirst}
-                {m.file_backup_download_first_done()}
-            {/if}
-        </p>
-    </div>
+    {#if importOpen}
+        <DownloadFirst />
+    {/if}
 </ConfirmDialog>

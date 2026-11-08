@@ -7,9 +7,11 @@
     import { untrack } from "svelte";
     import { resolve } from "$app/paths";
     import X from "@lucide/svelte/icons/x";
+    import Kbd from "flowbite-svelte/Kbd.svelte";
     import * as m from "#lib/locales/messages.js";
     import Check from "@lucide/svelte/icons/check";
     import InfoboxCard from "./InfoboxCard.svelte";
+    import WritingHelp from "./WritingHelp.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import EntryHeading from "./EntryHeading.svelte";
     import Button from "flowbite-svelte/Button.svelte";
@@ -20,6 +22,7 @@
     import MarkdownEditor from "./MarkdownEditor.svelte";
     import { createId } from "#lib/utilities/dataset.ts";
     import { beforeNavigate, goto } from "$app/navigation";
+    import { platform } from "#lib/state/platform.svelte.ts";
     import { slugify, uniqueSlug } from "#lib/utilities/slug.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
     import type { Entry, EntryDate, EntryStatus, InfoboxField } from "#lib/types.ts";
@@ -420,6 +423,29 @@
     };
 
     /**
+     * Takes the body as the editor writes it for the page it was given, both as
+     * the body and as what the body is compared against.
+     *
+     * The editor serialises Markdown its own way, so the stored body and its
+     * rewriting differ on a page nobody has touched yet. Adopting the rewriting
+     * as the baseline is what keeps opening a page from reading as a change; a
+     * body already edited in the meantime is left as it is.
+     *
+     * @param markdown Markdown of the untouched document.
+     * @author Claude
+     */
+    const adoptBody = ( markdown: string ): void =>
+    {
+        if ( body !== baseline.body )
+        {
+            return;
+        }
+
+        body = markdown;
+        baseline = { ...baseline, body: markdown };
+    };
+
+    /**
      * Writes a template into the card and the body.
      *
      * What the template writes is not the writer's change, so it moves the
@@ -455,7 +481,7 @@
     {
         const written = dates.some( isDated )
           || infobox.some( isFilled )
-          || body.trim() !== templateBody( template ).trim();
+          || body.trim() !== baseline.body.trim();
 
         if ( !written )
         {
@@ -544,7 +570,10 @@
     };
 
     /**
-     * Saves on Ctrl+S, the shortcut every editor answers to.
+     * Saves on Ctrl+S, the shortcut every editor answers to. The save button
+     * carries its keycap, Ctrl S or ⌘ S after the platform, hidden under a coarse
+     * pointer, which has no keyboard to press it on, so the shortcut is learnt
+     * from the button rather than guessed.
      *
      * @param event Keyboard event on the window.
      * @author Claude
@@ -591,8 +620,8 @@
 >
     <div
         data-sticky-top
-        class="border-paper-200 dark:border-ink-700 dark:bg-ink-950/80 bg-paper-50/90 sticky top-16 z-30 -mx-4 mb-8
-               flex items-center gap-2 border-b px-4 py-3 backdrop-blur sm:-mx-6 sm:gap-3 sm:px-6"
+        class="border-paper-200 dark:border-ink-700 dark:bg-ink-950/80 bg-paper-50/90 sticky top-16 z-30 mb-8 flex
+               items-center gap-2 border-b py-3 backdrop-blur sm:gap-3"
     >
         <p
             class="text-muted flex min-w-0 flex-1 flex-col text-xs leading-tight sm:flex-row sm:items-center sm:gap-1.5
@@ -622,18 +651,27 @@
             href={current ? resolve( `entries/${ current.slug }/` ) : resolve( "entries/" )}
             color="alternative"
             size="sm"
-            class="order-first h-9 w-9 shrink-0 p-0 sm:order-none sm:w-auto sm:px-3"
+            class="order-first h-11 w-11 shrink-0 p-0 sm:order-none sm:h-9 sm:w-auto sm:px-3"
         >
             <X class="h-4 w-4 sm:hidden" />
             <span class="sr-only sm:not-sr-only">{m.entry_form_close()}</span>
         </Button>
 
-        <Button type="submit" color={isDraft ? "alternative" : "primary"} size="sm" class="h-9 shrink-0">
+        <Button
+            type="submit"
+            color={isDraft ? "alternative" : "primary"}
+            size="sm"
+            class="h-11 shrink-0 gap-2 sm:h-9"
+            aria-keyshortcuts="Control+S Meta+S"
+        >
             {m.common_save()}
+            <Kbd class="pointer-coarse:hidden px-1 py-0.5 text-xs font-normal" aria-hidden="true">
+                {platform.apple ? m.entry_form_save_shortcut_apple() : m.entry_form_save_shortcut()}
+            </Kbd>
         </Button>
 
         {#if isDraft}
-            <Button color="primary" size="sm" class="h-9 shrink-0" onclick={publish}>
+            <Button color="primary" size="sm" class="h-11 shrink-0 sm:h-9" onclick={publish}>
                 {m.entry_form_publish()}
             </Button>
         {/if}
@@ -667,6 +705,7 @@
                     <MarkdownEditor
                         value={body}
                         onchange={( markdown ) => ( body = markdown )}
+                        onready={adoptBody}
                         generatorKind={template.generator}
                     />
                 {/key}
@@ -697,6 +736,8 @@
                 {slugTaken}
                 ondelete={current ? () => ( deleteOpen = true ) : undefined}
             />
+
+            <WritingHelp />
         </div>
     </div>
 </form>

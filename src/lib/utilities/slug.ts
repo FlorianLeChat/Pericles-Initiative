@@ -4,6 +4,8 @@
  * @author Claude
  */
 
+import { getLocale } from "#lib/locales/runtime.js";
+
 /** Nonspacing marks, which is what accents become once a string is NFD decomposed. */
 const COMBINING_MARKS = /\p{Mn}/gu;
 
@@ -112,4 +114,34 @@ export const humanizeSlug = ( slug: string ): string =>
     const spaced = slug.replaceAll( "-", " " );
 
     return spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 );
+};
+
+/** A leading article, French or English, followed by the rest of a title: `The `, `Les `, `L'`. */
+const LEADING_ARTICLE = /^(?:the|an?|les?|la|une?|des)\s+(?=\S)|^l['’]\s*(?=\S)/iu;
+
+/**
+ * Gives the form a title is filed under, without its leading article, the way a
+ * library catalogue files «The Long Night» under L. The title itself is always
+ * shown as written; only its place in an alphabetical list moves.
+ *
+ * @param title Title of a page.
+ * @returns The title stripped of one leading article, or as given when it has none.
+ * @author Claude
+ */
+export const filingTitle = ( title: string ): string => title.trim().replace( LEADING_ARTICLE, "" );
+
+/**
+ * Compares two titles in the order of an alphabetical index: by their filing
+ * form, in the reader's language, then by the full title so that «La Marée» and
+ * «Marée» keep a stable order.
+ *
+ * @param left First title.
+ * @param right Second title.
+ * @returns A negative number when `left` files first, positive when `right` does.
+ * @author Claude
+ */
+export const compareTitles = ( left: string, right: string ): number =>
+{
+    const collator = new Intl.Collator( getLocale() );
+    return collator.compare( filingTitle( left ), filingTitle( right ) ) || collator.compare( left, right );
 };

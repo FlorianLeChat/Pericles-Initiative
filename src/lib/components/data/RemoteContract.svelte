@@ -81,7 +81,7 @@
 >
     <h3 id={headingId} class="text-ink-900 dark:text-paper-100 text-sm font-semibold">{heading}</h3>
 
-    <p id={introId} class="text-muted mt-1 text-sm leading-relaxed text-pretty">{intro}</p>
+    <p id={introId} class="text-muted mt-1 max-w-help text-sm leading-relaxed text-pretty">{intro}</p>
 
     <div class="mt-3 flex flex-wrap items-center gap-2">
         <CopyButton label={m.remote_contract_copy_all()} name={heading} text={instructions} describedby={introId} />

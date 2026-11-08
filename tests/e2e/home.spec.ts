@@ -4,7 +4,7 @@
  * @author Claude
  */
 
-import { expect, test } from "./utilities/fixtures";
+import { expect, isNarrow, test } from "./utilities/fixtures";
 import { CATEGORIES, COUNTS, DESCRIPTION, LIVE, PAGES, UNIVERSE } from "./utilities/dataset";
 
 /** The pages the fixture puts forward, in the order its settings list them. */
@@ -17,8 +17,16 @@ test.describe( "home page", () =>
         await wiki.openEmpty();
 
         await expect( page.getByText( "Aucune fiche pour le moment" ) ).toBeVisible();
+
+        // The header already names the unnamed universe; the opening says where the reader stands instead.
+        await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( "Votre encyclopédie commence ici" );
+
+        // A first visit learns what the site is, and that nothing leaves this browser.
+        await expect( page.getByText( "Une encyclopédie pour l'univers de votre campagne" ) ).toBeVisible();
+        await expect( page.getByText( "Tout reste dans ce navigateur, sans compte ni serveur." )
+            .getByRole( "link", { name: "les sauvegardes" } ) ).toHaveAttribute( "href", "/data" );
         await expect( page.getByRole( "heading", { name: "À la une" } ) ).toBeHidden();
-        await expect( page.getByRole( "link", { name: "Essayer le contenu de démonstration" } ) ).toBeVisible();
+        await expect( page.getByRole( "link", { name: "Essayer le contenu de démonstration, en anglais" } ) ).toBeVisible();
 
         await page.getByRole( "link", { name: "Créer une fiche" } ).click();
 
@@ -49,7 +57,20 @@ test.describe( "home page", () =>
         await expect( page.getByRole( "main" ).getByText( DESCRIPTION ) ).toBeVisible();
         await expect( page.getByRole( "main" ).locator( "dl" ) ).toHaveCount( 0 );
 
-        await page.getByRole( "button", { name: "Trouver une fiche, un lieu, un personnage" } ).click();
+        /*
+         * One labelled search per screen: on a phone the opening carries it, since
+         * the header only has an icon; on a desktop the header pill does.
+         */
+        const opening = page.getByRole( "button", { name: "Chercher dans le wiki" } );
+
+        if ( !isNarrow( page ) )
+        {
+            await expect( opening ).toBeHidden();
+
+            return;
+        }
+
+        await opening.click();
 
         await expect( page.getByRole( "dialog", { name: "Rechercher une fiche" } ) ).toBeVisible();
     } );
@@ -96,7 +117,7 @@ test.describe( "home page", () =>
             name: `${ CATEGORIES.institutions.name } ${ COUNTS.institutions }`
         } ) ).toBeVisible();
 
-        await feed.getByRole( "link", { name: "Tout le fil" } ).click();
+        await feed.getByRole( "link", { name: "Tout voir En direct" } ).click();
 
         await expect( page ).toHaveURL( /\/live\/$/ );
     } );

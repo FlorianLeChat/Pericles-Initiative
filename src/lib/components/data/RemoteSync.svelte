@@ -18,6 +18,7 @@
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import { ACTION_ROW } from "#lib/config/forms.ts";
     import Button from "flowbite-svelte/Button.svelte";
+    import DownloadFirst from "./DownloadFirst.svelte";
     import { remote } from "#lib/state/remote.svelte.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
     import Checkbox from "flowbite-svelte/Checkbox.svelte";
@@ -148,7 +149,7 @@
         {m.remote_backup_sync_heading()}
     </h3>
 
-    <p class="mt-2 flex items-start gap-2 text-sm leading-relaxed">
+    <p class="mt-2 flex max-w-help items-start gap-2 text-sm leading-relaxed">
         {#if syncState === "synced"}
             <CircleCheck class="text-ink-500 dark:text-paper-400 mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <span class="text-ink-700 dark:text-paper-200">{m.remote_backup_sync_synced()}</span>
@@ -184,7 +185,7 @@
         {/if}
     </div>
 
-    <p class="text-muted mt-3 text-xs leading-relaxed">
+    <p class="text-muted mt-3 max-w-help text-xs leading-relaxed">
         {m.remote_backup_directions_note()}
         {#if remote.conditional}
             {m.remote_backup_conditional_note()}
@@ -278,7 +279,11 @@
     message={m.remote_backup_restore_confirm_message()}
     confirmLabel={m.remote_backup_restore_confirm_label()}
     onconfirm={() => void restore()}
-/>
+>
+    {#if restoreOpen && wiki.hasStoredContent}
+        <DownloadFirst />
+    {/if}
+</ConfirmDialog>
 
 <ConfirmDialog
     bind:open={forgetOpen}

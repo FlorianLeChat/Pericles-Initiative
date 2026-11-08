@@ -13,13 +13,11 @@
      */
     import * as m from "#lib/locales/messages.js";
     import DatesEditor from "./DatesEditor.svelte";
-    import { wiki } from "#lib/state/wiki.svelte.ts";
     import InfoboxEditor from "./InfoboxEditor.svelte";
     import { ageAtDeath } from "#lib/utilities/date.ts";
     import CategoryPicker from "./CategoryPicker.svelte";
     import { pluralize } from "#lib/utilities/plural.ts";
     import EntryImageFields from "./EntryImageFields.svelte";
-    import { callNumber } from "#lib/utilities/catalogue.ts";
     import type { EntryDate, InfoboxField } from "#lib/types.ts";
 
     interface Props {
@@ -45,8 +43,6 @@
 
     const age = $derived( ageAtDeath( dates ) );
     const shownTitle = $derived( title.trim() );
-
-    const reference = $derived( callNumber( { title, dates }, wiki.categoriesBySlug.get( categories[ 0 ] ) ) );
 </script>
 
 <aside class="surface overflow-hidden" aria-label={m.entry_form_infobox_label()}>
@@ -61,10 +57,6 @@
             >
                 {shownTitle || m.entry_form_untitled()}
             </p>
-
-            {#if reference}
-                <p class="call-number mt-1">{reference}</p>
-            {/if}
         </div>
 
         <section aria-labelledby="entry-dates-heading">

@@ -20,6 +20,7 @@
     import EntryPicker from "../editor/EntryPicker.svelte";
     import ArrowDown from "@lucide/svelte/icons/arrow-down";
     import { FEATURED_LIST_LENGTH } from "#lib/config/featured.ts";
+    import { ICON_BUTTON, TOUCH_HEIGHT } from "#lib/config/forms.ts";
 
     interface Props {
         /** Slugs of the featured pages, most prominent first. */
@@ -31,7 +32,7 @@
     let pickerOpen = $state( false );
 
     /** Classes of a row action: a borderless square the size of a fingertip. */
-    const ROW_ACTION = "h-9 w-9 shrink-0 border-0 p-0";
+    const ROW_ACTION = `${ ICON_BUTTON } shrink-0 border-0 p-0`;
 
     /**
      * Names the place of the home page a featured page takes.
@@ -70,7 +71,12 @@
 </script>
 
 {#snippet addButton()}
-    <Button color="alternative" size="xs" class="gap-1.5 rounded-full" onclick={() => ( pickerOpen = true )}>
+    <Button
+        color="alternative"
+        size="xs"
+        class="gap-1.5 rounded-full {TOUCH_HEIGHT}"
+        onclick={() => ( pickerOpen = true )}
+    >
         <Plus class="h-3.5 w-3.5" />
         {m.featured_pages_add()}
     </Button>
@@ -102,7 +108,8 @@
                         {#if entry}
                             <a
                                 href={resolve( `entries/${ slug }/` )}
-                                class="text-ink-900 dark:text-paper-100 block truncate text-sm font-medium hover:underline"
+                                class="text-ink-900 dark:text-paper-100 block content-center truncate text-sm font-medium hover:underline
+                                       {TOUCH_HEIGHT}"
                             >
                                 {entry.title}
                             </a>

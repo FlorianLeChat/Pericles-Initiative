@@ -15,9 +15,14 @@
      * split in two blocks either way, which a card stacks and a settings group sets
      * side by side.
      *
+     * Both erase something a download keeps, the pages on one side and the
+     * identity of the wiki on the other, so the confirmation offers that download
+     * before the button that erases.
+     *
      * @author Claude
      */
     import type { Snippet } from "svelte";
+    import DownloadFirst from "./DownloadFirst.svelte";
     import Button from "flowbite-svelte/Button.svelte";
     import { ACTION_BUTTON } from "#lib/config/forms.ts";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
@@ -35,6 +40,8 @@
         disabled?: boolean;
         /** Classes drawing the section around it, a card unless told otherwise. */
         frame?: string;
+        /** True when the reset empties the content, which the store then sets aside. */
+        replacesWiki?: boolean;
         confirmTitle: string;
         confirmMessage: string;
         confirmLabel: string;
@@ -48,6 +55,7 @@
         action,
         disabled = false,
         frame = "surface mt-6 space-y-3 p-6",
+        replacesWiki = false,
         confirmTitle,
         confirmMessage,
         confirmLabel,
@@ -64,11 +72,11 @@
     <div>
         <h2 id={headingId} class="section-heading">{heading}</h2>
 
-        <p class="text-muted mt-1.5 text-sm leading-relaxed text-pretty">{description}</p>
+        <p class="text-muted mt-1.5 max-w-help text-sm leading-relaxed text-pretty">{description}</p>
     </div>
 
     <div class="min-w-0">
-        <p class="text-ink-600 dark:text-paper-300 text-sm leading-relaxed">{@render spares()}</p>
+        <p class="text-ink-600 dark:text-paper-300 max-w-help text-sm leading-relaxed">{@render spares()}</p>
 
         <Button color="red" class="mt-5 {ACTION_BUTTON}" {disabled} onclick={() => ( confirmOpen = true )}>
             {action}
@@ -83,4 +91,8 @@
     {confirmLabel}
     danger
     {onconfirm}
-/>
+>
+    {#if confirmOpen}
+        <DownloadFirst {replacesWiki} />
+    {/if}
+</ConfirmDialog>

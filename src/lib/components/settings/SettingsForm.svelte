@@ -8,16 +8,25 @@
      * the fields were seeded before `localStorage` had been read, and nothing
      * afterwards told them to catch up.
      *
-     * The two groups of the draft share one save bar, sticky at the foot of the
-     * form, which also carries the status of the draft. A button per group wrote
-     * the same draft under two names, and the confirmation rendered above the
-     * first group, a screen away from the second one.
+     * The two groups of the draft share one save bar at the foot of the form,
+     * which also carries the status of the draft. A button per group wrote the
+     * same draft under two names, and the confirmation rendered above the first
+     * group, a screen away from the second one. The bar only sticks to the foot
+     * of the screen while there is something to save: at rest it covered the
+     * accent pills it had nothing to say about, and its translucent fill let them
+     * show through, so it is opaque as well. At rest it is not a bar at all: the
+     * status line stands alone, without the card or a disabled button offering
+     * nothing, and both come back with the first change, so a frame on screen
+     * always means there is something to save. The resting line takes the right
+     * column of the groups, under the last featured page, so it reads as the
+     * close of the form rather than as an orphan between two groups.
      *
      * The language is not part of that draft. It belongs to this browser rather
      * than to the wiki, never leaves with an export, and applies at once through a
      * reload, so it stands in a group of its own after the form. That reload would
      * throw a pending draft away, which is why a change of language with unsaved
-     * edits asks first.
+     * edits asks first. The use of the device, reading and writing or reading
+     * only, stands in that same group, through `ReadingModeChoice`.
      *
      * @author Claude
      */
@@ -37,6 +46,7 @@
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import SettingsSection from "./SettingsSection.svelte";
     import { IMAGE_MAX_SIDE } from "#lib/config/images.ts";
+    import ReadingModeChoice from "./ReadingModeChoice.svelte";
     import FeaturedPagesEditor from "./FeaturedPagesEditor.svelte";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
     import { getLocale, locales, setLocale } from "#lib/locales/runtime.js";
@@ -46,7 +56,12 @@
 
     type Locale = ( typeof locales )[ number ];
 
-    /** Reader facing name of each locale the catalogue supports. */
+    /**
+     * Reader facing name of each locale the catalogue supports, in that language
+     * itself: a reader lost in an interface they cannot read looks for the name of
+     * their own language, not for its name in the one they are lost in. Each name
+     * carries its `lang`, so a screen reader pronounces it in that language.
+     */
     const LANGUAGE_LABEL: Record<Locale, () => string> = {
         en: m.settings_form_language_en,
         fr: m.settings_form_language_fr
@@ -290,7 +305,7 @@
                             bind:value={logo}
                             oninput={importPastedLogo}
                             type="text"
-                            class="{FIELD} min-w-0 flex-1 font-mono text-xs"
+                            class="{FIELD} min-w-0 flex-1 font-mono text-xs placeholder:font-sans"
                             classes={{ div: "min-w-48 flex-1" }}
                             aria-describedby="meta-logo-hint"
                             placeholder={m.settings_form_logo_placeholder()}
@@ -305,7 +320,7 @@
                     </div>
                 {/if}
 
-                <Helper id="meta-logo-hint" class="mt-1.5 text-xs leading-relaxed">
+                <Helper id="meta-logo-hint" class="mt-1.5 max-w-help text-xs leading-relaxed">
                     {m.settings_form_logo_hint()}
                 </Helper>
             </div>
@@ -331,8 +346,8 @@
                     {/each}
                 </div>
 
-                <Helper id="meta-accent-hint" class="mt-1.5 text-xs leading-relaxed">
-                    {m.settings_form_accent_hint()}
+                <Helper id="meta-accent-hint" class="mt-1.5 max-w-help text-xs leading-relaxed">
+                    {logo ? m.settings_form_accent_hint() : m.settings_form_accent_hint_no_logo()}
                 </Helper>
             </fieldset>
         </div>
@@ -341,10 +356,12 @@
     <FeaturedPagesEditor bind:slugs={featured} />
 
     <div
-        class="border-paper-200 dark:border-ink-700 dark:bg-ink-950/95 sticky bottom-4 z-10 mb-2 flex flex-col gap-3
-               rounded-xl border bg-white/95 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between"
+        class={dirty
+            ? `border-paper-200 dark:border-ink-700 dark:bg-ink-950 sticky bottom-4 z-10 mb-2 flex flex-col gap-3
+               rounded-xl border bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between`
+            : "-mt-5 mb-2 pb-3 md:grid md:grid-cols-[14rem_minmax(0,1fr)] md:gap-10"}
     >
-        <p class="text-muted min-h-5 text-sm" role="status">
+        <p class="text-muted min-h-5 text-sm md:col-start-2" role="status">
             {#if blocked}
                 {m.settings_form_name_required()}
             {:else if dirty}
@@ -353,12 +370,16 @@
                 {m.settings_form_saved_intro()}
                 <a href={resolve( "/data" )} class="wiki-link">{m.common_backups_link()}</a>
                 {m.settings_form_saved_outro()}
+            {:else}
+                {m.settings_form_clean()}
             {/if}
         </p>
 
-        <Button type="submit" color="primary" class="shrink-0 {ACTION_BUTTON}" disabled={!canSave || !dirty}>
-            {m.common_save()}
-        </Button>
+        {#if dirty}
+            <Button type="submit" color="primary" class="shrink-0 {ACTION_BUTTON}" disabled={!canSave}>
+                {m.common_save()}
+            </Button>
+        {/if}
     </div>
 </form>
 
@@ -376,15 +397,17 @@
                     class={RADIO_OVERLAY}
                     classes={{ label: filterPill( selectedLocale === code ) }}
                 >
-                    {LANGUAGE_LABEL[ code ]()}
+                    <span lang={code}>{LANGUAGE_LABEL[ code ]()}</span>
                 </Radio>
             {/each}
         </div>
 
-        <Helper id="meta-language-hint" class="mt-1.5 text-xs leading-relaxed">
+        <Helper id="meta-language-hint" class="mt-1.5 max-w-help text-xs leading-relaxed">
             {m.settings_form_language_hint()}
         </Helper>
     </fieldset>
+
+    <ReadingModeChoice />
 </SettingsSection>
 
 <ConfirmDialog

@@ -157,14 +157,14 @@
 </script>
 
 <div>
-    <p class="text-muted text-sm">{m.remote_backup_intro()}</p>
+    <p class="text-muted max-w-help text-sm">{m.remote_backup_intro()}</p>
 
     <details class="mt-2 text-sm">
         <summary class="text-accent-700 dark:text-accent-300 w-fit cursor-pointer py-2.5 font-medium sm:py-1">
             {m.common_learn_more()}
         </summary>
 
-        <p class="text-ink-600 dark:text-paper-300 mt-1 leading-relaxed">{m.remote_backup_more()}</p>
+        <p class="text-ink-600 dark:text-paper-300 mt-1 max-w-help leading-relaxed">{m.remote_backup_more()}</p>
     </details>
 
     {#if remote.storageError}

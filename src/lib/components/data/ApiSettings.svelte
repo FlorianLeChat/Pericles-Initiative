@@ -30,7 +30,7 @@
     let { baseUrl = $bindable(), secret = $bindable(), origin, actions }: Props = $props();
 
     const example = $derived( !isUsableBaseUrl( baseUrl ) );
-    const endpoint = $derived( datasetEndpoint( example ? m.remote_backup_url_placeholder() : baseUrl ) );
+    const endpoint = $derived( datasetEndpoint( example ? m.remote_backup_url_example() : baseUrl ) );
 
     const documents = $derived(
         origin
@@ -54,7 +54,7 @@
                 id="remote-base-url"
                 bind:value={baseUrl}
                 type="url"
-                class="{FIELD} font-mono text-xs"
+                class="{FIELD} font-mono text-xs placeholder:font-sans"
                 aria-describedby="remote-base-url-hint"
                 placeholder={m.remote_backup_url_placeholder()}
                 autocomplete="off"

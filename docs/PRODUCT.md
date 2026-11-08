@@ -44,6 +44,9 @@ from inside the fiction. Entirely client side, with no account, no server and no
   sections. Infobox, whose values may link to other pages, table of contents, backlinks, red links, timeline,
   dashboard, live feed with severities and tags.
 - Interface in French and English; the fiction is authored content in whatever language the author writes.
+- A device can be set to read only from `/settings`: the controls that create, edit or delete content leave it, so
+  a player at the table meets the world rather than its back office. A preference of the device, not a permission:
+  there is still no notion of user, and an editor reached by its url still edits.
 - Full engineering constraints are in `CLAUDE.md`.
 
 ## Brand Commitments
@@ -51,12 +54,12 @@ from inside the fiction. Entirely client side, with no account, no server and no
 - Name: Périclès Initiative. The universe name is set by the author per wiki (`wiki.meta.universe`).
 - Values stated in the README: digital sobriety, accessibility, privacy (no cookies, no ads, no tracking by
   default), low bundle weight.
-- Content typography: no em or en dash in the fiction, French quotation marks, typographic apostrophes.
+- Content typography: no em or en dash in the fiction, French quotation marks, straight apostrophes.
 
 ## Evidence on Hand
 
 - Demonstration wiki "The Lantern Coast" in `src/lib/demo.ts` (English fiction, 20 pages).
-- Self-hosted fonts in `static/assets/fonts/`, the icon in `static/assets/favicon.svg`. No image ships: the ones a wiki shows are imported by the reader as base64, or linked from elsewhere.
+- Self-hosted fonts in `static/assets/fonts/`, the icon in `static/assets/favicon.svg`. No image file ships: the ones a wiki shows are imported by the reader as base64, or linked from elsewhere, and the six plates of the demonstration are written out as base64 WebP in `src/lib/demo-illustrations.ts`.
 - No real campaign content ships with the repository; nothing must be fabricated as if it were.
 
 ## Product Principles
@@ -66,7 +69,10 @@ from inside the fiction. Entirely client side, with no account, no server and no
 2. Find it at the table: lookups must work in seconds, on a phone, mid-session.
 3. Writing is play: red links, drafts and gaps are invitations, never errors.
 4. Nothing is lost silently: anything that replaces or deletes the world says what it will do and offers a
-   way back.
+   way back. A deletion is undone from its toast; a replacement of the whole wiki (an import, a restore, the
+   demonstration, the reset of the content) sets the wiki it replaces aside when the browser has room, and
+   `/data` brings it back until the next replacement; when there is no room, the dialog says so and the
+   download is the way back.
 5. Light by design: no dependency weighs more than the application it serves.
 
 ## Accessibility & Inclusion

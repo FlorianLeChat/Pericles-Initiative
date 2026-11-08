@@ -16,7 +16,7 @@ import { CATEGORIES, COUNTS, PAGES, sampleDataset } from "./utilities/dataset";
 const PONTOONS: Category = {
     slug: "pontons",
     name: "Pontons",
-    description: "Les quais flottants où les cités s’amarrent.",
+    description: "Les quais flottants où les cités s'amarrent.",
     color: "vert",
     parent: CATEGORIES.sites.slug
 };
@@ -64,6 +64,12 @@ test.describe( "categories", () =>
         await expect( page ).toHaveURL( new RegExp( `/categories/${ CATEGORIES.institutions.slug }/$` ) );
         await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( CATEGORIES.institutions.name );
 
+        // The breadcrumb starts flush with the title under it, as on an article.
+        const crumbBox = await page.getByRole( "navigation", { name: "Fil d'Ariane" } ).getByRole( "link" ).first().boundingBox();
+        const titleBox = await page.getByRole( "heading", { level: 1 } ).boundingBox();
+
+        expect( Math.round( crumbBox?.x ?? -1 ) ).toBe( Math.round( titleBox?.x ?? 0 ) );
+
         const pages = page.getByRole( "region", { name: "Fiches de cette catégorie" } );
 
         await expect( pages.getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
@@ -100,7 +106,12 @@ test.describe( "categories", () =>
         await page.getByLabel( "Catégorie parente" ).selectOption( { label: CATEGORIES.sites.name } );
         await page.getByRole( "button", { name: "Créer" } ).click();
 
-        await expect( page.getByText( `Rangée sous ${ CATEGORIES.sites.name }` ) ).toBeVisible();
+        // The list follows the tree: the new subcategory stands right under its parent, behind its branch.
+        const edits = page.getByRole( "button", { name: /^Modifier la catégorie / } );
+        const order = await edits.evaluateAll( ( buttons ) => buttons.map( ( button ) => button.getAttribute( "aria-label" ) ) );
+
+        expect( order.indexOf( `Modifier la catégorie ${ PONTOONS.name }` ) )
+            .toBe( order.indexOf( `Modifier la catégorie ${ CATEGORIES.sites.name }` ) + 1 );
         expect( ( await wiki.storedOverlay() )?.categories[ PONTOONS.slug ]?.parent ).toBe( CATEGORIES.sites.slug );
 
         await page.goto( "/categories" );
@@ -123,10 +134,10 @@ test.describe( "categories", () =>
     {
         await wiki.openWith( nestedDataset(), "/categories/manage" );
 
-        // The subcategory row names its parent too, «Rangée sous …», so it is left out by that line.
-        await page.locator( "article" ).filter( { hasText: CATEGORIES.sites.name } ).filter( { hasNotText: "Rangée sous" } )
-            .getByRole( "button", { name: "Modifier" } ).click();
+        await page.getByRole( "button", { name: `Modifier la catégorie ${ CATEGORIES.sites.name }`, exact: true } ).click();
 
+        // The form may stand a screen above the row on a phone: its name field takes the focus.
+        await expect( page.getByLabel( "Nom" ) ).toBeFocused();
         await page.getByLabel( "Adresse" ).fill( "sites-du-port" );
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
@@ -140,20 +151,30 @@ test.describe( "categories", () =>
         expect( ( await wiki.storedEntry( PAGES.port.slug ) )?.categories ).toEqual( [ "sites-du-port" ] );
     } );
 
-    test( "deletes a category and detaches its pages without erasing them", async ( { page, wiki } ) =>
+    test( "deletes a category, detaches its pages without erasing them, and takes it back", async ( { page, wiki } ) =>
     {
         await wiki.open( "/categories/manage" );
+
+        // The author's view counts drafts too, and says how many it holds.
+        await expect( page.locator( "article" ).filter( { hasText: CATEGORIES.doctrines.name } ) )
+            .toContainText( `dont ${ COUNTS.doctrineDrafts } en brouillon` );
 
         await page.locator( "article" ).filter( { hasText: CATEGORIES.doctrines.name } )
             .getByRole( "button", { name: "Supprimer" } ).click();
 
+        await expect( page.getByRole( "dialog", { name: "Supprimer cette catégorie ?" } ) )
+            .toContainText( "vous pourrez la rétablir juste après" );
         await wiki.confirm( "Supprimer cette catégorie ?", "Supprimer" );
 
         await expect( page.getByText( `/categories/${ CATEGORIES.doctrines.slug }` ) ).toBeHidden();
-
-        await page.goto( `/entries/${ PAGES.doctrine.slug }` );
-
-        await expect( page.getByRole( "heading", { level: 1 } ) ).toHaveText( PAGES.doctrine.title );
         expect( ( await wiki.storedEntry( PAGES.doctrine.slug ) )?.categories ).toEqual( [] );
+
+        // The whole overlay comes back, so the category returns on every page it was taken off.
+        await expect( page.getByRole( "status" ).filter( { hasText: `Catégorie « ${ CATEGORIES.doctrines.name } » supprimée.` } ) )
+            .toBeVisible();
+        await page.getByRole( "button", { name: "Rétablir" } ).click();
+
+        await expect( page.getByText( `/categories/${ CATEGORIES.doctrines.slug }` ) ).toBeVisible();
+        expect( ( await wiki.storedEntry( PAGES.doctrine.slug ) )?.categories ).toEqual( [ CATEGORIES.doctrines.slug ] );
     } );
 } );
