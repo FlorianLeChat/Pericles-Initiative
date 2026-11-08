@@ -11,7 +11,7 @@
 
 import { expect, test } from "./utilities/fixtures";
 import type { Locator, Page } from "@playwright/test";
-import { COUNTS, DATES, PAGES, sampleDataset } from "./utilities/dataset";
+import { COUNTS, DATES, PAGES } from "./utilities/dataset";
 
 /**
  * Locates one point of the chronology, by the intitulé of its date.
@@ -45,6 +45,8 @@ test.describe( "timeline", () =>
         await wiki.open( "/timeline" );
 
         await expect( page.getByText( `${ COUNTS.datePoints } dates sur ${ COUNTS.dated } fiches.` ) ).toBeVisible();
+        await expect( page.getByRole( "link", { name: "points d'attention" } ) )
+            .toHaveAttribute( "href", "/dashboard/#dashboard-issues" );
         await expect( page.getByRole( "main" ).getByRole( "listitem" ) ).toHaveCount( COUNTS.datePoints );
 
         // The dated page of the fixture that is still a draft brings its date with
@@ -57,8 +59,19 @@ test.describe( "timeline", () =>
         await expect( page.getByRole( "heading", { level: 2 } ) )
             .toHaveText( [ "2010 à 2019", "2020 à 2029", "2040 à 2049", "Sans année" ] );
 
+        // The decade nothing was recorded in keeps one muted line rather than vanishing.
+        await expect( page.getByText( "2030 à 2039 · rien de consigné" ) ).toBeVisible();
+
         const forties = page.getByRole( "region", { name: "2040 à 2049" } );
 
+        // Each period is a jump away, named by the year it opens on.
+        const jumps = page.getByRole( "navigation", { name: "Aller à une période" } ).getByRole( "link" );
+
+        await expect( jumps ).toHaveText( [ "2010", "2020", "2040", "Sans année" ] );
+        await jumps.filter( { hasText: "2040" } ).click();
+
+        await expect( page ).toHaveURL( /#timeline-period-2$/ );
+        await expect( forties.getByRole( "heading", { level: 2 } ) ).toBeInViewport();
         await expect( forties.getByRole( "listitem" ) ).toHaveCount( 3 );
         await expect( forties.getByText( PAGES.traite.summary ) ).toBeVisible();
 
@@ -79,25 +92,12 @@ test.describe( "timeline", () =>
         await expect( page ).toHaveURL( new RegExp( `/entries/${ PAGES.athena.slug }/$` ) );
     } );
 
-    test( "gives a page's summary once per group, however many of its dates fall in it", async ( { page, wiki } ) =>
+    test( "gives a page's summary once over the whole chronology, on its first date", async ( { page, wiki } ) =>
     {
-        // Moving the birth of the sample into the decade of the death puts two dates
-        // of the same page under one heading, which the sample alone never does.
-        const dataset = sampleDataset();
-        const athena = dataset.entries.find( ( entry ) => entry.id === PAGES.athena.id );
-        const birth = athena?.dates.find( ( date ) => date.id === DATES.naissance.id );
+        // The sample dates a birth and a death decades apart: only the earlier row reads the summary.
+        await wiki.open( "/timeline" );
 
-        if ( birth )
-        {
-            birth.value = "2041-05-14";
-        }
-
-        await wiki.openWith( dataset, "/timeline" );
-
-        const forties = page.getByRole( "region", { name: "2040 à 2049" } );
-
-        await expect( forties.getByRole( "link", { name: PAGES.athena.title } ) ).toHaveCount( 2 );
-        await expect( forties.getByText( PAGES.athena.summary ) ).toHaveCount( 1 );
+        await expect( page.getByRole( "main" ).getByText( PAGES.athena.summary ) ).toHaveCount( 1 );
         await expect( point( page, DATES.naissance.label ) ).toContainText( PAGES.athena.summary );
         await expect( point( page, DATES.deces.label ) ).not.toContainText( PAGES.athena.summary );
     } );

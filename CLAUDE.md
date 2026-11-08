@@ -109,7 +109,10 @@ editor, and any sample text written into components.
 - Use French quotation marks with their spaces, « comme ceci », not straight double quotes. The one
   exception is the demonstration wiki of `src/lib/demo.ts`, whose fiction is written in English and
   quotes it with the English curly pair; the rule against straight quotes holds there too.
-- Prefer the typographic apostrophe in prose. `slugify` strips it, so it never leaks into a slug.
+- **Never use the typographic apostrophe `’`**, anywhere: not in the fiction, the demonstration wiki, the test
+  fixture, the message catalogue, the specs, the comments or the docs. Write the straight apostrophe `'`. The
+  one place `’` may appear is the character class of `APOSTROPHES` and `LEADING_ARTICLE` in
+  `src/lib/utilities/slug.ts`, which strip it when an author types it.
 - Write numbers out when the fiction reads better that way: `soixante douze heures`, not `72 h`, in
   narrative prose. Infobox values may stay numeric.
 
@@ -267,7 +270,11 @@ Two rules with no exception, because both hide the very thing these questions lo
 - `id` is stable and survives a rename. `slug` is the url and may change, so never key anything
   persistent on it. Categories are the exception: they are keyed by slug.
 - `localStorage` keys are namespaced `pericles:`. Currently `pericles:overlay`, `pericles:theme`,
-  `pericles:locale` and `pericles:remote`, the last one absent until a remote service is configured.
+  `pericles:locale`, `pericles:mode`, `pericles:remote` and `pericles:previous`. `pericles:mode` holds
+  `"lecture"` on a device set to read only and is absent otherwise; `pericles:remote` is absent until a remote
+  service is configured; `pericles:previous` holds the overlay the last import, restore, demonstration or reset
+  of the content set aside, with when it was replaced, written by `WikiStore` only when it fits the quota and
+  read back through `normalizeOverlay`.
 - Images are a base64 data url or an absolute URL, nothing else: no path under `/media/`, and no
   image ships with the repository. A file chosen by the reader, for an illustration, a figure of the
   body or the logo, and base64 pasted where an address is expected, go through `ImageImportDialog` (`src/lib/components/editor/`), which reduces
@@ -405,10 +412,10 @@ Four things it does not do on its own, and every one of them has bitten this cod
   your own control.
 - **Tailwind does not see it.** `app.css` lists the folders of `dist` that are scanned. Adding a
   component means adding its folder, or it renders unstyled.
-- **Half of it is a stylesheet, not a component.** A checkbox, a radio and a file input are drawn by
+- **Half of it is a stylesheet, not a component.** A checkbox and a radio are drawn by
   the operating system, and `text-primary-600` on one of them colours nothing. `@plugin
-  'flowbite/plugin'` in `app.css` is what strips them to `appearance: none` and repaints the tick, the
-  dot and the file button, so the classes `Checkbox`, `Radio` and `Fileupload` carry have a surface to
+  'flowbite/plugin'` in `app.css` is what strips them to `appearance: none` and repaints the tick and the
+  dot, so the classes `Checkbox` and `Radio` carry have a surface to
   land on. Only its `forms` group is enabled; the four others are for widgets this site does not have.
 - **`size="sm"` does not mean one height.** Flowbite gives an `Input` `py-1` and a `Select` `py-2.5`,
   so the two on the same row stand twelve pixels apart. `SMALL_FIELD` in `src/lib/config/forms.ts`
@@ -417,7 +424,7 @@ Four things it does not do on its own, and every one of them has bitten this cod
   which resets the light cream coming down from the body to plain black, and in the dark theme that is
   black on near black. `Modal` and `Drawer` therefore spell out `text-ink-800 dark:text-paper-200`
   themselves, and anything placed inside one that relies on inheritance has to be checked in the dark
-  theme, which the Playwright suite does not currently visit.
+  theme, which the Playwright suite only visits for the search palette.
 - **`primary-*`, `gray-*` and `red-*` are aliases of the editorial palette**, declared in `@theme`. Nothing in
   `src/` writes those three scales by hand; they exist so the classes compiled into the library resolve
   to our colours.
@@ -581,19 +588,21 @@ src/
         components/             the three controls every section shares, then one folder per domain
             dashboard/          figures and charts
             data/               file backup, remote backup, local content, demonstration content, the two resets
-            editor/             page form, heading, infobox card, settings, templates, Milkdown editor, pickers, name generator, image import
-            layout/             header, tools menu, tools tabs, search palette, theme, connection status, page meta
+            editor/             page form, heading, infobox card, settings, writing help, templates, Milkdown editor, pickers, name generator, image import
+            layout/             header, tools menu, tools tabs, search palette, theme, connection status, undo toast, page meta
             live/               live feed, composer, alert banner
             settings/           identity of the wiki, featured pages, preferences of this device
             wiki/               article body, infobox, table of contents, backlinks, cards, filters
-        config/                 templates, generator, palette, severities, navigation, motion, forms, remote failures, images
+        config/                 templates, generator, palette, severities, navigation, motion, forms, remote failures, images, storage
         demo.ts                 the demonstration wiki, imported on demand from /data
+        demo-illustrations.ts   its six plates, WebP in base64, imported by demo.ts alone
         locales/                generated by the Paraglide vite plugin, gitignored, never hand edited
         state/wiki.svelte.ts    seed plus overlay, link graph, mutations, export and import
         state/remote.svelte.ts  connection to the optional snapshot server or S3 bucket
         state/sync.svelte.ts    wiring between the two: send, restore, the check made on arrival
+        state/reading.svelte.ts whether this device only reads, which hides the authoring controls
         types.ts                every data contract
-        utilities/              markdown, dataset, remote, s3 (SigV4 signing), search, stats, date, slug, url, plural, image, image-block, size
+        utilities/              markdown, dataset, remote, s3 (SigV4 signing), search, stats, date, slug, url, plural, image, image-block, size, download
     routes/
         +layout.ts              installs an always empty seed, sets prerender
         +layout.svelte          installs the dataset, frames the site

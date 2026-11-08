@@ -10,7 +10,11 @@ import type { LiveSeverity } from "#lib/types.ts";
 export interface SeverityConfig {
     id: LiveSeverity;
     label: string;
-    /** Tailwind classes of the badge, light and dark. */
+    /**
+     * Tailwind classes of the badge, light and dark. Each one names its `dark:` pair even when it
+     * repeats the light one: Flowbite's `Badge` injects `dark:bg-primary-900 dark:text-primary-300`
+     * otherwise, which painted the gravest severity in the reader's accent.
+     */
     badge: string;
     /** Classes of the marker shown on the feed timeline. */
     dot: string;
@@ -43,7 +47,7 @@ export const SEVERITIES: readonly SeverityConfig[] = [
     {
         id: "breaking",
         label: m.severities_breaking(),
-        badge: "bg-alert-600 text-white",
+        badge: "bg-alert-600 text-white dark:bg-alert-600 dark:text-white",
         dot: "bg-alert-600",
         weight: 3
     }

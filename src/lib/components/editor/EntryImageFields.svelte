@@ -176,7 +176,7 @@
                         oninput={importPasted}
                         type="text"
                         size="sm"
-                        class="{FIELD} {SMALL_FIELD} font-mono"
+                        class="{FIELD} {SMALL_FIELD} font-mono placeholder:font-sans"
                         list={PATH_LIST}
                         placeholder={m.entry_image_fields_src_placeholder()}
                     />

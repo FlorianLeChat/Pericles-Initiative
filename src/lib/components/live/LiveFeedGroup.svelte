@@ -18,21 +18,26 @@
     interface Props {
         /** Section title, shown above the items. */
         heading: string;
+        /** Identifier of the heading, the target of the index beside the feed. */
+        anchor: string;
         /** Marks the group of pinned items with a pin beside its heading. */
         pinned?: boolean;
         /** Items of this group, most recent first. */
         items: LiveEntry[];
-        /** Loads an item into the composer. */
-        onedit: ( item: LiveEntry ) => void;
-        /** Asks for an item to be removed. */
-        ondelete: ( item: LiveEntry ) => void;
+        /** Loads an item into the composer, absent when the items cannot be edited. */
+        onedit?: ( item: LiveEntry ) => void;
+        /** Asks for an item to be removed, absent when the items cannot be removed. */
+        ondelete?: ( item: LiveEntry ) => void;
     }
 
-    let { heading, pinned = false, items, onedit, ondelete }: Props = $props();
+    let { heading, anchor, pinned = false, items, onedit, ondelete }: Props = $props();
 </script>
 
 <section class="mt-10">
-    <h2 class="section-heading border-paper-200 dark:border-ink-700 flex items-center gap-2 border-b pb-2">
+    <h2
+        id={anchor}
+        class="section-heading border-paper-200 dark:border-ink-700 flex scroll-mt-24 items-center gap-2 border-b pb-2"
+    >
         {#if pinned}
             <Pin class="text-ink-500 dark:text-paper-400 h-4.5 w-4.5" aria-hidden="true" />
         {/if}

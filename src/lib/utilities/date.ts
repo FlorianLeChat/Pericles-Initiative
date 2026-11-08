@@ -27,7 +27,7 @@ const longDateFormatter = (): Intl.DateTimeFormat =>
     new Intl.DateTimeFormat( getLocale(), { day: "numeric", month: "long", year: "numeric" } );
 
 const shortDateFormatter = (): Intl.DateTimeFormat =>
-    new Intl.DateTimeFormat( getLocale(), { day: "2-digit", month: "2-digit", year: "numeric" } );
+    new Intl.DateTimeFormat( getLocale(), { day: "numeric", month: "short", year: "numeric" } );
 
 const monthAndYearFormatter = (): Intl.DateTimeFormat =>
     new Intl.DateTimeFormat( getLocale(), { month: "long", year: "numeric" } );
@@ -53,8 +53,14 @@ const YEAR_ONLY = /^\d{4}$/;
 /** An in universe date that stops at the month, such as `2043-06`. */
 const YEAR_AND_MONTH = /^\d{4}-\d{2}$/;
 
+/** A calendar day with no time, `2043-06-12`, which `new Date` would read as UTC midnight. */
+const CALENDAR_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
 /**
  * Parses a value into a Date, or null when it is not a usable date.
+ *
+ * A bare calendar day is built in local time: parsed as UTC midnight, it formats
+ * as the day before anywhere west of Greenwich.
  *
  * @param value ISO string or free text.
  * @returns A valid Date, or null.
@@ -67,8 +73,34 @@ const toDate = ( value: string | null | undefined ): Date | null =>
         return null;
     }
 
-    const parsed = new Date( value );
+    const day = CALENDAR_DAY.exec( value );
+    const parsed = day ? new Date( Number( day[ 1 ] ), Number( day[ 2 ] ) - 1, Number( day[ 3 ] ) ) : new Date( value );
     return Number.isNaN( parsed.getTime() ) ? null : parsed;
+};
+
+/**
+ * Names the day a timestamp falls on for the reader, as `2026-11-07`.
+ *
+ * Read from the local getters rather than from the first ten characters of the
+ * ISO string, which name the day in UTC: a dispatch published at half past
+ * midnight in Paris is still the previous day there, and grouping by that
+ * prefix filed it under a day the reader had already left.
+ *
+ * @param value ISO timestamp.
+ * @returns The local day, or the first ten characters when unparsable.
+ * @author Claude
+ */
+export const localDayKey = ( value: string ): string =>
+{
+    const date = toDate( value );
+    if ( !date )
+    {
+        return value.slice( 0, 10 );
+    }
+
+    const month = String( date.getMonth() + 1 ).padStart( 2, "0" );
+    const day = String( date.getDate() ).padStart( 2, "0" );
+    return `${ date.getFullYear() }-${ month }-${ day }`;
 };
 
 /**
@@ -85,7 +117,11 @@ export const formatLongDate = ( value: string | null | undefined ): string =>
 };
 
 /**
- * Formats a date as `12/06/2043`.
+ * Formats a date as `5 nov. 2026`, the form a listing reads a date in.
+ *
+ * Every date a reader reads in a list, a card or the dashboard takes this form,
+ * the article giving the month in full: numeric dates read as a code, and
+ * French and English disagree on the order of their figures.
  *
  * @param value ISO string or free text.
  * @returns The formatted date, or the raw value when unparsable.

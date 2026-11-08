@@ -54,8 +54,11 @@
 
     let { filters = $bindable(), shown, onreset }: Props = $props();
 
-    /** The field wears the pill of the search button in the header, so the two read as one family. */
-    const SEARCH_FIELD = "bg-paper-100 dark:bg-ink-900 h-10 rounded-full border-transparent dark:border-transparent";
+    /**
+     * The field wears the pill of the search button in the header, so the two read as one family, and
+     * stands at 44px on a phone like every other control a thumb aims at.
+     */
+    const SEARCH_FIELD = "bg-paper-100 dark:bg-ink-900 h-11 sm:h-10 rounded-full border-transparent dark:border-transparent";
 
     /** The menus stay small and round, quieter than the listing they order. */
     const MENU_FIELD = `${ FIELD } ${ SMALL_FIELD } rounded-full ps-3.5 pe-8 text-sm`;
@@ -82,9 +85,14 @@
     );
 
     const shownCount = $derived( pluralize( shown, { one: m.common_count_fiche_one, other: m.common_count_fiche_other } ) );
-    const summary = $derived(
-        active > 0 ? m.entry_filters_count_of_total( { count: shownCount, total } ) : shownCount
-    );
+
+    /**
+     * What the filters keep, said only while they narrow the listing. Unfiltered,
+     * the lede above already counts every page, and the same figure stood twice a
+     * few lines apart. The live region stays mounted, empty, so its first words
+     * are announced.
+     */
+    const summary = $derived( active > 0 ? m.entry_filters_count_of_total( { count: shownCount, total } ) : "" );
 </script>
 
 <section class="border-paper-200 dark:border-ink-700 border-b pb-3" aria-label={m.entry_filters_section_aria()}>
@@ -107,7 +115,7 @@
         >
             <SlidersHorizontal class="h-4 w-4" aria-hidden="true" />
 
-            {m.entry_filters_toggle_label()}
+            {m.common_filters_toggle()}
 
             {#if active > 0}
                 <span class="bg-ink-800 text-paper-100 dark:bg-paper-200 dark:text-ink-900 rounded-full px-1.5 text-xs">
@@ -176,7 +184,7 @@
         </div>
     </div>
 
-    <div class="mt-3 flex min-h-8 flex-wrap items-center justify-between gap-3">
+    <div class="{summary || active > 0 ? "mt-3 min-h-8" : ""} flex flex-wrap items-center justify-between gap-3">
         <p class="text-muted text-sm" role="status" aria-live="polite">{summary}</p>
 
         {#if active > 0}

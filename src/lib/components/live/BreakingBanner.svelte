@@ -10,6 +10,7 @@
     import { slide } from "svelte/transition";
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { ICON_BUTTON } from "#lib/config/forms.ts";
     import { relativeTime } from "#lib/utilities/date.ts";
     import { motionDuration } from "#lib/config/motion.ts";
 
@@ -38,7 +39,7 @@
 
             <button
                 type="button"
-                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full
+                class="inline-flex {ICON_BUTTON} shrink-0 items-center justify-center rounded-full
                        text-white/80 transition hover:bg-white/20 hover:text-white"
                 onclick={() => ( dismissed = true )}
                 aria-label={m.breaking_banner_dismiss()}

@@ -9,6 +9,12 @@
      * container has to be focusable to be reachable without a mouse, and a tab
      * stop on a graphic is a stop the reader gains nothing from.
      *
+     * Standing, a column has no track behind it, only a hairline at its foot, so
+     * a month with nothing edited reads as a low mark on the baseline: a full
+     * height pale track behind every column made eleven empty months of a young
+     * wiki look like eleven bars. Lying down on a phone, the track stays, a row
+     * being read along its length rather than compared by height.
+     *
      * The figures are plain text, above and below each column, so this reads as a
      * list of months and counts without anything being restated for a screen
      * reader. That is why it carries no `img` role: one would replace all of that
@@ -48,8 +54,9 @@
             </span>
 
             <span
-                class="bg-paper-200 dark:bg-ink-800 h-2.5 flex-1 overflow-hidden rounded-md sm:order-none sm:flex
-                       sm:h-[4.5rem] sm:w-full sm:flex-none sm:items-end"
+                class="bg-paper-200 dark:bg-ink-800 border-paper-300 dark:border-ink-700 h-2.5 flex-1 overflow-hidden
+                       rounded-md sm:order-none sm:flex sm:h-[4.5rem] sm:w-full sm:flex-none sm:items-end sm:rounded-none
+                       sm:border-b sm:bg-transparent sm:dark:bg-transparent"
             >
                 <span
                     class="bg-ink-400 dark:bg-paper-400 chart-column rounded-md"

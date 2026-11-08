@@ -14,11 +14,15 @@
     import Alert from "flowbite-svelte/Alert.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import { search } from "#lib/state/search.svelte.ts";
+    import { reading } from "#lib/state/reading.svelte.ts";
     import { FLOWBITE_THEME } from "#lib/config/forms.ts";
     import { platform } from "#lib/state/platform.svelte.ts";
+    import UndoToast from "#lib/components/layout/UndoToast.svelte";
     import ThemeProvider from "flowbite-svelte/ThemeProvider.svelte";
     import SiteHeader from "#lib/components/layout/SiteHeader.svelte";
     import SyncPrompt from "#lib/components/layout/SyncPrompt.svelte";
+    import ThumbSearch from "#lib/components/layout/ThumbSearch.svelte";
+    import { getLocale, getTextDirection } from "#lib/locales/runtime.js";
     import PageSkeleton from "#lib/components/layout/PageSkeleton.svelte";
     import SearchDialog from "#lib/components/layout/SearchDialog.svelte";
     import BreakingBanner from "#lib/components/live/BreakingBanner.svelte";
@@ -31,6 +35,12 @@
     }
 
     const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+
+    /** Room left under the page for the search bar a reading phone carries at its foot. */
+    const THUMB_CLEARANCE = "max-lg:pb-[calc(4.25rem+env(safe-area-inset-bottom))]";
+
+    /** Height the toasts stand at on a reading phone, above that search bar. */
+    const TOAST_CLEARANCE = "max-lg:bottom-[calc(5.25rem+env(safe-area-inset-bottom))]";
 
     let { data, children }: Props = $props();
 
@@ -106,6 +116,7 @@
     {
         wiki.loadOverlay();
         platform.detect();
+        reading.load();
     } );
 
     /*
@@ -121,6 +132,22 @@
     $effect( () =>
     {
         document.documentElement.dataset.accent = wiki.meta.accent;
+    } );
+
+    /*
+     * Declares the language the interface is actually read in.
+     *
+     * A prerendered page bakes the base locale into `<html lang>`, and the client
+     * swaps to the stored or preferred one on hydration without touching it, so a
+     * screen reader went on reading French copy with an English voice. The
+     * locale never changes without a reload, which is why this runs once.
+     */
+    $effect( () =>
+    {
+        const locale = getLocale();
+
+        document.documentElement.lang = locale;
+        document.documentElement.dir = getTextDirection( locale );
     } );
 
     /**
@@ -177,7 +204,11 @@
 
     <SiteHeader onsearch={() => ( search.open = true )} />
 
-    <main id="main-content" tabindex="-1" class="flex-1 focus:outline-none">
+    <main
+        id="main-content"
+        tabindex="-1"
+        class="flex-1 focus:outline-none {reading.enabled ? THUMB_CLEARANCE : ""}"
+    >
         {#if wiki.ready}
             {@render children()}
         {:else}
@@ -185,9 +216,16 @@
         {/if}
     </main>
 
+    {#if reading.enabled}
+        <ThumbSearch onsearch={() => ( search.open = true )} />
+    {/if}
+
     <SearchDialog bind:open={search.open} />
 
-    <div class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col items-start gap-2 sm:inset-x-6">
+    <div
+        class="pointer-events-none fixed inset-x-4 bottom-4 z-50 flex flex-col items-start gap-2 sm:inset-x-6
+               {reading.enabled ? TOAST_CLEARANCE : ""}"
+    >
         {#if wiki.storageError}
             <Alert color="red" class="pointer-events-auto w-full max-w-md max-sm:max-w-none" role="alert">
                 {wiki.storageError}
@@ -197,5 +235,6 @@
         <SyncPrompt />
         <BackupReminder />
         <ConnectionStatus />
+        <UndoToast />
     </div>
 </ThemeProvider>

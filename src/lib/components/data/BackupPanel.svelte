@@ -68,7 +68,7 @@
 <section class="surface mt-6 p-6" aria-labelledby="backup-heading">
     <h2 id="backup-heading" class="section-heading">{m.backup_heading()}</h2>
 
-    <p class="text-muted mt-1.5 text-sm">{m.backup_intro()}</p>
+    <p class="text-muted mt-1.5 max-w-help text-sm">{m.backup_intro()}</p>
 
     <fieldset class="mt-5">
         <legend class="field-label">{m.backup_destination_legend()}</legend>

@@ -10,6 +10,11 @@
      * imposed: the field stays free text, and «Première crue» is as valid as
      * «Naissance».
      *
+     * While its field does not hold the focus, a value is drawn as the article
+     * will show it, «14 mai 2020» rather than `2020-05-14`, and the value as typed
+     * comes back as soon as the field is focused. The field keeps the value, and
+     * is what assistive technology reads; the drawing is hidden from it.
+     *
      * @author Claude
      */
     import { tick } from "svelte";
@@ -21,6 +26,7 @@
     import Button from "flowbite-svelte/Button.svelte";
     import { DATE_LABELS } from "#lib/config/dates.ts";
     import { createId } from "#lib/utilities/dataset.ts";
+    import { formatUniverseDate } from "#lib/utilities/date.ts";
     import CalendarDays from "@lucide/svelte/icons/calendar-days";
 
     interface Props {
@@ -35,6 +41,9 @@
     /** The value field of each row, so a row moved from the keyboard keeps the focus on the field it left. */
     let valueFields = $state<( HTMLInputElement | undefined )[]>( [] );
 
+    /** Position of the row whose value holds the focus, and so shows the value as typed. */
+    let editing = $state<number | null>( null );
+
     /** Position of the row last touched, the only one whose controls a touch screen draws. */
     let active = $state<number | null>( null );
 
@@ -43,6 +52,20 @@
 
     /** Identifier of the suggestion list every intitulé of the panel points at. */
     const LABEL_LIST = "entry-date-labels";
+
+    /**
+     * How a value reads once published, when that differs from what was typed.
+     *
+     * @param value Value of a date, an ISO date or free text.
+     * @returns The readable date, or an empty string when the value already reads as it will.
+     * @author Claude
+     */
+    const readableDate = ( value: string ): string =>
+    {
+        const readable = formatUniverseDate( value );
+
+        return readable === value ? "" : readable;
+    };
 
     /**
      * Appends an empty date.
@@ -215,6 +238,8 @@
 
     <div class="divide-paper-200 dark:divide-ink-700 divide-y">
         {#each dates as date, index ( date.id )}
+            {@const preview = editing === index ? "" : readableDate( date.value )}
+
             <div class="group py-1" onfocusin={() => ( active = index )}>
                 <div class="flex items-center gap-1">
                     <CalendarDays class="text-muted ml-2 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -241,16 +266,30 @@
                     />
                 </div>
 
-                <input
-                    bind:this={valueFields[ index ]}
-                    bind:value={date.value}
-                    onkeydown={( event ) => onKeydown( event, index, valueFields )}
-                    aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
-                    type="text"
-                    class="field-ghost field-slot font-medium"
-                    placeholder={m.dates_editor_value_placeholder()}
-                    aria-label={valueName( date, index )}
-                />
+                <div class="relative">
+                    <input
+                        bind:this={valueFields[ index ]}
+                        bind:value={date.value}
+                        onkeydown={( event ) => onKeydown( event, index, valueFields )}
+                        aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+                        onfocus={() => ( editing = index )}
+                        onblur={() => ( editing = null )}
+                        type="text"
+                        class="field-ghost field-slot font-medium {preview ? "text-transparent" : ""}"
+                        placeholder={m.dates_editor_value_placeholder()}
+                        aria-label={valueName( date, index )}
+                    />
+
+                    {#if preview}
+                        <span
+                            class="text-ink-800 dark:text-paper-200 pointer-events-none absolute inset-0 truncate border
+                                   border-transparent px-2 py-1.5 text-base font-medium sm:text-sm"
+                            aria-hidden="true"
+                        >
+                            {preview}
+                        </span>
+                    {/if}
+                </div>
             </div>
         {/each}
     </div>

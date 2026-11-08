@@ -9,7 +9,7 @@
  */
 
 import type { Locator } from "@playwright/test";
-import { expect, test } from "./utilities/fixtures";
+import { expect, isNarrow, test } from "./utilities/fixtures";
 import { CATEGORIES,
     crowdedDataset,
     FIGURE_ALT,
@@ -22,10 +22,10 @@ import { CATEGORIES,
 const BODY = "[contenteditable=\"true\"]";
 
 /** Accessible name of the dialog standing between unsaved changes and the way out. */
-const UNSAVED_DIALOG = "Quitter l’éditeur ?";
+const UNSAVED_DIALOG = "Quitter l'éditeur ?";
 
 /** Accessible name of the box offering to rewrite the links of the pages citing a renamed one. */
-const RELINK = "Mettre à jour la fiche qui cite l’ancienne adresse";
+const RELINK = "Mettre à jour la fiche qui cite l'ancienne adresse";
 
 /** Accessible name of the fold holding the status, the address and the other names of a page. */
 const SETTINGS = "Réglages de la fiche";
@@ -60,13 +60,13 @@ test.describe( "entry editor", () =>
         // Saving without a title is answered under it rather than by a button greyed out for no stated reason.
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
-        await expect( page.getByText( "Une fiche a besoin d’un titre pour être enregistrée." ) ).toBeVisible();
+        await expect( page.getByText( "Une fiche a besoin d'un titre pour être enregistrée." ) ).toBeVisible();
         await expect( page.getByLabel( "Titre", { exact: true } ) ).toBeFocused();
         await expect( page ).toHaveURL( /\/new\/$/ );
 
         await page.getByLabel( "Titre", { exact: true } ).fill( PAGES.port.title );
 
-        await expect( page.getByText( "Une fiche a besoin d’un titre" ) ).toHaveCount( 0 );
+        await expect( page.getByText( "Une fiche a besoin d'un titre" ) ).toHaveCount( 0 );
 
         await expect( page.getByText( `sera enregistrée sous ${ PAGES.port.slug }-2` ) ).toBeVisible();
 
@@ -109,9 +109,17 @@ test.describe( "entry editor", () =>
         await page.getByLabel( "Titre", { exact: true } ).fill( "Relevé des vents" );
         await expect( page.getByRole( "button", { name: /^Lier une fiche/ } ) ).toBeEnabled();
 
+        // The help beside the page is folded until asked for, and names the shortcut the toolbar uses.
+        const help = page.getByRole( "button", { name: /^Aide à l'écriture/ } );
+
+        await expect( help ).toHaveAttribute( "aria-expanded", "false" );
+        await help.click();
+        await expect( page.locator( "#writing-help" ) ).toContainText( "sélectionnez un mot puis faites Ctrl L" );
+        await expect( page.locator( "#writing-help" ) ).toContainText( "invitation à l'écrire" );
+
         await page.locator( BODY ).click();
 
-        // Crepe’s own block menu speaks the language of the page, and offers no
+        // Crepe's own block menu speaks the language of the page, and offers no
         // level one heading, which the title already is.
         await page.keyboard.type( "/" );
 
@@ -175,9 +183,6 @@ test.describe( "entry editor", () =>
         // A life dated at both ends tells its length on the card already.
         await expect( page.getByText( "Âge au décès : 42 ans" ) ).toBeVisible();
 
-        // So does the call number the article will carry.
-        await expect( page.getByText( "2001 ILS", { exact: true } ) ).toBeVisible();
-
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
 
         await expect( page ).toHaveURL( /\/entries\/ilse-marrow\/$/ );
@@ -203,6 +208,15 @@ test.describe( "entry editor", () =>
         // A row left without a date is a row the author started and abandoned, so
         // it is not stored.
         await page.getByRole( "button", { name: "Ajouter une date" } ).click();
+
+        // Left behind, the date reads as it will be published; back in it, it reads as typed.
+        const value = page.getByLabel( "Valeur de « Mise à feu »" );
+
+        await expect( page.getByText( "9 janvier 2045", { exact: true } ) ).toBeVisible();
+        await value.focus();
+        await expect( page.getByText( "9 janvier 2045", { exact: true } ) ).toBeHidden();
+        await expect( value ).toHaveValue( "2045-01-09" );
+
         await page.getByLabel( "Intitulé de la date 2" ).fill( "Extinction" );
 
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
@@ -380,6 +394,15 @@ test.describe( "entry editor", () =>
 
         await expect( page.getByRole( "article" ).getByRole( "img", { name: FIGURE_ALT } ) )
             .toHaveAttribute( "src", IMPORTED_IMAGE );
+
+        // On the published page the illustration heads the panel beside the body, and closes it on a phone.
+        await page.goto( `/entries/${ PAGES.port.slug }/` );
+
+        const infobox = page.getByRole( "complementary", { name: "Fiche signalétique" } );
+        const plate = await infobox.locator( "figure img" ).boundingBox();
+        const firstRow = await infobox.locator( "dt" ).first().boundingBox();
+
+        expect( ( plate?.y ?? 0 ) > ( firstRow?.y ?? 0 ) ).toBe( isNarrow( page ) );
     } );
 
     test( "walks and moves the infobox rows from the keyboard, and takes a removed one back", async ( { page, wiki } ) =>
@@ -501,13 +524,21 @@ test.describe( "entry editor", () =>
         const dialog = page.getByRole( "dialog", { name: "Supprimer cette fiche ?" } );
 
         await expect( dialog ).toContainText( "fiches la citent : leurs liens deviendront des liens rouges." );
-        await expect( dialog ).toContainText( "sauf une copie gardée depuis la page Sauvegardes" );
+        await expect( dialog ).toContainText( "Vous pourrez la rétablir juste après" );
 
         await wiki.confirm( "Supprimer cette fiche ?", "Supprimer" );
 
         await expect( page ).toHaveURL( /\/entries\/$/ );
         await expect( page.getByRole( "link", { name: PAGES.traite.title } ) ).toBeHidden();
         expect( await wiki.storedEntry( PAGES.traite.slug ) ).toBeUndefined();
+
+        await expect( page.getByRole( "status" ).filter( { hasText: `Fiche « ${ PAGES.traite.title } » supprimée.` } ) )
+            .toBeVisible();
+        await page.getByRole( "button", { name: "Rétablir" } ).click();
+
+        await expect( page.getByRole( "link", { name: PAGES.traite.title } ) ).toBeVisible();
+        await expect( page.getByRole( "button", { name: "Rétablir" } ) ).toBeHidden();
+        expect( ( await wiki.storedEntry( PAGES.traite.slug ) )?.title ).toBe( PAGES.traite.title );
     } );
 
     test( "saves without leaving, and keeps editing the page it just created", async ( { page, wiki } ) =>
@@ -517,6 +548,9 @@ test.describe( "entry editor", () =>
         await page.getByLabel( "Titre", { exact: true } ).fill( "Digue de Sainte Roque" );
         await page.getByLabel( "Résumé" ).fill( "La digue qui protège le seuil." );
 
+        // The save button names the shortcut it answers to, which is how it is learnt.
+        await expect( page.getByRole( "button", { name: "Enregistrer", exact: true } ) )
+            .toHaveAttribute( "aria-keyshortcuts", "Control+S Meta+S" );
         await page.keyboard.press( "Control+s" );
 
         await expect( page.getByText( "Fiche enregistrée" ) ).toBeVisible();
@@ -544,6 +578,10 @@ test.describe( "entry editor", () =>
     test( "holds the editor open over unsaved changes, then leaves without storing", async ( { page, wiki } ) =>
     {
         await wiki.open( `/edit/${ PAGES.traite.slug }` );
+
+        await expect( page.getByRole( "textbox", { name: "Corps de la fiche, en Markdown" } ) ).toContainText( "route du nord" );
+        await page.waitForTimeout( 600 );
+        await expect( page.getByRole( "status" ).filter( { hasText: "Aucune modification" } ) ).toBeVisible();
 
         await page.getByLabel( "Résumé" ).fill( "Une reformulation abandonnée." );
         await page.getByRole( "link", { name: "Fermer" } ).click();

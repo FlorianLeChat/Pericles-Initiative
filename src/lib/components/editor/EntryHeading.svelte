@@ -4,7 +4,9 @@
      *
      * The serif title, the red rule and the lede are typed where they will be
      * read rather than into labelled boxes above the page: the labels are still
-     * there for assistive technology, the boxes only show once pointed at.
+     * there for assistive technology, the boxes only show once pointed at. An
+     * empty title shows its placeholder in Public Sans: in the serif, at display
+     * size, it read as a title already written.
      *
      * @author Claude
      */
@@ -78,7 +80,7 @@
         aria-describedby={titleMissing ? "entry-title-missing" : undefined}
         rows="1"
         class="{GHOST} field-display text-ink-900 dark:text-paper-100 field-sizing-content py-1 font-serif text-3xl leading-tight sm:text-4xl
-               font-semibold tracking-tight"
+               font-semibold tracking-tight placeholder:font-sans"
         placeholder={titlePlaceholder}
         required
         onkeydown={( event ) =>
@@ -115,7 +117,7 @@
         bind:this={summaryField}
         bind:value={summary}
         rows="1"
-        class="{GHOST} field-display text-ink-600 dark:text-paper-300 field-sizing-content max-w-[62ch] py-1 text-lg leading-relaxed
+        class="{GHOST} field-display text-ink-600 dark:text-paper-300 field-sizing-content max-w-measure py-1 text-lg leading-relaxed
                sm:text-xl"
         placeholder={summaryPlaceholder}
         aria-describedby="entry-summary-length"

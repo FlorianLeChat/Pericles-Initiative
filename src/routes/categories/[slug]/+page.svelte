@@ -4,7 +4,7 @@
      *
      * Subcategories come before the pages, as in a classification schedule: the
      * reader looking for a narrower shelf finds it before scrolling a long list.
-     * Pages are rows rather than cards, each led by its call number.
+     * Pages are rows rather than cards.
      *
      * @author Claude
      */
@@ -14,16 +14,15 @@
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
     import { excerpt } from "#lib/utilities/markdown.ts";
-    import { pluralize } from "#lib/utilities/plural.ts";
     import { paletteColor } from "#lib/config/palette.ts";
-    import { callNumber } from "#lib/utilities/catalogue.ts";
     import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
     import EmptyState from "#lib/components/EmptyState.svelte";
     import PageHeader from "#lib/components/PageHeader.svelte";
     import ChevronRight from "@lucide/svelte/icons/chevron-right";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import BreadcrumbItem from "flowbite-svelte/BreadcrumbItem.svelte";
-    import { categoryAncestors, categoryChildren } from "#lib/utilities/categories.ts";
+    import { BREADCRUMB_LIST, BREADCRUMB_STEP } from "#lib/config/navigation.ts";
+    import { categoryAncestors, categoryChildren, pageCountWithDrafts } from "#lib/utilities/categories.ts";
 
     const slug = $derived( page.params.slug ?? "" );
     const category = $derived( wiki.categoriesBySlug.get( slug ) );
@@ -31,11 +30,6 @@
     const entries = $derived( wiki.entriesInCategory( slug, true ) );
     const ancestors = $derived( categoryAncestors( slug, wiki.categoriesBySlug ) );
     const subcategories = $derived( categoryChildren( wiki.categories ).get( slug ) ?? [] );
-
-    /**
-     * Words the page count is spelled with, shared by the header and the subcategory rows.
-     */
-    const PAGE_COUNT = { one: m.common_count_fiche_one, other: m.common_count_fiche_other };
 </script>
 
 <PageMeta
@@ -47,15 +41,15 @@
 />
 
 <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm">
-        <BreadcrumbItem href={resolve( "/categories" )}>
+    <Breadcrumb ariaLabel={m.common_breadcrumb_aria()} class="text-muted text-sm" classes={{ list: BREADCRUMB_LIST }}>
+        <BreadcrumbItem home href={resolve( "/categories" )} homeClass={BREADCRUMB_STEP}>
             {#snippet icon()}{/snippet}
 
             {m.common_categories_label()}
         </BreadcrumbItem>
 
         {#each ancestors as ancestor ( ancestor.slug )}
-            <BreadcrumbItem href={resolve( `categories/${ ancestor.slug }/` )}>
+            <BreadcrumbItem href={resolve( `categories/${ ancestor.slug }/` )} linkClass={BREADCRUMB_STEP}>
                 {#snippet icon()}
                     <ChevronRight class="text-muted mx-1 h-4 w-4" />
                 {/snippet}
@@ -64,7 +58,7 @@
             </BreadcrumbItem>
         {/each}
 
-        <BreadcrumbItem aria-current="page">
+        <BreadcrumbItem aria-current="page" spanClass={BREADCRUMB_STEP}>
             {#snippet icon()}
                 <ChevronRight class="text-muted mx-1 h-4 w-4" />
             {/snippet}
@@ -84,7 +78,7 @@
 
         <p class="text-muted mt-4 flex items-center gap-2 text-sm">
             <span class="h-2 w-2 rounded-full {color.dot}" aria-hidden="true"></span>
-            {pluralize( entries.length, PAGE_COUNT )}
+            {pageCountWithDrafts( entries )}
         </p>
 
         {#if subcategories.length > 0}
@@ -93,7 +87,7 @@
 
                 <ul class="divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 mt-4 divide-y border-y">
                     {#each subcategories as child ( child.slug )}
-                        <li class="flex items-baseline gap-3 py-3">
+                        <li class="relative flex items-baseline gap-3 py-3">
                             <span
                                 class="h-2 w-2 shrink-0 -translate-y-0.5 rounded-full {paletteColor( child.color ).dot}"
                                 aria-hidden="true"
@@ -101,12 +95,12 @@
 
                             <div class="min-w-0 flex-1">
                                 <p class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                                    <a href={resolve( `categories/${ child.slug }/` )} class="wiki-link font-semibold">
+                                    <a href={resolve( `categories/${ child.slug }/` )} class="row-link stretched-link font-semibold">
                                         {child.name}
                                     </a>
 
                                     <span class="text-muted text-sm">
-                                        {pluralize( wiki.entriesInCategory( child.slug, true ).length, PAGE_COUNT )}
+                                        {pageCountWithDrafts( wiki.entriesInCategory( child.slug, true ) )}
                                     </span>
                                 </p>
 
@@ -136,12 +130,9 @@
                 <ul class="divide-paper-200 dark:divide-ink-700 border-paper-200 dark:border-ink-700 mt-4 divide-y border-y">
                     {#each entries as entry ( entry.id )}
                         {@const lead = entry.summary || excerpt( entry.body, 150 )}
-                        {@const reference = callNumber( entry, wiki.categoriesBySlug.get( entry.categories[ 0 ] ) )}
 
                         <li class="relative py-4">
                             <p class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                                <span class="call-number">{reference}</span>
-
                                 <a
                                     href={resolve( `entries/${ entry.slug }/` )}
                                     class="text-ink-900 dark:text-paper-100 hover:text-accent-600 dark:hover:text-accent-400 stretched-link font-semibold"
@@ -159,7 +150,7 @@
                             </p>
 
                             {#if lead}
-                                <p class="text-muted mt-1 line-clamp-2 text-sm leading-relaxed">{lead}</p>
+                                <p class="text-muted mt-1 line-clamp-2 max-w-help text-sm leading-relaxed">{lead}</p>
                             {/if}
                         </li>
                     {/each}

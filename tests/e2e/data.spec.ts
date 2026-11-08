@@ -10,7 +10,7 @@
 
 import { readFile } from "node:fs/promises";
 import type { Dataset } from "#lib/types.ts";
-import { expect, test } from "./utilities/fixtures";
+import { expect, isNarrow, test } from "./utilities/fixtures";
 import { COUNTS, PAGES, UNIVERSE } from "./utilities/dataset";
 
 /**
@@ -55,12 +55,32 @@ test.describe( "data page", () =>
         await wiki.openEmpty( "/data" );
 
         await expect( page.getByText( "Rien n'est encore enregistré sur cet appareil." ) ).toBeVisible();
-        await expect( page.getByRole( "button", { name: "Effacer tout mon contenu" } ) ).toBeDisabled();
+        // An empty browser has nothing to write nor to clear: it offers the demonstration and a restore, nothing else.
+        await expect( page.getByRole( "button", { name: "Effacer tout mon contenu" } ) ).toHaveCount( 0 );
+        await expect( page.getByRole( "button", { name: "Télécharger ma sauvegarde" } ) ).toHaveCount( 0 );
+        await expect( page.getByRole( "button", { name: "Copier dans le presse-papier" } ) ).toHaveCount( 0 );
 
         await wiki.open( "/data" );
 
-        await expect( page.getByText( "éléments enregistrés sur cet appareil." ) ).toBeVisible();
-        await expect( page.getByRole( "link", { name: PAGES.port.title } ) ).toBeVisible();
+        // The download is the step this page exists for, so the header's action steps back for it.
+        if ( !isNarrow( page ) )
+        {
+            await expect( page.getByRole( "banner" ).getByRole( "link", { name: "Nouvelle fiche" } ) ).toHaveClass(
+                /bg-control/
+            );
+        }
+
+        // The backup leads, and the inventory follows it in one line, weighed against what the browser grants.
+        await expect( page.getByRole( "main" ).getByRole( "heading", { level: 2 } ).first() ).toHaveText( "Garder une copie" );
+        await expect(
+            page.getByText( `${ COUNTS.entries } fiches, ${ COUNTS.categories } catégories et ${ COUNTS.live } entrées du fil` )
+        ).toBeVisible();
+        await expect( page.getByText( /utilisés sur environ 5,00 Mo disponibles$/ ) ).toBeVisible();
+
+        // The pages themselves are left to the encyclopedia, behind the folded detail.
+        await expect( page.getByRole( "link", { name: PAGES.port.title } ) ).toHaveCount( 0 );
+        await page.getByRole( "region", { name: "Ce qui est enregistré ici" } ).getByText( "Voir le détail" ).click();
+        await expect( page.getByRole( "link", { name: "Les parcourir dans l'encyclopédie" } ) ).toBeVisible();
 
         const download = page.waitForEvent( "download" );
 
@@ -81,11 +101,18 @@ test.describe( "data page", () =>
     {
         await wiki.open( "/data" );
 
+        // The file is chosen through a button of the page, which names the file in French.
+        const choose = page.getByRole( "button", { name: "Choisir un fichier" } );
+
+        await expect( choose ).toHaveAccessibleDescription( "Aucun fichier choisi" );
+
         await page.getByLabel( "Votre fichier de sauvegarde" ).setInputFiles( {
             name: "wiki.json",
             mimeType: "application/json",
-            buffer: Buffer.from( "{ ceci n’est pas du JSON" )
+            buffer: Buffer.from( "{ ceci n'est pas du JSON" )
         } );
+
+        await expect( choose ).toHaveAccessibleDescription( "wiki.json" );
         await page.getByRole( "button", { name: "Restaurer cette sauvegarde" } ).click();
 
         await expect( page.getByRole( "alert" ) ).toContainText( "Impossible de lire cette sauvegarde" );
@@ -124,6 +151,9 @@ test.describe( "data page", () =>
         await expect( values.nth( 2 ) ).toContainText( universes );
         await expect( dialog.getByRole( "button", { name: "Remplacer", exact: true } ) ).toHaveClass( /bg-red-/ );
 
+        // The dialog says the current wiki will stay within reach afterwards.
+        await expect( dialog.getByText( /restera récupérable depuis la page des sauvegardes/ ) ).toBeVisible();
+
         const download = page.waitForEvent( "download" );
 
         await dialog.getByRole( "button", { name: "Télécharger la version actuelle d'abord" } ).click();
@@ -147,6 +177,21 @@ test.describe( "data page", () =>
 
         await expect( page.getByRole( "link", { name: "Vigie du nord" } ) ).toBeVisible();
         await expect( page.getByRole( "link", { name: PAGES.athena.title } ) ).toBeHidden();
+
+        // The wiki it replaced was set aside, and comes back from /data, setting the imported one aside in turn.
+        await page.goto( "/data" );
+
+        const previous = page.getByRole( "region", { name: "Wiki précédent" } );
+
+        await expect( previous ).toContainText( `avec ${ COUNTS.entries } fiches` );
+        await previous.getByRole( "button", { name: "Revenir au wiki précédent" } ).click();
+        await expect( previous.getByRole( "status" ) ).toHaveText( /Wiki précédent rétabli/ );
+        await expect( previous ).toContainText( "avec 1 fiche" );
+
+        const restored = await wiki.storedOverlay();
+
+        expect( Object.keys( restored?.entries ?? {} ) ).toHaveLength( COUNTS.entries );
+        expect( restored?.meta?.universe ).toBe( UNIVERSE );
     } );
 
     test( "erases the content of the browser once confirmed, and spares the settings", async ( { page, wiki } ) =>
@@ -154,6 +199,10 @@ test.describe( "data page", () =>
         await wiki.open( "/data" );
 
         await page.getByRole( "button", { name: "Effacer tout mon contenu" } ).click();
+
+        const dialog = page.getByRole( "dialog", { name: "Effacer tout votre contenu ?" } );
+
+        await expect( dialog.getByRole( "button", { name: "Télécharger la version actuelle d'abord" } ) ).toBeVisible();
         await wiki.confirm( "Effacer tout votre contenu ?", "Effacer" );
 
         await expect( page.getByText( "Le contenu de votre wiki a été effacé de cet appareil." ) ).toBeVisible();

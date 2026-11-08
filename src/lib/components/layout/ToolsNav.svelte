@@ -7,18 +7,21 @@
      * behind a menu, out of the main navigation. This puts the set and the
      * current one under the title of each, as links rather than in-page tabs, so
      * every tool keeps its own address and the prerender crawler sees plain
-     * anchors.
+     * anchors. A reading device sees no dashboard tab, as in the header.
      *
      * @author Claude
      */
-    import { resolve } from "$app/paths";
     import { page } from "$app/state";
+    import { resolve } from "$app/paths";
     import * as m from "#lib/locales/messages.js";
-    import { TOOL_LINKS } from "#lib/config/navigation.ts";
+    import { toolLinks } from "#lib/config/navigation.ts";
+    import { reading } from "#lib/state/reading.svelte.ts";
+
+    const tools = $derived( toolLinks( reading.enabled ) );
 </script>
 
 <nav class="border-paper-200 dark:border-ink-700 mt-6 flex gap-6 border-b" aria-label={m.common_tools_label()}>
-    {#each TOOL_LINKS as link ( link.href )}
+    {#each tools as link ( link.href )}
         {@const current = page.url.pathname.startsWith( resolve( link.href ) )}
 
         <a

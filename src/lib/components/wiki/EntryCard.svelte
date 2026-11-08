@@ -18,7 +18,6 @@
     import { excerpt } from "#lib/utilities/markdown.ts";
     import { paletteColor } from "#lib/config/palette.ts";
     import type { Entry, EntryDate } from "#lib/types.ts";
-    import { callNumber } from "#lib/utilities/catalogue.ts";
     import { formatShortDate, formatUniverseDate, timelineSortKey } from "#lib/utilities/date.ts";
 
     interface Props {
@@ -33,7 +32,6 @@
     const categories = $derived(
         entry.categories.map( ( slug ) => wiki.categoriesBySlug.get( slug ) ).filter( ( category ) => category !== undefined )
     );
-    const reference = $derived( callNumber( entry, categories.at( 0 ) ) );
     const isDraft = $derived( entry.status === "brouillon" );
 
     /** The date the page starts from, the same one the chronological sort orders it by. */
@@ -47,11 +45,9 @@
 </script>
 
 <article
-    class="rise-in group relative grid gap-x-6 gap-y-0.5 py-2.5 sm:grid-cols-[9rem_minmax(0,1fr)]"
+    class="rise-in group relative py-2.5"
     style="--rank: {staggerRank( index )}"
 >
-    <p class="call-number max-sm:order-last sm:pt-1">{reference}</p>
-
     <div class="min-w-0">
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
             <h3 class="text-ink-900 dark:text-paper-100 text-base leading-snug font-semibold">
@@ -75,7 +71,7 @@
         </div>
 
         {#if lead}
-            <p class="text-ink-600 dark:text-paper-300 mt-0.5 line-clamp-2 text-sm leading-relaxed sm:line-clamp-1">{lead}</p>
+            <p class="text-ink-600 dark:text-paper-300 mt-0.5 line-clamp-2 max-w-help text-sm leading-relaxed sm:line-clamp-1">{lead}</p>
         {/if}
 
         <div class="text-muted mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">

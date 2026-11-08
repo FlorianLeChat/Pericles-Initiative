@@ -75,7 +75,8 @@ const ROUTES: readonly { name: string; path: string }[] = [
     { name: "chronologie", path: "/timeline" },
     { name: "tableau de bord", path: "/dashboard" },
     { name: "données", path: "/data" },
-    { name: "éditeur", path: `/edit/${ PAGES.athena.slug }` }
+    { name: "éditeur", path: `/edit/${ PAGES.athena.slug }` },
+    { name: "adresse inconnue", path: "/nulle-part" }
 ];
 
 test.describe( "accessibility", () =>
@@ -120,10 +121,22 @@ test.describe( "accessibility", () =>
         await audit( page );
     } );
 
-    test( "search palette has no violation", async ( { page, wiki } ) =>
+    test( "search palette has no violation, in either theme", async ( { page, wiki } ) =>
     {
         await still( page );
         await wiki.open();
+
+        await page.keyboard.press( "Control+k" );
+        await page.keyboard.type( "vance" );
+
+        await expect( page.getByRole( "option" ).first() ).toBeVisible();
+        await audit( page );
+
+        // The selected row is darker in the dark theme, and its muted lines are
+        // the one place that theme ever fell under 4.5:1.
+        await page.emulateMedia( { colorScheme: "dark" } );
+        await page.reload();
+        await expect( page.locator( "html" ) ).toHaveClass( /\bdark\b/ );
 
         await page.keyboard.press( "Control+k" );
         await page.keyboard.type( "vance" );

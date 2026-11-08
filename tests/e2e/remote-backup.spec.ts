@@ -448,7 +448,6 @@ test.describe( "remote backup", () =>
 
         await page.getByRole( "article" ).filter( { hasText: LIVE.older.title } )
             .getByRole( "button", { name: "Supprimer" } ).click();
-        await wiki.confirm( "Supprimer cette entrée ?", "Supprimer" );
 
         await expect( page.getByText( REMINDER ) ).toBeVisible();
         await page.getByRole( "button", { name: "Mettre à jour la sauvegarde" } ).click();

@@ -7,6 +7,7 @@
  * @author Claude
  */
 
+import { localDayKey } from "./date";
 import { countWords } from "./markdown";
 import * as m from "#lib/locales/messages.js";
 import { getLocale } from "#lib/locales/runtime.js";
@@ -15,7 +16,10 @@ import type { Category, Entry, LiveEntry } from "#lib/types.ts";
 export interface CountByKey {
     key: string;
     label: string;
+    /** Every page counted, drafts included. */
     count: number;
+    /** How many of those pages are still drafts. */
+    drafts: number;
 }
 
 export interface LinkedEntry {
@@ -30,10 +34,14 @@ export interface ActivityPoint {
     count: number;
 }
 
+/**
+ * A page that still lacks something, with every gap it has. Gathered by page
+ * rather than by gap: grouped by gap, the least finished page came back under
+ * each heading, six times over for a stub.
+ */
 export interface QualityIssue {
-    key: string;
-    label: string;
-    entries: Entry[];
+    entry: Entry;
+    reasons: string[];
 }
 
 export interface WikiStats {
@@ -53,7 +61,10 @@ export interface WikiStats {
     missing: { slug: string; count: number }[];
     mostLinked: LinkedEntry[];
     activity: ActivityPoint[];
+    /** Pages with a gap in their structure, the most gaps first; length counts only beside another gap. */
     issues: QualityIssue[];
+    /** Pages whose only gap is their length, counted rather than listed. */
+    shortOnly: number;
 }
 
 export interface StatsInput {
@@ -64,6 +75,9 @@ export interface StatsInput {
     outgoingLinks: ReadonlyMap<string, string[]>;
     missingLinks: readonly { slug: string; from: Entry[] }[];
 }
+
+/** Word count under which a page reads as a stub, also named by the dashboard where it lists the stubs. */
+export const SHORT_PAGE_WORDS = 50;
 
 /** Number of months shown by the activity chart. */
 const ACTIVITY_MONTHS = 12;
@@ -94,7 +108,7 @@ const buildActivity = ( entries: readonly Entry[], now: Date ): ActivityPoint[] 
 
     for ( const entry of entries )
     {
-        const month = entry.updatedAt.slice( 0, 7 );
+        const month = localDayKey( entry.updatedAt ).slice( 0, 7 );
         counts.set( month, ( counts.get( month ) ?? 0 ) + 1 );
     }
 
@@ -119,6 +133,11 @@ const buildActivity = ( entries: readonly Entry[], now: Date ): ActivityPoint[] 
 /**
  * Computes every figure shown on the dashboard.
  *
+ * A page lands among the points of attention for a gap in its structure: no
+ * summary, no category, no date, no link out or none in. Its length counts only
+ * beside one of those; a page lacking nothing but length is counted apart, so a
+ * young wiki of short pages does not read as a list of failures.
+ *
  * @param input Merged dataset and link graph.
  * @param now Reference date, injected so the activity chart stays testable.
  * @returns The statistics.
@@ -132,6 +151,7 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
 
     const wordsByEntry = new Map<Entry, number>();
     const countsByCategory = new Map<string, number>();
+    const draftsByCategory = new Map<string, number>();
     let words = 0;
 
     for ( const entry of entries )
@@ -140,9 +160,16 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
         wordsByEntry.set( entry, entryWords );
         words += entryWords;
 
+        const isDraft = entry.status !== "publie";
+
         for ( const category of entry.categories )
         {
             countsByCategory.set( category, ( countsByCategory.get( category ) ?? 0 ) + 1 );
+
+            if ( isDraft )
+            {
+                draftsByCategory.set( category, ( draftsByCategory.get( category ) ?? 0 ) + 1 );
+            }
         }
     }
 
@@ -150,7 +177,8 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
         .map( ( category ) => ( {
             key: category.slug,
             label: category.name,
-            count: countsByCategory.get( category.slug ) ?? 0
+            count: countsByCategory.get( category.slug ) ?? 0,
+            drafts: draftsByCategory.get( category.slug ) ?? 0
         } ) )
         .sort( ( a, b ) => b.count - a.count );
 
@@ -160,41 +188,45 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
     const mostLinked: LinkedEntry[] = entries
         .map( ( entry ) => ( { entry, incoming: incomingLinks.get( entry.slug )?.length ?? 0 } ) )
         .filter( ( item ) => item.incoming > 0 )
-        .sort( ( a, b ) => b.incoming - a.incoming || a.entry.title.localeCompare( b.entry.title, "fr" ) )
+        .sort( ( a, b ) => b.incoming - a.incoming || a.entry.title.localeCompare( b.entry.title, getLocale() ) )
         .slice( 0, 6 );
 
-    const issues: QualityIssue[] = [
+    const orphanSet = new Set( orphans );
+    const deadEndSet = new Set( deadEnds );
+
+    let shortOnly = 0;
+
+    const issues: QualityIssue[] = entries
+        .map( ( entry ) =>
         {
-            key: "sans-resume",
-            label: m.stats_issue_no_summary(),
-            entries: entries.filter( ( entry ) => entry.summary.trim() === "" )
-        },
+            const checks: [ boolean, () => string ][] = [
+                [ entry.summary.trim() === "", m.stats_issue_no_summary ],
+                [ entry.categories.length === 0, m.stats_issue_no_category ],
+                [ entry.dates.length === 0, m.stats_issue_no_reference_date ],
+                [ deadEndSet.has( entry ), m.stats_issue_no_outgoing_link ],
+                [ orphanSet.has( entry ), m.stats_issue_orphan ]
+            ];
+            const structural = checks.filter( ( [ failing ] ) => failing ).map( ( [ , label ] ) => label() );
+            const isShort = ( wordsByEntry.get( entry ) ?? 0 ) < SHORT_PAGE_WORDS;
+
+            if ( structural.length === 0 && isShort )
+            {
+                shortOnly += 1;
+            }
+
+            const reasons = isShort && structural.length > 0 ? [ ...structural, m.stats_issue_too_short() ] : structural;
+
+            return { entry, reasons, gaps: structural.length };
+        } )
+        .filter( ( issue ) => issue.gaps > 0 )
+        .sort( ( a, b ) =>
         {
-            key: "sans-categorie",
-            label: m.stats_issue_no_category(),
-            entries: entries.filter( ( entry ) => entry.categories.length === 0 )
-        },
-        {
-            key: "sans-date",
-            label: m.stats_issue_no_reference_date(),
-            entries: entries.filter( ( entry ) => entry.dates.length === 0 )
-        },
-        {
-            key: "sans-lien",
-            label: m.stats_issue_no_outgoing_link(),
-            entries: deadEnds
-        },
-        {
-            key: "orphelines",
-            label: m.stats_issue_orphan(),
-            entries: orphans
-        },
-        {
-            key: "trop-courtes",
-            label: m.stats_issue_too_short(),
-            entries: entries.filter( ( entry ) => ( wordsByEntry.get( entry ) ?? 0 ) < 50 )
-        }
-    ].filter( ( issue ) => issue.entries.length > 0 );
+            const byGaps = b.gaps - a.gaps;
+            const byReasons = b.reasons.length - a.reasons.length;
+
+            return byGaps || byReasons || a.entry.title.localeCompare( b.entry.title, getLocale() );
+        } )
+        .map( ( { entry, reasons } ) => ( { entry, reasons } ) );
 
     return {
         total: entries.length,
@@ -210,6 +242,7 @@ export const computeStats = ( input: StatsInput, now: Date = new Date() ): WikiS
         missing: missingLinks.map( ( link ) => ( { slug: link.slug, count: link.from.length } ) ),
         mostLinked,
         activity: buildActivity( entries, now ),
-        issues
+        issues,
+        shortOnly
     };
 };

@@ -25,6 +25,19 @@ marked.use( { gfm: true, breaks: false } );
 const INTERNAL_HREF = /^\/entries\/([^#?/]+)/;
 
 /**
+ * Slug of the page an internal url points at.
+ *
+ * Shared by the rendered article and the editor, which both draw a link to a
+ * page that does not exist as a red link, and have to agree on what counts as
+ * one.
+ *
+ * @param href Url of a link, as authored.
+ * @returns The slug, or null when the url does not point at a page of the wiki.
+ * @author Claude
+ */
+export const internalSlug = ( href: string ): string | null => INTERNAL_HREF.exec( href )?.[ 1 ] ?? null;
+
+/**
  * What may follow a slug inside the target of an internal link: the closing
  * parenthesis, a trailing slash, an anchor, a query, or the space introducing
  * the title Markdown allows inside the parentheses.
@@ -63,14 +76,15 @@ const HEADING_TAGS = /<(h[2-4])>/g;
 const TABLE_BLOCKS = /<table\b[\s\S]*?<\/table>/gi;
 
 /**
- * Opening tags of links, captured with their attributes.
+ * Links, captured with their attributes and their content.
  *
  * A single `\s` rather than `\s+`: the following `[^>]*` also matches spaces, so
  * the two quantifiers overlap and the pattern backtracks quadratically, which
  * SonarQube reports as a super linear regular expression. The leftover spaces
- * are removed by the `trim` in `decorateLinks`.
+ * are removed by the `trim` in `decorateLinks`. The content stops at the first
+ * closing tag, which is the right one: a link never holds another.
  */
-const LINK_TAGS = /<a\s([^>]*)>/g;
+const LINKS = /<a\s([^>]*)>([\s\S]*?)<\/a>/g;
 
 /** A `class` attribute already present on an authored link, which ours replaces. */
 const CLASS_ATTRIBUTE = /\sclass\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
@@ -96,6 +110,27 @@ const WHITESPACE = /\s+/g;
 
 /** Any HTML tag, dropped when a body is reduced to plain text. */
 const HTML_TAGS = /<[^<>]*>/g;
+
+/**
+ * Tags that end a run of text, replaced by a space when a body is reduced to
+ * plain text, so two paragraphs do not run into one word. Every other tag, a
+ * link or an emphasis, sits inside a sentence and is dropped without one: a
+ * space there wrote «d' Athéna Vance .» for «d'Athéna Vance.». Only the tags
+ * `marked` wraps text in are listed; the lists and tables around them need none.
+ */
+const BLOCK_TAGS = /<\/?(?:p|h[1-6]|li|blockquote|pre|t[rdh]|br)\b[^<>]*>/gi;
+
+/** Closing tag of a heading, where a passage marks the end of a section title. */
+const HEADING_END = /<\/h[1-6]>/gi;
+
+/** A whole heading element, title included, which the lead of a listing leaves out. */
+const HEADING_ELEMENTS = /<h[1-6]\b[^>]*>[\s\S]*?<\/h[1-6]>/gi;
+
+/**
+ * What a passage writes after a section title, so «Réputation» and the sentence
+ * under it do not read as one: «Réputation · Le bureau des feux…».
+ */
+const HEADING_SEPARATOR = " · ";
 
 /**
  * Removes the quotes around an attribute value, when it has any.
@@ -433,35 +468,39 @@ const applyHeadingIds = ( html: string, headings: Heading[] ): string =>
  * internal links pointing nowhere become red links, and external links open
  * in a new tab.
  *
+ * A red link is told apart by its colour and its dotted underline, neither of
+ * which a screen reader conveys, so its name ends with a visually hidden «(fiche
+ * à écrire)». A `title` used to carry that, and was read aloud as a description
+ * at best.
+ *
+ * An authored `class` is dropped rather than kept alongside ours: a duplicate
+ * attribute wins over the later one in the browser, which would let a body opt
+ * out of the red link styling.
+ *
  * @param html Rendered HTML.
  * @param knownSlugs Slugs of the pages that currently exist.
  * @returns The HTML with decorated anchors.
  * @author Claude
  */
 const decorateLinks = ( html: string, knownSlugs: ReadonlySet<string> ): string =>
-    html.replaceAll( LINK_TAGS, ( _match, rawAttributes: string ) =>
+    html.replaceAll( LINKS, ( _match, rawAttributes: string, content: string ) =>
     {
-        // An authored `class` is dropped rather than kept alongside ours: a duplicate
-        // attribute wins over the later one in the browser, which would let a body
-        // opt out of the red link styling.
         const attributes = rawAttributes.replaceAll( CLASS_ATTRIBUTE, "" ).trim();
         const href = HREF_ATTRIBUTE.exec( attributes )?.[ 1 ] ?? "";
-        const internal = INTERNAL_HREF.exec( href );
+        const internal = internalSlug( href );
 
-        if ( internal )
+        if ( internal !== null && !knownSlugs.has( internal ) )
         {
-            const exists = knownSlugs.has( internal[ 1 ] );
-            const classes = exists ? "wiki-link" : "wiki-link-missing";
-            const hint = exists ? "" : ` title="${ m.markdown_missing_page_title() }" data-missing="true"`;
-            return `<a ${ attributes } class="${ classes }"${ hint }>`;
+            const hint = `<span class="sr-only"> ${ m.markdown_missing_page_hint() }</span>`;
+            return `<a ${ attributes } class="wiki-link-missing" data-missing="true">${ content }${ hint }</a>`;
         }
 
         if ( EXTERNAL_HREF.test( href ) )
         {
-            return `<a ${ attributes } class="wiki-link" target="_blank" rel="noopener noreferrer">`;
+            return `<a ${ attributes } class="wiki-link" target="_blank" rel="noopener noreferrer">${ content }</a>`;
         }
 
-        return `<a ${ attributes } class="wiki-link">`;
+        return `<a ${ attributes } class="wiki-link">${ content }</a>`;
     } );
 
 /**
@@ -585,7 +624,7 @@ export const phraseSegments = ( markdown: string ): PhraseSegment[] =>
             segments.push( { text: before, slug: null, link: false } );
         }
 
-        segments.push( { text: label, slug: INTERNAL_HREF.exec( href )?.[ 1 ] ?? null, link: true } );
+        segments.push( { text: label, slug: internalSlug( href ), link: true } );
         last = match.index + whole.length;
     }
 
@@ -617,9 +656,10 @@ export const renderPhrase = ( markdown: string, knownSlugs: ReadonlySet<string> 
  * @returns The text content, whitespace collapsed.
  * @author Claude
  */
-export const markdownToPlainText = memoize( ( markdown: string ): string =>
-    ( marked.parse( markdown ) as string )
-        .replaceAll( HTML_TAGS, " " )
+const htmlToPlainText = ( html: string ): string =>
+    html
+        .replaceAll( BLOCK_TAGS, " " )
+        .replaceAll( HTML_TAGS, "" )
         .replaceAll( "&nbsp;", " " )
         .replaceAll( "&amp;", "&" )
         .replaceAll( "&lt;", "<" )
@@ -627,11 +667,50 @@ export const markdownToPlainText = memoize( ( markdown: string ): string =>
         .replaceAll( "&quot;", "\"" )
         .replaceAll( "&#39;", "'" )
         .replaceAll( WHITESPACE, " " )
-        .trim()
-);
+        .trim();
 
 /**
- * Truncates Markdown into a short excerpt, cutting on a word boundary.
+ * Converts Markdown to plain text, for search and word counts.
+ *
+ * @param markdown Any Markdown.
+ * @returns The text content, whitespace collapsed.
+ * @author Claude
+ */
+export const markdownToPlainText = memoize( ( markdown: string ): string =>
+    htmlToPlainText( marked.parse( markdown ) as string ) );
+
+/**
+ * Converts Markdown to a passage a reader is shown: plain text in which every
+ * section title is followed by a middle dot rather than run into its first
+ * sentence. Kept apart from `markdownToPlainText`, whose words are counted and
+ * searched, and which must not count the dot as one.
+ *
+ * @param markdown Any Markdown.
+ * @returns The text content, whitespace collapsed, headings set apart.
+ * @author Claude
+ */
+export const markdownToPassage = memoize( ( markdown: string ): string =>
+    htmlToPlainText( ( marked.parse( markdown ) as string ).replaceAll( HEADING_END, HEADING_SEPARATOR ) ) );
+
+/**
+ * Converts Markdown to its prose alone, every section title left out, for the
+ * lead of a page that has no summary: a lead opening on «Draft ·» read as a
+ * second draft marker beside the real one.
+ *
+ * @param markdown Any Markdown.
+ * @returns The text of everything but the headings, whitespace collapsed.
+ * @author Claude
+ */
+const markdownToProse = memoize( ( markdown: string ): string =>
+    htmlToPlainText( ( marked.parse( markdown ) as string ).replaceAll( HEADING_ELEMENTS, "" ) ) );
+
+/**
+ * Truncates Markdown into a short excerpt, cutting on a word boundary, its
+ * section titles left out.
+ *
+ * The cut is marked with the single ellipsis glyph, as the passages of the search
+ * palette are: both cut the fiction, whose typography this follows, while the
+ * interface's own placeholders keep three dots like its straight apostrophes.
  *
  * @param markdown Any Markdown.
  * @param maxLength Maximum number of characters, defaults to 180.
@@ -640,7 +719,7 @@ export const markdownToPlainText = memoize( ( markdown: string ): string =>
  */
 export const excerpt = ( markdown: string, maxLength = 180 ): string =>
 {
-    const text = markdownToPlainText( markdown );
+    const text = markdownToProse( markdown );
     if ( text.length <= maxLength )
     {
         return text;
@@ -648,7 +727,7 @@ export const excerpt = ( markdown: string, maxLength = 180 ): string =>
 
     const cut = text.slice( 0, maxLength );
     const lastSpace = cut.lastIndexOf( " " );
-    return `${ cut.slice( 0, lastSpace > maxLength * 0.6 ? lastSpace : maxLength ).trimEnd() }...`;
+    return `${ cut.slice( 0, lastSpace > maxLength * 0.6 ? lastSpace : maxLength ).trimEnd() }…`;
 };
 
 /**

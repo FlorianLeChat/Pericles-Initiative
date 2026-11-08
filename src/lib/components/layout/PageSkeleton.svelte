@@ -23,7 +23,7 @@
         <div class="bg-paper-200 dark:bg-ink-800 mt-6 h-10 w-2/3 max-w-lg rounded-md"></div>
         <div class="bg-paper-100 dark:bg-ink-800 mt-6 h-4 w-full max-w-2xl rounded"></div>
 
-        <div class="mt-10 max-w-[70ch] space-y-3">
+        <div class="mt-10 max-w-measure space-y-3">
             {#each LINE_WIDTHS as width, index ( index )}
                 <div class="bg-paper-100 dark:bg-ink-900 h-3 rounded {width}"></div>
             {/each}

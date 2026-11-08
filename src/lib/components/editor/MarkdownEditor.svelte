@@ -10,6 +10,10 @@
      * through `onchange`. Later changes to `value` are deliberately not pushed
      * back into the editor, which would fight the caret.
      *
+     * A link to a page that does not exist is drawn as a red link while it is
+     * written (`red-links.ts`), and drawn again when a page appears or goes
+     * elsewhere in the wiki, so the invitations show where they can be acted on.
+     *
      * @author Claude
      */
     import "@milkdown/crepe/theme/common/style.css";
@@ -18,12 +22,15 @@
     import Kbd from "flowbite-svelte/Kbd.svelte";
     import * as m from "#lib/locales/messages.js";
     import EntryPicker from "./EntryPicker.svelte";
+    import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
+    import { TOUCH_HEIGHT } from "#lib/config/forms.ts";
     import Sparkles from "@lucide/svelte/icons/sparkles";
     import GeneratorDialog from "./GeneratorDialog.svelte";
     import { IMAGE_MAX_SIDE } from "#lib/config/images.ts";
     import { platform } from "#lib/state/platform.svelte.ts";
     import ImageImportDialog from "./ImageImportDialog.svelte";
+    import type { PluginKey } from "@milkdown/kit/prose/state";
     import type { Crepe as CrepeEditor } from "@milkdown/crepe";
     import type { GeneratorKind } from "#lib/config/generator.ts";
     import { dataUrlBlob, pastedImage } from "#lib/utilities/image.ts";
@@ -33,6 +40,13 @@
         value: string;
         /** Called with the full Markdown on every change. */
         onchange: ( markdown: string ) => void;
+        /**
+         * Called once the editor is created, with the Markdown it would write for
+         * the document it was given. That is rarely `value` itself: Crepe writes
+         * a list with `*` and settles the blank lines its own way, so a body
+         * that nobody touched would otherwise compare as changed.
+         */
+        onready?: ( markdown: string ) => void;
         placeholder?: string;
         /** Accessible name of the editing area. */
         label?: string;
@@ -43,6 +57,7 @@
     let {
         value,
         onchange,
+        onready,
         placeholder = m.markdown_editor_placeholder(),
         label = m.markdown_editor_label(),
         generatorKind = "fullName"
@@ -51,10 +66,10 @@
     /** Gap kept between the block menu and whatever bounds it, in pixels. */
     const MENU_MARGIN = 8;
 
-    /** Distance between the caret and the block menu, Crepe’s own. */
+    /** Distance between the caret and the block menu, Crepe's own. */
     const MENU_OFFSET = 10;
 
-    /** Height the list of the block menu never exceeds, Crepe’s own, nor shrinks under. */
+    /** Height the list of the block menu never exceeds, Crepe's own, nor shrinks under. */
     const MENU_LIST_MAX = 420;
     const MENU_LIST_MIN = 120;
 
@@ -80,6 +95,7 @@
     let host: HTMLDivElement;
     let importer: ImageImportDialog | undefined = $state();
     let crepe: CrepeEditor | null = null;
+    let redLinksKey: PluginKey | null = null;
     let ready = $state( false );
     let pickerOpen = $state( false );
     let generatorOpen = $state( false );
@@ -90,11 +106,14 @@
 
         const boot = async (): Promise<void> =>
         {
-            const [ { Crepe }, { flip, offset, size }, { imageBlockWithAlt } ] = await Promise.all( [
+            const [ { Crepe }, { flip, offset, size }, { imageBlockWithAlt }, links ] = await Promise.all( [
                 import( "@milkdown/crepe" ),
                 import( "@floating-ui/dom" ),
-                import( "#lib/utilities/image-block.ts" )
+                import( "#lib/utilities/image-block.ts" ),
+                import( "#lib/utilities/red-links.ts" )
             ] );
+
+            redLinksKey = links.RED_LINKS;
 
             const menuPlacement = [
                 offset( MENU_OFFSET ),
@@ -176,7 +195,7 @@
                 }
             } );
 
-            instance.editor.use( imageBlockWithAlt );
+            instance.editor.use( imageBlockWithAlt ).use( links.redLinks( () => wiki.slugs ) );
 
             instance.on( ( api ) =>
             {
@@ -193,6 +212,8 @@
                 await instance.destroy();
                 return;
             }
+
+            onready?.( instance.getMarkdown() );
 
             // Crepe builds its own `role="textbox"` and gives it no name, so a
             // screen reader announces the body of a page as an unlabelled edit
@@ -213,6 +234,42 @@
             crepe = null;
         };
     } );
+
+    $effect( () =>
+    {
+        const known = wiki.slugs;
+        const key = redLinksKey;
+
+        if ( !ready || !crepe || !key )
+        {
+            return;
+        }
+
+        void redrawRedLinks( crepe, key, known );
+    } );
+
+    /**
+     * Draws the red links again against the pages of the wiki, for when a page is
+     * created or removed while this one is being written, rather than waiting for
+     * the next keystroke.
+     *
+     * @param editor Editor to redraw.
+     * @param key Key of the red link plugin.
+     * @param known Slugs of the pages that exist now.
+     * @returns Resolves once the transaction is dispatched.
+     * @author Claude
+     */
+    const redrawRedLinks = async ( editor: CrepeEditor, key: PluginKey, known: ReadonlySet<string> ): Promise<void> =>
+    {
+        const { editorViewCtx } = await import( "@milkdown/kit/core" );
+
+        editor.editor.action( ( ctx ) =>
+        {
+            const view = ctx.get( editorViewCtx );
+
+            view.dispatch( view.state.tr.setMeta( key, known ) );
+        } );
+    };
 
     /**
      * Inserts a link to an internal page at the caret, or turns the selection
@@ -353,7 +410,7 @@
         <Button
             color="alternative"
             size="xs"
-            class="gap-2 rounded-full"
+            class="gap-2 rounded-full {TOUCH_HEIGHT}"
             onclick={() => ( pickerOpen = true )}
             disabled={!ready}
         >
@@ -365,7 +422,7 @@
         <Button
             color="alternative"
             size="xs"
-            class="gap-2 rounded-full"
+            class="gap-2 rounded-full {TOUCH_HEIGHT}"
             onclick={() => ( generatorOpen = true )}
             disabled={!ready}
         >

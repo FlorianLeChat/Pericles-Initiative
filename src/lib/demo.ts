@@ -27,6 +27,7 @@
  * @author Claude
  */
 
+import { DEMO_ILLUSTRATIONS } from "#lib/demo-illustrations.ts";
 import type { Category, Dataset, Entry, LiveEntry } from "#lib/types.ts";
 
 /** Milliseconds in an hour, the unit every relative timestamp here is built from. */
@@ -75,29 +76,16 @@ const monthsAgo = ( months: number ): string =>
 };
 
 /**
- * Address of one demonstration illustration.
- *
- * The repository ships no image, and six photographs written out in base64 would
- * weigh more than the whole of this dataset and eat the storage of whoever
- * installs it. These are therefore remote placeholders, and the one thing in this dataset that needs a
- * network. They are asked for in grey so that whatever comes back reads as a plate
- * of an archive rather than as a holiday photograph.
- *
- * Kept in one helper so replacing the source, or dropping the images entirely, is a
- * single edit rather than six.
- *
- * @param seed Key picking a stable image, so a reload shows the same one.
- * @returns The url to store as an entry illustration.
- * @author Claude
- */
-const illustration = ( seed: string ): string => `https://picsum.photos/seed/${ seed }/1600/900?grayscale`;
-
-/**
  * Builds the category tree of the demonstration wiki.
  *
  * A function rather than a constant, like the two lists below: `importDataset`
  * stores what it is handed, so a shared array would end up aliased by the overlay
  * and edited in place by the reader.
+ *
+ * The palette holds seven colours for ten categories, so the colour names a
+ * branch rather than a category: each of the six roots takes a hue of its own,
+ * and each child takes its parent's. The rose is left out, being the hue a
+ * reader could take for the red of a missing page.
  *
  * @returns The categories, freshly built.
  * @author Claude
@@ -114,7 +102,7 @@ const categoryList = (): Category[] => [
         slug: "keepers",
         name: "Lantern keepers",
         description: "The families that held a light through a winter, and the rotas they wrote.",
-        color: "ambre",
+        color: "bleu",
         parent: "people"
     },
     {
@@ -128,14 +116,14 @@ const categoryList = (): Category[] => [
         slug: "harbours",
         name: "Harbours",
         description: "The places on this coast where a ship is allowed in.",
-        color: "cyan",
+        color: "vert",
         parent: "places"
     },
     {
         slug: "events",
         name: "Events",
         description: "The nights the coast still counts its years from.",
-        color: "rose",
+        color: "ambre",
         parent: null
     },
     {
@@ -156,7 +144,7 @@ const categoryList = (): Category[] => [
         slug: "guilds",
         name: "Guilds and offices",
         description: "Bodies that hold a right and owe a duty, usually in that order.",
-        color: "pierre",
+        color: "violet",
         parent: "organisations"
     },
     {
@@ -170,7 +158,7 @@ const categoryList = (): Category[] => [
         slug: "concepts",
         name: "Concepts",
         description: "The handful of ideas the whole coast is still arguing about.",
-        color: "rose",
+        color: "pierre",
         parent: null
     }
 ];
@@ -229,7 +217,7 @@ const entryList = (): Entry[] => [
             { label: "Father", value: "[Orin Halloway](/entries/orin-halloway)" }
         ],
         image: {
-            src: illustration( "lantern-coast-mira" ),
+            src: DEMO_ILLUSTRATIONS.mira,
             alt: "A lantern room seen from the gallery, at first light.",
             caption: "The lantern room at Cape Ainsley, from the gallery she swept every morning."
         },
@@ -282,7 +270,7 @@ const entryList = (): Entry[] => [
             { label: "Regulated by", value: "Office of Lights" }
         ],
         image: {
-            src: illustration( "lantern-coast-ainsley" ),
+            src: DEMO_ILLUSTRATIONS.ainsley,
             alt: "A stone mole reaching into grey water under low cloud.",
             caption: "The outer mole, rebuilt for the second time after the Long Night."
         },
@@ -332,7 +320,7 @@ const entryList = (): Entry[] => [
             { label: "Harbours affected", value: "Cape Ainsley, Saltmarch" }
         ],
         image: {
-            src: illustration( "lantern-coast-storm" ),
+            src: DEMO_ILLUSTRATIONS.storm,
             alt: "Heavy water breaking over a harbour wall.",
             caption: "The bar at Saltmarch, drawn from the customs house window the following morning."
         },
@@ -446,7 +434,7 @@ const entryList = (): Entry[] => [
             "",
             "### The Halloway hand",
             "",
-            "Thirty three years of the ledger are in [Mira Halloway](/entries/mira-halloway)’s writing. The last of",
+            "Thirty three years of the ledger are in [Mira Halloway](/entries/mira-halloway)'s writing. The last of",
             "her entries stops in the middle of a line, and the keeper who took over began a new one rather than",
             "finish it."
         ].join( "\n" ),
@@ -534,7 +522,7 @@ const entryList = (): Entry[] => [
             { label: "Trees surviving", value: "9" }
         ],
         image: {
-            src: illustration( "lantern-coast-orchard" ),
+            src: DEMO_ILLUSTRATIONS.orchard,
             alt: "Bare trees behind a broken stone wall near the sea.",
             caption: "The landward corner, and what is left of the wall."
         },
@@ -640,7 +628,7 @@ const entryList = (): Entry[] => [
             "## Markers",
             "",
             "Twenty seven poles, replaced by whichever harbour notices first. The line they follow is",
-            "[Elias Fenn](/entries/elias-fenn)’s, walked and not calculated, which is why it bends where no chart",
+            "[Elias Fenn](/entries/elias-fenn)'s, walked and not calculated, which is why it bends where no chart",
             "says it should.",
             "",
             "### Status",
@@ -660,7 +648,7 @@ const entryList = (): Entry[] => [
             { id: "demo-date-road-charted", label: "Marked on the general chart", value: "1843" }
         ],
         status: "publie",
-        aliases: [ "The Road", "Fenn’s line" ],
+        aliases: [ "The Road", "Fenn's line" ],
         createdAt: monthsAgo( 10 ),
         updatedAt: monthsAgo( 5 )
     },
@@ -736,7 +724,7 @@ const entryList = (): Entry[] => [
             { label: "Bar depth at low water", value: "Two fathoms" }
         ],
         image: {
-            src: illustration( "lantern-coast-saltmarch" ),
+            src: DEMO_ILLUSTRATIONS.saltmarch,
             alt: "Fishing boats aground on a tidal bar at low water.",
             caption: "The bar at low water, where the road begins."
         },
@@ -863,7 +851,7 @@ const entryList = (): Entry[] => [
             { label: "Installed at", value: "Cape Ainsley" }
         ],
         image: {
-            src: illustration( "lantern-coast-lens" ),
+            src: DEMO_ILLUSTRATIONS.lens,
             alt: "Concentric rings of cut glass in a lighthouse lens.",
             caption: "The recast lens, photographed before it was hoisted."
         },
@@ -886,7 +874,7 @@ const entryList = (): Entry[] => [
             "## The idea",
             "",
             "The Slow Light is the doctrine that a light should be built to be repaired rather than to be admired.",
-            "It came out of the recasting of [the Glass Lantern](/entries/the-glass-lantern), and out of a keeper’s",
+            "It came out of the recasting of [the Glass Lantern](/entries/the-glass-lantern), and out of a keeper's",
             "refusal to accept that the coast had merely been unlucky.",
             "",
             "## Consequences",
@@ -898,7 +886,7 @@ const entryList = (): Entry[] => [
             "### Objections",
             "",
             "The [Guild of Cartographers](/entries/guild-of-cartographers) notes that a slower light is harder to",
-            "identify at distance, and it is right. [Mira Halloway](/entries/mira-halloway)’s answer, that an",
+            "identify at distance, and it is right. [Mira Halloway](/entries/mira-halloway)'s answer, that an",
             "unidentified light is still a light, has never been improved on."
         ].join( "\n" ),
         categories: [ "concepts" ],
@@ -959,11 +947,11 @@ const entryList = (): Entry[] => [
         id: "demo-bell-of-corran",
         slug: "bell-of-corran",
         title: "The Bell of Corran",
-        summary: "A ship’s bell recovered from the bar, cast for a vessel no register has ever carried.",
+        summary: "A ship's bell recovered from the bar, cast for a vessel no register has ever carried.",
         body: [
             "## The bell",
             "",
-            "The Bell of Corran is a ship’s bell recovered from the bar at Saltmarch, cast for a vessel no",
+            "The Bell of Corran is a ship's bell recovered from the bar at Saltmarch, cast for a vessel no",
             "register on the coast has ever carried, and dated eleven years before the foundry that made it",
             "opened.",
             "",
@@ -1120,7 +1108,7 @@ const liveList = (): LiveEntry[] => [
         id: "demo-live-oil",
         publishedAt: daysAgo( 5 ),
         title: "Oil reserve at Saltmarch drops below the Accord figure",
-        body: "Eleven barrels short of the season’s minimum, with the cape asked to cover the difference until"
+        body: "Eleven barrels short of the season's minimum, with the cape asked to cover the difference until"
           + " autumn.",
         severity: "urgent",
         tags: [ "accord", "saltmarch" ],
@@ -1169,7 +1157,7 @@ export const demoDataset = (): Dataset => ( {
         description: "The keepers, harbours and quiet agreements that hold a coast where the water is never twice"
           + " the same.",
         logo: "",
-        accent: "ambre",
+        accent: "cyan",
         featured: [ "mira-halloway", "cape-ainsley", "the-long-night" ]
     },
     categories: categoryList(),

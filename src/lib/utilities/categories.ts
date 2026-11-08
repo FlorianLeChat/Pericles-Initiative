@@ -10,7 +10,9 @@
  * @author Claude
  */
 
-import type { Category } from "#lib/types.ts";
+import { pluralize } from "./plural";
+import * as m from "#lib/locales/messages.js";
+import type { Category, Entry } from "#lib/types.ts";
 
 /**
  * Lists the ancestors of a category, the closest last.
@@ -98,4 +100,25 @@ export const categoryDescendants = ( slug: string, children: Map<string | null, 
     }
 
     return found;
+};
+
+/**
+ * Spells out how many pages a category holds, naming the drafts among them.
+ *
+ * Reader pages, the home and `/categories`, count published pages only and call
+ * `pluralize` directly. Wherever drafts are counted as well, the management page
+ * and a category's own page, which lists its drafts, the count goes through
+ * here, so a figure that holds drafts always says how many. The dashboard bars
+ * say it under each bar instead, since their figure stands alone.
+ *
+ * @param entries Every page counted, drafts included.
+ * @returns «4 fiches», or «4 fiches, dont 1 en brouillon» when drafts are counted.
+ * @author Claude
+ */
+export const pageCountWithDrafts = ( entries: readonly Entry[] ): string =>
+{
+    const drafts = entries.filter( ( entry ) => entry.status !== "publie" ).length;
+    const pages = pluralize( entries.length, { one: m.common_count_fiche_one, other: m.common_count_fiche_other } );
+
+    return drafts > 0 ? m.common_count_with_drafts( { pages, count: drafts } ) : pages;
 };

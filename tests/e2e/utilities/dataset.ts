@@ -18,7 +18,7 @@ import type { Category, Dataset, Entry, LiveEntry, Overlay } from "#lib/types.ts
 
 export const UNIVERSE = "Périclès";
 
-export const DESCRIPTION = "Les gens, les lieux et les décisions qui font tenir un archipel bâti sur l’eau.";
+export const DESCRIPTION = "Les gens, les lieux et les décisions qui font tenir un archipel bâti sur l'eau.";
 
 /** A page every fixture body links to, and that nothing ever creates: the red link of the suite. */
 export const MISSING_SLUG = "conseil-des-parties";
@@ -54,14 +54,14 @@ const CATEGORY_LIST: Category[] = [
     {
         slug: "institutions",
         name: "Institutions",
-        description: "Les corps qui décident pour l’archipel.",
+        description: "Les corps qui décident pour l'archipel.",
         color: "bleu",
         parent: null
     },
     {
         slug: "sites",
         name: "Sites et installations",
-        description: "Les lieux bâtis sur l’eau, des pontons aux digues.",
+        description: "Les lieux bâtis sur l'eau, des pontons aux digues.",
         color: "vert",
         parent: null
     },
@@ -79,28 +79,28 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-athena",
         slug: "athena-vance",
         title: "Athéna Vance",
-        summary: "Navigatrice en chef de l’archipel, première signataire du traité des marées.",
+        summary: "Navigatrice en chef de l'archipel, première signataire du traité des marées.",
         body: [
             "## Origines",
             "",
             "Née sur les pontons de [Port Méridien](/entries/port-meridien), elle apprend à lire les courants bien",
-            "avant d’apprendre à écrire.",
+            "avant d'apprendre à écrire.",
             "",
             "## Le traité",
             "",
-            "Son nom reste attaché au [traité des marées](/entries/traite-des-marees), qu’elle défend seule devant",
+            "Son nom reste attaché au [traité des marées](/entries/traite-des-marees), qu'elle défend seule devant",
             `le [Conseil des parties](/entries/${ MISSING_SLUG }) pendant soixante douze heures.`,
             "",
             "### Postérité",
             "",
-            "« Elle a rendu la mer lisible », dit d’elle le premier rapport du bureau.",
+            "« Elle a rendu la mer lisible », dit d'elle le premier rapport du bureau.",
             "",
-            "Les cités flottantes lui doivent leurs routes actuelles, et l’usage de nommer les courants."
+            "Les cités flottantes lui doivent leurs routes actuelles, et l'usage de nommer les courants."
         ].join( "\n" ),
         categories: [ "institutions" ],
         infobox: [
             { label: "Fonction", value: "Navigatrice en chef" },
-            { label: "Port d’attache", value: "[Port Méridien](/entries/port-meridien)" }
+            { label: "Port d'attache", value: "[Port Méridien](/entries/port-meridien)" }
         ],
         image: null,
         dates: [
@@ -121,8 +121,8 @@ const ENTRY_LIST: Entry[] = [
             "",
             "Trois digues, quatre sas, et une population qui change avec la marée.",
             "",
-            "La cité est administrée par le [Bureau des courants](/entries/bureau-des-courants), sous l’autorité",
-            "d’[Athéna Vance](/entries/athena-vance)."
+            "La cité est administrée par le [Bureau des courants](/entries/bureau-des-courants), sous l'autorité",
+            "d'[Athéna Vance](/entries/athena-vance)."
         ].join( "\n" ),
         categories: [ "sites" ],
         infobox: [
@@ -139,12 +139,15 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-traite",
         slug: "traite-des-marees",
         title: "Traité des marées",
-        summary: "L’accord qui répartit les routes navigables entre les cités.",
+        summary: "L'accord qui répartit les routes navigables entre les cités.",
         body: [
             "## Signature",
             "",
             "Signé sur le pont de [Port Méridien](/entries/port-meridien) après deux hivers de négociation, il fixe",
-            "pour la première fois des routes qui ne dépendent plus de la force."
+            "pour la première fois des routes qui ne dépendent plus de la force.",
+            "",
+            "- la route du nord, ouverte aux convois",
+            "- la route du détroit, réservée aux cités"
         ].join( "\n" ),
         categories: [ "institutions" ],
         infobox: [ { label: "Articles", value: "11" } ],
@@ -158,12 +161,12 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-bureau",
         slug: "bureau-des-courants",
         title: "Bureau des courants",
-        summary: "L’administration qui relève les courants et délivre les autorisations d’amarrage.",
+        summary: "L'administration qui relève les courants et délivre les autorisations d'amarrage.",
         body: [
             "## Mandat",
             "",
-            "Le bureau relève les courants, publie les cartes et arbitre les litiges d’amarrage. Il a été fondé",
-            "à la demande d’[Athéna Vance](/entries/athena-vance)."
+            "Le bureau relève les courants, publie les cartes et arbitre les litiges d'amarrage. Il a été fondé",
+            "à la demande d'[Athéna Vance](/entries/athena-vance)."
         ].join( "\n" ),
         categories: [ "institutions" ],
         infobox: [],
@@ -179,7 +182,7 @@ const ENTRY_LIST: Entry[] = [
         title: "Sceau de vitre",
         summary: "",
         body: "Un disque de verre coulé, apposé sur les actes que le bureau reconnaît.\n",
-        categories: [],
+        categories: [ "doctrines" ],
         infobox: [],
         image: null,
         dates: [ { id: "fixture-date-brouillon", label: "Découverte", value: "2042-11-02" } ],
@@ -191,12 +194,12 @@ const ENTRY_LIST: Entry[] = [
         id: "fixture-doctrine",
         slug: "doctrine-du-reflux",
         title: "Doctrine du reflux",
-        summary: "L’idée qu’une cité doit pouvoir se défaire aussi vite qu’elle s’est nouée.",
+        summary: "L'idée qu'une cité doit pouvoir se défaire aussi vite qu'elle s'est nouée.",
         body: [
             "## Principe",
             "",
             "Née dans les marges du [traité des marées](/entries/traite-des-marees), la doctrine tient en une",
-            "phrase : ce qui s’amarre doit pouvoir partir."
+            "phrase : ce qui s'amarre doit pouvoir partir."
         ].join( "\n" ),
         categories: [ "doctrines" ],
         infobox: [],
@@ -238,7 +241,7 @@ const LIVE_LIST: LiveEntry[] = [
         id: "fixture-live-older",
         publishedAt: daysAgo( 3 ),
         title: "Le traité des marées entre en vigueur",
-        body: "Les onze articles s’appliquent à compter de la prochaine marée haute.",
+        body: "Les onze articles s'appliquent à compter de la prochaine marée haute.",
         severity: "urgent",
         tags: [ "traite" ],
         entrySlug: null,
@@ -334,7 +337,11 @@ export const COUNTS = {
     datePoints: published.reduce( ( total, entry ) => total + entry.dates.length, 0 ),
     live: LIVE_LIST.length,
     /** Pages of the busiest category, which is the one the counters are asserted on. */
-    institutions: published.filter( ( entry ) => entry.categories.includes( "institutions" ) ).length
+    institutions: published.filter( ( entry ) => entry.categories.includes( "institutions" ) ).length,
+    /** Drafts filed under the doctrines, which the counts holding drafts are asserted on. */
+    doctrineDrafts: ENTRY_LIST
+        .filter( ( entry ) => entry.status !== "publie" && entry.categories.includes( "doctrines" ) )
+        .length
 };
 
 /**
@@ -380,6 +387,39 @@ export const breakingDataset = ( title: string ): Dataset =>
             title,
             body: "Toutes les cités sont priées de larguer leurs amarres.",
             severity: "breaking",
+            tags: [],
+            entrySlug: null,
+            source: null,
+            pinned: false
+        }
+    ];
+
+    return dataset;
+};
+
+/** Half past midnight in Paris on 7 November 2026, still the 6th in UTC. */
+const PARIS_MIDNIGHT = "2026-11-06T23:32:00.000Z";
+
+/**
+ * Builds a wiki whose feed holds a single dispatch, published just after
+ * midnight in Paris, which the feed has to file under the reader's day rather
+ * than under the UTC one.
+ *
+ * @param title Title of the dispatch.
+ * @returns A dataset whose feed holds that dispatch alone.
+ * @author Claude
+ */
+export const midnightDataset = ( title: string ): Dataset =>
+{
+    const dataset = sampleDataset();
+
+    dataset.live = [
+        {
+            id: "fixture-live-midnight",
+            publishedAt: PARIS_MIDNIGHT,
+            title,
+            body: "La relève de la tour du port s'est faite à la cloche de minuit.",
+            severity: "info",
             tags: [],
             entrySlug: null,
             source: null,

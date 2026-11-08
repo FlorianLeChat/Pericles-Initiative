@@ -86,7 +86,7 @@
                     <li class={indent( heading.level )}>
                         <a
                             href="#{heading.id}"
-                            class="-ml-px block border-l py-1 pl-3 leading-snug transition-colors {current === heading.id
+                            class="-ml-px flex min-h-11 items-center border-l py-1 pl-3 leading-snug transition-colors lg:block lg:min-h-0 {current === heading.id
                                 ? "border-ink-900 text-ink-900 dark:border-paper-100 dark:text-paper-100 font-medium"
                                 : "text-ink-500 hover:text-ink-900 dark:text-paper-300 dark:hover:text-paper-100 border-transparent"}"
                             aria-current={current === heading.id ? "location" : undefined}

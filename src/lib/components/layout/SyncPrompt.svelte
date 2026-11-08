@@ -25,6 +25,7 @@
     import { REMOTE_FAILURE_MESSAGE } from "#lib/config/remote.ts";
     import CloudDownload from "@lucide/svelte/icons/cloud-download";
     import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+    import DownloadFirst from "#lib/components/data/DownloadFirst.svelte";
 
     let restoreOpen = $state( false );
     let sendOpen = $state( false );
@@ -180,7 +181,11 @@
     message={m.remote_backup_restore_confirm_message()}
     confirmLabel={m.remote_backup_restore_confirm_label()}
     onconfirm={() => void restore()}
-/>
+>
+    {#if restoreOpen && wiki.hasStoredContent}
+        <DownloadFirst />
+    {/if}
+</ConfirmDialog>
 
 <ConfirmDialog
     bind:open={sendOpen}
