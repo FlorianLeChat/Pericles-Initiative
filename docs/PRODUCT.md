@@ -58,7 +58,7 @@ from inside the fiction. Entirely client side, with no account, no server and no
 
 ## Evidence on Hand
 
-- Demonstration wiki "The Lantern Coast" in `src/lib/demo.ts` (English fiction, 20 pages).
+- Demonstration wiki "The High Cairns" in `src/lib/demo.ts` (English fiction, 20 pages, amber accent, seven public domain plates from Wikimedia Commons, about a megabyte).
 - Self-hosted fonts in `static/assets/fonts/`, the icon in `static/assets/favicon.svg`. No image file ships: the ones a wiki shows are imported by the reader as base64, or linked from elsewhere, and the six plates of the demonstration are written out as base64 WebP in `src/lib/demo-illustrations.ts`.
 - No real campaign content ships with the repository; nothing must be fabricated as if it were.
 

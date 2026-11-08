@@ -7,6 +7,12 @@
  * content that answers that: one complete universe, big enough for every listing,
  * the chronology, the dashboard and the feed to have something to show.
  *
+ * The universe is the High Cairns, a mountain range crossed by a cable line,
+ * watched over by an order of astronomers, and divided by a pass that closes every
+ * winter. Its corpus is dimensioned for the dashboard: two drafts, pages short of
+ * a summary, a category, a date or a link, pages lacking only length, and red
+ * links some pages cite and one page cites alone.
+ *
  * It is **not** a seed. `WikiStore` still merges an always empty seed, and nothing
  * here is installed on load: the panel of `DemoContent.svelte` hands this dataset
  * to `importDataset`, the very path a restored backup takes, and only when a reader
@@ -15,9 +21,9 @@
  *
  * The fiction is in English, and stays untranslated like any other page written
  * into the wiki: reader content never goes through the message catalogue. It obeys
- * the typography rules of the project, no dash of any kind, curly apostrophes, with
- * one deliberate departure: the quotation marks are the English pair, since the
- * prose around them is English.
+ * the typography rules of the project, no dash of any kind, the straight apostrophe
+ * only, with one deliberate departure: the quotation marks are the English curly
+ * pair, since the prose around them is English.
  *
  * Real timestamps are relative to the moment the reader clicks, so the activity
  * chart covers its twelve months and the feed reads as today's rather than as a
@@ -94,70 +100,70 @@ const categoryList = (): Category[] => [
     {
         slug: "people",
         name: "People",
-        description: "Keepers, cartographers and harbour masters: the names the coast decided to keep.",
+        description: "Observers, engineers and wardens: the names the range decided to keep.",
         color: "bleu",
         parent: null
     },
     {
-        slug: "keepers",
-        name: "Lantern keepers",
-        description: "The families that held a light through a winter, and the rotas they wrote.",
+        slug: "sky-readers",
+        name: "Sky readers",
+        description: "Those who kept the night watch at Thornwatch, and wrote down what crossed the meridian.",
         color: "bleu",
         parent: "people"
     },
     {
         slug: "places",
         name: "Places",
-        description: "Harbours, reefs, and the roads that only exist at low water.",
+        description: "Towns, ridges and stations, from the valley floor to the last cairn.",
         color: "vert",
         parent: null
     },
     {
-        slug: "harbours",
-        name: "Harbours",
-        description: "The places on this coast where a ship is allowed in.",
+        slug: "passes",
+        name: "Passes and roads",
+        description: "The ways across the range, and the months each of them stays open.",
         color: "vert",
         parent: "places"
     },
     {
         slug: "events",
         name: "Events",
-        description: "The nights the coast still counts its years from.",
+        description: "The winters and nights the valleys still count their years from.",
         color: "ambre",
         parent: null
     },
     {
-        slug: "storm-years",
-        name: "Storm years",
-        description: "Weather that outlived the people who survived it.",
+        slug: "hard-winters",
+        name: "Hard winters",
+        description: "Snow that closed the pass, stopped the line, and outlasted the people who measured it.",
         color: "ambre",
         parent: "events"
     },
     {
         slug: "organisations",
         name: "Organisations",
-        description: "Offices, guilds and companies, in descending order of self regard.",
+        description: "Orders, companies and wardens, each convinced the range would fall without them.",
         color: "violet",
         parent: null
     },
     {
-        slug: "guilds",
-        name: "Guilds and offices",
-        description: "Bodies that hold a right and owe a duty, usually in that order.",
+        slug: "orders",
+        name: "Orders and companies",
+        description: "Bodies that hold a right over the mountain and owe it a duty, usually in that order.",
         color: "violet",
         parent: "organisations"
     },
     {
         slug: "objects",
         name: "Objects",
-        description: "Instruments, charters, and the things carried out of a wreck.",
+        description: "Instruments, registers, and the things carried down from the ridge.",
         color: "cyan",
         parent: null
     },
     {
         slug: "concepts",
         name: "Concepts",
-        description: "The handful of ideas the whole coast is still arguing about.",
+        description: "The customs and quarrels that hold both valleys together.",
         color: "pierre",
         parent: null
     }
@@ -176,821 +182,720 @@ const categoryList = (): Category[] => [
  */
 const entryList = (): Entry[] => [
     {
-        id: "demo-mira-halloway",
-        slug: "mira-halloway",
-        title: "Mira Halloway",
-        summary: "Chief keeper of the Cape Ainsley light for thirty three years, and the hand that wrote the watch"
-          + " rota the coast still uses.",
+        id: "demo-ilse-varga",
+        slug: "ilse-varga",
+        title: "Ilse Varga",
+        summary: "Chief observer of Thornwatch for twenty six winters, and the hand that kept the Register of Hours"
+          + " through the Silent Winter.",
         body: [
             "## Early years",
             "",
-            "Mira Halloway was born on the landward side of [Cape Ainsley](/entries/cape-ainsley), in a house whose",
-            "windows were counted by the light rather than by the street. Her father,",
-            "[Orin Halloway](/entries/orin-halloway), kept the cape light for thirty one years, and she stood the",
-            "middle watch from the age of eleven.",
+            "Ilse Varga was born in [Halden Brae](/entries/halden-brae), the second child of",
+            "[Teodor Varga](/entries/teodor-varga), and climbed to [Thornwatch](/entries/thornwatch) for the first",
+            "time at nine, on the back of a salt mule. She was copying transits into her father's book before she",
+            "could reach the eyepiece without a crate.",
             "",
-            "## Chief keeper",
+            "## Chief observer",
             "",
-            "She was confirmed chief keeper in the spring of her thirty second year, the first woman the",
-            "[Office of Lights](/entries/office-of-lights) appointed without a husband on the paperwork. Her tenure",
-            "is remembered for three decisions:",
+            "The [Order of the Meridian](/entries/order-of-the-meridian) made her chief observer at thirty one,",
+            "over three brothers with longer tenure and shorter patience. Her years at the station are remembered",
+            "for three things:",
             "",
-            "- the middle watch was split in two, so that no keeper stood alone at the turn of the tide;",
-            "- the [Ledger of Tides](/entries/ledger-of-tides) was opened to any master who asked to read it;",
-            "- the cape burned through [the Long Night](/entries/the-long-night), on oil she had refused to sell that",
-            "  summer.",
+            "- the [Register of Hours](/entries/register-of-hours) was kept without a missed night through",
+            "  [the Silent Winter](/entries/the-silent-winter);",
+            "- the [Great Refractor](/entries/the-great-refractor) was carried up the ridge in pieces, and",
+            "  assembled under her eye;",
+            "- her account of [the Night of Falling Stars](/entries/night-of-falling-stars) is still the one the",
+            "  valley schools read aloud.",
             "",
-            "### Postscript",
+            "### Afterwards",
             "",
-            "The [Halloway family](/entries/halloway-family) left the cape two generations later, but the rota she",
-            "wrote is still the one pinned inside the lantern room door.",
+            "The [Varga family](/entries/varga-family) left the ridge a generation later, but the observing chair",
+            "she had cut down to her height is still the one in the dome.",
             "",
-            "> “A light is a promise made in advance. Nobody thanks you for keeping it, and everybody counts the",
-            "> one night you do not.”"
+            "> “The sky does not wait for the weather to clear. It only waits for someone to be looking.”"
         ].join( "\n" ),
-        categories: [ "people", "keepers" ],
+        categories: [ "people", "sky-readers" ],
         infobox: [
-            { label: "Office", value: "Chief keeper, Cape Ainsley" },
-            { label: "Years in service", value: "Thirty three" },
-            { label: "Appointed by", value: "[Office of Lights](/entries/office-of-lights)" },
-            { label: "Born at", value: "[Cape Ainsley](/entries/cape-ainsley)" },
-            { label: "Father", value: "[Orin Halloway](/entries/orin-halloway)" }
+            { label: "Office", value: "Chief observer, Thornwatch" },
+            { label: "Winters on the ridge", value: "Twenty six" },
+            { label: "Appointed by", value: "[Order of the Meridian](/entries/order-of-the-meridian)" },
+            { label: "Born at", value: "[Halden Brae](/entries/halden-brae)" },
+            { label: "Father", value: "[Teodor Varga](/entries/teodor-varga)" }
         ],
         image: {
-            src: DEMO_ILLUSTRATIONS.mira,
-            alt: "A lantern room seen from the gallery, at first light.",
-            caption: "The lantern room at Cape Ainsley, from the gallery she swept every morning."
+            src: DEMO_ILLUSTRATIONS.ilse,
+            alt: "A woman in a tall embroidered headdress and brocade bodice, hands folded, before a lake.",
+            caption: "Ilse Varga in her appointment dress, painted for the Order the spring she took the dome."
         },
         dates: [
-            { id: "demo-date-mira-birth", label: "Birth", value: "1826-04-09" },
-            { id: "demo-date-mira-appointed", label: "Takes the cape light", value: "1858-03" },
-            { id: "demo-date-mira-death", label: "Death", value: "1891-02-17" }
+            { id: "demo-date-ilse-birth", label: "Birth", value: "1788-02-11" },
+            { id: "demo-date-ilse-appointed", label: "Made chief observer", value: "1819-04" },
+            { id: "demo-date-ilse-death", label: "Death", value: "1851-09-30" }
         ],
         status: "publie",
-        aliases: [ "The Keeper of Ainsley", "M. Halloway" ],
-        createdAt: monthsAgo( 14 ),
+        aliases: [ "The Observer of Thornwatch", "I. Varga" ],
+        createdAt: monthsAgo( 13 ),
         updatedAt: daysAgo( 1 )
     },
     {
-        id: "demo-cape-ainsley",
-        slug: "cape-ainsley",
-        title: "Cape Ainsley",
-        summary: "The long grey arm that closes the north of the coast, and the only harbour on it a ship can enter"
-          + " against the wind.",
+        id: "demo-thornwatch",
+        slug: "thornwatch",
+        title: "Thornwatch",
+        summary: "The observatory on the north ridge, kept by the Order of the Meridian, and the last lit window"
+          + " a traveller sees before the pass.",
         body: [
-            "## The cape",
+            "## The station",
             "",
-            "Cape Ainsley is the headland that closes the northern end of the coast. The light stands at the",
-            "seaward tip, on rock the surveyors of the [Guild of Cartographers](/entries/guild-of-cartographers)",
-            "described as “sound, and unwilling”.",
+            "Thornwatch stands on the saddle of the north ridge, above the tree line and below the cairns. It was",
+            "built as a hospice for the [Kessel Pass](/entries/kessel-pass) and became an observatory by accident,",
+            "when [Teodor Varga](/entries/teodor-varga) asked for a room with a window that opened onto nothing.",
             "",
-            "## The harbour",
+            "## The dome",
             "",
-            "Three basins, a stone mole rebuilt twice, and a customs house that has never once opened on time.",
-            "Traffic is regulated by the [Office of Lights](/entries/office-of-lights) rather than by the town, an",
-            "arrangement nobody defends and nobody has managed to undo.",
+            "The dome holds [the Great Refractor](/entries/the-great-refractor), on a pier sunk into the rock so",
+            "deep that the brothers claim it reaches the valley. The [Register of Hours](/entries/register-of-hours)",
+            "is kept in the room beneath, and has not left it since the station was founded.",
             "",
-            "### The light",
+            "### Supply",
             "",
-            "The tower carries [the Glass Lantern](/entries/the-glass-lantern), cast for it and broken in it. Under",
-            "[Mira Halloway](/entries/mira-halloway) the cape kept the longest unbroken watch on record, and it has",
-            "shown a light every night since, including the ones it should not have survived.",
-            "",
-            "## Approaches",
-            "",
-            "At low water the [Shoal Road](/entries/the-shoal-road) opens south towards",
-            "[Saltmarch](/entries/saltmarch), and the harbour empties of anyone who owns a cart. At high water there",
-            "is one safe entry, and the pilots charge accordingly."
+            "Everything else comes up on [the Iron Line](/entries/the-iron-line) or on the backs of mules, and the",
+            "brothers have opinions about both. In a hard winter the station is cut off for weeks, and keeps",
+            "observing anyway."
         ].join( "\n" ),
-        categories: [ "places", "harbours" ],
+        categories: [ "places" ],
         infobox: [
-            { label: "Type", value: "Harbour and light" },
-            { label: "Basins", value: "3" },
-            { label: "Population", value: "4 100" },
-            { label: "Regulated by", value: "Office of Lights" }
+            { label: "Type", value: "Observatory and hospice" },
+            { label: "Altitude", value: "2 470 m" },
+            { label: "Kept by", value: "[Order of the Meridian](/entries/order-of-the-meridian)" },
+            { label: "Reached by", value: "[The Iron Line](/entries/the-iron-line)" }
         ],
         image: {
-            src: DEMO_ILLUSTRATIONS.ainsley,
-            alt: "A stone mole reaching into grey water under low cloud.",
-            caption: "The outer mole, rebuilt for the second time after the Long Night."
+            src: DEMO_ILLUSTRATIONS.thornwatch,
+            alt: "A long stone hospice beside a road, with snowfields and peaks behind it.",
+            caption: "Thornwatch from the pass road, in the one month the snow keeps to the peaks."
         },
         dates: [
-            { id: "demo-date-ainsley-lit", label: "First light lit", value: "1804" },
-            { id: "demo-date-ainsley-charter", label: "Harbour chartered", value: "1831-06" }
+            { id: "demo-date-thornwatch-hospice", label: "Hospice built", value: "1742" },
+            { id: "demo-date-thornwatch-dome", label: "Dome raised", value: "1806-08" }
         ],
         status: "publie",
-        aliases: [ "The Cape", "Ainsley Head" ],
-        createdAt: monthsAgo( 14 ),
+        aliases: [ "The Watch", "North Ridge Station" ],
+        createdAt: monthsAgo( 13 ),
         updatedAt: daysAgo( 2 )
     },
     {
-        id: "demo-the-long-night",
-        slug: "the-long-night",
-        title: "The Long Night",
-        summary: "Twenty two hours of wind that emptied every harbour on the coast, and the reason two of them now"
-          + " keep oil they may not sell.",
+        id: "demo-kessel-pass",
+        slug: "kessel-pass",
+        title: "Kessel Pass",
+        summary: "The only road between the two valleys, open five months a year and argued over for all twelve.",
         body: [
-            "## The storm",
+            "## The road",
             "",
-            "The Long Night is the name the coast gives to the twenty two hours of wind that emptied every",
-            "harbour between [Cape Ainsley](/entries/cape-ainsley) and [Saltmarch](/entries/saltmarch). It arrived",
-            "without a fall in the glass, which is why the [Office of Lights](/entries/office-of-lights) still",
-            "refuses to publish a forecast worded as a certainty.",
+            "The Kessel Pass climbs out of [Halden Brae](/entries/halden-brae) through a gorge so narrow the",
+            "carters say the sun only visits it on feast days. It tops out below [Thornwatch](/entries/thornwatch)",
+            "and drops into the eastern valley by a road that has been rebuilt more often than anyone can count.",
             "",
-            "## What was lost",
+            "## The season",
             "",
-            "- eleven vessels, nine of them at anchor;",
-            "- the seaward half of the [Drowned Orchard](/entries/the-drowned-orchard);",
-            "- [the Glass Lantern](/entries/the-glass-lantern), which came apart in the fourth hour.",
+            "The pass opens when the [Wardens of the Pass](/entries/wardens-of-the-pass) say it does, which is",
+            "rarely when the merchants would like. It closes at the first snow that lies, under the rule the",
+            "[Treaty of Two Valleys](/entries/treaty-of-two-valleys) set down after a winter nobody wanted to repeat.",
             "",
-            "[Mira Halloway](/entries/mira-halloway) kept the cape light burning by hand until morning, on an open",
-            "flame set in the ruin of the lens. The [winter inquiry](/entries/winter-inquiry) that followed took her",
-            "account without asking a single question about the glass.",
+            "### The north face",
             "",
-            "## Afterwards",
-            "",
-            "The night is the reason the [Quiet Accord](/entries/the-quiet-accord) exists, the reason the coast",
-            "rewrote its rotas, and the reason [the Slow Light](/entries/the-slow-light) is now built where a first",
-            "order lens would once have gone."
+            "The old track up [the north face](/entries/the-north-face) is shorter by a day and longer by several",
+            "funerals. It is not marked on any chart the wardens will sign."
         ].join( "\n" ),
-        categories: [ "events", "storm-years" ],
+        categories: [ "places", "passes" ],
         infobox: [
-            { label: "Duration", value: "Twenty two hours" },
-            { label: "Vessels lost", value: "11" },
-            { label: "Harbours affected", value: "Cape Ainsley, Saltmarch" }
+            { label: "Type", value: "Mountain pass" },
+            { label: "Highest point", value: "2 310 m" },
+            { label: "Open", value: "Five months a year" },
+            { label: "Kept by", value: "[Wardens of the Pass](/entries/wardens-of-the-pass)" }
         ],
         image: {
-            src: DEMO_ILLUSTRATIONS.storm,
-            alt: "Heavy water breaking over a harbour wall.",
-            caption: "The bar at Saltmarch, drawn from the customs house window the following morning."
+            src: DEMO_ILLUSTRATIONS.pass,
+            alt: "A narrow road at the floor of a gorge between steep rock walls, under a snow peak.",
+            caption: "The gorge on the western approach, where the road is cut into the river's old bed."
         },
         dates: [
-            { id: "demo-date-night-storm", label: "The storm", value: "1861-11-14" },
-            { id: "demo-date-night-cleared", label: "Last wreck cleared", value: "The following spring" }
+            { id: "demo-date-pass-road", label: "Carriage road opened", value: "1797" }
         ],
         status: "publie",
-        aliases: [ "The Fourth Hour" ],
-        createdAt: monthsAgo( 13 ),
-        updatedAt: daysAgo( 4 )
-    },
-    {
-        id: "demo-office-of-lights",
-        slug: "office-of-lights",
-        title: "Office of Lights",
-        summary: "Keeps every light on the coast, licenses the pilots, and holds the Ledger of Tides.",
-        body: [
-            "## Mandate",
-            "",
-            "The Office of Lights keeps every light on the coast, licenses the pilots, and holds the",
-            "[Ledger of Tides](/entries/ledger-of-tides). It answers to the harbours it regulates, which is either a",
-            "check or a joke depending on who is telling it.",
-            "",
-            "## Structure",
-            "",
-            "- a chief keeper for each light, appointed for life or until a wreck;",
-            "- an inspector of oil, a post created after the [lamp oil concession](/entries/lamp-oil-concession);",
-            "- a clerk of passage, who decides in the first instance every question of",
-            "  [right of passage](/entries/right-of-passage).",
-            "",
-            "### Reform",
-            "",
-            "The office was rebuilt from the inside after [the Long Night](/entries/the-long-night).",
-            "[Mira Halloway](/entries/mira-halloway) wrote most of the new rota, and [Tessa Varo](/entries/tessa-varo)",
-            "wrote the part nobody at [Cape Ainsley](/entries/cape-ainsley) liked. Both parts are still in force."
-        ].join( "\n" ),
-        categories: [ "organisations", "guilds" ],
-        infobox: [
-            { label: "Type", value: "Public office" },
-            { label: "Lights kept", value: "9" },
-            { label: "Seat", value: "Cape Ainsley" }
-        ],
-        image: null,
-        dates: [
-            { id: "demo-date-office-founded", label: "Founded", value: "1812" },
-            { id: "demo-date-office-reformed", label: "Reformed", value: "1863-05" }
-        ],
-        status: "publie",
-        aliases: [ "The Office" ],
-        createdAt: monthsAgo( 13 ),
-        updatedAt: daysAgo( 6 )
-    },
-    {
-        id: "demo-kestrel-line",
-        slug: "kestrel-line",
-        title: "The Kestrel Line",
-        summary: "Four vessels, a schedule kept about half the time, and the only private carrier ever licensed to"
-          + " pilot its own ships.",
-        body: [
-            "## The company",
-            "",
-            "The Kestrel Line ran four vessels between the two harbours on a schedule it kept about half the",
-            "time, and is the only private carrier the [Office of Lights](/entries/office-of-lights) has ever",
-            "licensed to pilot its own ships.",
-            "",
-            "## The concession",
-            "",
-            "The line held the [lamp oil concession](/entries/lamp-oil-concession) for eleven years, which is how the",
-            "cheapest oil on the coast came to arrive in the holds of its most expensive freight.",
-            "",
-            "### End",
-            "",
-            "It sold its berths at [Saltmarch](/entries/saltmarch) and its charts to the",
-            "[Guild of Cartographers](/entries/guild-of-cartographers), in that order, and was wound up in a single",
-            "afternoon."
-        ].join( "\n" ),
-        categories: [ "organisations" ],
-        infobox: [
-            { label: "Vessels", value: "4" },
-            { label: "Concession held", value: "Eleven years" }
-        ],
-        image: null,
-        dates: [
-            { id: "demo-date-kestrel-founded", label: "Founded", value: "1848" },
-            { id: "demo-date-kestrel-wound-up", label: "Wound up", value: "1872-04" }
-        ],
-        status: "publie",
-        aliases: [ "Kestrel and Sons" ],
-        createdAt: monthsAgo( 8 ),
-        updatedAt: daysAgo( 11 )
-    },
-    {
-        id: "demo-ledger-of-tides",
-        slug: "ledger-of-tides",
-        title: "The Ledger of Tides",
-        summary: "One bound volume in which every keeper on the coast enters the water actually seen, and nothing"
-          + " that was merely predicted.",
-        body: [
-            "## The book",
-            "",
-            "The Ledger of Tides is a single bound volume, kept at the [Office of Lights](/entries/office-of-lights),",
-            "in which every keeper on the coast enters the water they actually saw. It is not a prediction and has",
-            "never pretended to be one.",
-            "",
-            "## How it is kept",
-            "",
-            "One line per watch: the hour, the height, the wind, and a column headed “remarks” that has held",
-            "everything from a lost dog to a war. [Elias Fenn](/entries/elias-fenn) drew his charts from the ledger",
-            "rather than from the published tables, and said so in print, which cost him a friendship.",
-            "",
-            "### The Halloway hand",
-            "",
-            "Thirty three years of the ledger are in [Mira Halloway](/entries/mira-halloway)'s writing. The last of",
-            "her entries stops in the middle of a line, and the keeper who took over began a new one rather than",
-            "finish it."
-        ].join( "\n" ),
-        categories: [ "objects" ],
-        infobox: [
-            { label: "Form", value: "Bound volume, one line per watch" },
-            { label: "Kept at", value: "Office of Lights" },
-            { label: "Open to readers", value: "Thursdays" }
-        ],
-        image: null,
-        dates: [
-            { id: "demo-date-ledger-first", label: "First entry", value: "1812-01-03" },
-            { id: "demo-date-ledger-last", label: "Last entry in the Halloway hand", value: "1891-01" }
-        ],
-        status: "publie",
-        aliases: [ "The Ledger" ],
+        aliases: [ "The Kessel", "The Gorge Road" ],
         createdAt: monthsAgo( 12 ),
         updatedAt: monthsAgo( 1 )
     },
     {
-        id: "demo-right-of-passage",
-        slug: "right-of-passage",
-        title: "Right of Passage",
-        summary: "The rule that no harbour may refuse shelter to a vessel that asks for it, written down once,"
-          + " badly, and argued about ever since.",
+        id: "demo-halden-brae",
+        slug: "halden-brae",
+        title: "Halden Brae",
+        summary: "The market town at the foot of the western valley, where the Iron Line begins and the salt road"
+          + " ends.",
         body: [
-            "## The principle",
+            "## The town",
             "",
-            "Right of passage is the rule that no harbour on the coast may refuse shelter to a vessel that asks",
-            "for it, whatever it carries and whoever owns it. It was written down once, badly, and has been",
-            "argued about ever since.",
+            "Halden Brae is the last town on the western side before the range closes in. It lives on three",
+            "trades: the salt that comes down [the Salt Stair](/entries/the-salt-stair), the freight that goes up",
+            "[the Iron Line](/entries/the-iron-line), and the travellers waiting for the",
+            "[Kessel Pass](/entries/kessel-pass) to open.",
             "",
-            "## In practice",
+            "## The square",
             "",
-            "The [Office of Lights](/entries/office-of-lights) decides the first instance, the harbours decide the",
-            "second, and the weather decides the rest. [Saltmarch](/entries/saltmarch) reads the rule as a duty of",
-            "shelter only. [Cape Ainsley](/entries/cape-ainsley) reads it as a duty of pilotage too, and charges for",
-            "the difference.",
+            "The square holds a fountain, a weighhouse and the station of the line, and on market days it holds",
+            "all three valleys' worth of arguments. The first stone of the",
+            "[Treaty of Two Valleys](/entries/treaty-of-two-valleys) was signed on the weighhouse steps, because",
+            "nobody would agree to sign it indoors.",
             "",
-            "### The road question",
+            "### People",
             "",
-            "Nobody has settled whether the rule reaches the [Shoal Road](/entries/the-shoal-road), which is a",
-            "harbour for six hours and a road for the other six. Both harbours behave as though it does."
+            "[Ilse Varga](/entries/ilse-varga) and [Mara Ostrel](/entries/mara-ostrel) were both born within a",
+            "street of the square, which the town mentions more often than either of them ever did."
         ].join( "\n" ),
-        categories: [ "concepts" ],
+        categories: [ "places" ],
         infobox: [
-            { label: "First written", value: "1834" },
-            { label: "Decided by", value: "Clerk of passage, then the harbours" }
+            { label: "Type", value: "Market town" },
+            { label: "Population", value: "3 200" },
+            { label: "Lower station of", value: "[The Iron Line](/entries/the-iron-line)" }
         ],
-        image: null,
+        image: {
+            src: DEMO_ILLUSTRATIONS.halden,
+            alt: "A green valley floor with scattered farms, closed by rose coloured peaks.",
+            caption: "The valley above Halden Brae, with the pass hidden behind the second ridge."
+        },
         dates: [
-            { id: "demo-date-passage-written", label: "First written down", value: "1834" }
+            { id: "demo-date-halden-charter", label: "Market charter", value: "1688" }
         ],
         status: "publie",
-        aliases: [ "The shelter rule" ],
+        aliases: [ "The Brae" ],
         createdAt: monthsAgo( 12 ),
         updatedAt: monthsAgo( 2 )
     },
     {
-        id: "demo-the-drowned-orchard",
-        slug: "the-drowned-orchard",
-        title: "The Drowned Orchard",
-        summary: "A walled apple ground on the seaward side of Saltmarch, famous for fruit nobody outside the"
-          + " harbour would eat.",
+        id: "demo-the-silent-winter",
+        slug: "the-silent-winter",
+        title: "The Silent Winter",
+        summary: "One hundred and twelve days of snow without wind, which closed the pass, stopped the line and"
+          + " left Thornwatch alone with its sky.",
         body: [
-            "## Before",
+            "## The snow",
             "",
-            "The Drowned Orchard was the strip of walled apple ground on the seaward side of",
-            "[Saltmarch](/entries/saltmarch), planted on spoil from the first cutting of the bar and famous for fruit",
-            "nobody outside the harbour would eat.",
+            "The Silent Winter is the name both valleys give to the snow that began in the first week of December",
+            "and did not stop, or move, for one hundred and twelve days. There was no wind at all, which is why",
+            "the drifts stood straight, and why the old people still distrust a still night in winter.",
             "",
-            "## The night",
+            "## What it cost",
             "",
-            "Salt water took the seaward half during [the Long Night](/entries/the-long-night), and the rest over the",
-            "two summers that followed. The wall is still standing, and still holds at every tide but the highest.",
+            "- [the Kessel Pass](/entries/kessel-pass) closed until the following May;",
+            "- [the Iron Line](/entries/the-iron-line) lost its upper cable to the weight of rime;",
+            "- [Thornwatch](/entries/thornwatch) was cut off for nine weeks.",
             "",
-            "### Now",
+            "[Ilse Varga](/entries/ilse-varga) kept the [Register of Hours](/entries/register-of-hours) every",
+            "clear night of it, and the clear nights were most of them. The",
+            "[summer inquest](/entries/the-summer-inquest) that followed asked the station how it had eaten, and",
+            "never once how it had observed.",
             "",
-            "Nine trees survive in the landward corner. The harbour crops them, badly, and has refused every offer",
-            "to replant."
+            "## Afterwards",
+            "",
+            "The winter is the reason the [Treaty of Two Valleys](/entries/treaty-of-two-valleys) exists, and the",
+            "reason the [Lantern Cairns](/entries/lantern-cairns) are lit from the first snow rather than the first",
+            "storm."
         ].join( "\n" ),
-        categories: [ "places" ],
+        categories: [ "events", "hard-winters" ],
         infobox: [
-            { label: "Planted on", value: "Spoil from the bar" },
-            { label: "Trees surviving", value: "9" }
+            { label: "Duration", value: "One hundred and twelve days" },
+            { label: "Station cut off", value: "Nine weeks" },
+            { label: "Places affected", value: "[Kessel Pass](/entries/kessel-pass), [Thornwatch](/entries/thornwatch)" }
         ],
         image: {
-            src: DEMO_ILLUSTRATIONS.orchard,
-            alt: "Bare trees behind a broken stone wall near the sea.",
-            caption: "The landward corner, and what is left of the wall."
+            src: DEMO_ILLUSTRATIONS.winter,
+            alt: "A village of wooden chalets buried in deep snow below a forested slope.",
+            caption: "The upper hamlet of Halden Brae in the ninth week, drawn by the schoolmaster."
         },
         dates: [
-            { id: "demo-date-orchard-lost", label: "Lost to the sea", value: "1861-11-14" }
+            { id: "demo-date-winter-began", label: "The snow begins", value: "1823-12" },
+            { id: "demo-date-winter-ended", label: "The pass reopens", value: "The following May" }
         ],
         status: "publie",
-        aliases: [ "The Orchard" ],
-        createdAt: monthsAgo( 11 ),
-        updatedAt: monthsAgo( 2 )
-    },
-    {
-        id: "demo-elias-fenn",
-        slug: "elias-fenn",
-        title: "Elias Fenn",
-        summary: "Surveyed the coast twice, once for the guild and once, later and better, for himself.",
-        body: [
-            "## The cartographer",
-            "",
-            "Elias Fenn surveyed the coast twice, once for the",
-            "[Guild of Cartographers](/entries/guild-of-cartographers) and once, later and better, for himself. The",
-            "second chart is the one still on the wall of every pilot house between the two harbours.",
-            "",
-            "## Method",
-            "",
-            "He refused every figure he had not measured, and took his water from the",
-            "[Ledger of Tides](/entries/ledger-of-tides) rather than the published tables. The",
-            "[Shoal Road](/entries/the-shoal-road) is his: he walked it eleven times, at eleven different heights of",
-            "water, and drew the line where his feet stayed dry.",
-            "",
-            "### Quarrel",
-            "",
-            "The guild censured him for publishing under his own name. He paid the fine, kept the plate, and sold",
-            "prints from his kitchen for the rest of his life. The guild now sells the same survey."
-        ].join( "\n" ),
-        categories: [ "people" ],
-        infobox: [
-            { label: "Trade", value: "Cartographer" },
-            { label: "Surveys", value: "2" },
-            { label: "Guild standing", value: "Censured, never expelled" }
-        ],
-        image: null,
-        dates: [
-            { id: "demo-date-fenn-birth", label: "Birth", value: "1819-08-22" },
-            { id: "demo-date-fenn-death", label: "Death", value: "1877-12-01" }
-        ],
-        status: "publie",
-        aliases: [ "Fenn the walker" ],
+        aliases: [ "The Still Winter" ],
         createdAt: monthsAgo( 11 ),
         updatedAt: monthsAgo( 3 )
     },
     {
-        id: "demo-guild-of-cartographers",
-        slug: "guild-of-cartographers",
-        title: "Guild of Cartographers",
-        summary: "Holds the right to survey the coast and the duty to publish what it finds, in that order.",
+        id: "demo-night-of-falling-stars",
+        slug: "night-of-falling-stars",
+        title: "The Night of Falling Stars",
+        summary: "The November night the sky fell for four hours, and the only night the Register of Hours ran out"
+          + " of columns.",
         body: [
-            "## The charter",
+            "## The night",
             "",
-            "The Guild of Cartographers holds the right to survey the coast and the duty to publish what it finds,",
-            "in that order, which is the whole of its history in one sentence.",
+            "On the night of the thirteenth of November the sky over the range filled with shooting stars, so many",
+            "that the valley thought the world was ending and the observers thought it was the best night of their",
+            "lives. Both were right for about four hours.",
             "",
-            "## Work",
+            "## At Thornwatch",
             "",
-            "- the general chart, revised on no fixed schedule;",
-            "- the reef surveys, of which the [north reef survey](/entries/north-reef-survey) is the longest and the",
-            "  least conclusive;",
-            "- the plates, lent to any harbour that asks and returned by roughly half of them.",
+            "[Ilse Varga](/entries/ilse-varga) and [Brother Anselm Koll](/entries/anselm-koll) counted from the",
+            "roof of the dome until their hands stopped working, then dictated to the novices. The",
+            "[Register of Hours](/entries/register-of-hours) holds eleven pages for that night, ruled by hand",
+            "because the printed columns ran out before midnight.",
             "",
-            "### The Fenn affair",
+            "## In the valley",
             "",
-            "The guild censured [Elias Fenn](/entries/elias-fenn) for the survey it now sells, and takes its water",
-            "from the [Ledger of Tides](/entries/ledger-of-tides) exactly as he did."
+            "In [Halden Brae](/entries/halden-brae) the bell ringer rang for a fire, then for a death, then gave up",
+            "and came out to watch with everyone else."
         ].join( "\n" ),
-        categories: [ "organisations", "guilds" ],
+        categories: [ "events" ],
         infobox: [
-            { label: "Type", value: "Chartered guild" },
-            { label: "Members", value: "31" },
-            { label: "Seat", value: "Saltmarch" }
+            { label: "Duration", value: "About four hours" },
+            { label: "Pages in the register", value: "11" },
+            { label: "Counted by", value: "[Ilse Varga](/entries/ilse-varga), [Anselm Koll](/entries/anselm-koll)" }
         ],
-        image: null,
+        image: {
+            src: DEMO_ILLUSTRATIONS.stars,
+            alt: "An engraving of townspeople in a street looking up at a sky full of falling stars.",
+            caption: "The square at Halden Brae a little after midnight, from a print sold the following week."
+        },
         dates: [
-            { id: "demo-date-guild-charter", label: "Charter", value: "1798" }
+            { id: "demo-date-stars-night", label: "The night", value: "1833-11-13" }
         ],
         status: "publie",
-        aliases: [ "The Guild" ],
+        aliases: [ "The Star Fall" ],
         createdAt: monthsAgo( 10 ),
         updatedAt: monthsAgo( 4 )
     },
     {
-        id: "demo-the-shoal-road",
-        slug: "the-shoal-road",
-        title: "The Shoal Road",
-        summary: "A bank of hard sand joining the two harbours at low water, and drowned to the height of a mast at"
-          + " high.",
+        id: "demo-the-iron-line",
+        slug: "the-iron-line",
+        title: "The Iron Line",
+        summary: "The cable railway from Halden Brae to the ridge, and the company that runs it with more pride"
+          + " than punctuality.",
         body: [
-            "## A road for six hours",
+            "## The line",
             "",
-            "The Shoal Road is the bank of hard sand that joins [Cape Ainsley](/entries/cape-ainsley) to",
-            "[Saltmarch](/entries/saltmarch) at low water, and drowns to the height of a mast at high. It carries",
-            "carts, cattle and, twice a year, an argument about whether it is a road at all.",
+            "The Iron Line climbs from the square of [Halden Brae](/entries/halden-brae) to the upper station below",
+            "[Thornwatch](/entries/thornwatch), on a viaduct the engineers call elegant and the passengers call",
+            "steep. Two cars balance each other on one cable, and pass at the loop halfway up with a courtesy",
+            "nobody has ever managed to teach the drivers.",
             "",
-            "## Markers",
+            "## The company",
             "",
-            "Twenty seven poles, replaced by whichever harbour notices first. The line they follow is",
-            "[Elias Fenn](/entries/elias-fenn)'s, walked and not calculated, which is why it bends where no chart",
-            "says it should.",
+            "The line was designed by [Mara Ostrel](/entries/mara-ostrel) and is run by a company that answers to",
+            "the town for its fares and to the [Order of the Meridian](/entries/order-of-the-meridian) for its",
+            "timetable. Precedence on the cable is settled by the [Right of the Rope](/entries/right-of-the-rope),",
+            "which everyone quotes and nobody has read.",
             "",
-            "### Status",
+            "### Winters",
             "",
-            "Whether [right of passage](/entries/right-of-passage) applies to the road is the oldest open question on",
-            "the coast. Both harbours behave as though it does, and neither will say so where a clerk can hear it."
+            "The line stops at the first ice on the cable. In [the Silent Winter](/entries/the-silent-winter) it",
+            "stopped for four months, and lost its upper cable for good."
         ].join( "\n" ),
-        categories: [ "places" ],
+        categories: [ "organisations", "orders" ],
         infobox: [
-            { label: "Length", value: "Nine miles" },
-            { label: "Open", value: "Six hours in twelve" },
-            { label: "Markers", value: "27 poles" }
-        ],
-        image: null,
-        dates: [
-            { id: "demo-date-road-survey", label: "First survey", value: "1841-09" },
-            { id: "demo-date-road-charted", label: "Marked on the general chart", value: "1843" }
-        ],
-        status: "publie",
-        aliases: [ "The Road", "Fenn's line" ],
-        createdAt: monthsAgo( 10 ),
-        updatedAt: monthsAgo( 5 )
-    },
-    {
-        id: "demo-north-reef-survey",
-        slug: "north-reef-survey",
-        title: "The North Reef Survey",
-        summary: "Seven seasons of soundings that answer a question differently depending on which line you"
-          + " believe.",
-        body: [
-            "## The survey",
-            "",
-            "The north reef survey is the longest running measurement on the coast, begun by the",
-            "[Guild of Cartographers](/entries/guild-of-cartographers) to settle whether the reef is growing, and",
-            "abandoned twice before it could.",
-            "",
-            "## Findings",
-            "",
-            "Seven seasons of soundings, taken from three vessels with two different lines, produce a result that",
-            "depends on which of the two you believe. [Elias Fenn](/entries/elias-fenn) refused to sign the report",
-            "for that reason, and the guild published it anyway with a note.",
-            "",
-            "### Why it matters",
-            "",
-            "Both harbours plan their approaches on the assumption that the reef is exactly where the last survey",
-            "said it was."
-        ].join( "\n" ),
-        categories: [],
-        infobox: [
-            { label: "Seasons", value: "7" },
-            { label: "Vessels", value: "3" },
-            { label: "Report signed by", value: "Every surveyor but one" }
-        ],
-        image: null,
-        dates: [
-            { id: "demo-date-reef-begun", label: "Begun", value: "1869-06" },
-            { id: "demo-date-reef-report", label: "Report filed", value: "1870-01-12" }
-        ],
-        status: "publie",
-        aliases: [],
-        createdAt: monthsAgo( 9 ),
-        updatedAt: monthsAgo( 5 )
-    },
-    {
-        id: "demo-saltmarch",
-        slug: "saltmarch",
-        title: "Saltmarch",
-        summary: "Older than the cape, poorer, and considerably better at unloading a ship in bad weather.",
-        body: [
-            "## The harbour",
-            "",
-            "Saltmarch lies at the southern end of the [Shoal Road](/entries/the-shoal-road), behind a bar that has",
-            "moved three times in living memory. It is older than [Cape Ainsley](/entries/cape-ainsley), poorer, and",
-            "considerably better at unloading a ship in bad weather.",
-            "",
-            "## Government",
-            "",
-            "The harbour master governs, and has done since the town declined to elect a council for the second",
-            "time. [Tessa Varo](/entries/tessa-varo) held the post for twenty six years, which is longer than the",
-            "council lasted.",
-            "",
-            "### The Long Night",
-            "",
-            "Saltmarch lost its bar, its outer quay and the seaward half of the",
-            "[Drowned Orchard](/entries/the-drowned-orchard) in [the Long Night](/entries/the-long-night), and rebuilt",
-            "all three within two years, in the wrong places according to the guild."
-        ].join( "\n" ),
-        categories: [ "places", "harbours" ],
-        infobox: [
-            { label: "Type", value: "Harbour" },
-            { label: "Population", value: "6 800" },
-            { label: "Governed by", value: "Harbour master" },
-            { label: "Bar depth at low water", value: "Two fathoms" }
+            { label: "Type", value: "Cable railway and company" },
+            { label: "Length", value: "1 900 m" },
+            { label: "Designed by", value: "[Mara Ostrel](/entries/mara-ostrel)" },
+            { label: "Stations", value: "2" }
         ],
         image: {
-            src: DEMO_ILLUSTRATIONS.saltmarch,
-            alt: "Fishing boats aground on a tidal bar at low water.",
-            caption: "The bar at low water, where the road begins."
+            src: DEMO_ILLUSTRATIONS.ironline,
+            alt: "A cable railway climbing a wooded slope on a stone viaduct above a station and chalets.",
+            caption: "The lower half of the line, from the roof of the station at Halden Brae."
         },
         dates: [
-            { id: "demo-date-saltmarch-founded", label: "Founded", value: "1776" },
-            { id: "demo-date-saltmarch-rebuilt", label: "Rebuilt after the Long Night", value: "1862" }
+            { id: "demo-date-line-opened", label: "Line opened", value: "1838-07-02" }
         ],
         status: "publie",
-        aliases: [ "The Marsh" ],
+        aliases: [ "The Line", "The Rope Railway" ],
+        createdAt: monthsAgo( 10 ),
+        updatedAt: daysAgo( 4 )
+    },
+    {
+        id: "demo-order-of-the-meridian",
+        slug: "order-of-the-meridian",
+        title: "Order of the Meridian",
+        summary: "The brotherhood that keeps Thornwatch, and the only order in the range whose rule is written in"
+          + " hours rather than in prayers.",
+        body: [
+            "## The rule",
+            "",
+            "The Order of the Meridian keeps [Thornwatch](/entries/thornwatch) and the",
+            "[Register of Hours](/entries/register-of-hours). Its rule fits on one page, and every line of it is",
+            "about time: when to rise, when to observe, when to write, and when to stop writing and sleep.",
+            "",
+            "## Its members",
+            "",
+            "Brothers and sisters serve seven winters on the ridge before they may ask to come down. The order",
+            "appointed [Ilse Varga](/entries/ilse-varga) chief observer, and still lists",
+            "[Brother Tamas](/entries/brother-tamas) on its rolls although nobody has seen him since the pass",
+            "closed in his third year.",
+            "",
+            "### Quarrels",
+            "",
+            "The order's oldest quarrel is with [the Iron Line](/entries/the-iron-line), over a timetable the order",
+            "considers a matter of astronomy and the company considers a matter of fares."
+        ].join( "\n" ),
+        categories: [ "organisations", "orders" ],
+        infobox: [
+            { label: "Seat", value: "[Thornwatch](/entries/thornwatch)" },
+            { label: "Years of service", value: "Seven winters" },
+            { label: "Keeps", value: "[Register of Hours](/entries/register-of-hours)" }
+        ],
+        image: null,
+        dates: [
+            { id: "demo-date-order-rule", label: "Rule written", value: "1744" }
+        ],
+        status: "publie",
+        aliases: [ "The Meridians", "The Brothers of the Watch" ],
+        createdAt: monthsAgo( 11 ),
+        updatedAt: monthsAgo( 5 )
+    },
+    {
+        id: "demo-wardens-of-the-pass",
+        slug: "wardens-of-the-pass",
+        title: "Wardens of the Pass",
+        summary: "The company that opens and closes the Kessel Pass, and is blamed both times.",
+        body: [
+            "## Duties",
+            "",
+            "The Wardens of the Pass decide when the [Kessel Pass](/entries/kessel-pass) opens, mark the road with",
+            "poles and the [Lantern Cairns](/entries/lantern-cairns), and go out after anyone who tried it anyway.",
+            "",
+            "## Standing",
+            "",
+            "They answer to both valleys under the [Treaty of Two Valleys](/entries/treaty-of-two-valleys), which",
+            "means each valley believes they answer to the other."
+        ].join( "\n" ),
+        categories: [ "organisations", "orders" ],
+        infobox: [
+            { label: "Founded under", value: "[Treaty of Two Valleys](/entries/treaty-of-two-valleys)" },
+            { label: "Posts", value: "3" }
+        ],
+        image: null,
+        dates: [
+            { id: "demo-date-wardens-founded", label: "First muster", value: "1840-09" }
+        ],
+        status: "publie",
+        aliases: [ "The Wardens" ],
         createdAt: monthsAgo( 9 ),
         updatedAt: monthsAgo( 6 )
     },
     {
-        id: "demo-tessa-varo",
-        slug: "tessa-varo",
-        title: "Tessa Varo",
-        summary: "Harbour master of Saltmarch for twenty six years, and the author of the first draft of the Quiet"
-          + " Accord.",
+        id: "demo-teodor-varga",
+        slug: "teodor-varga",
+        title: "Teodor Varga",
+        summary: "The schoolmaster who asked the hospice for a window, and founded an observatory without meaning"
+          + " to.",
         body: [
-            "## Harbour master",
+            "## The window",
             "",
-            "Tessa Varo came to [Saltmarch](/entries/saltmarch) as a clerk of the bar and left it, twenty six years",
-            "later, as the only harbour master the coast has ever addressed by her first name in writing.",
+            "Teodor Varga taught arithmetic in [Halden Brae](/entries/halden-brae) for twenty years, and spent",
+            "his summers at the hospice that would become [Thornwatch](/entries/thornwatch). He asked the brothers",
+            "for a room with a window facing south and nothing else, and began the",
+            "[Register of Hours](/entries/register-of-hours) on its sill.",
             "",
-            "## The Accord",
+            "## His children",
             "",
-            "She wrote the first draft of the [Quiet Accord](/entries/the-quiet-accord) on the back of a manifest,",
-            "sailed it to [Cape Ainsley](/entries/cape-ainsley) herself, and waited three days in the customs house",
-            "for an answer. The answer, when it came, was four words long.",
-            "",
-            "### Reputation",
-            "",
-            "The [Office of Lights](/entries/office-of-lights) found her obstructive, the",
-            "[winter inquiry](/entries/winter-inquiry) found her indispensable, and her own harbour found her",
-            "expensive. All three were right."
+            "His daughter [Ilse Varga](/entries/ilse-varga) kept the register after him. His son kept the school,",
+            "and the arithmetic, and never once climbed to the ridge."
         ].join( "\n" ),
-        categories: [ "people" ],
+        categories: [ "people", "sky-readers" ],
         infobox: [
-            { label: "Office", value: "Harbour master, Saltmarch" },
-            { label: "Years in service", value: "Twenty six" },
-            { label: "Known for", value: "[The Quiet Accord](/entries/the-quiet-accord)" }
+            { label: "Trade", value: "Schoolmaster" },
+            { label: "Founded", value: "[Register of Hours](/entries/register-of-hours)" },
+            { label: "Daughter", value: "[Ilse Varga](/entries/ilse-varga)" }
         ],
         image: null,
         dates: [
-            { id: "demo-date-varo-birth", label: "Birth", value: "1830-01-30" },
-            { id: "demo-date-varo-appointed", label: "Made harbour master", value: "1859-07" }
+            { id: "demo-date-teodor-birth", label: "Birth", value: "1751-06-03" },
+            { id: "demo-date-teodor-register", label: "First entry in the register", value: "1785-08-21" },
+            { id: "demo-date-teodor-death", label: "Death", value: "1819-03-02" }
         ],
         status: "publie",
-        aliases: [ "Varo of the bar" ],
-        createdAt: monthsAgo( 8 ),
+        aliases: [ "The Schoolmaster" ],
+        createdAt: monthsAgo( 9 ),
         updatedAt: monthsAgo( 7 )
     },
     {
-        id: "demo-the-quiet-accord",
-        slug: "the-quiet-accord",
-        title: "The Quiet Accord",
-        summary: "Two harbours keeping oil, rope and a berth for each other, and charging nothing for a night"
-          + " either would rather forget.",
+        id: "demo-mara-ostrel",
+        slug: "mara-ostrel",
+        title: "Mara Ostrel",
+        summary: "The engineer who drew the Iron Line, and the first person to ride it to the top.",
         body: [
-            "## The agreement",
+            "## The engineer",
             "",
-            "The Quiet Accord is the standing arrangement between [Cape Ainsley](/entries/cape-ainsley) and",
-            "[Saltmarch](/entries/saltmarch): each keeps oil, rope and a berth for the other, and neither charges for",
-            "a night either of them would rather forget.",
+            "Mara Ostrel learned her trade on the mill races of [Halden Brae](/entries/halden-brae) and drew",
+            "[the Iron Line](/entries/the-iron-line) on the back of a weighhouse ledger, in one evening, after the",
+            "council told her it could not be done in less than a year.",
             "",
-            "## Terms",
+            "## The first ride",
             "",
-            "- shelter first, paperwork afterwards, without exception;",
-            "- a reserve of oil neither harbour may sell in the season it was bought;",
-            "- a joint watch on the [Shoal Road](/entries/the-shoal-road) between the equinoxes.",
-            "",
-            "### Why it holds",
-            "",
-            "It was written by two people who had both stood a watch: [Tessa Varo](/entries/tessa-varo) and",
-            "[Mira Halloway](/entries/mira-halloway). Neither signed on behalf of a council, which is precisely why",
-            "no council has been able to revoke it."
+            "She rode the first car to the upper station alone, because no member of the council would go with",
+            "her, and wrote her name on the roof of the station in chalk. It has been painted over eleven times",
+            "and still shows through."
         ].join( "\n" ),
-        categories: [ "events", "concepts" ],
+        categories: [ "people" ],
         infobox: [
-            { label: "Parties", value: "[Cape Ainsley](/entries/cape-ainsley), [Saltmarch](/entries/saltmarch)" },
-            { label: "Articles", value: "7" },
-            { label: "Signed at", value: "The customs house, Cape Ainsley" }
+            { label: "Trade", value: "Engineer" },
+            { label: "Known for", value: "[The Iron Line](/entries/the-iron-line)" }
         ],
         image: null,
         dates: [
-            { id: "demo-date-accord-signed", label: "Signed", value: "1863-02-11" },
-            { id: "demo-date-accord-force", label: "Comes into force", value: "The first slack water of March" }
+            { id: "demo-date-mara-birth", label: "Birth", value: "1801" },
+            { id: "demo-date-mara-ride", label: "First ride", value: "1838-07-02" }
         ],
         status: "publie",
-        aliases: [ "The Accord" ],
-        createdAt: monthsAgo( 7 ),
+        aliases: [ "M. Ostrel" ],
+        createdAt: monthsAgo( 8 ),
         updatedAt: monthsAgo( 8 )
     },
     {
-        id: "demo-the-glass-lantern",
-        slug: "the-glass-lantern",
-        title: "The Glass Lantern",
-        summary: "A first order lens of nine hundred prisms, cast for the cape and broken in it during the fourth"
-          + " hour of the Long Night.",
+        id: "demo-anselm-koll",
+        slug: "anselm-koll",
+        title: "Anselm Koll",
+        summary: "",
         body: [
-            "## The lens",
-            "",
-            "The Glass Lantern is the first order lens cast for [Cape Ainsley](/entries/cape-ainsley), a drum of nine",
-            "hundred prisms turning once every two minutes on a bath of mercury. It made the cape visible from",
-            "further out than any light on the coast.",
-            "",
-            "## Failure",
-            "",
-            "It came apart in the fourth hour of [the Long Night](/entries/the-long-night), under a wind the",
-            "[Office of Lights](/entries/office-of-lights) had not thought worth designing for.",
-            "[Mira Halloway](/entries/mira-halloway) cleared the lantern room by hand, cutting both of hers, and",
-            "burned an open flame until morning.",
-            "",
-            "### The second lantern",
-            "",
-            "The recast lens turns more slowly on purpose, and carries a third fewer prisms. That is where",
-            "[the Slow Light](/entries/the-slow-light) takes both its name and its argument."
+            "Brother of the [Order of the Meridian](/entries/order-of-the-meridian), and the second pair of eyes on",
+            "[the Night of Falling Stars](/entries/night-of-falling-stars)."
         ].join( "\n" ),
-        categories: [ "objects" ],
-        infobox: [
-            { label: "Order", value: "First" },
-            { label: "Prisms", value: "900" },
-            { label: "Rotation", value: "One turn in two minutes" },
-            { label: "Installed at", value: "Cape Ainsley" }
-        ],
-        image: {
-            src: DEMO_ILLUSTRATIONS.lens,
-            alt: "Concentric rings of cut glass in a lighthouse lens.",
-            caption: "The recast lens, photographed before it was hoisted."
-        },
-        dates: [
-            { id: "demo-date-lantern-cast", label: "Cast", value: "1857-10" },
-            { id: "demo-date-lantern-broken", label: "Broken", value: "1861-11-14" },
-            { id: "demo-date-lantern-recast", label: "Recast", value: "1862-08" }
-        ],
+        categories: [ "people", "sky-readers" ],
+        infobox: [],
+        image: null,
+        dates: [],
         status: "publie",
-        aliases: [ "The first order" ],
-        createdAt: monthsAgo( 6 ),
+        aliases: [ "Brother Anselm" ],
+        createdAt: monthsAgo( 7 ),
         updatedAt: monthsAgo( 9 )
     },
     {
-        id: "demo-the-slow-light",
-        slug: "the-slow-light",
-        title: "The Slow Light",
-        summary: "The doctrine that a light should be built to be repaired rather than to be admired.",
+        id: "demo-register-of-hours",
+        slug: "register-of-hours",
+        title: "The Register of Hours",
+        summary: "Every transit seen from Thornwatch since the first night, in forty one volumes and three hands.",
         body: [
-            "## The idea",
+            "## The book",
             "",
-            "The Slow Light is the doctrine that a light should be built to be repaired rather than to be admired.",
-            "It came out of the recasting of [the Glass Lantern](/entries/the-glass-lantern), and out of a keeper's",
-            "refusal to accept that the coast had merely been unlucky.",
+            "The Register of Hours is the record of every star seen to cross the meridian from",
+            "[Thornwatch](/entries/thornwatch), with the time, the observer and the weather. It was begun by",
+            "[Teodor Varga](/entries/teodor-varga) on a windowsill and is now forty one volumes, bound in calf and",
+            "kept in the room beneath the dome.",
             "",
-            "## Consequences",
+            "## The remarks",
             "",
-            "Every light the [Office of Lights](/entries/office-of-lights) has built since turns more slowly, carries",
-            "fewer prisms, and can be brought back by two people in the dark. It is measurably less impressive and",
-            "has not failed once.",
+            "The last column is headed “Remarks” and is where the register becomes readable. It holds the cold, the",
+            "visitors, the mule that ate a page, and, for [the Silent Winter](/entries/the-silent-winter), one",
+            "word a night in [Ilse Varga](/entries/ilse-varga)'s hand: “Clear.”",
             "",
-            "### Objections",
+            "### Access",
             "",
-            "The [Guild of Cartographers](/entries/guild-of-cartographers) notes that a slower light is harder to",
-            "identify at distance, and it is right. [Mira Halloway](/entries/mira-halloway)'s answer, that an",
-            "unidentified light is still a light, has never been improved on."
-        ].join( "\n" ),
-        categories: [ "concepts" ],
-        infobox: [
-            { label: "Named", value: "1866" },
-            { label: "Applied to", value: "Every light built since" }
-        ],
-        image: null,
-        dates: [
-            { id: "demo-date-slow-named", label: "Named", value: "1866" }
-        ],
-        status: "publie",
-        aliases: [],
-        createdAt: monthsAgo( 6 ),
-        updatedAt: monthsAgo( 10 )
-    },
-    {
-        id: "demo-orin-halloway",
-        slug: "orin-halloway",
-        title: "Orin Halloway",
-        summary: "Kept the Cape Ainsley light for thirty one years without a relief beyond his own family.",
-        body: [
-            "## Keeper of the cape",
-            "",
-            "Orin Halloway kept the [Cape Ainsley](/entries/cape-ainsley) light for thirty one years without a single",
-            "relief beyond his own family. He taught the middle watch to his daughter,",
-            "[Mira Halloway](/entries/mira-halloway), and to nobody else.",
-            "",
-            "## Character",
-            "",
-            "The [Office of Lights](/entries/office-of-lights) records four commendations and eleven complaints, most",
-            "of the latter concerning his refusal to admit visitors to the lantern room while",
-            "[the Glass Lantern](/entries/the-glass-lantern) was turning.",
-            "",
-            "### Death",
-            "",
-            "He died in February, in the chair on the landing, three hours into a watch his daughter finished",
-            "without waking the house. The [Halloway family](/entries/halloway-family) held the cape for another two",
-            "generations."
-        ].join( "\n" ),
-        categories: [ "people", "keepers" ],
-        infobox: [
-            { label: "Office", value: "Keeper, Cape Ainsley" },
-            { label: "Years in service", value: "Thirty one" },
-            { label: "Commendations", value: "4" }
-        ],
-        image: null,
-        dates: [
-            { id: "demo-date-orin-birth", label: "Birth", value: "1794" },
-            { id: "demo-date-orin-death", label: "Death", value: "1858-02-28" }
-        ],
-        status: "publie",
-        aliases: [],
-        createdAt: monthsAgo( 12 ),
-        updatedAt: monthsAgo( 11 )
-    },
-    {
-        id: "demo-bell-of-corran",
-        slug: "bell-of-corran",
-        title: "The Bell of Corran",
-        summary: "A ship's bell recovered from the bar, cast for a vessel no register has ever carried.",
-        body: [
-            "## The bell",
-            "",
-            "The Bell of Corran is a ship's bell recovered from the bar at Saltmarch, cast for a vessel no",
-            "register on the coast has ever carried, and dated eleven years before the foundry that made it",
-            "opened.",
-            "",
-            "## The inscription",
-            "",
-            "Four words and a number, in a hand that reads like a legal clerk rather than a founder. Every reading",
-            "proposed so far requires assuming that one of the letters is a mistake, and no two readings agree on",
-            "which.",
-            "",
-            "### Status",
-            "",
-            "The bell sits in the customs house, in a case, above a card that says considerably less than this",
-            "page does."
+            "The [Order of the Meridian](/entries/order-of-the-meridian) lets any traveller read it who climbs to",
+            "the station to ask, which keeps the requests reasonably few."
         ].join( "\n" ),
         categories: [ "objects" ],
         infobox: [
-            { label: "Material", value: "Bell metal" },
-            { label: "Recovered from", value: "The bar at Saltmarch" },
-            { label: "Readings proposed", value: "5" }
+            { label: "Volumes", value: "41" },
+            { label: "Begun by", value: "[Teodor Varga](/entries/teodor-varga)" },
+            { label: "Kept at", value: "[Thornwatch](/entries/thornwatch)" }
         ],
         image: null,
         dates: [
-            { id: "demo-date-bell-recovered", label: "Recovered", value: "1864-04-19" }
+            { id: "demo-date-register-begun", label: "First entry", value: "1785-08-21" }
+        ],
+        status: "publie",
+        aliases: [ "The Register", "The Hours" ],
+        createdAt: monthsAgo( 8 ),
+        updatedAt: monthsAgo( 10 )
+    },
+    {
+        id: "demo-the-great-refractor",
+        slug: "the-great-refractor",
+        title: "The Great Refractor",
+        summary: "The telescope of Thornwatch, carried up the ridge in nine loads and never carried down again.",
+        body: [
+            "## The instrument",
+            "",
+            "The Great Refractor is the telescope in the dome of [Thornwatch](/entries/thornwatch): a lens the",
+            "width of a hand span, a tube longer than the dome is wide, and a pier that the brothers will not",
+            "let anyone lean on.",
+            "",
+            "## The climb",
+            "",
+            "It came up before [the Iron Line](/entries/the-iron-line) existed, in nine loads on the backs of",
+            "mules and one on the back of a novice who would not let the lens out of his arms.",
+            "[Ilse Varga](/entries/ilse-varga) assembled it in the dome over a fortnight and pronounced it",
+            "“acceptable”, which the order has engraved on the tube."
+        ].join( "\n" ),
+        categories: [ "objects" ],
+        infobox: [
+            { label: "Type", value: "Refracting telescope" },
+            { label: "Loads to carry up", value: "10" },
+            { label: "Housed at", value: "[Thornwatch](/entries/thornwatch)" }
+        ],
+        image: null,
+        dates: [
+            { id: "demo-date-refractor-assembled", label: "Assembled", value: "1827-09" }
+        ],
+        status: "publie",
+        aliases: [ "The Glass" ],
+        createdAt: monthsAgo( 6 ),
+        updatedAt: monthsAgo( 11 )
+    },
+    {
+        id: "demo-right-of-the-rope",
+        slug: "right-of-the-rope",
+        title: "Right of the Rope",
+        summary: "The custom that settles who rides the Iron Line first, quoted by everyone and read by nobody.",
+        body: [
+            "## The custom",
+            "",
+            "The Right of the Rope gives precedence on [the Iron Line](/entries/the-iron-line) to the sick, then",
+            "to the post, then to the [Order of the Meridian](/entries/order-of-the-meridian), then to whoever got",
+            "there first. Merchants argue that salt should come second. Merchants have argued this for forty years."
+        ].join( "\n" ),
+        categories: [ "concepts" ],
+        infobox: [
+            { label: "Applies to", value: "[The Iron Line](/entries/the-iron-line)" }
+        ],
+        image: null,
+        dates: [],
+        status: "publie",
+        aliases: [ "The Rope Right" ],
+        createdAt: monthsAgo( 5 ),
+        updatedAt: monthsAgo( 12 )
+    },
+    {
+        id: "demo-lantern-cairns",
+        slug: "lantern-cairns",
+        title: "The Lantern Cairns",
+        summary: "Stone markers along the pass, each with a niche for a lamp, lit from the first snow to the thaw.",
+        body: [
+            "## The cairns",
+            "",
+            "The Lantern Cairns mark the line of the [Kessel Pass](/entries/kessel-pass) above the poles, one every",
+            "three hundred paces, each with a niche on its downhill side for a lamp. The",
+            "[Wardens of the Pass](/entries/wardens-of-the-pass) light them from the first snow that lies to the",
+            "thaw, which since [the Silent Winter](/entries/the-silent-winter) means most of the year.",
+            "",
+            "## The custom",
+            "",
+            "A traveller who finds a cairn dark relights it and leaves something in the niche. What is left there",
+            "is the subject of a great deal of valley folklore and very little evidence."
+        ].join( "\n" ),
+        categories: [ "concepts" ],
+        infobox: [
+            { label: "Count", value: "27" },
+            { label: "Lit by", value: "[Wardens of the Pass](/entries/wardens-of-the-pass)" }
+        ],
+        image: null,
+        dates: [],
+        status: "publie",
+        aliases: [ "The Cairns" ],
+        createdAt: monthsAgo( 4 ),
+        updatedAt: daysAgo( 6 )
+    },
+    {
+        id: "demo-treaty-of-two-valleys",
+        slug: "treaty-of-two-valleys",
+        title: "Treaty of Two Valleys",
+        summary: "The agreement signed on the weighhouse steps that shares the pass, the wardens and the blame.",
+        body: [
+            "## The agreement",
+            "",
+            "The Treaty of Two Valleys was signed on the steps of the weighhouse in",
+            "[Halden Brae](/entries/halden-brae), outdoors, because neither valley would sign in the other's hall.",
+            "It shares the cost of the [Wardens of the Pass](/entries/wardens-of-the-pass), sets the closing of the",
+            "[Kessel Pass](/entries/kessel-pass) at the first snow that lies, and names",
+            "[Thornwatch](/entries/thornwatch) neutral ground.",
+            "",
+            "## Why",
+            "",
+            "Seventeen years after [the Silent Winter](/entries/the-silent-winter), both valleys had finally run out",
+            "of people willing to say it would not happen again."
+        ].join( "\n" ),
+        categories: [ "events" ],
+        infobox: [
+            { label: "Signed at", value: "[Halden Brae](/entries/halden-brae)" },
+            { label: "Parties", value: "2" },
+            { label: "Created", value: "[Wardens of the Pass](/entries/wardens-of-the-pass)" }
+        ],
+        image: null,
+        dates: [
+            { id: "demo-date-treaty-signed", label: "Signed", value: "1840-06-24" }
+        ],
+        status: "publie",
+        aliases: [ "The Weighhouse Treaty" ],
+        createdAt: monthsAgo( 3 ),
+        updatedAt: daysAgo( 9 )
+    },
+    {
+        id: "demo-the-salt-stair",
+        slug: "the-salt-stair",
+        title: "The Salt Stair",
+        summary: "The mule track from the salt springs to Halden Brae, cut in steps where the slope refused a road.",
+        body: [
+            "## The track",
+            "",
+            "The Salt Stair brings the salt of the high springs down to [Halden Brae](/entries/halden-brae), on a",
+            "track that gives up being a road halfway and becomes eleven hundred steps cut into the rock. The mules",
+            "know every one of them and the drivers know most."
+        ].join( "\n" ),
+        categories: [ "places", "passes" ],
+        infobox: [
+            { label: "Type", value: "Mule track" },
+            { label: "Steps", value: "1 100" }
+        ],
+        image: null,
+        dates: [
+            { id: "demo-date-stair-cut", label: "Steps cut", value: "Before the hospice" }
+        ],
+        status: "publie",
+        aliases: [ "The Stair" ],
+        createdAt: monthsAgo( 2 ),
+        updatedAt: daysAgo( 12 )
+    },
+    {
+        id: "demo-comet-ledger",
+        slug: "comet-ledger",
+        title: "The Comet Ledger",
+        summary: "A thin book kept beside the Register of Hours, for the things that crossed the sky without asking.",
+        body: [
+            "## The ledger",
+            "",
+            "The Comet Ledger holds what the [Register of Hours](/entries/register-of-hours) has no column for:",
+            "comets, a fireball, two lights the brothers agreed not to name. Nine entries in sixty years, four of",
+            "them in [Ilse Varga](/entries/ilse-varga)'s hand, and one that nobody admits to writing.",
+            "",
+            "### Status",
+            "",
+            "The order has not decided whether the ledger is part of the register or a private book, and has",
+            "therefore not decided who may read it."
+        ].join( "\n" ),
+        categories: [ "objects" ],
+        infobox: [
+            { label: "Entries", value: "9" },
+            { label: "Kept beside", value: "[Register of Hours](/entries/register-of-hours)" }
+        ],
+        image: null,
+        dates: [
+            { id: "demo-date-comet-first", label: "First entry", value: "1811-09" }
         ],
         status: "brouillon",
         aliases: [],
-        createdAt: monthsAgo( 4 ),
+        createdAt: monthsAgo( 1 ),
         updatedAt: daysAgo( 8 )
     },
     {
-        id: "demo-winter-watch",
-        slug: "winter-watch",
-        title: "The Winter Watch",
+        id: "demo-thaw-rota",
+        slug: "thaw-rota",
+        title: "The Thaw Rota",
         summary: "",
         body: [
             "## Draft",
             "",
-            "The winter watch is the doubled rota kept between the equinoxes. Notes to come: who pays for the",
-            "second keeper, and what happens on the road."
+            "The thaw rota is the order in which the wardens walk the pass when the snow goes. Notes to come: who",
+            "walks first, and why it is never the same warden twice."
         ].join( "\n" ),
         categories: [],
         infobox: [],
@@ -1015,128 +920,131 @@ const entryList = (): Entry[] => [
  */
 const liveList = (): LiveEntry[] => [
     {
-        id: "demo-live-lens",
+        id: "demo-live-line-stopped",
         publishedAt: hoursAgo( 26 ),
-        title: "Cape Ainsley shows a fixed light until the lens is re seated",
-        body: "The drum is turning half a second late on every revolution, so the keepers have stopped it rather"
-          + " than let masters read the wrong character.",
+        title: "The Iron Line runs the lower half only until the cable is inspected",
+        body: "Rime on the upper span since dawn. Passengers for the ridge change at the loop and walk the last"
+          + " stretch with the mules.",
         severity: "important",
-        tags: [ "lights", "ainsley" ],
-        entrySlug: "cape-ainsley",
-        source: "Office of Lights",
+        tags: [ "line", "ice" ],
+        entrySlug: "the-iron-line",
+        source: "The Iron Line company",
         pinned: true
     },
     {
-        id: "demo-live-road-closed",
+        id: "demo-live-pass-closing",
         publishedAt: daysAgo( 9 ),
-        title: "The Shoal Road is closed to carts between the equinoxes",
-        body: "The joint watch begins on the first slack water of the month. Foot traffic at its own risk, as ever.",
+        title: "The Kessel Pass closes at the first snow that lies",
+        body: "The wardens remind both valleys that the treaty means the first snow, not the first convenient one.",
         severity: "info",
-        tags: [ "road", "accord" ],
-        entrySlug: "the-shoal-road",
+        tags: [ "pass", "treaty" ],
+        entrySlug: "kessel-pass",
         source: null,
         pinned: true
     },
     {
-        id: "demo-live-quay",
+        id: "demo-live-gorge",
         publishedAt: hoursAgo( 3 ),
-        title: "Saltmarch closes the outer quay for the afternoon tide",
-        body: "Swell over the bar, and two berths already short. Freight is being turned towards the inner basin.",
+        title: "Rockfall in the gorge, carts turned back at the second bridge",
+        body: "No one hurt. The wardens are clearing the road and ask carters to wait in Halden Brae rather than"
+          + " at the bridge.",
         severity: "urgent",
-        tags: [ "saltmarch", "weather" ],
-        entrySlug: "saltmarch",
-        source: "Harbour Office of Saltmarch",
+        tags: [ "pass", "road" ],
+        entrySlug: "kessel-pass",
+        source: "Wardens of the Pass",
         pinned: false
     },
     {
-        id: "demo-live-ledger",
+        id: "demo-live-register",
         publishedAt: hoursAgo( 7 ),
-        title: "The Ledger of Tides is open to readers again on Thursdays",
-        body: "Two years of rebinding, and the remarks column survived every page of it.",
+        title: "The Register of Hours opens to readers on clear Sundays",
+        body: "Volume forty one is back from the binder, and the remarks column survived every page of it.",
         severity: "info",
-        tags: [ "office", "ledger" ],
-        entrySlug: "ledger-of-tides",
-        source: "Office of Lights",
+        tags: [ "order", "register" ],
+        entrySlug: "register-of-hours",
+        source: "Order of the Meridian",
         pinned: false
     },
     {
         id: "demo-live-storm-lifted",
         publishedAt: hoursAgo( 30 ),
-        title: "Storm warning lifted between the cape and the bar",
-        body: "The glass has been steady for six hours. Both harbours are open, and the road opens with the tide.",
+        title: "Snow warning lifted on both sides of the range",
+        body: "The glass has been steady since midnight. The line runs, the pass holds, and the cairns stay lit.",
         severity: "breaking",
         tags: [ "weather" ],
         entrySlug: null,
-        source: "Office of Lights",
+        source: "Order of the Meridian",
         pinned: false
     },
     {
-        id: "demo-live-poles",
+        id: "demo-live-cairns",
         publishedAt: hoursAgo( 28 ),
-        title: "Twenty seven poles counted on the road, twenty five standing",
-        body: "The two missing ones are the pair that always go, at the bend the chart still refuses to draw.",
+        title: "Twenty seven cairns walked, twenty six lit",
+        body: "The dark one is the cairn above the bend, which goes out every year and has never once been found"
+          + " empty.",
         severity: "info",
-        tags: [ "road", "charts" ],
-        entrySlug: "the-shoal-road",
-        source: "Guild of Cartographers",
+        tags: [ "pass", "cairns" ],
+        entrySlug: "lantern-cairns",
+        source: "Wardens of the Pass",
         pinned: false
     },
     {
-        id: "demo-live-fees",
+        id: "demo-live-fares",
         publishedAt: hoursAgo( 34 ),
-        title: "Pilotage fees at Cape Ainsley hold for another season",
-        body: "The clerk of passage read the decision out in under a minute, which is the shortest it has ever"
-          + " taken.",
+        title: "Fares on the Iron Line hold for another season",
+        body: "The council read the decision in under a minute, which is the shortest it has ever taken.",
         severity: "important",
-        tags: [ "ainsley", "office" ],
-        entrySlug: "cape-ainsley",
-        source: "Office of Lights",
+        tags: [ "line", "town" ],
+        entrySlug: "the-iron-line",
+        source: "Council of Halden Brae",
         pinned: false
     },
     {
-        id: "demo-live-reef",
+        id: "demo-live-refractor",
         publishedAt: daysAgo( 3 ),
-        title: "The north reef survey resumes for a seventh season",
-        body: "Same reef, third vessel, and a line the guild promises is the same one as last time.",
+        title: "The Great Refractor is back on its pier after cleaning",
+        body: "The lens has been out of the tube for the first time in eleven years. The brothers describe the"
+          + " sky as “sharper”, and the novices as “tired”.",
         severity: "info",
-        tags: [ "charts" ],
-        entrySlug: "north-reef-survey",
-        source: "Guild of Cartographers",
+        tags: [ "order", "instruments" ],
+        entrySlug: "the-great-refractor",
+        source: "Order of the Meridian",
         pinned: false
     },
     {
-        id: "demo-live-oil",
+        id: "demo-live-salt",
         publishedAt: daysAgo( 5 ),
-        title: "Oil reserve at Saltmarch drops below the Accord figure",
-        body: "Eleven barrels short of the season's minimum, with the cape asked to cover the difference until"
-          + " autumn.",
+        title: "Salt from the Stair falls below the treaty figure",
+        body: "Two mule trains short this month, with the eastern valley asked to cover the difference until"
+          + " the springs run again.",
         severity: "urgent",
-        tags: [ "accord", "saltmarch" ],
-        entrySlug: "the-quiet-accord",
-        source: "Harbour Office of Saltmarch",
+        tags: [ "salt", "treaty" ],
+        entrySlug: "treaty-of-two-valleys",
+        source: "Weighhouse of Halden Brae",
         pinned: false
     },
     {
-        id: "demo-live-bell",
+        id: "demo-live-comet",
         publishedAt: daysAgo( 7 ),
-        title: "The Bell of Corran goes back into its case unread",
-        body: "A fifth reading of the inscription, a fifth letter declared a mistake, and a fifth card that says"
-          + " nothing.",
+        title: "A tailed light seen low in the east before dawn",
+        body: "Three brothers saw it, two agree on where, and the third has written it in a book he will not"
+          + " show anyone.",
         severity: "info",
-        tags: [ "objects" ],
-        entrySlug: "bell-of-corran",
+        tags: [ "sky" ],
+        entrySlug: "comet-ledger",
         source: null,
         pinned: false
     },
     {
-        id: "demo-live-keeper",
+        id: "demo-live-observer",
         publishedAt: daysAgo( 14 ),
-        title: "A second keeper joins the winter watch at the cape",
-        body: "The rota is the one Halloway wrote, unchanged except for the name at the top of the second column.",
+        title: "A new observer climbs to Thornwatch for the winter",
+        body: "The chair is the one Varga cut down to her height. The new observer is, by every account, about"
+          + " the same height.",
         severity: "info",
-        tags: [ "lights", "ainsley" ],
-        entrySlug: "mira-halloway",
-        source: "Office of Lights",
+        tags: [ "order", "thornwatch" ],
+        entrySlug: "ilse-varga",
+        source: "Order of the Meridian",
         pinned: false
     }
 ];
@@ -1148,17 +1056,20 @@ const liveList = (): LiveEntry[] => [
  * timestamps are relative to the call and because `importDataset` stores what it is
  * handed: a shared object would end up aliased by the overlay.
  *
+ * Its accent is the amber, the colour of a lamp in a cairn, chosen apart from the
+ * default blue so a reader sees at once that the colour of a wiki is its own.
+ *
  * @returns A complete dataset, ready for `normalizeDataset`.
  * @author Claude
  */
 export const demoDataset = (): Dataset => ( {
     meta: {
-        universe: "The Lantern Coast",
-        description: "The keepers, harbours and quiet agreements that hold a coast where the water is never twice"
-          + " the same.",
+        universe: "The High Cairns",
+        description: "The observers, passes and cable lines of a range where the sky is closer than the next"
+          + " valley.",
         logo: "",
-        accent: "cyan",
-        featured: [ "mira-halloway", "cape-ainsley", "the-long-night" ]
+        accent: "ambre",
+        featured: [ "ilse-varga", "thornwatch", "the-silent-winter", "the-iron-line" ]
     },
     categories: categoryList(),
     entries: entryList(),

@@ -69,7 +69,7 @@
 
     /**
      * Ink of a matched term. A red link's title keeps its catalogue red instead:
-     * set in ink, the term split «Halloway family» into a black and a red half.
+     * set in ink, the term split «Varga family» into a black and a red half.
      */
     const MATCH_INK = "text-ink-900 dark:text-paper-50";
 
