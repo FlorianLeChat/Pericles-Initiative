@@ -27,10 +27,6 @@ export default defineConfig( {
                 entries: [ "*" ],
                 handleHttpError: "warn",
                 handleMissingId: "warn"
-            },
-            paths: {
-                // @ts-expect-error Needed for GitLab Pages generation.
-                base: process.argv.includes( "dev" ) ? "" : process.env.BASE_PATH
             }
         } ),
         tailwindcss(),
