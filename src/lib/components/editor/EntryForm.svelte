@@ -17,6 +17,7 @@
     import Button from "flowbite-svelte/Button.svelte";
     import type { ResolvedPathname } from "$app/types";
     import EntrySettings from "./EntrySettings.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import TemplatePicker from "./TemplatePicker.svelte";
     import { pluralize } from "#lib/utilities/plural.ts";
     import MarkdownEditor from "./MarkdownEditor.svelte";
@@ -392,6 +393,7 @@
     const store = (): Entry =>
     {
         const moving = relink ? previousSlug : "";
+        const publishing = status === "publie" && current?.status !== "publie";
         const stored = wiki.saveEntry( {
             id: current?.id,
             createdAt: current?.createdAt,
@@ -408,6 +410,8 @@
             aliases: [ ...aliases ],
             status
         } );
+
+        sound.cue( "success", { emphasis: publishing ? "strong" : "normal" } );
 
         current = stored;
         slug = stored.slug;
@@ -600,6 +604,7 @@
         }
 
         wiki.deleteEntry( current.id );
+        sound.cue( "close", { emphasis: "strong" } );
         leaving = true;
         void goto( resolve( "/entries" ) );
     };

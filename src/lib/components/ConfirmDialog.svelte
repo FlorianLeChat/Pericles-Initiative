@@ -25,6 +25,7 @@
     import * as m from "#lib/locales/messages.js";
     import Modal from "flowbite-svelte/Modal.svelte";
     import Button from "flowbite-svelte/Button.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { PAIRED_ACTION } from "#lib/config/forms.ts";
     import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
 
@@ -75,6 +76,7 @@
 </script>
 
 <Modal
+    {@attach sound.dialog()}
     bind:open
     {title}
     size="xs"

@@ -48,6 +48,7 @@
     class="text-ink-600 hover:bg-paper-200 dark:text-paper-300 dark:hover:bg-ink-800 inline-flex h-11 w-11
            items-center justify-center rounded-full transition lg:h-9 lg:w-9"
     onclick={toggle}
+    data-cuelume-toggle
     aria-pressed={dark}
     aria-label={dark ? m.theme_toggle_to_light_aria() : m.theme_toggle_to_dark_aria()}
     title={dark ? m.theme_toggle_light_title() : m.theme_toggle_dark_title()}

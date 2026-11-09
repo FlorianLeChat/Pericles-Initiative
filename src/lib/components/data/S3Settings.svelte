@@ -139,6 +139,7 @@
             </div>
 
             <Checkbox
+                data-cuelume-toggle
                 bind:checked={config.pathStyle}
                 classes={{ div: "flex items-start text-sm" }}
                 class="mt-0.5 shrink-0"

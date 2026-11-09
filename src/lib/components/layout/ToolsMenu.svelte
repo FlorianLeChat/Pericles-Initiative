@@ -64,6 +64,9 @@
                    : "text-ink-600 dark:text-paper-300"}"
         aria-expanded={open}
         aria-label={m.common_tools_label()}
+        data-cuelume-open={open ? undefined : ""}
+        data-cuelume-close={open ? "" : undefined}
+        data-cuelume-emphasis="subtle"
     >
         <Settings2 class="h-4.5 w-4.5" />
     </button>

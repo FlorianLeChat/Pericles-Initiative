@@ -33,6 +33,7 @@
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
     import Select from "flowbite-svelte/Select.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import Checkbox from "flowbite-svelte/Checkbox.svelte";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import { SEVERITIES } from "#lib/config/severities.ts";
@@ -143,6 +144,8 @@
             publishedAt: fromDateTimeInput( publishedAt )
         } );
 
+        sound.cue( "success" );
+
         if ( !editing )
         {
             title = "";
@@ -207,6 +210,7 @@
             <div class="flex flex-wrap gap-1.5">
                 {#each SEVERITIES as config ( config.id )}
                     <Radio
+                        data-cuelume-select
                         name="live-severity"
                         value={config.id}
                         bind:group={severity}
@@ -289,7 +293,7 @@
                     <ChipsInput bind:values={tags} id="live-tags" placeholder={m.live_composer_tags_placeholder()} />
                 </div>
 
-                <Checkbox bind:checked={pinned} classes={{ div: "flex min-h-9 items-center text-sm" }}>
+                <Checkbox data-cuelume-toggle bind:checked={pinned} classes={{ div: "flex min-h-9 items-center text-sm" }}>
                     {m.live_composer_pin_checkbox()}
                 </Checkbox>
             </div>

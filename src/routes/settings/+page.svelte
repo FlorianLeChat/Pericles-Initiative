@@ -15,9 +15,11 @@
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import { PUBLIC_VERSION } from "$app/env/public";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { reading } from "#lib/state/reading.svelte.ts";
     import { localStorageKey } from "#lib/locales/runtime.js";
     import PageHeader from "#lib/components/PageHeader.svelte";
+    import { DEFAULT_SOUND_THEME } from "#lib/config/sounds.ts";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import ToolsNav from "#lib/components/layout/ToolsNav.svelte";
     import ResetPanel from "#lib/components/data/ResetPanel.svelte";
@@ -34,7 +36,7 @@
      * language the browser itself asks for. Nothing gates this button, since a
      * locale that was never chosen and one chosen to be the preferred one read
      * exactly the same from here. The use of the device is another, and goes back
-     * to reading and writing.
+     * to reading and writing; the sounds go back to silence, in their default material.
      *
      * Reloading afterwards for the reason `DemoContent` already does, plus one:
      * the form snapshots the identity when it mounts, and a language only changes
@@ -46,6 +48,8 @@
     {
         wiki.resetMeta();
         reading.set( false );
+        void sound.set( false );
+        void sound.setTheme( DEFAULT_SOUND_THEME, false );
 
         try
         {

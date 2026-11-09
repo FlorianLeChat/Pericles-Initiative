@@ -25,6 +25,7 @@
     import * as m from "#lib/locales/messages.js";
     import Alert from "flowbite-svelte/Alert.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { reading } from "#lib/state/reading.svelte.ts";
     import PageHeader from "#lib/components/PageHeader.svelte";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
@@ -90,6 +91,7 @@
                 onconfirm={() =>
                 {
                     wiki.resetContent();
+                    sound.cue( "close", { emphasis: "strong" } );
                     feedback = m.data_reset_feedback();
                 }}
             >

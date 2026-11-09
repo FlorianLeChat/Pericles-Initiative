@@ -146,6 +146,18 @@ test.describe( "settings", () =>
 
         expect( await page.evaluate( () => window.localStorage.getItem( "pericles:mode" ) ) ).toBe( "lecture" );
 
+        // The sounds start silent, and turning them on is remembered beside the use of the device.
+        await expect( page.getByRole( "radio", { name: "Silencieux" } ) ).toBeChecked();
+        await page.getByRole( "radio", { name: "Sons activés" } ).click();
+
+        expect( await page.evaluate( () => window.localStorage.getItem( "pericles:sound" ) ) ).toBe( "on" );
+
+        // Their material is only offered once they are on, glass first.
+        await expect( page.getByRole( "radio", { name: "Verre" } ) ).toBeChecked();
+        await page.getByRole( "radio", { name: "Mécanique" } ).click();
+
+        expect( await page.evaluate( () => window.localStorage.getItem( "pericles:sound-theme" ) ) ).toBe( "mech" );
+
         await wiki.navigate( "En direct" );
 
         await expect( page.getByRole( "heading", { name: "En direct", level: 1 } ) ).toBeVisible();
@@ -201,6 +213,8 @@ test.describe( "settings", () =>
         await wiki.openTool( "Paramètres" );
 
         await expect( page.getByRole( "radio", { name: "Lire seulement" } ) ).toBeChecked();
+        await expect( page.getByRole( "radio", { name: "Sons activés" } ) ).toBeChecked();
+        await expect( page.getByRole( "radio", { name: "Mécanique" } ) ).toBeChecked();
 
         await page.getByLabel( "Description" ).fill( "Une description de passage." );
         await page.getByRole( "button", { name: "Enregistrer" } ).click();
@@ -217,6 +231,10 @@ test.describe( "settings", () =>
         expect( Object.keys( overlay?.entries ?? {} ) ).toHaveLength( COUNTS.entries );
         expect( await page.evaluate( () => window.localStorage.getItem( "pericles:mode" ) ) ).toBeNull();
         await expect( page.getByRole( "radio", { name: "Read and write" } ) ).toBeChecked();
+        expect( await page.evaluate( () => window.localStorage.getItem( "pericles:sound" ) ) ).toBeNull();
+        await expect( page.getByRole( "radio", { name: "Silent" } ) ).toBeChecked();
+        await expect( page.getByRole( "radio", { name: "Glass" } ) ).toHaveCount( 0 );
+        expect( await page.evaluate( () => window.localStorage.getItem( "pericles:sound-theme" ) ) ).toBeNull();
     } );
 
     test( "switches the language, remembers it, and reloads the page in it", async ( { page, wiki } ) =>

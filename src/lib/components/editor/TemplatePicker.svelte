@@ -29,6 +29,7 @@
 
     {#each PAGE_TEMPLATES as template ( template.id )}
         <Radio
+            data-cuelume-select
             name="entry-template"
             value={template.id}
             group={chosen}

@@ -32,6 +32,7 @@
     <div class="flex flex-wrap gap-1.5">
         {#each USAGES as option ( option.value )}
             <Radio
+                data-cuelume-select
                 name="device-usage"
                 value={option.value}
                 bind:group={usage}

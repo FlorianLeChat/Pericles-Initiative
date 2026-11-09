@@ -27,6 +27,7 @@
     import Toast from "flowbite-svelte/Toast.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { motionDuration } from "#lib/config/motion.ts";
     import { ICON_BUTTON, TOUCH_HEIGHT } from "#lib/config/forms.ts";
 
@@ -92,6 +93,7 @@
     const restore = (): void =>
     {
         wiki.undo();
+        sound.cue( "navigate", { direction: "back", emphasis: "subtle" } );
         document.getElementById( "main-content" )?.focus();
     };
 </script>

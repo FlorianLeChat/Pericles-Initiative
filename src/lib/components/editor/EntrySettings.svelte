@@ -111,7 +111,7 @@
                 </div>
 
                 {#if citations > 0}
-                    <Checkbox bind:checked={relink} classes={{ div: "mt-2 flex min-h-9 items-center text-sm" }}>
+                    <Checkbox data-cuelume-toggle bind:checked={relink} classes={{ div: "mt-2 flex min-h-9 items-center text-sm" }}>
                         {relinkLabel}
                     </Checkbox>
 

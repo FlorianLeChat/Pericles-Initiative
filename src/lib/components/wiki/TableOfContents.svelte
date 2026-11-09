@@ -74,6 +74,9 @@
         <summary
             class="text-ink-900 dark:text-paper-100 flex min-h-11 cursor-pointer list-none items-center justify-between
                    text-sm font-semibold lg:min-h-0 [&::-webkit-details-marker]:hidden"
+            data-cuelume-open={open ? undefined : ""}
+            data-cuelume-close={open ? "" : undefined}
+            data-cuelume-emphasis="subtle"
         >
             {m.table_of_contents_heading()}
 
