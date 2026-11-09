@@ -333,7 +333,9 @@ Two rules with no exception, because both hide the very thing these questions lo
   will not exist as static HTML. This is why `/entries` lists every page, drafts included: it is the
   crawler's entry point into the corpus. With an empty seed, that listing is empty at build time, so
   `/entries/[slug]` and `/categories/[slug]` are never prerendered: every page of actual content is
-  served through the SPA fallback instead. This is expected, not a regression to fix.
+  served through the SPA fallback instead. This is expected, not a regression to fix. Both `[slug]`
+  routes say so with `export const prerender = "auto"` in their `+page.ts`, which keeps them out of
+  `prerender_unseen_routes`; the build fails on any other route marked prerenderable and never reached.
 - Editor routes cannot be prerendered. They export `prerender = false` and `ssr = false`, and the
   SPA fallback `404.html` serves them, along with every page that only exists in the local overlay,
   which today means essentially all content.
