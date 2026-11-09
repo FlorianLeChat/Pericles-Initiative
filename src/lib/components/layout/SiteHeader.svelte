@@ -34,6 +34,7 @@
     import Search from "@lucide/svelte/icons/search";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Drawer from "flowbite-svelte/Drawer.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { reading } from "#lib/state/reading.svelte.ts";
     import { platform } from "#lib/state/platform.svelte.ts";
     import { PRESSED, TOUCH_HEIGHT } from "#lib/config/forms.ts";
@@ -196,6 +197,7 @@
 </header>
 
 <Drawer
+    {@attach sound.dialog()}
     bind:open={menuOpen}
     id="navigation-mobile"
     placement="right"

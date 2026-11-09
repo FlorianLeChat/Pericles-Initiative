@@ -76,6 +76,7 @@
         <div class="grid gap-2 sm:grid-cols-3">
             {#each DESTINATIONS as tile ( tile.value )}
                 <Radio
+                    data-cuelume-select
                     name="backup-destination"
                     value={tile.value}
                     bind:group={destination}

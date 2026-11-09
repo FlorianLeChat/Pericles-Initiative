@@ -13,6 +13,7 @@
     import { untrack, type Snippet } from "svelte";
     import Alert from "flowbite-svelte/Alert.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { search } from "#lib/state/search.svelte.ts";
     import { reading } from "#lib/state/reading.svelte.ts";
     import { FLOWBITE_THEME } from "#lib/config/forms.ts";
@@ -117,6 +118,7 @@
         wiki.loadOverlay();
         platform.detect();
         reading.load();
+        sound.load();
     } );
 
     /*

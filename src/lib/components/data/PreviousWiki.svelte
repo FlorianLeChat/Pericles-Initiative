@@ -15,6 +15,7 @@
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { ACTION_BUTTON } from "#lib/config/forms.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
     import { formatDateTime } from "#lib/utilities/date.ts";
@@ -29,6 +30,7 @@
     const restore = (): void =>
     {
         wiki.restorePrevious();
+        sound.cue( "success" );
         restored = true;
     };
 </script>

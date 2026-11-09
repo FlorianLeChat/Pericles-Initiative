@@ -19,6 +19,7 @@
     import * as m from "#lib/locales/messages.js";
     import Modal from "flowbite-svelte/Modal.svelte";
     import Button from "flowbite-svelte/Button.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { getLocale } from "#lib/locales/runtime.js";
     import RefreshCw from "@lucide/svelte/icons/refresh-cw";
     import { filterPill, PAIRED_ACTION } from "#lib/config/forms.ts";
@@ -196,6 +197,7 @@
 </script>
 
 <Modal
+    {@attach sound.dialog()}
     bind:open
     title={m.generator_title()}
     size="sm"
@@ -216,6 +218,7 @@
                 type="button"
                 class={filterPill( offered === kind )}
                 aria-pressed={offered === kind}
+                data-cuelume-select
                 onclick={() => ( kind = offered )}
             >
                 {kindLabel( offered )}

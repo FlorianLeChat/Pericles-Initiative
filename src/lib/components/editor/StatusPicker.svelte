@@ -37,6 +37,7 @@
     <div class="flex gap-1.5">
         {#each STATUSES as option ( option.id )}
             <Radio
+                data-cuelume-select
                 name="entry-status"
                 value={option.id}
                 bind:group={status}

@@ -44,6 +44,7 @@
     import Upload from "@lucide/svelte/icons/upload";
     import Button from "flowbite-svelte/Button.svelte";
     import DownloadFirst from "./DownloadFirst.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import { downloadBackup } from "#lib/utilities/download.ts";
@@ -153,6 +154,7 @@
     const download = (): void =>
     {
         downloadBackup( wiki.exportJson() );
+        sound.cue( "ready" );
 
         feedback = { kind: "success", text: m.file_backup_download_success(), area: "download" };
     };
@@ -167,10 +169,12 @@
         try
         {
             await navigator.clipboard.writeText( wiki.exportJson() );
+            sound.cue( "success", { emphasis: "subtle" } );
             feedback = { kind: "success", text: m.file_backup_copy_success(), area: "download" };
         }
         catch
         {
+            sound.cue( "error" );
             feedback = { kind: "error", text: m.file_backup_copy_error(), area: "download" };
         }
     };
@@ -200,6 +204,7 @@
         }
         catch
         {
+            sound.cue( "error" );
             feedback = { kind: "error", text: m.file_backup_import_error(), area: "restore" };
         }
     };
@@ -215,6 +220,7 @@
 
         if ( !dataset )
         {
+            sound.cue( "error" );
             feedback = { kind: "error", text: m.file_backup_import_error(), area: "restore" };
 
             return;
@@ -238,6 +244,8 @@
         }
 
         const counts = wiki.importDataset( pending );
+
+        sound.cue( "success" );
 
         pending = null;
         importText = "";

@@ -25,6 +25,7 @@
     import Modal from "flowbite-svelte/Modal.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { paletteColor } from "#lib/config/palette.ts";
     import Checkbox from "flowbite-svelte/Checkbox.svelte";
     import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
@@ -122,6 +123,8 @@
         const existing = wiki.categories.find( ( item ) => item.slug === slugify( name ) );
         const slug = existing ? existing.slug : wiki.saveCategory( { name } ).slug;
 
+        sound.cue( "success", { emphasis: "subtle" } );
+
         if ( !existing )
         {
             declared.push( slug );
@@ -186,6 +189,7 @@
 
                 {#each offered as item ( item.slug )}
                     <Checkbox
+                        data-cuelume-toggle
                         classes={{ div: "flex min-h-9 items-center text-sm" }}
                         checked={categories.includes( item.slug )}
                         onchange={() => toggle( item.slug )}
@@ -213,6 +217,7 @@
 {/if}
 
 <Modal
+    {@attach sound.dialog()}
     bind:open={createOpen}
     title={m.entry_form_category_new()}
     size="xs"

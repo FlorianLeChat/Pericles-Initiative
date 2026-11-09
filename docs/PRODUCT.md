@@ -43,6 +43,8 @@ from inside the fiction. Entirely client side, with no account, no server and no
   place, organisation, event, object, concept, or a blank page) that only pre-fill dates, infobox rows and
   sections. Infobox, whose values may link to other pages, table of contents, backlinks, red links, timeline,
   dashboard, live feed with severities and tags.
+- Optional interface sounds, synthesised in the browser and off by default, a preference of the device like the
+  use of the device: short cues answering a gesture or an outcome, never a page load.
 - Interface in French and English; the fiction is authored content in whatever language the author writes.
 - A device can be set to read only from `/settings`: the controls that create, edit or delete content leave it, so
   a player at the table meets the world rather than its back office. A preference of the device, not a permission:

@@ -47,6 +47,7 @@
     import Input from "flowbite-svelte/Input.svelte";
     import Modal from "flowbite-svelte/Modal.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { getLocale } from "#lib/locales/runtime.js";
     import { staggerRank } from "#lib/config/motion.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
@@ -388,6 +389,7 @@
 {/snippet}
 
 <Modal
+    {@attach sound.dialog( "subtle" )}
     bind:open
     size="md"
     placement="top-center"

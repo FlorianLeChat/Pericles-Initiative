@@ -24,6 +24,7 @@
     import Button from "flowbite-svelte/Button.svelte";
     import Helper from "flowbite-svelte/Helper.svelte";
     import Select from "flowbite-svelte/Select.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import Breadcrumb from "flowbite-svelte/Breadcrumb.svelte";
     import PageHeader from "#lib/components/PageHeader.svelte";
@@ -176,6 +177,7 @@
             },
             previousSlug
         );
+        sound.cue( "success" );
 
         reset();
     };
@@ -193,6 +195,7 @@
         }
 
         wiki.deleteCategory( pendingDeletion.slug );
+        sound.cue( "close", { emphasis: "strong" } );
         if ( editing?.slug === pendingDeletion.slug )
         {
             reset();
@@ -381,6 +384,7 @@
                 <div class="flex flex-wrap gap-1.5">
                     {#each PALETTE as option ( option.key )}
                         <Radio
+                            data-cuelume-select
                             name="category-color"
                             value={option.key}
                             bind:group={color}

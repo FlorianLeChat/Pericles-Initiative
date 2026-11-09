@@ -196,6 +196,7 @@
 
     <div class="border-paper-200 dark:border-ink-700 mt-6 border-t pt-5">
         <Checkbox
+            data-cuelume-toggle
             classes={{ div: "flex items-start text-sm" }}
             class="mt-0.5 shrink-0"
             checked={remote.config.autoPush}

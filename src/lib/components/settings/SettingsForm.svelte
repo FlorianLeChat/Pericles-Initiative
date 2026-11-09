@@ -26,13 +26,15 @@
      * reload, so it stands in a group of its own after the form. That reload would
      * throw a pending draft away, which is why a change of language with unsaved
      * edits asks first. The use of the device, reading and writing or reading
-     * only, stands in that same group, through `ReadingModeChoice`.
+     * only, stands in that same group, through `ReadingModeChoice`, and so do
+     * the sounds of the interface, through `SoundChoice`.
      *
      * @author Claude
      */
     import { untrack } from "svelte";
     import { resolve } from "$app/paths";
     import * as m from "#lib/locales/messages.js";
+    import SoundChoice from "./SoundChoice.svelte";
     import Input from "flowbite-svelte/Input.svelte";
     import Label from "flowbite-svelte/Label.svelte";
     import Radio from "flowbite-svelte/Radio.svelte";
@@ -42,6 +44,7 @@
     import Button from "flowbite-svelte/Button.svelte";
     import Helper from "flowbite-svelte/Helper.svelte";
     import HeaderPreview from "./HeaderPreview.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { formatSize } from "#lib/utilities/size.ts";
     import Textarea from "flowbite-svelte/Textarea.svelte";
     import SettingsSection from "./SettingsSection.svelte";
@@ -140,6 +143,8 @@
             accent,
             featured: [ ...featured ]
         } );
+
+        sound.cue( "success", { emphasis: "subtle" } );
 
         baseline = snapshot();
         saved = true;
@@ -332,6 +337,7 @@
                     {#each ACCENTS as option ( option.key )}
                         <div data-accent={option.key} class="contents">
                             <Radio
+                                data-cuelume-select
                                 name="meta-accent"
                                 value={option.key}
                                 bind:group={accent}
@@ -390,6 +396,7 @@
         <div class="flex flex-wrap gap-1.5">
             {#each locales as code ( code )}
                 <Radio
+                    data-cuelume-select
                     name="meta-language"
                     value={code}
                     bind:group={selectedLocale}
@@ -408,6 +415,8 @@
     </fieldset>
 
     <ReadingModeChoice />
+
+    <SoundChoice />
 </SettingsSection>
 
 <ConfirmDialog

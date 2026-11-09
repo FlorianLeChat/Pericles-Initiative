@@ -24,6 +24,7 @@
     import Radio from "flowbite-svelte/Radio.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { formatSize, storedSize } from "#lib/utilities/size.ts";
     import { MODAL_MOBILE_FULLSCREEN } from "#lib/config/dialogs.ts";
     import { filterPill, PAIRED_ACTION, RADIO_OVERLAY } from "#lib/config/forms.ts";
@@ -102,6 +103,7 @@
 </script>
 
 <Modal
+    {@attach sound.dialog()}
     bind:open
     title={m.image_import_title()}
     size="sm"
@@ -134,6 +136,7 @@
             <div class="flex flex-wrap gap-1.5">
                 {#each IMAGE_QUALITIES as option ( option.id )}
                     <Radio
+                        data-cuelume-select
                         name="image-import-quality"
                         value={option.id}
                         bind:group={quality}

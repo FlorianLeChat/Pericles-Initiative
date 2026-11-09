@@ -41,6 +41,7 @@
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
     import Select from "flowbite-svelte/Select.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
     import { SEVERITIES } from "#lib/config/severities.ts";
     import { reading } from "#lib/state/reading.svelte.ts";
@@ -154,6 +155,7 @@
     const remove = ( item: LiveEntry ): void =>
     {
         wiki.deleteLiveEntry( item.id );
+        sound.cue( "close", { emphasis: "strong" } );
         document.getElementById( "main-content" )?.focus();
     };
 
@@ -243,6 +245,7 @@
                         <legend class="sr-only">{m.live_filter_severity_legend()}</legend>
 
                         <Radio
+                            data-cuelume-select
                             name="live-severity"
                             value="toutes"
                             bind:group={severity}
@@ -254,6 +257,7 @@
 
                         {#each SEVERITIES as config ( config.id )}
                             <Radio
+                                data-cuelume-select
                                 name="live-severity"
                                 value={config.id}
                                 bind:group={severity}

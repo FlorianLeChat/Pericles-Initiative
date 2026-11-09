@@ -7,6 +7,10 @@
  * page, the network indicator and the reminders of the layout all go through it
  * rather than wiring the two stores by hand, each in its own way.
  *
+ * For the same reason it reports the outcome of a send or a restore to `sound`:
+ * only a gesture of the reader ever calls either, so five callers do not each
+ * have to remember the cue.
+ *
  * Two markers describe a synchronisation, one per side, kept in the remote
  * connection: `syncedChange` is the `changedAt` of the overlay at that moment,
  * `syncedRemote` the marker of the snapshot. Comparing the overlay against the
@@ -17,6 +21,7 @@
  */
 
 import { wiki } from "#lib/state/wiki.svelte.ts";
+import { sound } from "#lib/state/sound.svelte.ts";
 import type { RemoteSnapshot } from "#lib/types.ts";
 import { remote } from "#lib/state/remote.svelte.ts";
 
@@ -147,6 +152,8 @@ class SyncStore
             this.#settle();
         }
 
+        sound.cue( stored ? "success" : "error", { emphasis: stored ? "subtle" : "normal" } );
+
         return stored;
     }
 
@@ -163,6 +170,8 @@ class SyncStore
 
         if ( !snapshot )
         {
+            sound.cue( "error" );
+
             return null;
         }
 
@@ -172,6 +181,7 @@ class SyncStore
         // the local marker to remember is the one that write just produced.
         remote.markSynced( wiki.changedAt, markerOf( snapshot ) );
         this.#settle();
+        sound.cue( "success" );
 
         return counts;
     }

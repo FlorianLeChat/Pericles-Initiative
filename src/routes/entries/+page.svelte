@@ -33,6 +33,7 @@
     import * as m from "#lib/locales/messages.js";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
+    import { sound } from "#lib/state/sound.svelte.ts";
     import { TOUCH_HEIGHT } from "#lib/config/forms.ts";
     import { pluralize } from "#lib/utilities/plural.ts";
     import { reading } from "#lib/state/reading.svelte.ts";
@@ -210,6 +211,7 @@
     const publishSelection = (): void =>
     {
         wiki.publishEntries( selectedShown );
+        sound.cue( "success", { emphasis: "strong" } );
         selected = [];
     };
 
@@ -251,6 +253,7 @@
             {#if selecting}
                 <li class="flex items-start gap-3">
                     <Checkbox
+                        data-cuelume-toggle
                         class="mt-4 shrink-0"
                         checked={selected.includes( entry.id )}
                         onchange={() => toggle( entry.id )}
@@ -268,7 +271,7 @@
             <div
                 class="border-paper-200 dark:border-ink-700 mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-y py-2"
             >
-                <Checkbox classes={{ div: "text-sm" }} checked={allSelected} onchange={toggleAll}>
+                <Checkbox data-cuelume-toggle classes={{ div: "text-sm" }} checked={allSelected} onchange={toggleAll}>
                     {m.wiki_select_all()}
                 </Checkbox>
 
