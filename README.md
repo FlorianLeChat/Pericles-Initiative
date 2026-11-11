@@ -39,45 +39,23 @@ sequenceDiagram
     actor Utilisateur
     participant Interface
     participant Stockage local
-    participant Éditeur interactif
     participant Fichier JSON
     participant Sauvegarde en ligne
 
     Utilisateur->>Interface: J'ouvre le site
-    Interface->>Stockage local: Lit la surcouche, une fois la page hydratée
-    Stockage local-->>Interface: Mes fiches, catégories et événements
-    Interface-->>Utilisateur: Un squelette neutre le temps de cette lecture, puis l'accueil, ou une invitation à créer si le wiki est vide
+    Interface->>Stockage local: Récupère les fiches
+    Stockage local-->>Interface: Renvoie les fiches, catégories et événements enregistrés
+    Interface-->>Utilisateur: L'accueil, ou une invitation à créer si le wiki est vide
 
-    Utilisateur->>Interface: Je parcours le wiki, les catégories, la chronologie
-    Interface-->>Utilisateur: Les fiches, leurs rétroliens, tirés du corps comme de l'infobox, et leurs lectures liées
-    Interface-->>Utilisateur: Un lien rouge quand la fiche visée n'existe pas encore
-
-    loop À chaque fiche
-        Utilisateur->>Éditeur interactif: Je crée ou je modifie une fiche
-        Éditeur interactif->>Stockage local: Enregistre la fiche dans la surcouche
-        Éditeur interactif->>Stockage local: Réécrit les liens, corps et infobox, des fiches qui citaient l'ancienne adresse
-        Stockage local-->>Utilisateur: Le contenu, aussitôt disponible, sans requête réseau
-    end
-
-    Utilisateur->>Interface: Je publie un événement dans le direct
-    Interface-->>Utilisateur: Le fil se réorganise, et alerte le site entier si besoin
-
-    Utilisateur->>Interface: Je consulte le tableau de bord
-    Interface-->>Utilisateur: Chiffres, répartitions, fiches les plus citées, liens rouges
+    Utilisateur->>Interface: Je crée ou je modifie une fiche
+    Interface->>Stockage local: Enregistre la fiche dans le navigateur
 
     Utilisateur->>Fichier JSON: J'exporte mes données
-    Fichier JSON-->>Utilisateur: Une sauvegarde que je peux versionner
     Utilisateur->>Interface: J'importe un fichier
-    Interface-->>Utilisateur: Ce que contient le fichier face à ce que contient le navigateur
-    Utilisateur->>Interface: Je confirme le remplacement, après une copie si je le souhaite
-    Interface->>Stockage local: Met le wiki actuel de côté, s'il y a la place, puis remplace intégralement le contenu du navigateur
-    Utilisateur->>Interface: Je reviens au wiki précédent, si je le souhaite
-    Interface->>Stockage local: Rétablit le wiki mis de côté, et met de côté celui qu'il remplace
+    Interface->>Stockage local: Remplace le contenu du navigateur
 
-    Utilisateur->>Sauvegarde en ligne: J'envoie un instantané, si j'en ai configuré une
-    Sauvegarde en ligne-->>Utilisateur: L'état de la synchronisation
-    Utilisateur->>Sauvegarde en ligne: Je récupère l'instantané depuis un autre navigateur
-    Sauvegarde en ligne-->>Stockage local: Le jeu de données complet, réinstallé dans la surcouche
+    Utilisateur->>Sauvegarde en ligne: J'envoie ou je récupère un instantané, si j'en ai configuré une
+    Sauvegarde en ligne-->>Stockage local: Le jeu de données est réinstallé dans le navigateur
 ```
 
 ### Installation
@@ -120,49 +98,23 @@ sequenceDiagram
     actor User
     participant Interface
     participant Local storage
-    participant Interactive editor
     participant JSON file
     participant Online backup
 
     User->>Interface: I open the website
-    Interface->>Local storage: Reads the overlay, once the page is hydrated
-    Local storage-->>Interface: My entries, categories and events
-    Interface-->>User: A neutral skeleton during that read, then the home page, or an invitation to create if the wiki is empty
+    Interface->>Local storage: Retrieves the entries
+    Local storage-->>Interface: Returns the saved entries, categories and events
+    Interface-->>User: The home page, or an invitation to create if the wiki is empty
 
-    User->>Interface: I browse the wiki, the categories, the timeline
-    Interface-->>User: The entries, their backlinks, drawn from the body and the infobox alike, and their related reads
-    Interface-->>User: A red link whenever the target entry does not exist yet
-
-    loop For every entry
-        User->>Interactive editor: I create or edit an entry
-        Interactive editor->>Local storage: Saves the entry into the overlay
-        Interactive editor->>Local storage: Rewrites the links, body and infobox, of the entries citing the old address
-        Local storage-->>User: The content, available right away, with no network request
-    end
-
-    User->>Interface: I publish an item in the live feed
-    Interface-->>User: The feed reorders itself, and alerts the whole site when needed
-
-    User->>Interface: I open the dashboard
-    Interface-->>User: Figures, breakdowns, most cited entries, red links
+    User->>Interface: I create or edit an entry
+    Interface->>Local storage: Saves the entry in the browser
 
     User->>JSON file: I export my data
-    JSON file-->>User: A backup I can keep under version control
     User->>Interface: I import a file
-    Interface-->>User: What the file holds against what the browser holds
-    User->>Interface: I confirm the replacement, after a copy if I want one
-    Interface->>Local storage: Sets the current wiki aside, when there is room, then replaces the whole content of the browser
-    User->>Interface: I go back to the previous wiki, if I want to
-    Interface->>Local storage: Reinstates the wiki set aside, and sets aside the one it replaces
+    Interface->>Local storage: Replaces the content of the browser
 
-    Interface->>Online backup: Reads the snapshot on arrival, then at most once a minute, if I configured one
-    Online backup-->>Interface: The dataset, stamped with when its content last changed
-    Interface-->>User: A single offer to restore it, when it is more recent than my pages
-    User->>Online backup: I pull the snapshot, from that offer or from the data page
-    Online backup-->>Local storage: The whole dataset, reinstalled into the overlay
-    Interface-->>User: After each of my changes, an offer to update the backup
-    User->>Online backup: I push a snapshot, from that offer or from the data page
-    Online backup-->>User: Where the synchronisation stands
+    User->>Online backup: I push or pull a snapshot, if I configured one
+    Online backup-->>Local storage: The dataset is reinstalled in the browser
 ```
 
 ### Setup
