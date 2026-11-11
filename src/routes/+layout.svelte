@@ -18,6 +18,7 @@
     import { reading } from "#lib/state/reading.svelte.ts";
     import { FLOWBITE_THEME } from "#lib/config/forms.ts";
     import { platform } from "#lib/state/platform.svelte.ts";
+    import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import UndoToast from "#lib/components/layout/UndoToast.svelte";
     import ThemeProvider from "flowbite-svelte/ThemeProvider.svelte";
     import SiteHeader from "#lib/components/layout/SiteHeader.svelte";
@@ -214,6 +215,7 @@
         {#if wiki.ready}
             {@render children()}
         {:else}
+            <PageMeta title={m.meta_title_fallback()} />
             <PageSkeleton />
         {/if}
     </main>

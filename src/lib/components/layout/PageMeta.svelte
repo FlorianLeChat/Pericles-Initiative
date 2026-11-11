@@ -9,6 +9,11 @@
      * route therefore renders this instead of a `<svelte:head>` of its own, and one
      * route rendering it twice is the only way a duplicate can come back.
      *
+     * The root layout renders it as well, in place of the page, for as long as the
+     * overlay is unread: a page is only drawn once the wiki is ready, so without
+     * that the static HTML and the `404.html` fallback would carry no title and no
+     * description for a crawler that runs no script. The two never coexist.
+     *
      * @author Claude
      */
     import * as m from "#lib/locales/messages.js";

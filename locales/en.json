@@ -517,7 +517,8 @@
     "markdown_missing_page_hint": "(page to write)",
     "markdown_table_aria": "Table",
 
-    "meta_description_fallback": "An encyclopedia of an imagined universe, written page by page.",
+    "meta_title_fallback": "Pericles Initiative",
+    "meta_description_fallback": "🌄 An alternative wiki-style website to create an encyclopedia about your own custom universe.",
 
     "nav_backups": "Backups",
     "nav_categories": "Categories",

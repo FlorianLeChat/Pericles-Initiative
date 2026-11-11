@@ -517,7 +517,8 @@
     "markdown_missing_page_hint": "(fiche à écrire)",
     "markdown_table_aria": "Tableau",
 
-    "meta_description_fallback": "Une encyclopédie d'un univers imaginé, écrite fiche après fiche.",
+    "meta_title_fallback": "Périclès Initiative",
+    "meta_description_fallback": "🌄 Un site Internet alternatif inspiré du modèle de Wikipédia, permettant de créer une encyclopédie consacrée à votre propre univers personnalisé.",
 
     "nav_backups": "Sauvegardes",
     "nav_categories": "Catégories",
