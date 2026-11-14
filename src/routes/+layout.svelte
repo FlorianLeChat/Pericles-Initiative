@@ -171,7 +171,7 @@
 
 <svelte:head>
     <link rel="icon" href={favicon} type={faviconType} sizes="any" />
-    <link rel="manifest" href={asset( "manifest.webmanifest" )} crossorigin="use-credentials" />
+    <link rel="manifest" href={asset( "manifest.webmanifest" )} />
 
     {#if env.PUBLIC_ANALYTICS_ENABLED}
         <script
