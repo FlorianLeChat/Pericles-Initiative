@@ -8,7 +8,7 @@
  */
 
 import { expect, isNarrow, test } from "./utilities/fixtures";
-import { CATEGORIES, DATES, MISSING_SLUG, PAGES, UNIVERSE } from "./utilities/dataset";
+import { CATEGORIES, DATES, MISSING_SLUG, PAGES, sampleDataset, UNIVERSE } from "./utilities/dataset";
 
 test.describe( "article page", () =>
 {
@@ -155,5 +155,55 @@ test.describe( "article page", () =>
         await expect( page ).toHaveURL( new RegExp( `/entries/${ MISSING_SLUG }/$` ) );
         await expect( page.getByRole( "region", { name: "Pages qui mènent ici" } )
             .getByRole( "link", { name: PAGES.athena.title } ) ).toBeVisible();
+    } );
+} );
+
+test.describe( "hostile body", () =>
+{
+    test( "draws raw HTML without letting any of it run", async ( { page, wiki } ) =>
+    {
+        const dataset = sampleDataset();
+        const athena = dataset.entries.find( ( entry ) => entry.slug === PAGES.athena.slug );
+
+        if ( !athena )
+        {
+            throw new Error( "The fixture holds no page for Athéna." );
+        }
+
+        athena.body = [
+            "## Corps hostile",
+            "<img src=\"x\"/onerror=\"window.pwned = 1\">",
+            "<img src=\"x\"onerror=\"window.pwned = 2\">",
+            "<img alt=\">\" src=\"x\" onerror=\"window.pwned = 3\">",
+            "<svg/onload=\"window.pwned = 4\"></svg>",
+            "<a/href=\"javascript:window.pwned = 5\">piège</a>",
+            "<p style=\"position: fixed; inset: 0\">voile</p>",
+            "<scr<script></script>ipt>window.pwned = 6</script>"
+        ].join( "\n\n" );
+
+        await wiki.openWith( dataset, `/entries/${ PAGES.athena.slug }` );
+        await expect( page.getByRole( "heading", { name: "Corps hostile" } ) ).toBeVisible();
+
+        const offenders = await page.evaluate( () =>
+        {
+            const found: string[] = [];
+
+            for ( const element of document.querySelectorAll( ".article-body *" ) )
+            {
+                const names = element.getAttributeNames();
+                const handler = names.some( ( name ) => name.startsWith( "on" ) || name === "style" );
+                const href = element.getAttribute( "href" ) ?? "";
+
+                if ( handler || href.startsWith( "javascript:" ) || element.localName === "svg" )
+                {
+                    found.push( element.outerHTML );
+                }
+            }
+
+            return { found, pwned: ( window as unknown as { pwned?: number } ).pwned ?? null };
+        } );
+
+        expect( offenders.found ).toEqual( [] );
+        expect( offenders.pwned ).toBeNull();
     } );
 } );

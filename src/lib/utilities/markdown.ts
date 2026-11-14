@@ -55,13 +55,34 @@ const SCRIPT_BLOCKS = /<(script|style)\b[\s\S]*?<\/\1\s*>/gi;
 
 /** Tags that never make sense inside an article and could be abused. */
 const FORBIDDEN_TAGS
-    = /<\/?\s*(script|style|iframe|object|embed|form|input|textarea|select|button|link|meta|base)\b[^>]*>/gi;
+    = /<\/?\s*(script|style|iframe|object|embed|form|input|textarea|select|button|link|meta|base|svg|math|frame|frameset|applet)\b[^>]*>/gi;
 
-/** Inline event handlers such as `onclick="..."`. */
-const EVENT_ATTRIBUTES = /\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
+/**
+ * An opening tag, quoted values included.
+ *
+ * A quoted value may hold a `>`, which ends a tag for `[^>]*` and not for the
+ * browser, so the attributes after it would escape the filters below.
+ */
+const OPENING_TAGS = /<[a-z](?:"[^"]*"|'[^']*'|[^<>"'])*>/gi;
+
+/**
+ * Inline event handlers such as `onclick="..."`.
+ *
+ * Preceded by a space, a slash or the quote closing the previous value, since
+ * the HTML parser accepts all three as the end of an attribute: `<a/onclick=...>`
+ * and `<img src="x"onerror=...>` both fire.
+ */
+const EVENT_ATTRIBUTES = /(?<=[\s/"'])on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
+
+/** Inline styles, which can cover the page or load a remote resource. */
+const STYLE_ATTRIBUTES = /(?<=[\s/"'])style\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
 
 /** Attributes carrying a url, quoted or not, whose scheme has to be judged. */
-const URL_ATTRIBUTES = /\s(href|src|formaction|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
+const URL_ATTRIBUTES
+    = /(?<=[\s/"'])(href|src|formaction|action|poster|xlink:href)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
+
+/** Most passes the removal of forbidden constructs may take before giving up. */
+const MAX_SANITIZE_PASSES = 8;
 
 /** Opening tags of the headings that feed the table of contents. */
 const HEADING_TAGS = /<(h[2-4])>/g;
@@ -146,28 +167,72 @@ const unquote = ( value: string ): string =>
 };
 
 /**
- * Removes the constructs that have no place in an article body.
+ * Removes the scripts and the forbidden tags, until none is left.
  *
- * The dataset is authored by the site owner, so this is defence in depth
- * against a pasted snippet or an imported JSON file, not a hardened sanitizer.
+ * One pass is not enough: taking `<script></script>` out of
+ * `<scr<script></script>ipt>` leaves a `<script>` that was not there before. The
+ * passes are capped so a hostile body cannot keep the loop busy, and a body still
+ * changing after the last one has its tags escaped rather than trusted.
  *
  * @param html Rendered HTML.
- * @returns The same HTML without scripts, dangerous tags or executable urls; an image
- * may keep a base64 raster source, which is drawn and never followed.
+ * @returns The HTML with no script block and no forbidden tag.
  * @author Claude
  */
-export const sanitizeHtml = ( html: string ): string =>
-    html
-        .replaceAll( SCRIPT_BLOCKS, "" )
-        .replaceAll( FORBIDDEN_TAGS, "" )
+const removeForbidden = ( html: string ): string =>
+{
+    let current = html;
+
+    for ( let pass = 0; pass < MAX_SANITIZE_PASSES; pass += 1 )
+    {
+        const next = current.replaceAll( SCRIPT_BLOCKS, "" ).replaceAll( FORBIDDEN_TAGS, "" );
+
+        if ( next === current )
+        {
+            return next;
+        }
+
+        current = next;
+    }
+
+    return current.replaceAll( "<", "&lt;" );
+};
+
+/**
+ * Cleans the attributes of one opening tag.
+ *
+ * @param tag An opening tag, as matched by `OPENING_TAGS`.
+ * @returns The tag without event handlers, inline style or executable url.
+ * @author Claude
+ */
+const cleanAttributes = ( tag: string ): string =>
+    tag
         .replaceAll( EVENT_ATTRIBUTES, "" )
+        .replaceAll( STYLE_ATTRIBUTES, "" )
         .replaceAll( URL_ATTRIBUTES, ( match, name: string, value: string ) =>
         {
             const url = unquote( value );
             const allowed = name.toLowerCase() === "src" ? isImageSource( url ) : isSafeUrl( url );
 
-            return allowed ? match : ` ${ name }="#"`;
+            return allowed ? match : `${ name }="#"`;
         } );
+
+/**
+ * Removes the constructs that have no place in an article body.
+ *
+ * What an imported file or a snapshot read from a remote service holds is drawn
+ * with `{@html}` on the origin that stores the connection secrets, so this filter
+ * is the only thing between that content and a script. It is still regular
+ * expressions and not a hardened sanitizer, which is why a body is not meant to
+ * carry raw HTML at all.
+ *
+ * @param html Rendered HTML.
+ * @returns The same HTML without scripts, dangerous tags, inline handlers, inline
+ * styles or executable urls; an image may keep a base64 raster source, which is
+ * drawn and never followed.
+ * @author Claude
+ */
+export const sanitizeHtml = ( html: string ): string =>
+    removeForbidden( html ).replaceAll( OPENING_TAGS, cleanAttributes );
 
 /**
  * Upper bound of every memoisation cache.

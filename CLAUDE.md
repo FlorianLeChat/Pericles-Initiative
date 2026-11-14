@@ -222,6 +222,35 @@ change, however small.
   spec that asserts nothing the components could break, duplicates the case above it, or only proves
   the framework works, is deleted rather than kept for the count.
 
+## Audit a large change for security and performance
+
+Every large change, meaning a new feature, a new route, a new dependency, or anything touching the
+Markdown pipeline, the dataset normalisation, the import and export, the remote backup or the
+storage, ends with a read only audit of what it touched, reported before the work is called finished.
+The checklist above covers the small, per line questions; this one asks what the change opens up.
+
+- **Untrusted input.** An imported file, a remote snapshot and a pasted body are untrusted. Follow
+  each of them to where it is drawn: every `{@html}`, every `href` and `src`, every key written to
+  `localStorage`. Anything reaching `{@html}` goes through `sanitizeHtml`, and `tests/e2e/article.spec.ts`
+  holds the hostile body spec to extend when a new tag, attribute or render path appears.
+- **Secrets.** `pericles:remote` holds the API secret and the S3 keys in clear, which is inherent to a
+  site with no server. A change must not widen who can read them, log them, put them in a url, or send
+  them over anything but `https:` (`isSecureEndpoint` in `src/lib/utilities/url.ts`).
+- **Third party code.** A new script, font, image or request to another origin is named in the
+  report with what it receives. Analytics and session recording stay off the editing routes.
+- **Dependencies.** Run `npm audit --omit=dev` and report the result. Development only advisories are
+  listed and left alone unless the fix is a patch bump.
+- **Cost.** Compare the chunks of `npm run build` with the previous build, and name anything lazy that
+  became eager. Look at what a mutation serialises: `WikiStore.persist` writes the whole overlay, base64
+  images included, to a roughly five megabyte quota.
+- **Method.** Prove a finding through the real pipeline, with a Playwright spec or the build, never on a
+  copy of a regular expression: `marked` already escapes much of what a copy lets through, so a
+  finding is not reported as confirmed until it has run end to end. Report each one with its severity,
+  what is proven and what is only suspected.
+
+The report goes in the reply, one finding per line. A fix is a commit of its own, apart from the
+change that raised it, and is made only when asked.
+
 Two rules with no exception, because both hide the very thing these questions look for:
 
 - **No suppression comment.** No `svelte-ignore`, no `eslint-disable`, no `@ts-ignore`, no
