@@ -13,6 +13,7 @@
  * @author Claude
  */
 
+import { isSecureEndpoint } from "./url";
 import type { S3Config } from "#lib/types.ts";
 
 /** Algorithm named in the signature, the only one S3 accepts for SigV4. */
@@ -23,9 +24,6 @@ const SERVICE = "s3";
 
 /** Hash of an empty body, sent by every request that carries none. */
 const EMPTY_HASH = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-
-/** Schemes an endpoint may use. */
-const ALLOWED_PROTOCOLS: ReadonlySet<string> = new Set( [ "http:", "https:" ] );
 
 /** Default key of the object, when the reader leaves the field empty. */
 export const DEFAULT_S3_KEY = "pericles/wiki.json";
@@ -125,7 +123,7 @@ const originOf = ( config: S3Config ): URL | null =>
     {
         const url = new URL( endpoint );
 
-        return ALLOWED_PROTOCOLS.has( url.protocol ) ? url : null;
+        return isSecureEndpoint( url ) ? url : null;
     }
     catch
     {

@@ -184,6 +184,15 @@ test.describe( "remote backup", () =>
 
         await destination.getByRole( "radio", { name: /API de sauvegarde/ } ).check();
 
+        // A secret never crosses the network in clear: plain http only reaches this machine.
+        const testButton = page.getByRole( "button", { name: "Tester la connexion" } );
+
+        await page.getByLabel( "Adresse de l'API" ).fill( BASE_URL.replace( "https:", "http:" ) );
+        await expect( testButton ).toBeDisabled();
+
+        await page.getByLabel( "Adresse de l'API" ).fill( "http://localhost:1880/pericles" );
+        await expect( testButton ).toBeEnabled();
+
         await page.getByLabel( "Adresse de l'API" ).fill( `${ BASE_URL }/` );
 
         // The contract is for whoever installs the API, so it stays folded until asked for.

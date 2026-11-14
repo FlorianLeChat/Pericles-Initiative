@@ -17,6 +17,7 @@
  * @author Claude
  */
 
+import { isSecureEndpoint } from "./url";
 import { asBoolean, asNullableString, asRecord, asTrimmed, normalizeDataset } from "./dataset";
 import type { RemoteConfig, RemoteFailure, RemoteKind, RemoteSnapshot, S3Config } from "#lib/types.ts";
 import { DEFAULT_S3_KEY, isUsableS3Config, s3ObjectUrl, signS3Request, type SignedRequest } from "./s3";
@@ -29,9 +30,6 @@ export const SECRET_HEADER = "X-Pericles-Secret";
 
 /** How long a request may take before it is abandoned, in milliseconds. */
 const REQUEST_TIMEOUT = 15_000;
-
-/** Schemes an endpoint may use. A backup target is always absolute and HTTP. */
-const ALLOWED_PROTOCOLS: ReadonlySet<string> = new Set( [ "http:", "https:" ] );
 
 /**
  * Status codes the contract gives the same meaning to whatever the method.
@@ -167,7 +165,7 @@ export const normalizeRemoteConfig = ( value: unknown ): RemoteConfig =>
  * the browser.
  *
  * @param baseUrl Value typed by the user.
- * @returns True when it is an absolute http or https url.
+ * @returns True when it is an absolute https url, or an http one towards this machine.
  * @author Claude
  */
 export const isUsableBaseUrl = ( baseUrl: string ): boolean =>
@@ -180,7 +178,7 @@ export const isUsableBaseUrl = ( baseUrl: string ): boolean =>
 
     try
     {
-        return ALLOWED_PROTOCOLS.has( new URL( trimmed ).protocol );
+        return isSecureEndpoint( new URL( trimmed ) );
     }
     catch
     {

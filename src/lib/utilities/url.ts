@@ -100,6 +100,24 @@ export const isSafeUrl = ( value: string ): boolean =>
     return ALLOWED_SCHEME.test( decoded );
 };
 
+/** Host names of this machine, the only ones a secret may cross in clear. */
+const LOOPBACK_HOSTS: ReadonlySet<string> = new Set( [ "localhost", "127.0.0.1", "[::1]" ] );
+
+/**
+ * Tells whether a backup endpoint can be reached without exposing what is sent to it.
+ *
+ * Every request to a backup service carries a secret or a signature, and the
+ * snapshot itself, so plain `http:` is only accepted towards this machine, where
+ * a service under development listens.
+ *
+ * @param url Endpoint, already parsed.
+ * @returns True for `https:`, and for `http:` on a loopback host.
+ * @author Claude
+ */
+export const isSecureEndpoint = ( url: URL ): boolean =>
+    url.protocol === "https:"
+    || ( url.protocol === "http:" && ( LOOPBACK_HOSTS.has( url.hostname ) || url.hostname.endsWith( ".localhost" ) ) );
+
 /**
  * Tells whether a value may be the source of an image of the wiki.
  *
