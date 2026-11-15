@@ -10,13 +10,13 @@
     import type { LayoutData } from "./$types";
     import { onNavigate } from "$app/navigation";
     import * as m from "#lib/locales/messages.js";
-    import { untrack, type Snippet } from "svelte";
     import Alert from "flowbite-svelte/Alert.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import { sound } from "#lib/state/sound.svelte.ts";
     import { search } from "#lib/state/search.svelte.ts";
     import { reading } from "#lib/state/reading.svelte.ts";
     import { FLOWBITE_THEME } from "#lib/config/forms.ts";
+    import { onMount, untrack, type Snippet } from "svelte";
     import { platform } from "#lib/state/platform.svelte.ts";
     import PageMeta from "#lib/components/layout/PageMeta.svelte";
     import UndoToast from "#lib/components/layout/UndoToast.svelte";
@@ -45,6 +45,34 @@
     const TOAST_CLEARANCE = "max-lg:bottom-[calc(5.25rem+env(safe-area-inset-bottom))]";
 
     let { data, children }: Props = $props();
+    let canTrack = $state( false );
+
+    /**
+     * Tells whether the analytics scripts may load for this visitor.
+     *
+     * The recorder has no privacy option and the tracker ignores Global Privacy
+     * Control, so honouring Do Not Track or GPC means never loading them. Runs
+     * in `onMount` since the prerender cannot read the browser's preference.
+     * The cast covers GPC, missing from TypeScript's DOM library.
+     *
+     * @returns `true` when the visitor sends no opt-out signal that applies.
+     * @author Claude
+     */
+    const isTrackingAllowed = (): boolean =>
+    {
+        const privacyNavigator = navigator as Navigator & { globalPrivacyControl?: boolean };
+        const respectOptOut = env.PUBLIC_ANALYTICS_RESPECT_DNT;
+        const dntRequested = [ "1", "yes" ].includes( privacyNavigator.doNotTrack ?? "" );
+        const gpcRequested = privacyNavigator.globalPrivacyControl === true;
+        const optedOut = dntRequested || gpcRequested;
+
+        return !( respectOptOut && optedOut );
+    };
+
+    onMount( () =>
+    {
+        canTrack = isTrackingAllowed();
+    } );
 
     /**
      * Address of the tab icon: the wiki's own logo once one is set, the bundled
@@ -173,12 +201,15 @@
     <link rel="icon" href={favicon} type={faviconType} sizes="any" />
     <link rel="manifest" href={asset( "manifest.webmanifest" )} />
 
-    {#if env.PUBLIC_ANALYTICS_ENABLED}
+    {#if env.PUBLIC_ANALYTICS_ENABLED && canTrack}
         <script
             src={env.PUBLIC_ANALYTICS_ENDPOINT + "/script.js"}
             defer
+            data-errors="true"
+            data-release={env.PUBLIC_VERSION}
             data-website-id={env.PUBLIC_ANALYTICS_PROJECT_ID}
             data-performance="true"
+            data-environment={env.PUBLIC_ANALYTICS_ENVIRONMENT}
             data-do-not-track={env.PUBLIC_ANALYTICS_RESPECT_DNT}
             data-exclude-hash="true"
             data-exclude-search="true"
