@@ -514,6 +514,11 @@
     "markdown_editor_link_shortcut_apple": "⌘ L",
     "markdown_editor_loading": "Loading the editor...",
     "markdown_editor_placeholder": "Write the page. Type / to insert a block.",
+    "markdown_editor_raw_hint": "The Markdown as it will be stored.",
+    "markdown_editor_raw_label": "Page body, raw Markdown",
+    "markdown_editor_view_legend": "Display of the body",
+    "markdown_editor_view_raw": "Markdown",
+    "markdown_editor_view_rich": "Formatted",
     "markdown_missing_page_hint": "(page to write)",
     "markdown_table_aria": "Table",
 

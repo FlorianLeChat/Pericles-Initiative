@@ -14,6 +14,14 @@
      * written (`red-links.ts`), and drawn again when a page appears or goes
      * elsewhere in the wiki, so the invitations show where they can be acted on.
      *
+     * A pair of pills switches the body between the formatted view and its raw
+     * Markdown, written in a plain textarea for what Crepe cannot author or would
+     * rewrite. Crepe stays mounted, hidden, while the raw text is shown, and is
+     * handed the text back on the way out only when it changed, since Crepe
+     * settles any Markdown its own way and would otherwise report a body nobody
+     * touched as edited. The link picker and the name generator write at the caret
+     * of whichever view is shown.
+     *
      * @author Claude
      */
     import "@milkdown/crepe/theme/common/style.css";
@@ -24,7 +32,6 @@
     import EntryPicker from "./EntryPicker.svelte";
     import { wiki } from "#lib/state/wiki.svelte.ts";
     import Button from "flowbite-svelte/Button.svelte";
-    import { TOUCH_HEIGHT } from "#lib/config/forms.ts";
     import Sparkles from "@lucide/svelte/icons/sparkles";
     import GeneratorDialog from "./GeneratorDialog.svelte";
     import { IMAGE_MAX_SIDE } from "#lib/config/images.ts";
@@ -33,6 +40,7 @@
     import type { PluginKey } from "@milkdown/kit/prose/state";
     import type { Crepe as CrepeEditor } from "@milkdown/crepe";
     import type { GeneratorKind } from "#lib/config/generator.ts";
+    import { filterPill, TOUCH_HEIGHT } from "#lib/config/forms.ts";
     import { dataUrlBlob, pastedImage } from "#lib/utilities/image.ts";
 
     interface Props {
@@ -99,6 +107,12 @@
     let ready = $state( false );
     let pickerOpen = $state( false );
     let generatorOpen = $state( false );
+    let rawField: HTMLTextAreaElement | undefined = $state();
+    let raw = $state<string | null>( null );
+    let rawOrigin = "";
+
+    /** True while the body is shown as raw Markdown rather than formatted. */
+    const showingRaw = $derived( raw !== null );
 
     onMount( () =>
     {
@@ -285,6 +299,16 @@
      */
     const insertPageLink = async ( slug: string, label: string ): Promise<void> =>
     {
+        if ( rawField && showingRaw )
+        {
+            const { selectionStart, selectionEnd, value: text } = rawField;
+            const selected = text.slice( selectionStart, selectionEnd );
+            const linkText = selected === "" ? label : selected;
+
+            writeRaw( `[${ linkText }](/entries/${ slug })` );
+            return;
+        }
+
         if ( !crepe )
         {
             return;
@@ -323,6 +347,12 @@
      */
     const insertText = async ( value: string ): Promise<void> =>
     {
+        if ( showingRaw )
+        {
+            writeRaw( value );
+            return;
+        }
+
         if ( !crepe )
         {
             return;
@@ -338,6 +368,84 @@
             dispatch( state.tr.insertText( value ).scrollIntoView() );
             view.focus();
         } );
+    };
+
+    /**
+     * Shows the body as raw Markdown, taken from the editor as it would be stored.
+     *
+     * @author Claude
+     */
+    const showRaw = (): void =>
+    {
+        if ( !crepe || showingRaw )
+        {
+            return;
+        }
+
+        rawOrigin = crepe.getMarkdown();
+        raw = rawOrigin;
+    };
+
+    /**
+     * Shows the body formatted again, handing the raw text back to the editor when
+     * it was changed.
+     *
+     * @author Claude
+     */
+    const showRich = async (): Promise<void> =>
+    {
+        if ( !crepe || raw === null )
+        {
+            return;
+        }
+
+        const written = raw;
+
+        raw = null;
+
+        if ( written === rawOrigin )
+        {
+            return;
+        }
+
+        const { replaceAll } = await import( "@milkdown/kit/utils" );
+
+        crepe.editor.action( replaceAll( written ) );
+    };
+
+    /**
+     * Writes text at the caret of the raw view, replacing the selection, and
+     * reports the new body.
+     *
+     * @param text Text to write.
+     * @author Claude
+     */
+    const writeRaw = ( text: string ): void =>
+    {
+        if ( !rawField )
+        {
+            return;
+        }
+
+        rawField.setRangeText( text, rawField.selectionStart, rawField.selectionEnd, "end" );
+        rawField.focus();
+        onRawInput();
+    };
+
+    /**
+     * Reports the raw text as the body on every keystroke of the raw view.
+     *
+     * @author Claude
+     */
+    const onRawInput = (): void =>
+    {
+        if ( !rawField )
+        {
+            return;
+        }
+
+        raw = rawField.value;
+        onchange( raw );
     };
 
     /**
@@ -430,10 +538,53 @@
             {m.markdown_editor_generate_button()}
         </Button>
 
-        <p class="text-muted ml-auto hidden text-xs sm:block">{m.markdown_editor_format_hint()}</p>
+        <div class="ml-auto flex items-center gap-3">
+            <p class="text-muted hidden text-xs sm:block">
+                {showingRaw ? m.markdown_editor_raw_hint() : m.markdown_editor_format_hint()}
+            </p>
+
+            <div class="flex gap-1" role="group" aria-label={m.markdown_editor_view_legend()}>
+                <button
+                    type="button"
+                    class={filterPill( !showingRaw )}
+                    aria-pressed={!showingRaw}
+                    disabled={!ready}
+                    data-cuelume-select
+                    onclick={() =>
+                    {
+                        void showRich();
+                    }}
+                >
+                    {m.markdown_editor_view_rich()}
+                </button>
+
+                <button
+                    type="button"
+                    class="{filterPill( showingRaw )} font-mono"
+                    aria-pressed={showingRaw}
+                    disabled={!ready}
+                    data-cuelume-select
+                    onclick={showRaw}
+                >
+                    {m.markdown_editor_view_raw()}
+                </button>
+            </div>
+        </div>
     </div>
 
-    <div bind:this={host} class="min-h-96 rounded-b-xl"></div>
+    <div bind:this={host} class="min-h-96 rounded-b-xl" class:hidden={showingRaw}></div>
+
+    {#if raw !== null}
+        <textarea
+            bind:this={rawField}
+            class="text-ink-800 dark:text-paper-200 field-sizing-content block min-h-96 w-full resize-y rounded-b-xl
+                   border-0 bg-transparent px-4 pt-4 pb-12 font-mono text-sm leading-relaxed focus:ring-0
+                   focus:outline-2 focus:-outline-offset-2 focus:outline-accent-500 sm:pt-5 sm:pr-8 sm:pl-14"
+            value={raw}
+            oninput={onRawInput}
+            aria-label={m.markdown_editor_raw_label()}
+        ></textarea>
+    {/if}
 
     {#if !ready}
         <p class="text-muted px-6 py-4 text-sm">{m.markdown_editor_loading()}</p>

@@ -136,6 +136,24 @@ test.describe( "entry editor", () =>
 
         await expect( page.locator( BODY ).getByRole( "link", { name: PAGES.port.title } ) ).toBeVisible();
 
+        // The raw view shows the link as the Markdown that will be stored, and
+        // what is written there comes back formatted.
+        const views = page.getByRole( "group", { name: "Affichage du corps" } );
+        const raw = page.getByRole( "textbox", { name: "Corps de la fiche, Markdown brut" } );
+
+        await views.getByRole( "button", { name: "Markdown" } ).click();
+
+        await expect( views.getByRole( "button", { name: "Markdown" } ) ).toHaveAttribute( "aria-pressed", "true" );
+        await expect( page.locator( BODY ) ).toBeHidden();
+        await expect.poll( () => raw.inputValue() ).toContain( `[${ PAGES.port.title }](/entries/${ PAGES.port.slug })` );
+
+        await raw.press( "Control+End" );
+        await raw.pressSequentially( " et la **digue**." );
+        await views.getByRole( "button", { name: "Enrichi" } ).click();
+
+        await expect( raw ).toHaveCount( 0 );
+        await expect( page.locator( BODY ).locator( "strong" ) ).toHaveText( "digue" );
+
         // Milkdown reports its Markdown through a debounce of `MARKDOWN_DEBOUNCE`
         // milliseconds, so the form only learns about the link a moment after it
         // shows up in the document, and saving before that stores the older body.
@@ -146,6 +164,7 @@ test.describe( "entry editor", () =>
         await expect( page ).toHaveURL( /\/entries\/releve-des-vents\/$/ );
         await expect( page.getByRole( "article" ).getByRole( "link", { name: PAGES.port.title } ) )
             .toHaveAttribute( "href", `/entries/${ PAGES.port.slug }` );
+        await expect( page.getByRole( "article" ).locator( "strong" ) ).toHaveText( "digue" );
     } );
 
     test( "starts a page from a template, and keeps only what was filled in", async ( { page, wiki } ) =>

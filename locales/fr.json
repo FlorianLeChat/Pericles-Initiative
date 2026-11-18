@@ -514,6 +514,11 @@
     "markdown_editor_link_shortcut_apple": "⌘ L",
     "markdown_editor_loading": "Chargement de l'éditeur...",
     "markdown_editor_placeholder": "Rédigez la fiche. Tapez / pour insérer un bloc.",
+    "markdown_editor_raw_hint": "Le Markdown tel qu'il sera enregistré.",
+    "markdown_editor_raw_label": "Corps de la fiche, Markdown brut",
+    "markdown_editor_view_legend": "Affichage du corps",
+    "markdown_editor_view_raw": "Markdown",
+    "markdown_editor_view_rich": "Enrichi",
     "markdown_missing_page_hint": "(fiche à écrire)",
     "markdown_table_aria": "Tableau",
 
